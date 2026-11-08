@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+.mypy_cache/
+.venv/
+venv/
+
+# Downloads of the checks (COLLADA schema) and the glTF validator's packages
+.cache/
+node_modules/
+
+# ROS build folders
+build/
+build_isolated/
+devel/
+devel_isolated/
+install/
+install_isolated/
+log/
+logs/
+
+# Editors
+*~
+.vscode/
+.idea/
