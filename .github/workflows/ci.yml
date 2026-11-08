@@ -29,9 +29,15 @@ jobs:
       - name: Install the pinned generator environment
         run: python3 -m venv /opt/venv && /opt/venv/bin/pip install -r generators/requirements.txt
       - name: Regenerate and compare with the manifest, first run
-        run: /opt/venv/bin/python -m generators --check
+        run: /opt/venv/bin/python -m generators --check --keep regenerated
       - name: Regenerate and compare with the manifest, second run
         run: /opt/venv/bin/python -m generators --check
+      - name: Keep the regenerated files of a failed run
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: regenerated-meshes
+          path: regenerated
 
   meshes:
     name: Mesh checks

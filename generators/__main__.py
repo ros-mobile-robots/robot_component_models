@@ -75,9 +75,13 @@ def committed_files() -> List[str]:
     return sorted(found)
 
 
-def check() -> int:
-    """Regenerate everything into a temporary folder and compare with meshes/: 0 if equal."""
-    with tempfile.TemporaryDirectory() as out:
+def check(keep: str = '') -> int:
+    """Regenerate everything into a temporary folder and compare with meshes/: 0 if equal.
+
+    With keep, the regenerated files go into that folder and stay there, for a closer look.
+    """
+    with tempfile.TemporaryDirectory() as temporary:
+        out = keep or temporary
         parts = generate(PARTS, out)
         text = manifest_text(parts, SPDX_LINES, LICENSE_ID)
         generated = sorted([facts.path for part in parts for mesh in part.meshes
@@ -111,12 +115,14 @@ def main() -> int:
                         + ', '.join(PARTS))
     parser.add_argument('--check', action='store_true',
                         help='regenerate into a temporary folder and compare with meshes/')
+    parser.add_argument('--keep', default='', metavar='DIR',
+                        help='with --check: regenerate into DIR and keep the files')
     args = parser.parse_args()
     unknown = [name for name in args.parts if name not in PARTS]
     if unknown:
         parser.error(f'unknown parts: {", ".join(unknown)}')
     if args.check:
-        return check()
+        return check(args.keep)
     parts = generate(args.parts or PARTS, MESHES)
     if not args.parts:
         with open(MANIFEST, 'w', encoding='utf-8', newline='\n') as manifest:
