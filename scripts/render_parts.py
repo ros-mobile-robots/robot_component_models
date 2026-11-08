@@ -54,24 +54,26 @@ class PartView(NamedTuple):
 # The caster's meshes as DiffBot's macro places them: the fork 1 mm behind the base's frame,
 # the wheel on the fork's axle (16 mm further back, 20 mm below the fork's top).
 PARTS: Dict[str, PartView] = {
-    'caster': PartView('Swivel caster', [
-        Placement('caster/caster_base.dae'),
-        Placement('caster/caster_wheel_support.dae', (-0.001, 0.0, 0.0)),
-        Placement('caster/caster_wheel.dae', (-0.017, 0.0, -0.020))], -60.0, 15.0),
+    'swivel_caster_30mm': PartView('Swivel caster', [
+        Placement('swivel_caster_30mm/swivel_caster_30mm_base.dae'),
+        Placement('swivel_caster_30mm/swivel_caster_30mm_wheel_support.dae', (-0.001, 0.0, 0.0)),
+        Placement('swivel_caster_30mm/swivel_caster_30mm_wheel.dae', (-0.017, 0.0, -0.020))],
+        -60.0, 15.0),
     'rplidar_a2': PartView('Laser scanner (RPLIDAR A2 size)',
-                           [Placement('rplidar_a2/rplidar-a2.dae')], 25.0, 22.0),
+                           [Placement('rplidar_a2/rplidar_a2.dae')], 25.0, 22.0),
     'raspberry_pi_4b': PartView('Raspberry Pi 4 Model B',
-                                [Placement('raspberry_pi_4b/raspberry_pi_4B.dae')], 50.0, 38.0),
+                                [Placement('raspberry_pi_4b/raspberry_pi_4b.dae')], 50.0, 38.0),
     'jetson_nano_dev_kit_b01': PartView(
         'Jetson Nano Developer Kit B01',
         [Placement('jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.dae')], 60.0, 32.0),
-    'teensy_4_0': PartView('Teensy 4.0 with headers', [Placement('teensy_4_0/teensy_4-0.dae')],
+    'teensy_4_0': PartView('Teensy 4.0 with headers', [Placement('teensy_4_0/teensy_4_0.dae')],
                            -140.0, 32.0),
     'breadboard_400_point': PartView(
         '400-point breadboard', [Placement('breadboard_400_point/breadboard_400_point.dae')],
         -60.0, 45.0),
-    'raspi_cam_v2': PartView('Camera Module v2',
-                             [Placement('raspi_cam_v2/raspi_cam_v2_IMX219.dae')], 30.0, 18.0),
+    'raspberry_pi_camera_v2': PartView(
+        'Camera Module v2', [Placement('raspberry_pi_camera_v2/raspberry_pi_camera_v2.dae')],
+        30.0, 18.0),
 }
 # All parts together, real size, as seen from the overview's camera: back row, then front row,
 # each part turned so that its typical side faces the camera.
@@ -79,7 +81,8 @@ OVERVIEW_AZIMUTH, OVERVIEW_ELEVATION = -90.0, 32.0
 OVERVIEW_ROWS = [
     [('jetson_nano_dev_kit_b01', 180.0), ('raspberry_pi_4b', 180.0),
      ('breadboard_400_point', 90.0)],
-    [('raspi_cam_v2', -90.0), ('teensy_4_0', 0.0), ('caster', -30.0), ('rplidar_a2', -90.0)],
+    [('raspberry_pi_camera_v2', -90.0), ('teensy_4_0', 0.0), ('swivel_caster_30mm', -30.0),
+     ('rplidar_a2', -90.0)],
 ]
 
 

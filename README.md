@@ -12,13 +12,13 @@ These are display models for visualisation in RViz, Gazebo and web viewers. They
 
 | Part | Picture | Meshes | Used by | Triangles | STL / DAE / GLB |
 |---|---|---|---|---|---|
-| [Swivel caster with a 30 mm wheel](provenance/caster.md) | <img src="docs/images/caster.png" width="200" alt="Swivel caster"> | `caster/caster_base`<br>`caster/caster_wheel_support`<br>`caster/caster_wheel` | DiffBot | 9,820<br>6,592<br>5,572 | 491 / 498 / 232 kB<br>330 / 336 / 153 kB<br>279 / 272 / 121 kB |
-| [360 degree laser scanner, RPLIDAR A2 size](provenance/rplidar_a2.md) | <img src="docs/images/rplidar_a2.png" width="200" alt="Laser scanner"> | `rplidar_a2/rplidar-a2` | DiffBot, Remo | 13,014 | 651 / 718 / 332 kB |
-| [Raspberry Pi 4 Model B](provenance/raspberry_pi_4b.md) | <img src="docs/images/raspberry_pi_4b.png" width="200" alt="Raspberry Pi 4 Model B"> | `raspberry_pi_4b/raspberry_pi_4B` | Remo | 15,116 | 756 / 1,001 / 594 kB |
+| [Swivel caster with a 30 mm wheel](provenance/swivel_caster_30mm.md) | <img src="docs/images/swivel_caster_30mm.png" width="200" alt="Swivel caster"> | `swivel_caster_30mm/swivel_caster_30mm_base`<br>`swivel_caster_30mm/swivel_caster_30mm_wheel_support`<br>`swivel_caster_30mm/swivel_caster_30mm_wheel` | DiffBot | 9,820<br>6,592<br>5,572 | 491 / 499 / 232 kB<br>330 / 337 / 153 kB<br>279 / 272 / 121 kB |
+| [360 degree laser scanner, RPLIDAR A2 size](provenance/rplidar_a2.md) | <img src="docs/images/rplidar_a2.png" width="200" alt="Laser scanner"> | `rplidar_a2/rplidar_a2` | DiffBot, Remo | 13,014 | 651 / 718 / 332 kB |
+| [Raspberry Pi 4 Model B](provenance/raspberry_pi_4b.md) | <img src="docs/images/raspberry_pi_4b.png" width="200" alt="Raspberry Pi 4 Model B"> | `raspberry_pi_4b/raspberry_pi_4b` | Remo | 15,116 | 756 / 1,001 / 594 kB |
 | [Jetson Nano Developer Kit B01](provenance/jetson_nano_dev_kit_b01.md) | <img src="docs/images/jetson_nano_dev_kit_b01.png" width="200" alt="Jetson Nano Developer Kit"> | `jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01` | Remo | 5,696 | 285 / 396 / 252 kB |
-| [Teensy 4.0 with two 14-pin headers](provenance/teensy_4_0.md) | <img src="docs/images/teensy_4_0.png" width="200" alt="Teensy 4.0"> | `teensy_4_0/teensy_4-0` | Remo | 25,520 | 1,276 / 1,650 / 900 kB |
+| [Teensy 4.0 with two 14-pin headers](provenance/teensy_4_0.md) | <img src="docs/images/teensy_4_0.png" width="200" alt="Teensy 4.0"> | `teensy_4_0/teensy_4_0` | Remo | 25,520 | 1,276 / 1,650 / 900 kB |
 | [400-point solderless breadboard](provenance/breadboard_400_point.md) | <img src="docs/images/breadboard_400_point.png" width="200" alt="Breadboard"> | `breadboard_400_point/breadboard_400_point` | Remo | 6,768 | 338 / 428 / 290 kB |
-| [Raspberry Pi Camera Module v2](provenance/raspi_cam_v2.md) | <img src="docs/images/raspi_cam_v2.png" width="200" alt="Camera Module v2"> | `raspi_cam_v2/raspi_cam_v2_IMX219` | Remo | 2,976 | 149 / 209 / 117 kB |
+| [Raspberry Pi Camera Module v2](provenance/raspberry_pi_camera_v2.md) | <img src="docs/images/raspberry_pi_camera_v2.png" width="200" alt="Camera Module v2"> | `raspberry_pi_camera_v2/raspberry_pi_camera_v2` | Remo | 2,976 | 149 / 209 / 117 kB |
 | Wheel 65 × 25 mm | Planned | `wheel/…` | DiffBot, Remo | | |
 
 Each mesh comes in three files in `meshes/<part>/`:
@@ -36,7 +36,7 @@ Refer to the files with `package://robot_component_models/meshes/...`. The STL f
 ```xml
 <visual>
   <geometry>
-    <mesh filename="package://robot_component_models/meshes/rplidar_a2/rplidar-a2.stl"
+    <mesh filename="package://robot_component_models/meshes/rplidar_a2/rplidar_a2.stl"
           scale="0.001 0.001 0.001"/>
   </geometry>
   <material name="dark_grey"/>
@@ -48,7 +48,7 @@ The COLLADA files are in metres and bring their own colours. Leave out the scale
 ```xml
 <visual>
   <geometry>
-    <mesh filename="package://robot_component_models/meshes/rplidar_a2/rplidar-a2.dae"/>
+    <mesh filename="package://robot_component_models/meshes/rplidar_a2/rplidar_a2.dae"/>
   </geometry>
 </visual>
 ```
@@ -86,6 +86,8 @@ colcon build --packages-up-to robot_component_models
 
 ## File names and frames
 
+Names are lowercase snake_case and name the product. A part's folder, generator module, provenance page and picture share one identifier, for example `rplidar_a2`. A part with one mesh uses that identifier as the file stem: `meshes/rplidar_a2/rplidar_a2.stl`. A part with several meshes adds each mesh's role: `swivel_caster_30mm_base`, `swivel_caster_30mm_wheel_support` and `swivel_caster_30mm_wheel`. A further design of the same kind gets its own qualifier, for example a different caster.
+
 A released file keeps its geometry's frame, units and attachment points. A geometry change that moves the origin, turns the axes, changes the units or moves an attachment point, such as mounting holes or an axle, gets a **new file name**. The old file stays, so robots that use it don't change. A change that keeps all of these, such as a corrected colour or a finer detail, keeps the file name and changes the checksum in the manifest.
 
 The version follows [Semantic Versioning](https://semver.org): the first number rises when a file is removed or renamed, the second when files are added or changed, the third for fixes that leave the meshes as they are.
@@ -121,7 +123,7 @@ Corrections from measurements of the real parts are welcome. See [CONTRIBUTING.m
 
 ## License
 
-Everything in this repository is under the [BSD 3-Clause License](LICENSE), Copyright (c) 2026, ROS Mobile Robots: the CadQuery designs and generators, the generated STL, COLLADA and glTF files, the scripts, the ROS packaging and the documentation. Text files carry the license as SPDX lines in their header. The STL and glTF files, which are binary, carry it in a `<file>.license` next to them. When you redistribute the meshes, keep `LICENSE` with them, as the BSD 3-Clause License asks. The installed package does this, and it also installs each part's provenance page.
+Everything in this repository is under the [BSD 3-Clause License](LICENSE), Copyright (c) 2026, ROS Mobile Robots: the CadQuery designs and generators, the generated STL, COLLADA and glTF files, the scripts, the ROS packaging and the documentation. Text files carry the license as SPDX lines in their header. The STL and glTF files, which are binary, carry it in a `<file>.license` next to them. When you redistribute the meshes, retain the copyright notice, the license conditions and the disclaimer. Including this repository's `LICENSE` with the distribution does that. The installed package includes it, and also each part's provenance page.
 
 *Optional:* if you show or share these models, a credit is appreciated, but not required: "Models by ROS Mobile Robots, [robot_component_models](https://github.com/ros-mobile-robots/robot_component_models)".
 

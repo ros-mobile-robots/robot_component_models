@@ -7,7 +7,7 @@ the Camera Module v2.1 (board 25 x 23.862 mm, four 2.2 mm holes, 2 mm corner rad
 8.5 mm camera module, its flex connector and the 15-way ribbon connector, 20.8 x 5.5 mm) and
 the documented size of about 25 x 24 x 9 mm. Heights that the drawing doesn't give are
 estimates from the product photo. No logos, no printed text. Sources in
-provenance/raspi_cam_v2.md.
+provenance/raspberry_pi_camera_v2.md.
 
 Frame: millimetres in the STL, metres in the COLLADA and glTF files, the board in the yz plane
 with its back face at x = -1.645, the lens looking along +x, the edge with the mounting holes
@@ -25,11 +25,11 @@ from generators.mesh_export import phong
 TITLE = 'Raspberry Pi Camera Module v2'
 
 # --- Parameters (mm) ---------------------------------------------------------------------------
-NAME = 'raspi_cam_v2_IMX219'
+NAME = 'raspberry_pi_camera_v2'
 # Board (drawing): 25 mm along y, 23.862 mm along z, 1 mm thick, corners R 2
 BOARD_Y, BOARD_Z, BOARD_T, CORNER_R = 25.0, 23.862, 1.0, 2.0
-# Placement (frame alignment, see provenance/raspi_cam_v2.md): the board's -y and -z edges and
-# back face
+# Placement (frame alignment, see provenance/raspberry_pi_camera_v2.md): the board's -y and -z
+# edges and back face
 Y0, Z0, X_BACK = -12.16, -12.283, -1.645
 X_FRONT = X_BACK + BOARD_T
 # Drawing coordinates: a from the edge next to the holes (along +z), b from the drawing's top

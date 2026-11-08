@@ -4,11 +4,11 @@
 
 A display model of the Raspberry Pi Camera Module v2: the board with its four mounting holes, the camera module with its lens, the module's flex and connector on the front, the 15-way ribbon connector and the small parts on the back. Remo carries this camera. The model was created independently, from Raspberry Pi's public mechanical drawing, documentation and product photo. No geometry was imported, converted, traced or sampled from another 3D model, and no third-party 3D model was downloaded. No logos and no printed text.
 
-Generator: [`generators/raspi_cam_v2.py`](../generators/raspi_cam_v2.py).
+Generator: [`generators/raspberry_pi_camera_v2.py`](../generators/raspberry_pi_camera_v2.py).
 
 ## Mesh
 
-`raspi_cam_v2_IMX219`: one mesh with 12 materials: green solder mask, FR4 edges, gold hole rings and test pads, the black camera module, dark lens glass, the flex's orange edge, black and dark brown connectors, silver leads, black ICs and beige capacitors. Its sub-parts are the board, the pads, the camera module, the flex, the ribbon connector and the back's small parts. The file name keeps the sensor's name, IMX219. Raspberry Pi's documentation gives the v2's sensor as the Sony IMX219 or, for modules made from November 2026, the Sony IMX355. The model shows no sensor detail, so it fits both.
+`raspberry_pi_camera_v2`: one mesh with 12 materials: green solder mask, FR4 edges, gold hole rings and test pads, the black camera module, dark lens glass, the flex's orange edge, black and dark brown connectors, silver leads, black ICs and beige capacitors. Its sub-parts are the board, the pads, the camera module, the flex, the ribbon connector and the back's small parts. Raspberry Pi's documentation gives the v2's sensor as the Sony IMX219 or, for modules made from November 2026, the Sony IMX355. The model shows no sensor detail, so it fits both, and its name doesn't name a sensor.
 
 ## Frame
 

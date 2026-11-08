@@ -8,7 +8,7 @@ Generator: [`generators/raspberry_pi_4b.py`](../generators/raspberry_pi_4b.py).
 
 ## Mesh
 
-`raspberry_pi_4B`: one mesh with 13 materials (green solder mask, gold pads and pins, silver shells, black and blue USB tongues, LEDs, tan latches and others). Its sub-parts are the board, the headers, the Ethernet jack, the two USB stacks, USB-C, the two micro-HDMI receptacles, the AV jack, the camera and display connectors, the chips, the small parts and the bottom side. Every part's solid is closed with outward normals. The STL file holds all parts together, so touching parts share faces, as in any assembly.
+`raspberry_pi_4b`: one mesh with 13 materials (green solder mask, gold pads and pins, silver shells, black and blue USB tongues, LEDs, tan latches and others). Its sub-parts are the board, the headers, the Ethernet jack, the two USB stacks, USB-C, the two micro-HDMI receptacles, the AV jack, the camera and display connectors, the chips, the small parts and the bottom side. Every part's solid is closed with outward normals. The STL file holds all parts together, so touching parts share faces, as in any assembly.
 
 ## Frame
 

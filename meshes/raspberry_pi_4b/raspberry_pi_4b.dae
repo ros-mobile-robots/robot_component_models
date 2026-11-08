@@ -135,10 +135,10 @@
   <material id="led_yellow-material" name="led_yellow"><instance_effect url="#led_yellow-effect"/></material>
  </library_materials>
  <library_geometries>
-  <geometry id="raspberry_pi_4B-board" name="raspberry_pi_4B-board">
+  <geometry id="raspberry_pi_4b-board" name="raspberry_pi_4b-board">
    <mesh>
-    <source id="raspberry_pi_4B-board-positions">
-     <float_array id="raspberry_pi_4B-board-positions-array" count="11916">
+    <source id="raspberry_pi_4b-board-positions">
+     <float_array id="raspberry_pi_4b-board-positions-array" count="11916">
 0.048431 -0.039123 -0.0008 0.048431 0.039877 -0.0008 0.048431 -0.039123 0.0008 0.048431
 0.039877 0.0008 0.048431 -0.039123 -0.0008 0.048431 0.039877 -0.0008 0.04838542 0.04039794
 -0.0008 0.04825008 0.04090306 -0.0008 0.04802908 0.041377 -0.0008 0.04772913 0.04180536 -0.0008
@@ -1333,13 +1333,13 @@
 0.02801782 -0.0270906 0.0008 0.027931 -0.027083 0.0008
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-board-positions-array" count="3972" stride="3">
+      <accessor source="#raspberry_pi_4b-board-positions-array" count="3972" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="raspberry_pi_4B-board-normals">
-     <float_array id="raspberry_pi_4B-board-normals-array" count="11916">
+    <source id="raspberry_pi_4b-board-normals">
+     <float_array id="raspberry_pi_4b-board-normals-array" count="11916">
 1 0 0 1 0 0 1 0 0 1
 0 0 0 0 -1 0 0 -1 0 0
 -1 0 0 -1 0 0 -1 0 0 -1
@@ -2534,17 +2534,17 @@
 -0.14487 -0.98945 0 -0.087156 -0.99619 0
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-board-normals-array" count="3972" stride="3">
+      <accessor source="#raspberry_pi_4b-board-normals-array" count="3972" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="raspberry_pi_4B-board-vertices">
-     <input semantic="POSITION" source="#raspberry_pi_4B-board-positions"/>
-     <input semantic="NORMAL" source="#raspberry_pi_4B-board-normals"/>
+    <vertices id="raspberry_pi_4b-board-vertices">
+     <input semantic="POSITION" source="#raspberry_pi_4b-board-positions"/>
+     <input semantic="NORMAL" source="#raspberry_pi_4b-board-normals"/>
     </vertices>
     <triangles material="pcb_green" count="748">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-board-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-board-vertices" offset="0"/>
      <p>
 1 2 0 1 3 2 67 38 39 66
 39 40 66 40 41 66 67 39 68 37
@@ -2774,7 +2774,7 @@
      </p>
     </triangles>
     <triangles material="gold" count="3168">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-board-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-board-vertices" offset="0"/>
      <p>
 761 760 797 761 797 798 762 798 799 762
 761 798 763 799 800 763 762 799 764 800
@@ -3731,10 +3731,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="raspberry_pi_4B-headers" name="raspberry_pi_4B-headers">
+  <geometry id="raspberry_pi_4b-headers" name="raspberry_pi_4b-headers">
    <mesh>
-    <source id="raspberry_pi_4B-headers-positions">
-     <float_array id="raspberry_pi_4B-headers-positions-array" count="3312">
+    <source id="raspberry_pi_4b-headers-positions">
+     <float_array id="raspberry_pi_4b-headers-positions-array" count="3312">
 -0.002479 -0.034073 -0.0028 -0.002479 -0.034073 0.0093 -0.003119 -0.034073 -0.0028 -0.003119
 -0.034073 0.0093 -0.002479 -0.033433 -0.0028 -0.002479 -0.033433 0.0093 -0.003119 -0.033433
 -0.0028 -0.003119 -0.033433 0.0093 -0.002479 -0.034073 -0.0028 -0.002479 -0.033433 -0.0028
@@ -4069,13 +4069,13 @@
 0.021877 0.0033
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-headers-positions-array" count="1104" stride="3">
+      <accessor source="#raspberry_pi_4b-headers-positions-array" count="1104" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="raspberry_pi_4B-headers-normals">
-     <float_array id="raspberry_pi_4B-headers-normals-array" count="3312">
+    <source id="raspberry_pi_4b-headers-normals">
+     <float_array id="raspberry_pi_4b-headers-normals-array" count="3312">
 0 -1 0 0 -1 0 0 -1 0 0
 -1 0 0 1 0 0 1 0 0 1
 0 0 1 0 1 0 0 1 0 0
@@ -4410,17 +4410,17 @@
 0 1
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-headers-normals-array" count="1104" stride="3">
+      <accessor source="#raspberry_pi_4b-headers-normals-array" count="1104" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="raspberry_pi_4B-headers-vertices">
-     <input semantic="POSITION" source="#raspberry_pi_4B-headers-positions"/>
-     <input semantic="NORMAL" source="#raspberry_pi_4B-headers-normals"/>
+    <vertices id="raspberry_pi_4b-headers-vertices">
+     <input semantic="POSITION" source="#raspberry_pi_4b-headers-positions"/>
+     <input semantic="NORMAL" source="#raspberry_pi_4b-headers-normals"/>
     </vertices>
     <triangles material="gold" count="528">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-headers-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-headers-vertices" offset="0"/>
      <p>
 3 2 0 1 3 0 7 4 6 5
 4 7 10 8 9 11 10 9 14 13
@@ -4584,7 +4584,7 @@
      </p>
     </triangles>
     <triangles material="black" count="24">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-headers-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-headers-vertices" offset="0"/>
      <p>
 1057 1058 1056 1057 1059 1058 1061 1060 1062 1061
 1062 1063 1067 1064 1065 1067 1066 1064 1071 1069
@@ -4598,10 +4598,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="raspberry_pi_4B-ethernet" name="raspberry_pi_4B-ethernet">
+  <geometry id="raspberry_pi_4b-ethernet" name="raspberry_pi_4b-ethernet">
    <mesh>
-    <source id="raspberry_pi_4B-ethernet-positions">
-     <float_array id="raspberry_pi_4B-ethernet-positions-array" count="1452">
+    <source id="raspberry_pi_4b-ethernet-positions">
+     <float_array id="raspberry_pi_4b-ethernet-positions-array" count="1452">
 0.006401 0.036877 0.0113 0.006401 0.036877 0.0117 0.006101 0.036877 0.0113 0.006101
 0.036877 0.0117 0.006401 0.041877 0.0113 0.006401 0.041877 0.0117 0.006101 0.041877
 0.0113 0.006101 0.041877 0.0117 0.006401 0.036877 0.0113 0.006401 0.041877 0.0113
@@ -4750,13 +4750,13 @@
 0.045977 0.0028
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-ethernet-positions-array" count="484" stride="3">
+      <accessor source="#raspberry_pi_4b-ethernet-positions-array" count="484" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="raspberry_pi_4B-ethernet-normals">
-     <float_array id="raspberry_pi_4B-ethernet-normals-array" count="1452">
+    <source id="raspberry_pi_4b-ethernet-normals">
+     <float_array id="raspberry_pi_4b-ethernet-normals-array" count="1452">
 0 -1 0 0 -1 0 0 -1 0 0
 -1 0 0 1 0 0 1 0 0 1
 0 0 1 0 1 0 0 1 0 0
@@ -4905,17 +4905,17 @@
 0 1
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-ethernet-normals-array" count="484" stride="3">
+      <accessor source="#raspberry_pi_4b-ethernet-normals-array" count="484" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="raspberry_pi_4B-ethernet-vertices">
-     <input semantic="POSITION" source="#raspberry_pi_4B-ethernet-positions"/>
-     <input semantic="NORMAL" source="#raspberry_pi_4B-ethernet-normals"/>
+    <vertices id="raspberry_pi_4b-ethernet-vertices">
+     <input semantic="POSITION" source="#raspberry_pi_4b-ethernet-positions"/>
+     <input semantic="NORMAL" source="#raspberry_pi_4b-ethernet-normals"/>
     </vertices>
     <triangles material="gold" count="96">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-ethernet-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-ethernet-vertices" offset="0"/>
      <p>
 1 2 0 1 3 2 5 4 6 5
 6 7 11 8 9 11 10 8 15 13
@@ -4949,7 +4949,7 @@
      </p>
     </triangles>
     <triangles material="silver" count="44">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-ethernet-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-ethernet-vertices" offset="0"/>
      <p>
 192 195 194 193 195 192 199 196 197 199
 198 196 203 201 200 203 200 202 207 205
@@ -4968,7 +4968,7 @@
      </p>
     </triangles>
     <triangles material="black" count="132">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-ethernet-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-ethernet-vertices" offset="0"/>
      <p>
 264 266 265 267 266 264 271 269 268 271
 270 269 275 273 272 275 274 273 282 281
@@ -5013,7 +5013,7 @@
      </p>
     </triangles>
     <triangles material="led_green" count="12">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-ethernet-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-ethernet-vertices" offset="0"/>
      <p>
 437 438 436 437 439 438 441 440 442 441
 442 443 447 444 445 447 446 444 451 449
@@ -5022,7 +5022,7 @@
      </p>
     </triangles>
     <triangles material="led_yellow" count="12">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-ethernet-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-ethernet-vertices" offset="0"/>
      <p>
 461 462 460 461 463 462 465 464 466 465
 466 467 471 468 469 471 470 468 475 473
@@ -5032,10 +5032,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="raspberry_pi_4B-usb_2" name="raspberry_pi_4B-usb_2">
+  <geometry id="raspberry_pi_4b-usb_2" name="raspberry_pi_4b-usb_2">
    <mesh>
-    <source id="raspberry_pi_4B-usb_2-positions">
-     <float_array id="raspberry_pi_4B-usb_2-positions-array" count="1296">
+    <source id="raspberry_pi_4b-usb_2-positions">
+     <float_array id="raspberry_pi_4b-usb_2-positions-array" count="1296">
 0.043821 0.036877 0.00492 0.043821 0.036877 0.005 0.042821 0.036877 0.00492 0.042821
 0.036877 0.005 0.043821 0.043877 0.00492 0.043821 0.043877 0.005 0.042821 0.043877
 0.00492 0.042821 0.043877 0.005 0.043821 0.036877 0.00492 0.043821 0.043877 0.00492
@@ -5168,13 +5168,13 @@
 0.045371 0.044877 0.01465 0.034271 0.044877 0.01465
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-usb_2-positions-array" count="432" stride="3">
+      <accessor source="#raspberry_pi_4b-usb_2-positions-array" count="432" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="raspberry_pi_4B-usb_2-normals">
-     <float_array id="raspberry_pi_4B-usb_2-normals-array" count="1296">
+    <source id="raspberry_pi_4b-usb_2-normals">
+     <float_array id="raspberry_pi_4b-usb_2-normals-array" count="1296">
 0 -1 0 0 -1 0 0 -1 0 0
 -1 0 0 1 0 0 1 0 0 1
 0 0 1 0 1 0 0 1 0 0
@@ -5307,17 +5307,17 @@
 0 0 1 0 0 1
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-usb_2-normals-array" count="432" stride="3">
+      <accessor source="#raspberry_pi_4b-usb_2-normals-array" count="432" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="raspberry_pi_4B-usb_2-vertices">
-     <input semantic="POSITION" source="#raspberry_pi_4B-usb_2-positions"/>
-     <input semantic="NORMAL" source="#raspberry_pi_4B-usb_2-normals"/>
+    <vertices id="raspberry_pi_4b-usb_2-vertices">
+     <input semantic="POSITION" source="#raspberry_pi_4b-usb_2-positions"/>
+     <input semantic="NORMAL" source="#raspberry_pi_4b-usb_2-normals"/>
     </vertices>
     <triangles material="gold" count="96">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-usb_2-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-usb_2-vertices" offset="0"/>
      <p>
 1 2 0 1 3 2 5 4 6 5
 6 7 11 8 9 11 10 8 15 13
@@ -5351,7 +5351,7 @@
      </p>
     </triangles>
     <triangles material="silver" count="96">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-usb_2-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-usb_2-vertices" offset="0"/>
      <p>
 193 194 192 193 195 194 199 196 197 199
 198 196 202 201 200 203 201 202 207 205
@@ -5385,7 +5385,7 @@
      </p>
     </triangles>
     <triangles material="black" count="48">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-usb_2-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-usb_2-vertices" offset="0"/>
      <p>
 337 338 336 337 339 338 341 340 342 341
 342 343 347 344 345 347 346 344 351 349
@@ -5406,10 +5406,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="raspberry_pi_4B-usb_3" name="raspberry_pi_4B-usb_3">
+  <geometry id="raspberry_pi_4b-usb_3" name="raspberry_pi_4b-usb_3">
    <mesh>
-    <source id="raspberry_pi_4B-usb_3-positions">
-     <float_array id="raspberry_pi_4B-usb_3-positions-array" count="1296">
+    <source id="raspberry_pi_4b-usb_3-positions">
+     <float_array id="raspberry_pi_4b-usb_3-positions-array" count="1296">
 0.025091 0.036877 0.00492 0.025091 0.036877 0.005 0.024091 0.036877 0.00492 0.024091
 0.036877 0.005 0.025091 0.043877 0.00492 0.025091 0.043877 0.005 0.024091 0.043877
 0.00492 0.024091 0.043877 0.005 0.025091 0.036877 0.00492 0.025091 0.043877 0.00492
@@ -5542,13 +5542,13 @@
 0.026641 0.044877 0.01465 0.015541 0.044877 0.01465
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-usb_3-positions-array" count="432" stride="3">
+      <accessor source="#raspberry_pi_4b-usb_3-positions-array" count="432" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="raspberry_pi_4B-usb_3-normals">
-     <float_array id="raspberry_pi_4B-usb_3-normals-array" count="1296">
+    <source id="raspberry_pi_4b-usb_3-normals">
+     <float_array id="raspberry_pi_4b-usb_3-normals-array" count="1296">
 0 -1 0 0 -1 0 0 -1 0 0
 -1 0 0 1 0 0 1 0 0 1
 0 0 1 0 1 0 0 1 0 0
@@ -5681,17 +5681,17 @@
 0 0 1 0 0 1
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-usb_3-normals-array" count="432" stride="3">
+      <accessor source="#raspberry_pi_4b-usb_3-normals-array" count="432" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="raspberry_pi_4B-usb_3-vertices">
-     <input semantic="POSITION" source="#raspberry_pi_4B-usb_3-positions"/>
-     <input semantic="NORMAL" source="#raspberry_pi_4B-usb_3-normals"/>
+    <vertices id="raspberry_pi_4b-usb_3-vertices">
+     <input semantic="POSITION" source="#raspberry_pi_4b-usb_3-positions"/>
+     <input semantic="NORMAL" source="#raspberry_pi_4b-usb_3-normals"/>
     </vertices>
     <triangles material="gold" count="96">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-usb_3-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-usb_3-vertices" offset="0"/>
      <p>
 1 2 0 1 3 2 5 4 6 5
 6 7 11 8 9 11 10 8 15 13
@@ -5725,7 +5725,7 @@
      </p>
     </triangles>
     <triangles material="silver" count="96">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-usb_3-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-usb_3-vertices" offset="0"/>
      <p>
 195 194 192 193 195 192 199 196 197 199
 198 196 203 201 200 203 200 202 207 205
@@ -5759,7 +5759,7 @@
      </p>
     </triangles>
     <triangles material="black" count="24">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-usb_3-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-usb_3-vertices" offset="0"/>
      <p>
 337 338 336 337 339 338 341 340 342 341
 342 343 347 344 345 347 346 344 351 349
@@ -5772,7 +5772,7 @@
      </p>
     </triangles>
     <triangles material="usb3_blue" count="24">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-usb_3-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-usb_3-vertices" offset="0"/>
      <p>
 385 386 384 385 387 386 389 388 390 389
 390 391 395 392 393 395 394 392 399 397
@@ -5786,10 +5786,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="raspberry_pi_4B-usb_c" name="raspberry_pi_4B-usb_c">
+  <geometry id="raspberry_pi_4b-usb_c" name="raspberry_pi_4b-usb_c">
    <mesh>
-    <source id="raspberry_pi_4B-usb_c-positions">
-     <float_array id="raspberry_pi_4B-usb_c-positions-array" count="1104">
+    <source id="raspberry_pi_4b-usb_c-positions">
+     <float_array id="raspberry_pi_4b-usb_c-positions-array" count="1104">
 0.049681 -0.033793 0.004 0.042281 -0.033793 0.004 0.042281 -0.028053 0.004 0.049681
 -0.028053 0.004 0.049681 -0.033793 0.0008 0.042281 -0.033793 0.0008 0.042281 -0.03407084
 0.0008243076 0.042281 -0.03434023 0.0008964918 0.042281 -0.034593 0.001014359 0.042281 -0.03482146 0.001174329
@@ -5903,13 +5903,13 @@
 0.00275 0.043681 -0.027623 0.00275
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-usb_c-positions-array" count="368" stride="3">
+      <accessor source="#raspberry_pi_4b-usb_c-positions-array" count="368" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="raspberry_pi_4B-usb_c-normals">
-     <float_array id="raspberry_pi_4B-usb_c-normals-array" count="1104">
+    <source id="raspberry_pi_4b-usb_c-normals">
+     <float_array id="raspberry_pi_4b-usb_c-normals-array" count="1104">
 0 0 1 0 0 1 0 0 1 0
 0 1 0 -0.087156 -0.99619 0 -0.087156 -0.99619 0 -0.20228
 -0.97933 0 -0.34202 -0.93969 0 -0.5 -0.86603 0 -0.64279 -0.76604
@@ -6023,17 +6023,17 @@
 1 0 0 1
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-usb_c-normals-array" count="368" stride="3">
+      <accessor source="#raspberry_pi_4b-usb_c-normals-array" count="368" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="raspberry_pi_4B-usb_c-vertices">
-     <input semantic="POSITION" source="#raspberry_pi_4B-usb_c-positions"/>
-     <input semantic="NORMAL" source="#raspberry_pi_4B-usb_c-normals"/>
+    <vertices id="raspberry_pi_4b-usb_c-vertices">
+     <input semantic="POSITION" source="#raspberry_pi_4b-usb_c-positions"/>
+     <input semantic="NORMAL" source="#raspberry_pi_4b-usb_c-normals"/>
     </vertices>
     <triangles material="silver" count="312">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-usb_c-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-usb_c-vertices" offset="0"/>
      <p>
 3 1 0 3 2 1 25 5 4 25
 6 5 26 7 6 26 8 7 26 6
@@ -6132,7 +6132,7 @@
      </p>
     </triangles>
     <triangles material="black" count="12">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-usb_c-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-usb_c-vertices" offset="0"/>
      <p>
 345 346 344 345 347 346 349 348 350 349
 350 351 355 352 353 355 354 352 359 357
@@ -6142,10 +6142,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="raspberry_pi_4B-micro_hdmi" name="raspberry_pi_4B-micro_hdmi">
+  <geometry id="raspberry_pi_4b-micro_hdmi" name="raspberry_pi_4b-micro_hdmi">
    <mesh>
-    <source id="raspberry_pi_4B-micro_hdmi-positions">
-     <float_array id="raspberry_pi_4B-micro_hdmi-positions-array" count="648">
+    <source id="raspberry_pi_4b-micro_hdmi-positions">
+     <float_array id="raspberry_pi_4b-micro_hdmi-positions-array" count="648">
 0.049061 -0.018023 0.002 0.049061 -0.018023 0.00245 0.045061 -0.018023 0.002 0.045061
 -0.018023 0.00245 0.049061 -0.014223 0.002 0.049061 -0.014223 0.00245 0.045061 -0.014223
 0.002 0.045061 -0.014223 0.00245 0.049061 -0.018023 0.002 0.049061 -0.014223 0.002
@@ -6213,13 +6213,13 @@
 -0.005573 0.00345 0.045061 0.000327 0.00345 0.044861 0.000327 0.00345
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-micro_hdmi-positions-array" count="216" stride="3">
+      <accessor source="#raspberry_pi_4b-micro_hdmi-positions-array" count="216" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="raspberry_pi_4B-micro_hdmi-normals">
-     <float_array id="raspberry_pi_4B-micro_hdmi-normals-array" count="648">
+    <source id="raspberry_pi_4b-micro_hdmi-normals">
+     <float_array id="raspberry_pi_4b-micro_hdmi-normals-array" count="648">
 0 -1 0 0 -1 0 0 -1 0 0
 -1 0 0 1 0 0 1 0 0 1
 0 0 1 0 1 0 0 1 0 0
@@ -6287,17 +6287,17 @@
 0 1 0 0 1 0 0 1
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-micro_hdmi-normals-array" count="216" stride="3">
+      <accessor source="#raspberry_pi_4b-micro_hdmi-normals-array" count="216" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="raspberry_pi_4B-micro_hdmi-vertices">
-     <input semantic="POSITION" source="#raspberry_pi_4B-micro_hdmi-positions"/>
-     <input semantic="NORMAL" source="#raspberry_pi_4B-micro_hdmi-normals"/>
+    <vertices id="raspberry_pi_4b-micro_hdmi-vertices">
+     <input semantic="POSITION" source="#raspberry_pi_4b-micro_hdmi-positions"/>
+     <input semantic="NORMAL" source="#raspberry_pi_4b-micro_hdmi-normals"/>
     </vertices>
     <triangles material="gold" count="24">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-micro_hdmi-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-micro_hdmi-vertices" offset="0"/>
      <p>
 1 2 0 1 3 2 5 4 6 5
 6 7 11 8 9 11 10 8 15 13
@@ -6310,7 +6310,7 @@
      </p>
     </triangles>
     <triangles material="silver" count="72">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-micro_hdmi-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-micro_hdmi-vertices" offset="0"/>
      <p>
 49 50 48 49 51 50 57 61 52 54
 61 60 54 52 61 58 56 53 55 59
@@ -6337,7 +6337,7 @@
      </p>
     </triangles>
     <triangles material="black" count="24">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-micro_hdmi-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-micro_hdmi-vertices" offset="0"/>
      <p>
 169 170 168 169 171 170 173 172 174 173
 174 175 179 176 177 179 178 176 183 181
@@ -6351,10 +6351,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="raspberry_pi_4B-audio_jack" name="raspberry_pi_4B-audio_jack">
+  <geometry id="raspberry_pi_4b-audio_jack" name="raspberry_pi_4b-audio_jack">
    <mesh>
-    <source id="raspberry_pi_4B-audio_jack-positions">
-     <float_array id="raspberry_pi_4B-audio_jack-positions-array" count="1038">
+    <source id="raspberry_pi_4b-audio_jack-positions">
+     <float_array id="raspberry_pi_4b-audio_jack-positions-array" count="1038">
 0.045431 0.008777 0.0068 0.045431 0.008777 0.0071 0.036931 0.008777 0.0068 0.036931
 0.008777 0.0071 0.045431 0.014977 0.0068 0.045431 0.014977 0.0071 0.036931 0.014977
 0.0068 0.036931 0.014977 0.0071 0.045431 0.008777 0.0068 0.045431 0.014977 0.0068
@@ -6461,13 +6461,13 @@
 0.010977 0.005358846 0.042031 0.01126136 0.005491447 0.042031 0.01156443 0.005572654
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-audio_jack-positions-array" count="346" stride="3">
+      <accessor source="#raspberry_pi_4b-audio_jack-positions-array" count="346" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="raspberry_pi_4B-audio_jack-normals">
-     <float_array id="raspberry_pi_4B-audio_jack-normals-array" count="1038">
+    <source id="raspberry_pi_4b-audio_jack-normals">
+     <float_array id="raspberry_pi_4b-audio_jack-normals-array" count="1038">
 0 -1 0 0 -1 0 0 -1 0 0
 -1 0 0 1 0 0 1 0 0 1
 0 0 1 0 1 0 0 1 0 0
@@ -6574,17 +6574,17 @@
 0 0 1 0 0 1 0 0
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-audio_jack-normals-array" count="346" stride="3">
+      <accessor source="#raspberry_pi_4b-audio_jack-normals-array" count="346" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="raspberry_pi_4B-audio_jack-vertices">
-     <input semantic="POSITION" source="#raspberry_pi_4B-audio_jack-positions"/>
-     <input semantic="NORMAL" source="#raspberry_pi_4B-audio_jack-normals"/>
+    <vertices id="raspberry_pi_4b-audio_jack-vertices">
+     <input semantic="POSITION" source="#raspberry_pi_4b-audio_jack-positions"/>
+     <input semantic="NORMAL" source="#raspberry_pi_4b-audio_jack-normals"/>
     </vertices>
     <triangles material="silver" count="12">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-audio_jack-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-audio_jack-vertices" offset="0"/>
      <p>
 1 2 0 1 3 2 5 4 6 5
 6 7 11 8 9 11 10 8 15 13
@@ -6593,7 +6593,7 @@
      </p>
     </triangles>
     <triangles material="black" count="304">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-audio_jack-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-audio_jack-vertices" offset="0"/>
      <p>
 25 26 24 25 27 26 44 28 45 46
 45 28 43 28 44 47 46 28 42 28
@@ -6691,10 +6691,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="raspberry_pi_4B-camera_connector" name="raspberry_pi_4B-camera_connector">
+  <geometry id="raspberry_pi_4b-camera_connector" name="raspberry_pi_4b-camera_connector">
    <mesh>
-    <source id="raspberry_pi_4B-camera_connector-positions">
-     <float_array id="raspberry_pi_4B-camera_connector-positions-array" count="1368">
+    <source id="raspberry_pi_4b-camera_connector-positions">
+     <float_array id="raspberry_pi_4b-camera_connector-positions-array" count="1368">
 0.044081 0.002927 0.0008 0.044081 0.002927 0.00105 0.043781 0.002927 0.0008 0.043781
 0.002927 0.00105 0.044081 0.003827 0.0008 0.044081 0.003827 0.00105 0.043781 0.003827
 0.0008 0.043781 0.003827 0.00105 0.044081 0.002927 0.0008 0.044081 0.003827 0.0008
@@ -6834,13 +6834,13 @@
 0.004902 0.0063 0.028731 0.004902 0.0051 0.028731 0.004902 0.0063
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-camera_connector-positions-array" count="456" stride="3">
+      <accessor source="#raspberry_pi_4b-camera_connector-positions-array" count="456" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="raspberry_pi_4B-camera_connector-normals">
-     <float_array id="raspberry_pi_4B-camera_connector-normals-array" count="1368">
+    <source id="raspberry_pi_4b-camera_connector-normals">
+     <float_array id="raspberry_pi_4b-camera_connector-normals-array" count="1368">
 0 -1 0 0 -1 0 0 -1 0 0
 -1 0 0 1 0 0 1 0 0 1
 0 0 1 0 1 0 0 1 0 0
@@ -6980,17 +6980,17 @@
 1 0 0 1 0 0 1 0
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-camera_connector-normals-array" count="456" stride="3">
+      <accessor source="#raspberry_pi_4b-camera_connector-normals-array" count="456" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="raspberry_pi_4B-camera_connector-vertices">
-     <input semantic="POSITION" source="#raspberry_pi_4B-camera_connector-positions"/>
-     <input semantic="NORMAL" source="#raspberry_pi_4B-camera_connector-normals"/>
+    <vertices id="raspberry_pi_4b-camera_connector-vertices">
+     <input semantic="POSITION" source="#raspberry_pi_4b-camera_connector-positions"/>
+     <input semantic="NORMAL" source="#raspberry_pi_4b-camera_connector-normals"/>
     </vertices>
     <triangles material="gold" count="180">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-camera_connector-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-camera_connector-vertices" offset="0"/>
      <p>
 1 2 0 1 3 2 5 4 6 5
 6 7 11 8 9 11 10 8 15 13
@@ -7049,7 +7049,7 @@
      </p>
     </triangles>
     <triangles material="black" count="28">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-camera_connector-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-camera_connector-vertices" offset="0"/>
      <p>
 361 362 360 361 363 362 367 364 365 367
 366 364 373 368 370 372 373 370 371 374
@@ -7063,7 +7063,7 @@
      </p>
     </triangles>
     <triangles material="latch_tan" count="32">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-camera_connector-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-camera_connector-vertices" offset="0"/>
      <p>
 408 411 410 409 411 408 415 412 413 415
 414 412 420 416 418 420 421 416 419 422
@@ -7079,10 +7079,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="raspberry_pi_4B-display_connector" name="raspberry_pi_4B-display_connector">
+  <geometry id="raspberry_pi_4b-display_connector" name="raspberry_pi_4b-display_connector">
    <mesh>
-    <source id="raspberry_pi_4B-display_connector-positions">
-     <float_array id="raspberry_pi_4B-display_connector-positions-array" count="1368">
+    <source id="raspberry_pi_4b-display_connector-positions">
+     <float_array id="raspberry_pi_4b-display_connector-positions-array" count="1368">
 0.027581 -0.037573 0.0008 0.027581 -0.037573 0.00105 0.027281 -0.037573 0.0008 0.027281
 -0.037573 0.00105 0.027581 -0.036673 0.0008 0.027581 -0.036673 0.00105 0.027281 -0.036673
 0.0008 0.027281 -0.036673 0.00105 0.027581 -0.037573 0.0008 0.027581 -0.036673 0.0008
@@ -7222,13 +7222,13 @@
 -0.039348 0.0063 0.012231 -0.039348 0.0051 0.012231 -0.039348 0.0063
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-display_connector-positions-array" count="456" stride="3">
+      <accessor source="#raspberry_pi_4b-display_connector-positions-array" count="456" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="raspberry_pi_4B-display_connector-normals">
-     <float_array id="raspberry_pi_4B-display_connector-normals-array" count="1368">
+    <source id="raspberry_pi_4b-display_connector-normals">
+     <float_array id="raspberry_pi_4b-display_connector-normals-array" count="1368">
 0 -1 0 0 -1 0 0 -1 0 0
 -1 0 0 1 0 0 1 0 0 1
 0 0 1 0 1 0 0 1 0 0
@@ -7368,17 +7368,17 @@
 1 0 0 1 0 0 1 0
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-display_connector-normals-array" count="456" stride="3">
+      <accessor source="#raspberry_pi_4b-display_connector-normals-array" count="456" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="raspberry_pi_4B-display_connector-vertices">
-     <input semantic="POSITION" source="#raspberry_pi_4B-display_connector-positions"/>
-     <input semantic="NORMAL" source="#raspberry_pi_4B-display_connector-normals"/>
+    <vertices id="raspberry_pi_4b-display_connector-vertices">
+     <input semantic="POSITION" source="#raspberry_pi_4b-display_connector-positions"/>
+     <input semantic="NORMAL" source="#raspberry_pi_4b-display_connector-normals"/>
     </vertices>
     <triangles material="gold" count="180">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-display_connector-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-display_connector-vertices" offset="0"/>
      <p>
 1 2 0 1 3 2 5 4 6 5
 6 7 11 8 9 11 10 8 15 13
@@ -7437,7 +7437,7 @@
      </p>
     </triangles>
     <triangles material="black" count="28">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-display_connector-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-display_connector-vertices" offset="0"/>
      <p>
 360 363 362 361 363 360 367 364 365 367
 366 364 372 368 370 372 373 368 371 374
@@ -7451,7 +7451,7 @@
      </p>
     </triangles>
     <triangles material="latch_tan" count="32">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-display_connector-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-display_connector-vertices" offset="0"/>
      <p>
 408 411 410 409 411 408 415 412 413 415
 414 412 420 416 418 420 421 416 417 422
@@ -7467,10 +7467,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="raspberry_pi_4B-chips" name="raspberry_pi_4B-chips">
+  <geometry id="raspberry_pi_4b-chips" name="raspberry_pi_4b-chips">
    <mesh>
-    <source id="raspberry_pi_4B-chips-positions">
-     <float_array id="raspberry_pi_4B-chips-positions-array" count="1272">
+    <source id="raspberry_pi_4b-chips-positions">
+     <float_array id="raspberry_pi_4b-chips-positions-array" count="1272">
 0.023031 -0.018973 0.0019 0.023031 -0.006773 0.0019 0.023031 -0.018973 0.0023 0.023031
 -0.006773 0.0023 0.023031 -0.018973 0.0019 0.023031 -0.006773 0.0019 0.02301581 -0.006599352
 0.0019 0.02297069 -0.00643098 0.0019 0.02289703 -0.006273 0.0019 0.02279704 -0.006130212 0.0019
@@ -7601,13 +7601,13 @@
 -0.005373 0.0019
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-chips-positions-array" count="424" stride="3">
+      <accessor source="#raspberry_pi_4b-chips-positions-array" count="424" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="raspberry_pi_4B-chips-normals">
-     <float_array id="raspberry_pi_4B-chips-normals-array" count="1272">
+    <source id="raspberry_pi_4b-chips-normals">
+     <float_array id="raspberry_pi_4b-chips-normals-array" count="1272">
 1 0 0 1 0 0 1 0 0 1
 0 0 8.1568e-19 -6.8803e-19 -1 1.7363e-18 1.4404e-18 -1 2.2388e-15 1.044e-15
 -1 0 0 -1 0 0 -1 7.1004e-16 6.6048e-16 -1
@@ -7738,17 +7738,17 @@
 0 1
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-chips-normals-array" count="424" stride="3">
+      <accessor source="#raspberry_pi_4b-chips-normals-array" count="424" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="raspberry_pi_4B-chips-vertices">
-     <input semantic="POSITION" source="#raspberry_pi_4B-chips-positions"/>
-     <input semantic="NORMAL" source="#raspberry_pi_4B-chips-normals"/>
+    <vertices id="raspberry_pi_4b-chips-vertices">
+     <input semantic="POSITION" source="#raspberry_pi_4b-chips-positions"/>
+     <input semantic="NORMAL" source="#raspberry_pi_4b-chips-normals"/>
     </vertices>
     <triangles material="silver" count="324">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-chips-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-chips-vertices" offset="0"/>
      <p>
 1 2 0 1 3 2 38 39 40 38
 40 41 42 38 41 36 37 38 4 36
@@ -7851,7 +7851,7 @@
      </p>
     </triangles>
     <triangles material="chip" count="12">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-chips-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-chips-vertices" offset="0"/>
      <p>
 377 378 376 377 379 378 381 380 382 381
 382 383 387 384 385 387 386 384 391 389
@@ -7860,7 +7860,7 @@
      </p>
     </triangles>
     <triangles material="substrate" count="12">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-chips-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-chips-vertices" offset="0"/>
      <p>
 400 403 402 401 403 400 404 406 407 405
 404 407 409 410 408 411 410 409 413 412
@@ -7870,10 +7870,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="raspberry_pi_4B-small_parts" name="raspberry_pi_4B-small_parts">
+  <geometry id="raspberry_pi_4b-small_parts" name="raspberry_pi_4b-small_parts">
    <mesh>
-    <source id="raspberry_pi_4B-small_parts-positions">
-     <float_array id="raspberry_pi_4B-small_parts-positions-array" count="15048">
+    <source id="raspberry_pi_4b-small_parts-positions">
+     <float_array id="raspberry_pi_4b-small_parts-positions-array" count="15048">
 0.029831 0.009277 0.0008 0.029831 0.009277 0.0017 0.029831 0.012277 0.0017 0.029831
 0.012277 0.0008 0.029831 0.012277 0.0008 0.029831 0.012277 0.0017 0.027831 0.012277
 0.0017 0.027831 0.012277 0.0008 0.027831 0.012277 0.0008 0.027831 0.012277 0.0017
@@ -9381,13 +9381,13 @@
 -0.040673 0.0014 0.036131 -0.040673 0.0014 0.036131 -0.041373 0.0014
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-small_parts-positions-array" count="5016" stride="3">
+      <accessor source="#raspberry_pi_4b-small_parts-positions-array" count="5016" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="raspberry_pi_4B-small_parts-normals">
-     <float_array id="raspberry_pi_4B-small_parts-normals-array" count="15048">
+    <source id="raspberry_pi_4b-small_parts-normals">
+     <float_array id="raspberry_pi_4b-small_parts-normals-array" count="15048">
 1 0 0 1 0 0 1 0 0 1
 0 0 0 1 0 0 1 0 0 1
 0 0 1 0 -1 0 0 -1 0 0
@@ -10895,17 +10895,17 @@
 0 1 0 0 1 0 0 1
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-small_parts-normals-array" count="5016" stride="3">
+      <accessor source="#raspberry_pi_4b-small_parts-normals-array" count="5016" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="raspberry_pi_4B-small_parts-vertices">
-     <input semantic="POSITION" source="#raspberry_pi_4B-small_parts-positions"/>
-     <input semantic="NORMAL" source="#raspberry_pi_4B-small_parts-normals"/>
+    <vertices id="raspberry_pi_4b-small_parts-vertices">
+     <input semantic="POSITION" source="#raspberry_pi_4b-small_parts-positions"/>
+     <input semantic="NORMAL" source="#raspberry_pi_4b-small_parts-normals"/>
     </vertices>
     <triangles material="chip" count="252">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-small_parts-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-small_parts-vertices" offset="0"/>
      <p>
 3 1 0 3 2 1 7 5 4 7
 6 5 11 9 8 11 10 9 15 13
@@ -10986,7 +10986,7 @@
      </p>
     </triangles>
     <triangles material="ceramic" count="2208">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-small_parts-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-small_parts-vertices" offset="0"/>
      <p>
 507 505 504 507 506 505 511 509 508 511
 510 509 515 513 512 515 514 513 519 517
@@ -11654,7 +11654,7 @@
      </p>
     </triangles>
     <triangles material="inductor" count="28">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-small_parts-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-small_parts-vertices" offset="0"/>
      <p>
 4923 4920 4921 4923 4921 4922 4927 4924 4925 4927
 4925 4926 4931 4928 4929 4931 4929 4930 4935 4932
@@ -11668,7 +11668,7 @@
      </p>
     </triangles>
     <triangles material="led_red" count="12">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-small_parts-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-small_parts-vertices" offset="0"/>
      <p>
 4971 4969 4968 4971 4970 4969 4975 4973 4972 4975
 4974 4973 4979 4977 4976 4979 4978 4977 4983 4981
@@ -11677,7 +11677,7 @@
      </p>
     </triangles>
     <triangles material="led_green" count="12">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-small_parts-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-small_parts-vertices" offset="0"/>
      <p>
 4995 4993 4992 4995 4994 4993 4999 4997 4996 4999
 4998 4997 5003 5001 5000 5003 5002 5001 5007 5005
@@ -11687,10 +11687,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="raspberry_pi_4B-bottom_side" name="raspberry_pi_4B-bottom_side">
+  <geometry id="raspberry_pi_4b-bottom_side" name="raspberry_pi_4b-bottom_side">
    <mesh>
-    <source id="raspberry_pi_4B-bottom_side-positions">
-     <float_array id="raspberry_pi_4B-bottom_side-positions-array" count="18528">
+    <source id="raspberry_pi_4b-bottom_side-positions">
+     <float_array id="raspberry_pi_4b-bottom_side-positions-array" count="18528">
 0.026321 -0.040433 -0.0022 0.026321 -0.040433 -0.0008 0.014331 -0.040433 -0.0022 0.014331
 -0.040433 -0.0008 0.014931 -0.040433 -0.00195 0.025721 -0.040433 -0.00195 0.025721 -0.040433
 -0.0011 0.014931 -0.040433 -0.0011 0.026321 -0.040433 -0.0022 0.026321 -0.028993 -0.0022
@@ -13546,13 +13546,13 @@
 0.038587 -0.0008 -0.003659 0.039787 -0.0008 -0.004259 0.039787 -0.0008
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-bottom_side-positions-array" count="6176" stride="3">
+      <accessor source="#raspberry_pi_4b-bottom_side-positions-array" count="6176" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="raspberry_pi_4B-bottom_side-normals">
-     <float_array id="raspberry_pi_4B-bottom_side-normals-array" count="18528">
+    <source id="raspberry_pi_4b-bottom_side-normals">
+     <float_array id="raspberry_pi_4b-bottom_side-normals-array" count="18528">
 0 -1 0 0 -1 0 0 -1 0 0
 -1 0 0 -1 0 0 -1 0 0 -1
 0 0 -1 0 1 0 0 1 0 0
@@ -15408,17 +15408,17 @@
 0 1 0 0 1 0 0 1
      </float_array>
      <technique_common>
-      <accessor source="#raspberry_pi_4B-bottom_side-normals-array" count="6176" stride="3">
+      <accessor source="#raspberry_pi_4b-bottom_side-normals-array" count="6176" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="raspberry_pi_4B-bottom_side-vertices">
-     <input semantic="POSITION" source="#raspberry_pi_4B-bottom_side-positions"/>
-     <input semantic="NORMAL" source="#raspberry_pi_4B-bottom_side-normals"/>
+    <vertices id="raspberry_pi_4b-bottom_side-vertices">
+     <input semantic="POSITION" source="#raspberry_pi_4b-bottom_side-positions"/>
+     <input semantic="NORMAL" source="#raspberry_pi_4b-bottom_side-normals"/>
     </vertices>
     <triangles material="silver" count="5772">
-     <input semantic="VERTEX" source="#raspberry_pi_4B-bottom_side-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#raspberry_pi_4b-bottom_side-vertices" offset="0"/>
      <p>
 7 3 2 7 2 4 6 5 0 1
 6 0 0 4 2 0 5 4 3 6
@@ -17158,25 +17158,25 @@
   </geometry>
  </library_geometries>
  <library_visual_scenes>
-  <visual_scene id="scene" name="raspberry_pi_4B">
-   <node id="raspberry_pi_4B-board-node" name="board">
-    <instance_geometry url="#raspberry_pi_4B-board">
+  <visual_scene id="scene" name="raspberry_pi_4b">
+   <node id="raspberry_pi_4b-board-node" name="board">
+    <instance_geometry url="#raspberry_pi_4b-board">
      <bind_material><technique_common>
        <instance_material symbol="pcb_green" target="#pcb_green-material"/>
        <instance_material symbol="gold" target="#gold-material"/>
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="raspberry_pi_4B-headers-node" name="headers">
-    <instance_geometry url="#raspberry_pi_4B-headers">
+   <node id="raspberry_pi_4b-headers-node" name="headers">
+    <instance_geometry url="#raspberry_pi_4b-headers">
      <bind_material><technique_common>
        <instance_material symbol="gold" target="#gold-material"/>
        <instance_material symbol="black" target="#black-material"/>
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="raspberry_pi_4B-ethernet-node" name="ethernet">
-    <instance_geometry url="#raspberry_pi_4B-ethernet">
+   <node id="raspberry_pi_4b-ethernet-node" name="ethernet">
+    <instance_geometry url="#raspberry_pi_4b-ethernet">
      <bind_material><technique_common>
        <instance_material symbol="gold" target="#gold-material"/>
        <instance_material symbol="silver" target="#silver-material"/>
@@ -17186,8 +17186,8 @@
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="raspberry_pi_4B-usb_2-node" name="usb_2">
-    <instance_geometry url="#raspberry_pi_4B-usb_2">
+   <node id="raspberry_pi_4b-usb_2-node" name="usb_2">
+    <instance_geometry url="#raspberry_pi_4b-usb_2">
      <bind_material><technique_common>
        <instance_material symbol="gold" target="#gold-material"/>
        <instance_material symbol="silver" target="#silver-material"/>
@@ -17195,8 +17195,8 @@
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="raspberry_pi_4B-usb_3-node" name="usb_3">
-    <instance_geometry url="#raspberry_pi_4B-usb_3">
+   <node id="raspberry_pi_4b-usb_3-node" name="usb_3">
+    <instance_geometry url="#raspberry_pi_4b-usb_3">
      <bind_material><technique_common>
        <instance_material symbol="gold" target="#gold-material"/>
        <instance_material symbol="silver" target="#silver-material"/>
@@ -17205,16 +17205,16 @@
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="raspberry_pi_4B-usb_c-node" name="usb_c">
-    <instance_geometry url="#raspberry_pi_4B-usb_c">
+   <node id="raspberry_pi_4b-usb_c-node" name="usb_c">
+    <instance_geometry url="#raspberry_pi_4b-usb_c">
      <bind_material><technique_common>
        <instance_material symbol="silver" target="#silver-material"/>
        <instance_material symbol="black" target="#black-material"/>
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="raspberry_pi_4B-micro_hdmi-node" name="micro_hdmi">
-    <instance_geometry url="#raspberry_pi_4B-micro_hdmi">
+   <node id="raspberry_pi_4b-micro_hdmi-node" name="micro_hdmi">
+    <instance_geometry url="#raspberry_pi_4b-micro_hdmi">
      <bind_material><technique_common>
        <instance_material symbol="gold" target="#gold-material"/>
        <instance_material symbol="silver" target="#silver-material"/>
@@ -17222,25 +17222,16 @@
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="raspberry_pi_4B-audio_jack-node" name="audio_jack">
-    <instance_geometry url="#raspberry_pi_4B-audio_jack">
+   <node id="raspberry_pi_4b-audio_jack-node" name="audio_jack">
+    <instance_geometry url="#raspberry_pi_4b-audio_jack">
      <bind_material><technique_common>
        <instance_material symbol="silver" target="#silver-material"/>
        <instance_material symbol="black" target="#black-material"/>
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="raspberry_pi_4B-camera_connector-node" name="camera_connector">
-    <instance_geometry url="#raspberry_pi_4B-camera_connector">
-     <bind_material><technique_common>
-       <instance_material symbol="gold" target="#gold-material"/>
-       <instance_material symbol="black" target="#black-material"/>
-       <instance_material symbol="latch_tan" target="#latch_tan-material"/>
-     </technique_common></bind_material>
-    </instance_geometry>
-   </node>
-   <node id="raspberry_pi_4B-display_connector-node" name="display_connector">
-    <instance_geometry url="#raspberry_pi_4B-display_connector">
+   <node id="raspberry_pi_4b-camera_connector-node" name="camera_connector">
+    <instance_geometry url="#raspberry_pi_4b-camera_connector">
      <bind_material><technique_common>
        <instance_material symbol="gold" target="#gold-material"/>
        <instance_material symbol="black" target="#black-material"/>
@@ -17248,8 +17239,17 @@
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="raspberry_pi_4B-chips-node" name="chips">
-    <instance_geometry url="#raspberry_pi_4B-chips">
+   <node id="raspberry_pi_4b-display_connector-node" name="display_connector">
+    <instance_geometry url="#raspberry_pi_4b-display_connector">
+     <bind_material><technique_common>
+       <instance_material symbol="gold" target="#gold-material"/>
+       <instance_material symbol="black" target="#black-material"/>
+       <instance_material symbol="latch_tan" target="#latch_tan-material"/>
+     </technique_common></bind_material>
+    </instance_geometry>
+   </node>
+   <node id="raspberry_pi_4b-chips-node" name="chips">
+    <instance_geometry url="#raspberry_pi_4b-chips">
      <bind_material><technique_common>
        <instance_material symbol="silver" target="#silver-material"/>
        <instance_material symbol="chip" target="#chip-material"/>
@@ -17257,8 +17257,8 @@
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="raspberry_pi_4B-small_parts-node" name="small_parts">
-    <instance_geometry url="#raspberry_pi_4B-small_parts">
+   <node id="raspberry_pi_4b-small_parts-node" name="small_parts">
+    <instance_geometry url="#raspberry_pi_4b-small_parts">
      <bind_material><technique_common>
        <instance_material symbol="chip" target="#chip-material"/>
        <instance_material symbol="ceramic" target="#ceramic-material"/>
@@ -17268,8 +17268,8 @@
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="raspberry_pi_4B-bottom_side-node" name="bottom_side">
-    <instance_geometry url="#raspberry_pi_4B-bottom_side">
+   <node id="raspberry_pi_4b-bottom_side-node" name="bottom_side">
+    <instance_geometry url="#raspberry_pi_4b-bottom_side">
      <bind_material><technique_common>
        <instance_material symbol="silver" target="#silver-material"/>
      </technique_common></bind_material>

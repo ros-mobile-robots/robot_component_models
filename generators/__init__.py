@@ -9,11 +9,11 @@ mesh_export.Model objects. `python3 -m generators` writes all meshes and meshes/
 # The parts in the order of the manifest and the README. Each name is a module in this
 # package, a folder in meshes/ and a page in provenance/.
 PARTS = (
-    'caster',
+    'swivel_caster_30mm',
     'rplidar_a2',
     'raspberry_pi_4b',
     'jetson_nano_dev_kit_b01',
     'teensy_4_0',
     'breadboard_400_point',
-    'raspi_cam_v2',
+    'raspberry_pi_camera_v2',
 )

@@ -198,10 +198,10 @@
   <material id="led_red-material" name="led_red"><instance_effect url="#led_red-effect"/></material>
  </library_materials>
  <library_geometries>
-  <geometry id="teensy_4-0-board" name="teensy_4-0-board">
+  <geometry id="teensy_4_0-board" name="teensy_4_0-board">
    <mesh>
-    <source id="teensy_4-0-board-positions">
-     <float_array id="teensy_4-0-board-positions-array" count="8952">
+    <source id="teensy_4_0-board-positions">
+     <float_array id="teensy_4_0-board-positions-array" count="8952">
 -0.01391537 -0.008625528 0 -0.01381184 -0.008804843 0 -0.01387541 -0.008722 0 -0.013929
 -0.008522 0 -0.013529 -0.008922 0 -0.01363253 -0.00890837 0 -0.013729 -0.00886841
 0 -0.01295983 -0.008029234 0 -0.01305766 -0.007923802 0 -0.01283528 -0.008101147 0
@@ -1100,13 +1100,13 @@
 0.007445781 0.00157
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-board-positions-array" count="2984" stride="3">
+      <accessor source="#teensy_4_0-board-positions-array" count="2984" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="teensy_4-0-board-normals">
-     <float_array id="teensy_4-0-board-normals-array" count="8952">
+    <source id="teensy_4_0-board-normals">
+     <float_array id="teensy_4_0-board-normals-array" count="8952">
 0 0 -1 0 0 -1 0 0 -1 0
 0 -1 0 0 -1 0 0 -1 0 0
 -1 0 0 -1 0 0 -1 0 0 -1
@@ -2005,17 +2005,17 @@
 0.29476 0
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-board-normals-array" count="2984" stride="3">
+      <accessor source="#teensy_4_0-board-normals-array" count="2984" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="teensy_4-0-board-vertices">
-     <input semantic="POSITION" source="#teensy_4-0-board-positions"/>
-     <input semantic="NORMAL" source="#teensy_4-0-board-normals"/>
+    <vertices id="teensy_4_0-board-vertices">
+     <input semantic="POSITION" source="#teensy_4_0-board-positions"/>
+     <input semantic="NORMAL" source="#teensy_4_0-board-normals"/>
     </vertices>
     <triangles material="pcb" count="1616">
-     <input semantic="VERTEX" source="#teensy_4-0-board-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-board-vertices" offset="0"/>
      <p>
 0 1 2 3 4 5 3 5 6 3
 6 1 3 1 0 7 4 3 8 7
@@ -2505,7 +2505,7 @@
      </p>
     </triangles>
     <triangles material="fr4" count="56">
-     <input semantic="VERTEX" source="#teensy_4-0-board-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-board-vertices" offset="0"/>
      <p>
 1486 1487 1485 1486 1485 1484 1488 1489 1487 1488
 1487 1486 1490 1491 1489 1490 1489 1488 1492 1493
@@ -2527,7 +2527,7 @@
      </p>
     </triangles>
     <triangles material="gold" count="1428">
-     <input semantic="VERTEX" source="#teensy_4-0-board-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-board-vertices" offset="0"/>
      <p>
 1556 1557 1558 1556 1559 1557 1560 1561 1559 1560
 1559 1556 1562 1563 1561 1562 1561 1560 1564 1565
@@ -2962,10 +2962,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="teensy_4-0-pads" name="teensy_4-0-pads">
+  <geometry id="teensy_4_0-pads" name="teensy_4_0-pads">
    <mesh>
-    <source id="teensy_4-0-pads-positions">
-     <float_array id="teensy_4-0-pads-positions-array" count="36000">
+    <source id="teensy_4_0-pads-positions">
+     <float_array id="teensy_4_0-pads-positions-array" count="36000">
 -0.01175121 0.007868017 0.001565 -0.011709 0.007588 0.001605 -0.011709 0.007588 0.001565 -0.01175121
 0.007868017 0.001605 -0.01187407 0.008123154 0.001565 -0.01187407 0.008123154 0.001605 -0.01206668 0.00833074
 0.001565 -0.01206668 0.00833074 0.001605 -0.01231193 0.00847233 0.001565 -0.01231193 0.00847233 0.001605
@@ -6568,13 +6568,13 @@
 5e-06 -0.013459 0.005108 5e-06 -0.011559 0.004108 5e-06 -0.011559 0.005108 5e-06
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-pads-positions-array" count="12000" stride="3">
+      <accessor source="#teensy_4_0-pads-positions-array" count="12000" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="teensy_4-0-pads-normals">
-     <float_array id="teensy_4-0-pads-normals-array" count="36000">
+    <source id="teensy_4_0-pads-normals">
+     <float_array id="teensy_4_0-pads-normals-array" count="36000">
 0.95557 0.29476 0 1 2.6268e-15 0 1 2.5732e-15 0 0.95557
 0.29476 0 0.82624 0.56332 0 0.82624 0.56332 0 0.62349 0.78183
 0 0.62349 0.78183 0 0.36534 0.93087 0 0.36534 0.93087 0
@@ -10177,17 +10177,17 @@
 1 0 0 1 0 0 1 0 0 1
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-pads-normals-array" count="12000" stride="3">
+      <accessor source="#teensy_4_0-pads-normals-array" count="12000" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="teensy_4-0-pads-vertices">
-     <input semantic="POSITION" source="#teensy_4-0-pads-positions"/>
-     <input semantic="NORMAL" source="#teensy_4-0-pads-normals"/>
+    <vertices id="teensy_4_0-pads-vertices">
+     <input semantic="POSITION" source="#teensy_4_0-pads-positions"/>
+     <input semantic="NORMAL" source="#teensy_4_0-pads-normals"/>
     </vertices>
     <triangles material="gold" count="11712">
-     <input semantic="VERTEX" source="#teensy_4-0-pads-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-pads-vertices" offset="0"/>
      <p>
 0 1 2 0 3 1 4 5 3 4
 3 0 6 7 5 6 5 4 8 9
@@ -13707,10 +13707,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="teensy_4-0-header" name="teensy_4-0-header">
+  <geometry id="teensy_4_0-header" name="teensy_4_0-header">
    <mesh>
-    <source id="teensy_4-0-header-positions">
-     <float_array id="teensy_4-0-header-positions-array" count="16716">
+    <source id="teensy_4_0-header-positions">
+     <float_array id="teensy_4_0-header-positions-array" count="16716">
 -0.012979 0.007268 0.00285 -0.012979 0.007908 -0.00835 -0.012979 0.007268 -0.00835 -0.012979
 0.007908 0.00285 -0.012979 0.007268 0.00285 -0.012979 0.007268 -0.00835 -0.012339 0.007268
 0.00285 -0.012339 0.007268 -0.00835 -0.012979 0.007908 -0.00835 -0.012979 0.007268 -0.00835
@@ -15385,13 +15385,13 @@
 0.021601 -0.008642 -0.0025 0.021601 -0.006662 -0.0025
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-header-positions-array" count="5572" stride="3">
+      <accessor source="#teensy_4_0-header-positions-array" count="5572" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="teensy_4-0-header-normals">
-     <float_array id="teensy_4-0-header-normals-array" count="16716">
+    <source id="teensy_4_0-header-normals">
+     <float_array id="teensy_4_0-header-normals-array" count="16716">
 -1 0 1.586e-16 -1 0 1.586e-16 -1 0 1.586e-16 -1
 0 1.586e-16 0 -1 0 0 -1 0 0 -1
 0 0 -1 0 -0.70711 0 -0.70711 -0.70711 0 -0.70711
@@ -17066,17 +17066,17 @@
 1 0 0 1 0 0
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-header-normals-array" count="5572" stride="3">
+      <accessor source="#teensy_4_0-header-normals-array" count="5572" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="teensy_4-0-header-vertices">
-     <input semantic="POSITION" source="#teensy_4-0-header-positions"/>
-     <input semantic="NORMAL" source="#teensy_4-0-header-normals"/>
+    <vertices id="teensy_4_0-header-vertices">
+     <input semantic="POSITION" source="#teensy_4_0-header-positions"/>
+     <input semantic="NORMAL" source="#teensy_4_0-header-normals"/>
     </vertices>
     <triangles material="gold" count="784">
-     <input semantic="VERTEX" source="#teensy_4-0-header-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-header-vertices" offset="0"/>
      <p>
 0 1 2 0 3 1 6 5 7 6
 4 5 10 11 9 10 9 8 14 12
@@ -17317,7 +17317,7 @@
      </p>
     </triangles>
     <triangles material="solder" count="2856">
-     <input semantic="VERTEX" source="#teensy_4-0-header-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-header-vertices" offset="0"/>
      <p>
 1568 1569 1570 1571 1572 1568 1568 1573 1569 1572
 1574 1568 1575 1576 1571 1575 1577 1576 1575 1570
@@ -18179,7 +18179,7 @@
      </p>
     </triangles>
     <triangles material="plastic_black" count="784">
-     <input semantic="VERTEX" source="#teensy_4-0-header-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-header-vertices" offset="0"/>
      <p>
 4228 4229 4230 4231 4228 4230 4234 4235 4236 4237
 4232 4233 4237 4233 4235 4237 4238 4232 4237 4235
@@ -18421,10 +18421,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="teensy_4-0-mcu" name="teensy_4-0-mcu">
+  <geometry id="teensy_4_0-mcu" name="teensy_4_0-mcu">
    <mesh>
-    <source id="teensy_4-0-mcu-positions">
-     <float_array id="teensy_4-0-mcu-positions-array" count="516">
+    <source id="teensy_4_0-mcu-positions">
+     <float_array id="teensy_4_0-mcu-positions-array" count="516">
 -0.001379 -0.004642 0.00182 -0.001379 0.004558 0.00156 -0.001379 -0.004642 0.00156 -0.001379
 0.004558 0.00182 0.007821 -0.004642 0.00182 0.007821 -0.004642 0.00156 0.007821 0.004558
 0.00156 0.007821 0.004558 0.00182 -0.001379 -0.004642 0.00182 -0.001379 -0.004642 0.00156
@@ -18479,13 +18479,13 @@
 -0.0004224403 -0.00358283 0.002875 -0.0003901068 -0.003515689 0.002875
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-mcu-positions-array" count="172" stride="3">
+      <accessor source="#teensy_4_0-mcu-positions-array" count="172" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="teensy_4-0-mcu-normals">
-     <float_array id="teensy_4-0-mcu-normals-array" count="516">
+    <source id="teensy_4_0-mcu-normals">
+     <float_array id="teensy_4_0-mcu-normals-array" count="516">
 -1 0 0 -1 0 0 -1 0 0 -1
 0 0 1 0 0 1 0 0 1 0
 0 1 0 0 0 -1 0 0 -1 0
@@ -18540,17 +18540,17 @@
 0 0 1 0 0 1
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-mcu-normals-array" count="172" stride="3">
+      <accessor source="#teensy_4_0-mcu-normals-array" count="172" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="teensy_4-0-mcu-vertices">
-     <input semantic="POSITION" source="#teensy_4-0-mcu-positions"/>
-     <input semantic="NORMAL" source="#teensy_4-0-mcu-normals"/>
+    <vertices id="teensy_4_0-mcu-vertices">
+     <input semantic="POSITION" source="#teensy_4_0-mcu-positions"/>
+     <input semantic="NORMAL" source="#teensy_4_0-mcu-normals"/>
     </vertices>
     <triangles material="ic" count="32">
-     <input semantic="VERTEX" source="#teensy_4-0-mcu-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-mcu-vertices" offset="0"/>
      <p>
 0 1 2 0 3 1 4 5 6 4
 6 7 10 9 11 10 8 9 15 14
@@ -18565,7 +18565,7 @@
      </p>
     </triangles>
     <triangles material="substrate" count="12">
-     <input semantic="VERTEX" source="#teensy_4-0-mcu-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-mcu-vertices" offset="0"/>
      <p>
 64 65 66 64 67 65 68 69 70 68
 70 71 74 73 75 74 72 73 79 78
@@ -18574,7 +18574,7 @@
      </p>
     </triangles>
     <triangles material="ic_mark" count="80">
-     <input semantic="VERTEX" source="#teensy_4-0-mcu-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-mcu-vertices" offset="0"/>
      <p>
 88 89 90 88 91 89 92 93 91 92
 91 88 94 95 93 94 93 92 96 97
@@ -18604,10 +18604,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="teensy_4-0-bootloader_chip" name="teensy_4-0-bootloader_chip">
+  <geometry id="teensy_4_0-bootloader_chip" name="teensy_4_0-bootloader_chip">
    <mesh>
-    <source id="teensy_4-0-bootloader_chip-positions">
-     <float_array id="teensy_4-0-bootloader_chip-positions-array" count="1812">
+    <source id="teensy_4_0-bootloader_chip-positions">
+     <float_array id="teensy_4_0-bootloader_chip-positions-array" count="1812">
 -0.006254 0.005083 0.00177 -0.006254 0.005433 0.00156 -0.006254 0.005083 0.00156 -0.006254
 0.005433 0.00177 -0.006004 0.005083 0.00177 -0.006004 0.005083 0.00156 -0.006004 0.005433
 0.00156 -0.006004 0.005433 0.00177 -0.006254 0.005083 0.00177 -0.006254 0.005083 0.00156
@@ -18792,13 +18792,13 @@
 0.002906418 0.002325
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-bootloader_chip-positions-array" count="604" stride="3">
+      <accessor source="#teensy_4_0-bootloader_chip-positions-array" count="604" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="teensy_4-0-bootloader_chip-normals">
-     <float_array id="teensy_4-0-bootloader_chip-normals-array" count="1812">
+    <source id="teensy_4_0-bootloader_chip-normals">
+     <float_array id="teensy_4_0-bootloader_chip-normals-array" count="1812">
 -1 0 0 -1 0 0 -1 0 0 -1
 0 0 1 0 0 1 0 0 1 0
 0 1 0 0 0 -1 0 0 -1 0
@@ -18983,17 +18983,17 @@
 0 1
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-bootloader_chip-normals-array" count="604" stride="3">
+      <accessor source="#teensy_4_0-bootloader_chip-normals-array" count="604" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="teensy_4-0-bootloader_chip-vertices">
-     <input semantic="POSITION" source="#teensy_4-0-bootloader_chip-positions"/>
-     <input semantic="NORMAL" source="#teensy_4-0-bootloader_chip-normals"/>
+    <vertices id="teensy_4_0-bootloader_chip-vertices">
+     <input semantic="POSITION" source="#teensy_4_0-bootloader_chip-positions"/>
+     <input semantic="NORMAL" source="#teensy_4_0-bootloader_chip-normals"/>
     </vertices>
     <triangles material="silver" count="240">
-     <input semantic="VERTEX" source="#teensy_4-0-bootloader_chip-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-bootloader_chip-vertices" offset="0"/>
      <p>
 0 1 2 0 3 1 4 5 6 4
 6 7 10 9 11 10 8 9 15 14
@@ -19070,7 +19070,7 @@
      </p>
     </triangles>
     <triangles material="ic" count="20">
-     <input semantic="VERTEX" source="#teensy_4-0-bootloader_chip-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-bootloader_chip-vertices" offset="0"/>
      <p>
 480 481 482 480 483 481 486 485 487 486
 484 485 490 488 491 490 489 488 495 494
@@ -19081,7 +19081,7 @@
      </p>
     </triangles>
     <triangles material="ic_mark" count="80">
-     <input semantic="VERTEX" source="#teensy_4-0-bootloader_chip-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-bootloader_chip-vertices" offset="0"/>
      <p>
 520 521 522 520 523 521 524 525 523 524
 523 520 526 527 525 526 525 524 528 529
@@ -19111,10 +19111,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="teensy_4-0-leaded_parts" name="teensy_4-0-leaded_parts">
+  <geometry id="teensy_4_0-leaded_parts" name="teensy_4_0-leaded_parts">
    <mesh>
-    <source id="teensy_4-0-leaded_parts-positions">
-     <float_array id="teensy_4-0-leaded_parts-positions-array" count="2136">
+    <source id="teensy_4_0-leaded_parts-positions">
+     <float_array id="teensy_4_0-leaded_parts-positions-array" count="2136">
 -0.005629 -0.000182 0.00172 -0.005629 0.000568 0.00156 -0.005629 -0.000182 0.00156 -0.005629
 0.000568 0.00172 -0.005229 -0.000182 0.00172 -0.005229 -0.000182 0.00156 -0.005229 0.000568
 0.00156 -0.005229 0.000568 0.00172 -0.005629 -0.000182 0.00172 -0.005629 -0.000182 0.00156
@@ -19331,13 +19331,13 @@
 0.011101 -0.004622 0.00212 0.011101 -0.001722 0.00212
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-leaded_parts-positions-array" count="712" stride="3">
+      <accessor source="#teensy_4_0-leaded_parts-positions-array" count="712" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="teensy_4-0-leaded_parts-normals">
-     <float_array id="teensy_4-0-leaded_parts-normals-array" count="2136">
+    <source id="teensy_4_0-leaded_parts-normals">
+     <float_array id="teensy_4_0-leaded_parts-normals-array" count="2136">
 -1 0 0 -1 0 0 -1 0 0 -1
 0 0 1 0 0 1 0 0 1 0
 0 1 0 0 0 -1 0 0 -1 0
@@ -19554,17 +19554,17 @@
 2.3373e-16 0 1 2.3373e-16 0 1
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-leaded_parts-normals-array" count="712" stride="3">
+      <accessor source="#teensy_4_0-leaded_parts-normals-array" count="712" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="teensy_4-0-leaded_parts-vertices">
-     <input semantic="POSITION" source="#teensy_4-0-leaded_parts-positions"/>
-     <input semantic="NORMAL" source="#teensy_4-0-leaded_parts-normals"/>
+    <vertices id="teensy_4_0-leaded_parts-vertices">
+     <input semantic="POSITION" source="#teensy_4_0-leaded_parts-positions"/>
+     <input semantic="NORMAL" source="#teensy_4_0-leaded_parts-normals"/>
     </vertices>
     <triangles material="silver" count="276">
-     <input semantic="VERTEX" source="#teensy_4-0-leaded_parts-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-leaded_parts-vertices" offset="0"/>
      <p>
 0 1 2 0 3 1 4 5 6 4
 6 7 10 9 11 10 8 9 15 14
@@ -19652,7 +19652,7 @@
      </p>
     </triangles>
     <triangles material="ic" count="80">
-     <input semantic="VERTEX" source="#teensy_4-0-leaded_parts-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-leaded_parts-vertices" offset="0"/>
      <p>
 552 553 554 552 555 553 558 557 559 558
 556 557 562 560 563 562 561 560 567 565
@@ -19682,10 +19682,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="teensy_4-0-blocks" name="teensy_4-0-blocks">
+  <geometry id="teensy_4_0-blocks" name="teensy_4_0-blocks">
    <mesh>
-    <source id="teensy_4-0-blocks-positions">
-     <float_array id="teensy_4-0-blocks-positions-array" count="192">
+    <source id="teensy_4_0-blocks-positions">
+     <float_array id="teensy_4_0-blocks-positions-array" count="192">
 0.011876 -0.004962 0.00167 0.011876 -0.001922 0.00156 0.011876 -0.004962 0.00156 0.011876
 -0.001922 0.00167 0.014046 -0.004962 0.00167 0.014046 -0.004962 0.00156 0.014046 -0.001922
 0.00156 0.014046 -0.001922 0.00167 0.011876 -0.004962 0.00167 0.011876 -0.004962 0.00156
@@ -19708,13 +19708,13 @@
 -0.002222 0.00257
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-blocks-positions-array" count="64" stride="3">
+      <accessor source="#teensy_4_0-blocks-positions-array" count="64" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="teensy_4-0-blocks-normals">
-     <float_array id="teensy_4-0-blocks-normals-array" count="192">
+    <source id="teensy_4_0-blocks-normals">
+     <float_array id="teensy_4_0-blocks-normals-array" count="192">
 -1 0 0 -1 0 0 -1 0 0 -1
 0 0 1 0 0 1 0 0 1 0
 0 1 0 0 0 -1 0 0 -1 0
@@ -19737,17 +19737,17 @@
 0 1
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-blocks-normals-array" count="64" stride="3">
+      <accessor source="#teensy_4_0-blocks-normals-array" count="64" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="teensy_4-0-blocks-vertices">
-     <input semantic="POSITION" source="#teensy_4-0-blocks-positions"/>
-     <input semantic="NORMAL" source="#teensy_4-0-blocks-normals"/>
+    <vertices id="teensy_4_0-blocks-vertices">
+     <input semantic="POSITION" source="#teensy_4_0-blocks-positions"/>
+     <input semantic="NORMAL" source="#teensy_4_0-blocks-normals"/>
     </vertices>
     <triangles material="solder" count="12">
-     <input semantic="VERTEX" source="#teensy_4-0-blocks-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-blocks-vertices" offset="0"/>
      <p>
 0 1 2 0 3 1 4 5 6 4
 6 7 10 9 11 10 8 9 15 14
@@ -19756,7 +19756,7 @@
      </p>
     </triangles>
     <triangles material="inductor" count="20">
-     <input semantic="VERTEX" source="#teensy_4-0-blocks-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-blocks-vertices" offset="0"/>
      <p>
 26 25 27 26 24 25 29 28 30 31
 29 30 35 34 32 35 32 33 39 38
@@ -19768,10 +19768,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="teensy_4-0-top_passives" name="teensy_4-0-top_passives">
+  <geometry id="teensy_4_0-top_passives" name="teensy_4_0-top_passives">
    <mesh>
-    <source id="teensy_4-0-top_passives-positions">
-     <float_array id="teensy_4-0-top_passives-positions-array" count="4032">
+    <source id="teensy_4_0-top_passives-positions">
+     <float_array id="teensy_4_0-top_passives-positions-array" count="4032">
 -0.008509 0.002948 0.00167 -0.008509 0.004608 0.00156 -0.008509 0.002948 0.00156 -0.008509
 0.004608 0.00167 -0.007709 0.002948 0.00167 -0.007709 0.002948 0.00156 -0.007709 0.004608
 0.00156 -0.007709 0.004608 0.00167 -0.008509 0.002948 0.00167 -0.008509 0.002948 0.00156
@@ -20178,13 +20178,13 @@
 0.004236 0.00217
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-top_passives-positions-array" count="1344" stride="3">
+      <accessor source="#teensy_4_0-top_passives-positions-array" count="1344" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="teensy_4-0-top_passives-normals">
-     <float_array id="teensy_4-0-top_passives-normals-array" count="4032">
+    <source id="teensy_4_0-top_passives-normals">
+     <float_array id="teensy_4_0-top_passives-normals-array" count="4032">
 -1 0 0 -1 0 0 -1 0 0 -1
 0 0 1 0 0 1 0 0 1 0
 0 1 0 0 0 -1 0 0 -1 0
@@ -20591,17 +20591,17 @@
 0 1
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-top_passives-normals-array" count="1344" stride="3">
+      <accessor source="#teensy_4_0-top_passives-normals-array" count="1344" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="teensy_4-0-top_passives-vertices">
-     <input semantic="POSITION" source="#teensy_4-0-top_passives-positions"/>
-     <input semantic="NORMAL" source="#teensy_4-0-top_passives-normals"/>
+    <vertices id="teensy_4_0-top_passives-vertices">
+     <input semantic="POSITION" source="#teensy_4_0-top_passives-positions"/>
+     <input semantic="NORMAL" source="#teensy_4_0-top_passives-normals"/>
     </vertices>
     <triangles material="solder" count="168">
-     <input semantic="VERTEX" source="#teensy_4-0-top_passives-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-top_passives-vertices" offset="0"/>
      <p>
 0 1 2 0 3 1 4 5 6 4
 6 7 10 9 11 10 8 9 15 14
@@ -20657,7 +20657,7 @@
      </p>
     </triangles>
     <triangles material="silver" count="336">
-     <input semantic="VERTEX" source="#teensy_4-0-top_passives-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-top_passives-vertices" offset="0"/>
      <p>
 336 337 338 336 339 337 340 341 342 340
 342 343 346 345 347 346 344 345 351 350
@@ -20763,7 +20763,7 @@
      </p>
     </triangles>
     <triangles material="cap" count="120">
-     <input semantic="VERTEX" source="#teensy_4-0-top_passives-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-top_passives-vertices" offset="0"/>
      <p>
 1008 1009 1010 1008 1011 1009 1012 1013 1014 1012
 1014 1015 1018 1017 1019 1018 1016 1017 1023 1022
@@ -20804,7 +20804,7 @@
      </p>
     </triangles>
     <triangles material="res" count="24">
-     <input semantic="VERTEX" source="#teensy_4-0-top_passives-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-top_passives-vertices" offset="0"/>
      <p>
 1248 1249 1250 1248 1251 1249 1252 1253 1254 1252
 1254 1255 1258 1257 1259 1258 1256 1257 1263 1262
@@ -20817,7 +20817,7 @@
      </p>
     </triangles>
     <triangles material="led_orange" count="12">
-     <input semantic="VERTEX" source="#teensy_4-0-top_passives-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-top_passives-vertices" offset="0"/>
      <p>
 1296 1297 1298 1296 1299 1297 1300 1301 1302 1300
 1302 1303 1306 1305 1307 1306 1304 1305 1311 1310
@@ -20826,7 +20826,7 @@
      </p>
     </triangles>
     <triangles material="led_red" count="12">
-     <input semantic="VERTEX" source="#teensy_4-0-top_passives-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-top_passives-vertices" offset="0"/>
      <p>
 1320 1321 1322 1320 1323 1321 1324 1325 1326 1324
 1326 1327 1330 1329 1331 1330 1328 1329 1335 1334
@@ -20836,10 +20836,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="teensy_4-0-bottom_passives" name="teensy_4-0-bottom_passives">
+  <geometry id="teensy_4_0-bottom_passives" name="teensy_4_0-bottom_passives">
    <mesh>
-    <source id="teensy_4-0-bottom_passives-positions">
-     <float_array id="teensy_4-0-bottom_passives-positions-array" count="7200">
+    <source id="teensy_4_0-bottom_passives-positions">
+     <float_array id="teensy_4_0-bottom_passives-positions-array" count="7200">
 -0.001634 -0.000152 1e-05 -0.001634 0.002228 -0.0001 -0.001634 -0.000152 -0.0001 -0.001634
 0.002228 1e-05 -0.000744 -0.000152 1e-05 -0.000744 -0.000152 -0.0001 -0.000744 0.002228
 -0.0001 -0.000744 0.002228 1e-05 -0.001634 -0.000152 1e-05 -0.001634 -0.000152 -0.0001
@@ -21562,13 +21562,13 @@
 1e-05 0.008213 -0.002842 1e-05 0.009129 -0.003642 1e-05 0.009129 -0.002842 1e-05
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-bottom_passives-positions-array" count="2400" stride="3">
+      <accessor source="#teensy_4_0-bottom_passives-positions-array" count="2400" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="teensy_4-0-bottom_passives-normals">
-     <float_array id="teensy_4-0-bottom_passives-normals-array" count="7200">
+    <source id="teensy_4_0-bottom_passives-normals">
+     <float_array id="teensy_4_0-bottom_passives-normals-array" count="7200">
 -1 0 0 -1 0 0 -1 0 0 -1
 0 0 1 0 0 1 0 0 1 0
 0 1 0 0 0 -1 0 0 -1 0
@@ -22291,17 +22291,17 @@
 1 0 0 1 0 0 1 0 0 1
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-bottom_passives-normals-array" count="2400" stride="3">
+      <accessor source="#teensy_4_0-bottom_passives-normals-array" count="2400" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="teensy_4-0-bottom_passives-vertices">
-     <input semantic="POSITION" source="#teensy_4-0-bottom_passives-positions"/>
-     <input semantic="NORMAL" source="#teensy_4-0-bottom_passives-normals"/>
+    <vertices id="teensy_4_0-bottom_passives-vertices">
+     <input semantic="POSITION" source="#teensy_4_0-bottom_passives-positions"/>
+     <input semantic="NORMAL" source="#teensy_4_0-bottom_passives-normals"/>
     </vertices>
     <triangles material="solder" count="300">
-     <input semantic="VERTEX" source="#teensy_4-0-bottom_passives-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-bottom_passives-vertices" offset="0"/>
      <p>
 0 1 2 0 3 1 4 5 6 4
 6 7 10 9 11 10 8 9 15 14
@@ -22396,7 +22396,7 @@
      </p>
     </triangles>
     <triangles material="silver" count="600">
-     <input semantic="VERTEX" source="#teensy_4-0-bottom_passives-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-bottom_passives-vertices" offset="0"/>
      <p>
 600 601 602 600 603 601 604 605 606 604
 606 607 610 609 611 610 608 609 615 614
@@ -22581,7 +22581,7 @@
      </p>
     </triangles>
     <triangles material="cap" count="216">
-     <input semantic="VERTEX" source="#teensy_4-0-bottom_passives-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-bottom_passives-vertices" offset="0"/>
      <p>
 1800 1801 1802 1800 1803 1801 1804 1805 1806 1804
 1806 1807 1810 1809 1811 1810 1808 1809 1815 1814
@@ -22651,7 +22651,7 @@
      </p>
     </triangles>
     <triangles material="res" count="36">
-     <input semantic="VERTEX" source="#teensy_4-0-bottom_passives-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-bottom_passives-vertices" offset="0"/>
      <p>
 2232 2233 2234 2232 2235 2233 2236 2237 2238 2236
 2238 2239 2242 2241 2243 2242 2240 2241 2247 2246
@@ -22667,7 +22667,7 @@
      </p>
     </triangles>
     <triangles material="ceramic" count="24">
-     <input semantic="VERTEX" source="#teensy_4-0-bottom_passives-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-bottom_passives-vertices" offset="0"/>
      <p>
 2304 2305 2306 2304 2307 2305 2308 2309 2310 2308
 2310 2311 2314 2313 2315 2314 2312 2313 2319 2318
@@ -22680,7 +22680,7 @@
      </p>
     </triangles>
     <triangles material="inductor" count="24">
-     <input semantic="VERTEX" source="#teensy_4-0-bottom_passives-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-bottom_passives-vertices" offset="0"/>
      <p>
 2352 2353 2354 2352 2355 2353 2356 2357 2358 2356
 2358 2359 2362 2361 2363 2362 2360 2361 2367 2366
@@ -22694,10 +22694,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="teensy_4-0-crystals" name="teensy_4-0-crystals">
+  <geometry id="teensy_4_0-crystals" name="teensy_4_0-crystals">
    <mesh>
-    <source id="teensy_4-0-crystals-positions">
-     <float_array id="teensy_4-0-crystals-positions-array" count="504">
+    <source id="teensy_4_0-crystals-positions">
+     <float_array id="teensy_4_0-crystals-positions-array" count="504">
 0.009511 0.001498 0.00167 0.009511 0.005098 0.00156 0.009511 0.001498 0.00156 0.009511
 0.005098 0.00167 0.012391 0.001498 0.00167 0.012391 0.001498 0.00156 0.012391 0.005098
 0.00156 0.012391 0.005098 0.00167 0.009511 0.001498 0.00167 0.009511 0.001498 0.00156
@@ -22751,13 +22751,13 @@
 0.00247 0.016811 0.004038 0.00247
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-crystals-positions-array" count="168" stride="3">
+      <accessor source="#teensy_4_0-crystals-positions-array" count="168" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="teensy_4-0-crystals-normals">
-     <float_array id="teensy_4-0-crystals-normals-array" count="504">
+    <source id="teensy_4_0-crystals-normals">
+     <float_array id="teensy_4_0-crystals-normals-array" count="504">
 -1 0 0 -1 0 0 -1 0 0 -1
 0 0 1 0 0 1 0 0 1 0
 0 1 0 0 0 -1 0 0 -1 0
@@ -22811,17 +22811,17 @@
 1 0 0 1
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-crystals-normals-array" count="168" stride="3">
+      <accessor source="#teensy_4_0-crystals-normals-array" count="168" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="teensy_4-0-crystals-vertices">
-     <input semantic="POSITION" source="#teensy_4-0-crystals-positions"/>
-     <input semantic="NORMAL" source="#teensy_4-0-crystals-normals"/>
+    <vertices id="teensy_4_0-crystals-vertices">
+     <input semantic="POSITION" source="#teensy_4_0-crystals-positions"/>
+     <input semantic="NORMAL" source="#teensy_4_0-crystals-normals"/>
     </vertices>
     <triangles material="solder" count="24">
-     <input semantic="VERTEX" source="#teensy_4-0-crystals-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-crystals-vertices" offset="0"/>
      <p>
 0 1 2 0 3 1 4 5 6 4
 6 7 10 9 11 10 8 9 15 14
@@ -22834,7 +22834,7 @@
      </p>
     </triangles>
     <triangles material="silver" count="36">
-     <input semantic="VERTEX" source="#teensy_4-0-crystals-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-crystals-vertices" offset="0"/>
      <p>
 48 49 50 48 51 49 52 53 54 52
 54 55 58 57 59 58 56 57 63 62
@@ -22850,7 +22850,7 @@
      </p>
     </triangles>
     <triangles material="ceramic" count="12">
-     <input semantic="VERTEX" source="#teensy_4-0-crystals-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-crystals-vertices" offset="0"/>
      <p>
 120 121 122 120 123 121 124 125 126 124
 126 127 130 129 131 130 128 129 135 134
@@ -22859,7 +22859,7 @@
      </p>
     </triangles>
     <triangles material="ceramic_grey" count="12">
-     <input semantic="VERTEX" source="#teensy_4-0-crystals-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-crystals-vertices" offset="0"/>
      <p>
 144 145 146 144 147 145 148 149 150 148
 150 151 154 153 155 154 152 153 159 158
@@ -22869,10 +22869,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="teensy_4-0-usb" name="teensy_4-0-usb">
+  <geometry id="teensy_4_0-usb" name="teensy_4_0-usb">
    <mesh>
-    <source id="teensy_4-0-usb-positions">
-     <float_array id="teensy_4-0-usb-positions-array" count="1152">
+    <source id="teensy_4_0-usb-positions">
+     <float_array id="teensy_4_0-usb-positions-array" count="1152">
 -0.014629 0.003068 0.00192 -0.014629 0.003368 0.00222 -0.014629 0.003998 0.001285 -0.014629
 0.003998 0.004355 -0.014629 0.003368 0.00342 -0.014629 0.003068 0.00372 -0.014629 -0.004062
 0.001285 -0.014629 -0.003132 0.00192 -0.014629 -0.003432 0.00222 -0.014629 -0.003432 0.00342
@@ -22991,13 +22991,13 @@
 -0.002012 0.00408
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-usb-positions-array" count="384" stride="3">
+      <accessor source="#teensy_4_0-usb-positions-array" count="384" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="teensy_4-0-usb-normals">
-     <float_array id="teensy_4-0-usb-normals-array" count="1152">
+    <source id="teensy_4_0-usb-normals">
+     <float_array id="teensy_4_0-usb-normals-array" count="1152">
 -1 0 0 -1 0 0 -1 0 0 -1
 0 0 -1 0 0 -1 0 0 -1 0
 0 -1 0 0 -1 0 0 -1 0 0
@@ -23116,17 +23116,17 @@
 0 1
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-usb-normals-array" count="384" stride="3">
+      <accessor source="#teensy_4_0-usb-normals-array" count="384" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="teensy_4-0-usb-vertices">
-     <input semantic="POSITION" source="#teensy_4-0-usb-positions"/>
-     <input semantic="NORMAL" source="#teensy_4-0-usb-normals"/>
+    <vertices id="teensy_4_0-usb-vertices">
+     <input semantic="POSITION" source="#teensy_4_0-usb-positions"/>
+     <input semantic="NORMAL" source="#teensy_4_0-usb-normals"/>
     </vertices>
     <triangles material="silver" count="144">
-     <input semantic="VERTEX" source="#teensy_4-0-usb-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-usb-vertices" offset="0"/>
      <p>
 0 1 2 3 1 4 3 2 1 5
 3 4 6 7 0 6 0 2 8 7
@@ -23175,7 +23175,7 @@
      </p>
     </triangles>
     <triangles material="plastic_black" count="36">
-     <input semantic="VERTEX" source="#teensy_4-0-usb-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-usb-vertices" offset="0"/>
      <p>
 264 265 266 264 267 265 268 269 270 268
 270 271 274 273 275 274 272 273 279 278
@@ -23191,7 +23191,7 @@
      </p>
     </triangles>
     <triangles material="usb_slot" count="24">
-     <input semantic="VERTEX" source="#teensy_4-0-usb-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-usb-vertices" offset="0"/>
      <p>
 336 337 338 336 339 337 340 341 342 340
 342 343 346 345 347 346 344 345 351 350
@@ -23205,10 +23205,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="teensy_4-0-button" name="teensy_4-0-button">
+  <geometry id="teensy_4_0-button" name="teensy_4_0-button">
    <mesh>
-    <source id="teensy_4-0-button-positions">
-     <float_array id="teensy_4-0-button-positions-array" count="1176">
+    <source id="teensy_4_0-button-positions">
+     <float_array id="teensy_4_0-button-positions-array" count="1176">
 0.014561 -0.001802 0.00317 0.014561 0.001778 0.00156 0.014561 -0.001802 0.00156 0.014561
 0.001778 0.00317 0.018761 -0.001802 0.00317 0.018761 -0.001802 0.00156 0.018761 0.001778
 0.00156 0.018761 0.001778 0.00317 0.014561 -0.001802 0.00317 0.014561 -0.001802 0.00156
@@ -23329,13 +23329,13 @@
 0.01816363 0.000788 0.00407 0.017761 0.001190628 0.00407
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-button-positions-array" count="392" stride="3">
+      <accessor source="#teensy_4_0-button-positions-array" count="392" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="teensy_4-0-button-normals">
-     <float_array id="teensy_4-0-button-normals-array" count="1176">
+    <source id="teensy_4_0-button-normals">
+     <float_array id="teensy_4_0-button-normals-array" count="1176">
 -1 0 0 -1 0 0 -1 0 0 -1
 0 0 1 0 0 1 0 0 1 0
 0 1 0 0 0 -1 0 0 -1 0
@@ -23456,17 +23456,17 @@
 0 0 1 0 0 1
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-button-normals-array" count="392" stride="3">
+      <accessor source="#teensy_4_0-button-normals-array" count="392" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="teensy_4-0-button-vertices">
-     <input semantic="POSITION" source="#teensy_4-0-button-positions"/>
-     <input semantic="NORMAL" source="#teensy_4-0-button-normals"/>
+    <vertices id="teensy_4_0-button-vertices">
+     <input semantic="POSITION" source="#teensy_4_0-button-positions"/>
+     <input semantic="NORMAL" source="#teensy_4_0-button-normals"/>
     </vertices>
     <triangles material="ic" count="12">
-     <input semantic="VERTEX" source="#teensy_4-0-button-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-button-vertices" offset="0"/>
      <p>
 0 1 2 0 3 1 4 5 6 4
 6 7 10 9 11 10 8 9 15 14
@@ -23475,7 +23475,7 @@
      </p>
     </triangles>
     <triangles material="button_frame" count="192">
-     <input semantic="VERTEX" source="#teensy_4-0-button-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-button-vertices" offset="0"/>
      <p>
 24 25 26 24 27 25 30 29 31 30
 28 29 34 35 32 34 32 33 37 38
@@ -23538,7 +23538,7 @@
      </p>
     </triangles>
     <triangles material="button_cap" count="108">
-     <input semantic="VERTEX" source="#teensy_4-0-button-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-button-vertices" offset="0"/>
      <p>
 280 281 282 280 283 281 310 284 282 310
 282 281 311 285 284 311 284 310 312 287
@@ -23577,10 +23577,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="teensy_4-0-test_pads" name="teensy_4-0-test_pads">
+  <geometry id="teensy_4_0-test_pads" name="teensy_4_0-test_pads">
    <mesh>
-    <source id="teensy_4-0-test_pads-positions">
-     <float_array id="teensy_4-0-test_pads-positions-array" count="4536">
+    <source id="teensy_4_0-test_pads-positions">
+     <float_array id="teensy_4_0-test_pads-positions-array" count="4536">
 -0.01099677 0.006475902 0.001563 -0.010979 0.006358 0.001607 -0.010979 0.006358 0.001563 -0.01099677
 0.006475902 0.001607 -0.0110485 0.006583328 0.001563 -0.0110485 0.006583328 0.001607 -0.0111296 0.006670733
 0.001563 -0.0111296 0.006670733 0.001607 -0.01123286 0.006730349 0.001563 -0.01123286 0.006730349 0.001607
@@ -24037,13 +24037,13 @@
 0.0194015 0.005932672 5e-06 0.01945323 0.006040098 5e-06
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-test_pads-positions-array" count="1512" stride="3">
+      <accessor source="#teensy_4_0-test_pads-positions-array" count="1512" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="teensy_4-0-test_pads-normals">
-     <float_array id="teensy_4-0-test_pads-normals-array" count="4536">
+    <source id="teensy_4_0-test_pads-normals">
+     <float_array id="teensy_4_0-test_pads-normals-array" count="4536">
 0.95557 0.29476 0 1 8.9347e-18 0 1 -5.3608e-17 0 0.95557
 0.29476 0 0.82624 0.56332 0 0.82624 0.56332 0 0.62349 0.78183
 0 0.62349 0.78183 0 0.36534 0.93087 0 0.36534 0.93087 0
@@ -24500,17 +24500,17 @@
 0 0 1 0 0 1
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-test_pads-normals-array" count="1512" stride="3">
+      <accessor source="#teensy_4_0-test_pads-normals-array" count="1512" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="teensy_4-0-test_pads-vertices">
-     <input semantic="POSITION" source="#teensy_4-0-test_pads-positions"/>
-     <input semantic="NORMAL" source="#teensy_4-0-test_pads-normals"/>
+    <vertices id="teensy_4_0-test_pads-vertices">
+     <input semantic="POSITION" source="#teensy_4_0-test_pads-positions"/>
+     <input semantic="NORMAL" source="#teensy_4_0-test_pads-normals"/>
     </vertices>
     <triangles material="gold" count="480">
-     <input semantic="VERTEX" source="#teensy_4-0-test_pads-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-test_pads-vertices" offset="0"/>
      <p>
 0 1 2 0 3 1 4 5 3 4
 3 0 6 7 5 6 5 4 8 9
@@ -24659,7 +24659,7 @@
      </p>
     </triangles>
     <triangles material="copper" count="1008">
-     <input semantic="VERTEX" source="#teensy_4-0-test_pads-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-test_pads-vertices" offset="0"/>
      <p>
 504 505 506 504 507 505 508 509 507 508
 507 504 510 511 509 510 509 508 512 513
@@ -24968,10 +24968,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="teensy_4-0-bottom_features" name="teensy_4-0-bottom_features">
+  <geometry id="teensy_4_0-bottom_features" name="teensy_4_0-bottom_features">
    <mesh>
-    <source id="teensy_4-0-bottom_features-positions">
-     <float_array id="teensy_4-0-bottom_features-positions-array" count="4620">
+    <source id="teensy_4_0-bottom_features-positions">
+     <float_array id="teensy_4_0-bottom_features-positions-array" count="4620">
 -0.011919 0.002908 -3.5e-05 -0.012939 0.002908 5e-06 -0.012939 0.002908 -3.5e-05 -0.011919
 0.002908 5e-06 -0.013027 0.002919585 -3.5e-05 -0.013109 0.002953551 -3.5e-05 -0.01317942 0.003007584
 -3.5e-05 -0.01323345 0.003078 -3.5e-05 -0.01326741 0.003160002 -3.5e-05 -0.013279 0.003248 -3.5e-05
@@ -25436,13 +25436,13 @@
 7e-06 -0.01199776 -0.003512 7e-06 -0.012049 -0.003460756 7e-06 -0.01208277 -0.00344677 7e-06
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-bottom_features-positions-array" count="1540" stride="3">
+      <accessor source="#teensy_4_0-bottom_features-positions-array" count="1540" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="teensy_4-0-bottom_features-normals">
-     <float_array id="teensy_4-0-bottom_features-normals-array" count="4620">
+    <source id="teensy_4_0-bottom_features-normals">
+     <float_array id="teensy_4_0-bottom_features-normals-array" count="4620">
 0.065403 -0.99786 0 -0.065403 -0.99786 0 -0.065403 -0.99786 0 0.065403
 -0.99786 0 -0.25882 -0.96593 0 -0.5 -0.86603 0 -0.70711 -0.70711
 0 -0.86603 -0.5 0 -0.96593 -0.25882 0 -0.99786 -0.065403 0
@@ -25907,17 +25907,17 @@
 1 0 0 1 0 0 1 0 0 1
      </float_array>
      <technique_common>
-      <accessor source="#teensy_4-0-bottom_features-normals-array" count="1540" stride="3">
+      <accessor source="#teensy_4_0-bottom_features-normals-array" count="1540" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="teensy_4-0-bottom_features-vertices">
-     <input semantic="POSITION" source="#teensy_4-0-bottom_features-positions"/>
-     <input semantic="NORMAL" source="#teensy_4-0-bottom_features-normals"/>
+    <vertices id="teensy_4_0-bottom_features-vertices">
+     <input semantic="POSITION" source="#teensy_4_0-bottom_features-positions"/>
+     <input semantic="NORMAL" source="#teensy_4_0-bottom_features-normals"/>
     </vertices>
     <triangles material="gold" count="1256">
-     <input semantic="VERTEX" source="#teensy_4-0-bottom_features-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-bottom_features-vertices" offset="0"/>
      <p>
 0 1 2 0 3 1 9 35 48 9
 48 16 47 46 14 47 14 15 46 45
@@ -26299,7 +26299,7 @@
      </p>
     </triangles>
     <triangles material="plastic_black" count="216">
-     <input semantic="VERTEX" source="#teensy_4-0-bottom_features-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#teensy_4_0-bottom_features-vertices" offset="0"/>
      <p>
 1316 1317 1318 1316 1319 1317 1346 1320 1318 1346
 1318 1317 1347 1321 1320 1347 1320 1346 1348 1322
@@ -26372,9 +26372,9 @@
   </geometry>
  </library_geometries>
  <library_visual_scenes>
-  <visual_scene id="scene" name="teensy_4-0">
-   <node id="teensy_4-0-board-node" name="board">
-    <instance_geometry url="#teensy_4-0-board">
+  <visual_scene id="scene" name="teensy_4_0">
+   <node id="teensy_4_0-board-node" name="board">
+    <instance_geometry url="#teensy_4_0-board">
      <bind_material><technique_common>
        <instance_material symbol="pcb" target="#pcb-material"/>
        <instance_material symbol="fr4" target="#fr4-material"/>
@@ -26382,15 +26382,15 @@
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="teensy_4-0-pads-node" name="pads">
-    <instance_geometry url="#teensy_4-0-pads">
+   <node id="teensy_4_0-pads-node" name="pads">
+    <instance_geometry url="#teensy_4_0-pads">
      <bind_material><technique_common>
        <instance_material symbol="gold" target="#gold-material"/>
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="teensy_4-0-header-node" name="header">
-    <instance_geometry url="#teensy_4-0-header">
+   <node id="teensy_4_0-header-node" name="header">
+    <instance_geometry url="#teensy_4_0-header">
      <bind_material><technique_common>
        <instance_material symbol="gold" target="#gold-material"/>
        <instance_material symbol="solder" target="#solder-material"/>
@@ -26398,8 +26398,8 @@
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="teensy_4-0-mcu-node" name="mcu">
-    <instance_geometry url="#teensy_4-0-mcu">
+   <node id="teensy_4_0-mcu-node" name="mcu">
+    <instance_geometry url="#teensy_4_0-mcu">
      <bind_material><technique_common>
        <instance_material symbol="ic" target="#ic-material"/>
        <instance_material symbol="substrate" target="#substrate-material"/>
@@ -26407,8 +26407,8 @@
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="teensy_4-0-bootloader_chip-node" name="bootloader_chip">
-    <instance_geometry url="#teensy_4-0-bootloader_chip">
+   <node id="teensy_4_0-bootloader_chip-node" name="bootloader_chip">
+    <instance_geometry url="#teensy_4_0-bootloader_chip">
      <bind_material><technique_common>
        <instance_material symbol="silver" target="#silver-material"/>
        <instance_material symbol="ic" target="#ic-material"/>
@@ -26416,24 +26416,24 @@
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="teensy_4-0-leaded_parts-node" name="leaded_parts">
-    <instance_geometry url="#teensy_4-0-leaded_parts">
+   <node id="teensy_4_0-leaded_parts-node" name="leaded_parts">
+    <instance_geometry url="#teensy_4_0-leaded_parts">
      <bind_material><technique_common>
        <instance_material symbol="silver" target="#silver-material"/>
        <instance_material symbol="ic" target="#ic-material"/>
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="teensy_4-0-blocks-node" name="blocks">
-    <instance_geometry url="#teensy_4-0-blocks">
+   <node id="teensy_4_0-blocks-node" name="blocks">
+    <instance_geometry url="#teensy_4_0-blocks">
      <bind_material><technique_common>
        <instance_material symbol="solder" target="#solder-material"/>
        <instance_material symbol="inductor" target="#inductor-material"/>
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="teensy_4-0-top_passives-node" name="top_passives">
-    <instance_geometry url="#teensy_4-0-top_passives">
+   <node id="teensy_4_0-top_passives-node" name="top_passives">
+    <instance_geometry url="#teensy_4_0-top_passives">
      <bind_material><technique_common>
        <instance_material symbol="solder" target="#solder-material"/>
        <instance_material symbol="silver" target="#silver-material"/>
@@ -26444,8 +26444,8 @@
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="teensy_4-0-bottom_passives-node" name="bottom_passives">
-    <instance_geometry url="#teensy_4-0-bottom_passives">
+   <node id="teensy_4_0-bottom_passives-node" name="bottom_passives">
+    <instance_geometry url="#teensy_4_0-bottom_passives">
      <bind_material><technique_common>
        <instance_material symbol="solder" target="#solder-material"/>
        <instance_material symbol="silver" target="#silver-material"/>
@@ -26456,8 +26456,8 @@
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="teensy_4-0-crystals-node" name="crystals">
-    <instance_geometry url="#teensy_4-0-crystals">
+   <node id="teensy_4_0-crystals-node" name="crystals">
+    <instance_geometry url="#teensy_4_0-crystals">
      <bind_material><technique_common>
        <instance_material symbol="solder" target="#solder-material"/>
        <instance_material symbol="silver" target="#silver-material"/>
@@ -26466,8 +26466,8 @@
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="teensy_4-0-usb-node" name="usb">
-    <instance_geometry url="#teensy_4-0-usb">
+   <node id="teensy_4_0-usb-node" name="usb">
+    <instance_geometry url="#teensy_4_0-usb">
      <bind_material><technique_common>
        <instance_material symbol="silver" target="#silver-material"/>
        <instance_material symbol="plastic_black" target="#plastic_black-material"/>
@@ -26475,8 +26475,8 @@
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="teensy_4-0-button-node" name="button">
-    <instance_geometry url="#teensy_4-0-button">
+   <node id="teensy_4_0-button-node" name="button">
+    <instance_geometry url="#teensy_4_0-button">
      <bind_material><technique_common>
        <instance_material symbol="ic" target="#ic-material"/>
        <instance_material symbol="button_frame" target="#button_frame-material"/>
@@ -26484,16 +26484,16 @@
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="teensy_4-0-test_pads-node" name="test_pads">
-    <instance_geometry url="#teensy_4-0-test_pads">
+   <node id="teensy_4_0-test_pads-node" name="test_pads">
+    <instance_geometry url="#teensy_4_0-test_pads">
      <bind_material><technique_common>
        <instance_material symbol="gold" target="#gold-material"/>
        <instance_material symbol="copper" target="#copper-material"/>
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="teensy_4-0-bottom_features-node" name="bottom_features">
-    <instance_geometry url="#teensy_4-0-bottom_features">
+   <node id="teensy_4_0-bottom_features-node" name="bottom_features">
+    <instance_geometry url="#teensy_4_0-bottom_features">
      <bind_material><technique_common>
        <instance_material symbol="gold" target="#gold-material"/>
        <instance_material symbol="plastic_black" target="#plastic_black-material"/>

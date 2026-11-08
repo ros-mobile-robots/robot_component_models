@@ -25,7 +25,7 @@ TITLE = 'Teensy 4.0 with two 14-pin headers'
 Piece = Tuple[str, cq.Workplane]
 
 # --- Parameters (mm) ---------------------------------------------------------------------------
-NAME = 'teensy_4-0'
+NAME = 'teensy_4_0'
 PITCH = 2.54
 BOARD_L, BOARD_W, BOARD_T = 35.56, 17.78, 1.57  # PJRC drawing: 1.4 x 0.7 in, 1.57 mm thick
 CORNER_R = 0.4

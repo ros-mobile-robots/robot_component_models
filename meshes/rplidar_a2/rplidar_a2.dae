@@ -45,10 +45,10 @@
   <material id="window-material" name="window"><instance_effect url="#window-effect"/></material>
  </library_materials>
  <library_geometries>
-  <geometry id="rplidar-a2-housing" name="rplidar-a2-housing">
+  <geometry id="rplidar_a2-housing" name="rplidar_a2-housing">
    <mesh>
-    <source id="rplidar-a2-housing-positions">
-     <float_array id="rplidar-a2-housing-positions-array" count="23760">
+    <source id="rplidar_a2-housing-positions">
+     <float_array id="rplidar_a2-housing-positions-array" count="23760">
 0.03625 0 -0.00915 0.03617074 0.00239578 -0.00915 0.03593332 0.00478109 -0.00915 0.03553877
 0.00714549 -0.00915 0.03498882 0.00947865 -0.00915 0.03428588 0.01177036 -0.00915 0.033433 0.01401059
 -0.00915 0.03243394 0.01618957 -0.00915 0.03129305 0.01829775 -0.00915 0.03001532 0.02032592 -0.00915
@@ -2427,13 +2427,13 @@
 -0.02586 -0.01973344 0.0203173 -0.02586 -0.01966518 0.02049121 -0.02586 -0.01962361 0.02067335 -0.02586
      </float_array>
      <technique_common>
-      <accessor source="#rplidar-a2-housing-positions-array" count="7920" stride="3">
+      <accessor source="#rplidar_a2-housing-positions-array" count="7920" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="rplidar-a2-housing-normals">
-     <float_array id="rplidar-a2-housing-normals-array" count="23760">
+    <source id="rplidar_a2-housing-normals">
+     <float_array id="rplidar_a2-housing-normals-array" count="23760">
 -0 0 -1 -0 0 -1 -0 0 -1 -0
 0 -1 -0 0 -1 -0 0 -1 -0 0
 -1 -0 0 -1 -0 0 -1 -0 0 -1
@@ -4812,17 +4812,17 @@
 -1 -0 -0 -1 -0 -0 -1 -0 -0 -1
      </float_array>
      <technique_common>
-      <accessor source="#rplidar-a2-housing-normals-array" count="7920" stride="3">
+      <accessor source="#rplidar_a2-housing-normals-array" count="7920" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="rplidar-a2-housing-vertices">
-     <input semantic="POSITION" source="#rplidar-a2-housing-positions"/>
-     <input semantic="NORMAL" source="#rplidar-a2-housing-normals"/>
+    <vertices id="rplidar_a2-housing-vertices">
+     <input semantic="POSITION" source="#rplidar_a2-housing-positions"/>
+     <input semantic="NORMAL" source="#rplidar_a2-housing-normals"/>
     </vertices>
     <triangles material="body" count="10192">
-     <input semantic="VERTEX" source="#rplidar-a2-housing-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#rplidar_a2-housing-vertices" offset="0"/>
      <p>
 176 83 82 177 84 83 177 83 176 175
 82 81 175 176 82 178 84 177 178 85
@@ -7886,10 +7886,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="rplidar-a2-trim" name="rplidar-a2-trim">
+  <geometry id="rplidar_a2-trim" name="rplidar_a2-trim">
    <mesh>
-    <source id="rplidar-a2-trim-positions">
-     <float_array id="rplidar-a2-trim-positions-array" count="5886">
+    <source id="rplidar_a2-trim-positions">
+     <float_array id="rplidar_a2-trim-positions-array" count="5886">
 0.03625 0 -0.01045 0.03617074 0.00239578 -0.01045 0.03593332 0.00478109 -0.01045 0.03553877
 0.00714549 -0.01045 0.03498882 0.00947865 -0.01045 0.03428588 0.01177036 -0.01045 0.033433 0.01401059
 -0.01045 0.03243394 0.01618957 -0.01045 0.03129305 0.01829775 -0.01045 0.03001532 0.02032592 -0.01045
@@ -8481,13 +8481,13 @@
 0.01977945 0.02463071 0.00768372 0.01945505 0.02566614 0.00713394
      </float_array>
      <technique_common>
-      <accessor source="#rplidar-a2-trim-positions-array" count="1962" stride="3">
+      <accessor source="#rplidar_a2-trim-positions-array" count="1962" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="rplidar-a2-trim-normals">
-     <float_array id="rplidar-a2-trim-normals-array" count="5886">
+    <source id="rplidar_a2-trim-normals">
+     <float_array id="rplidar_a2-trim-normals-array" count="5886">
 -0 0 -1 -0 0 -1 -0 0 -1 -0
 0 -1 -0 0 -1 -0 0 -1 -0 0
 -1 -0 0 -1 -0 0 -1 -0 0 -1
@@ -9079,17 +9079,17 @@
 -0.39694 -0.4943 -0.77337 -0.42022 -0.55437 -0.71839
      </float_array>
      <technique_common>
-      <accessor source="#rplidar-a2-trim-normals-array" count="1962" stride="3">
+      <accessor source="#rplidar_a2-trim-normals-array" count="1962" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="rplidar-a2-trim-vertices">
-     <input semantic="POSITION" source="#rplidar-a2-trim-positions"/>
-     <input semantic="NORMAL" source="#rplidar-a2-trim-normals"/>
+    <vertices id="rplidar_a2-trim-vertices">
+     <input semantic="POSITION" source="#rplidar_a2-trim-positions"/>
+     <input semantic="NORMAL" source="#rplidar_a2-trim-normals"/>
     </vertices>
     <triangles material="trim" count="2278">
-     <input semantic="VERTEX" source="#rplidar-a2-trim-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#rplidar_a2-trim-vertices" offset="0"/>
      <p>
 176 83 82 177 84 83 177 83 176 175
 82 81 175 176 82 178 84 177 178 85
@@ -9779,10 +9779,10 @@
     </triangles>
    </mesh>
   </geometry>
-  <geometry id="rplidar-a2-windows" name="rplidar-a2-windows">
+  <geometry id="rplidar_a2-windows" name="rplidar_a2-windows">
    <mesh>
-    <source id="rplidar-a2-windows-positions">
-     <float_array id="rplidar-a2-windows-positions-array" count="1704">
+    <source id="rplidar_a2-windows-positions">
+     <float_array id="rplidar_a2-windows-positions-array" count="1704">
 0.0251233 -0.01335 0.00595 0.02418227 -0.01498734 0.00595 0.02313469 -0.01655864 0.00595 0.02198517
 -0.01805698 0.00595 0.02073879 -0.01947576 0.00595 0.01940102 -0.02080872 0.00595 0.01797776 -0.02205
 0.00595 0.01921874 -0.02205 0.00595 0.02602576 -0.01335 0.00595 0.02512879 -0.01497018 0.00595
@@ -9956,13 +9956,13 @@
 -0.00405 0.02602576 0.01335 -0.00405
      </float_array>
      <technique_common>
-      <accessor source="#rplidar-a2-windows-positions-array" count="568" stride="3">
+      <accessor source="#rplidar_a2-windows-positions-array" count="568" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <source id="rplidar-a2-windows-normals">
-     <float_array id="rplidar-a2-windows-normals-array" count="1704">
+    <source id="rplidar_a2-windows-normals">
+     <float_array id="rplidar_a2-windows-normals-array" count="1704">
 0 -0 1 0 -0 1 0 -0 1 0
 -0 1 0 -0 1 0 -0 1 0 -0
 1 0 -0 1 0 -0 1 0 -0 1
@@ -10136,17 +10136,17 @@
 -1 0 0 -1
      </float_array>
      <technique_common>
-      <accessor source="#rplidar-a2-windows-normals-array" count="568" stride="3">
+      <accessor source="#rplidar_a2-windows-normals-array" count="568" stride="3">
        <param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/>
       </accessor>
      </technique_common>
     </source>
-    <vertices id="rplidar-a2-windows-vertices">
-     <input semantic="POSITION" source="#rplidar-a2-windows-positions"/>
-     <input semantic="NORMAL" source="#rplidar-a2-windows-normals"/>
+    <vertices id="rplidar_a2-windows-vertices">
+     <input semantic="POSITION" source="#rplidar_a2-windows-positions"/>
+     <input semantic="NORMAL" source="#rplidar_a2-windows-normals"/>
     </vertices>
     <triangles material="window" count="544">
-     <input semantic="VERTEX" source="#rplidar-a2-windows-vertices" offset="0"/>
+     <input semantic="VERTEX" source="#rplidar_a2-windows-vertices" offset="0"/>
      <p>
 4 13 12 5 7 13 5 13 4 3
 12 11 3 4 12 6 7 5 2 11
@@ -10318,23 +10318,23 @@
   </geometry>
  </library_geometries>
  <library_visual_scenes>
-  <visual_scene id="scene" name="rplidar-a2">
-   <node id="rplidar-a2-housing-node" name="housing">
-    <instance_geometry url="#rplidar-a2-housing">
+  <visual_scene id="scene" name="rplidar_a2">
+   <node id="rplidar_a2-housing-node" name="housing">
+    <instance_geometry url="#rplidar_a2-housing">
      <bind_material><technique_common>
        <instance_material symbol="body" target="#body-material"/>
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="rplidar-a2-trim-node" name="trim">
-    <instance_geometry url="#rplidar-a2-trim">
+   <node id="rplidar_a2-trim-node" name="trim">
+    <instance_geometry url="#rplidar_a2-trim">
      <bind_material><technique_common>
        <instance_material symbol="trim" target="#trim-material"/>
      </technique_common></bind_material>
     </instance_geometry>
    </node>
-   <node id="rplidar-a2-windows-node" name="windows">
-    <instance_geometry url="#rplidar-a2-windows">
+   <node id="rplidar_a2-windows-node" name="windows">
+    <instance_geometry url="#rplidar_a2-windows">
      <bind_material><technique_common>
        <instance_material symbol="window" target="#window-material"/>
      </technique_common></bind_material>

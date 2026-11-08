@@ -8,15 +8,15 @@ brass hex standoffs below the chassis, held by Phillips screws. A pressed bearin
 race cap and a large flat rivet head. A fork bent from one sheet, with rounded bends and curved
 arms. The wheel on an axle rivet with domed heads and washers. Sizes come from DiffBot's
 caster_wheel.yaml (wheel radius, joint offsets), the shapes from photos and video frames of
-DiffBot's caster and from Joy-IT's product photos. Sources in provenance/caster.md.
+DiffBot's caster and from Joy-IT's product photos. Sources in provenance/swivel_caster_30mm.md.
 
 Frames (millimetres in the STL, metres in the COLLADA and glTF files, z up):
-  caster_base           the fixed part: standoffs, plate, bearing, rivet. z = 0 is the swivel
-                        bearing's lower face. The standoffs end at z = +15 mm. The swivel axis
-                        is at x = -1 mm (DiffBot's hub joint is 1 mm behind its base joint).
-  caster_wheel_support  the swivelling fork, its swivel axis at x = y = 0, its top at z = 0,
-                        the wheel axle 16 mm behind the axis and 20 mm below the top.
-  caster_wheel          the wheel, centred on its axle, the axle along y.
+- swivel_caster_30mm_base: the fixed part, with standoffs, plate, bearing and rivet. z = 0 is
+  the swivel bearing's lower face. The standoffs end at z = +15 mm. The swivel axis is at
+  x = -1 mm (DiffBot's hub joint is 1 mm behind its base joint).
+- swivel_caster_30mm_wheel_support: the swivelling fork, its swivel axis at x = y = 0, its top
+  at z = 0, the wheel axle 16 mm behind the axis and 20 mm below the top.
+- swivel_caster_30mm_wheel: the wheel, centred on its axle, the axle along y.
 """
 import math
 from typing import Dict
@@ -35,7 +35,8 @@ TITLE = 'Swivel caster with a 30 mm wheel (DiffBot)'
 
 # ---------------------------------------------------------------------------------------------
 # Parameters, in mm. Frame values come from caster_wheel.yaml and the earlier meshes' bounds,
-# the shapes from video frames of DiffBot's caster and Joy-IT's photos (provenance/caster.md).
+# the shapes from video frames of DiffBot's caster and Joy-IT's photos
+# (provenance/swivel_caster_30mm.md).
 # ---------------------------------------------------------------------------------------------
 SWIVEL_AXIS_X = -1.0          # in the base's frame: hub joint dx -0.077 minus base dx -0.076
 STANDOFF_TOP_Z = 15.0         # frame alignment: the earlier base's top
@@ -299,16 +300,17 @@ def make_wheel() -> Dict[str, cq.Workplane]:
 # Meshes
 # ---------------------------------------------------------------------------------------------
 FRAMES = {
-    'caster_base': ("z = 0 at the swivel bearing's lower face, the standoffs' tops at z = +15 mm "
-                    '(the chassis), the swivel axis at x = -1 mm, y = 0.'),
-    'caster_wheel_support': "The swivel axis at x = y = 0, the fork's top at z = 0, the wheel "
-                            'axle at x = -16 mm, z = -20 mm along y.',
-    'caster_wheel': "Centred on the wheel's axle, the axle along y. Radius 15 mm.",
+    'swivel_caster_30mm_base': ("z = 0 at the swivel bearing's lower face, the standoffs' tops "
+                                'at z = +15 mm (the chassis), the swivel axis at x = -1 mm, '
+                                'y = 0.'),
+    'swivel_caster_30mm_wheel_support': ("The swivel axis at x = y = 0, the fork's top at z = 0, "
+                                         'the wheel axle at x = -16 mm, z = -20 mm along y.'),
+    'swivel_caster_30mm_wheel': "Centred on the wheel's axle, the axle along y. Radius 15 mm.",
 }
 SUB_PARTS = {
-    'caster_base': {'plate': 'steel', 'standoffs': 'brass'},
-    'caster_wheel_support': {'fork': 'steel', 'axle': 'axle'},
-    'caster_wheel': {'wheel': 'wheel'},
+    'swivel_caster_30mm_base': {'plate': 'steel', 'standoffs': 'brass'},
+    'swivel_caster_30mm_wheel_support': {'fork': 'steel', 'axle': 'axle'},
+    'swivel_caster_30mm_wheel': {'wheel': 'wheel'},
 }
 
 
@@ -322,6 +324,6 @@ def caster_model(name: str, solids: Dict[str, cq.Workplane]) -> Model:
 
 def build() -> List[Model]:
     """Return the caster's three meshes."""
-    return [caster_model('caster_base', make_base()),
-            caster_model('caster_wheel_support', make_fork()),
-            caster_model('caster_wheel', make_wheel())]
+    return [caster_model('swivel_caster_30mm_base', make_base()),
+            caster_model('swivel_caster_30mm_wheel_support', make_fork()),
+            caster_model('swivel_caster_30mm_wheel', make_wheel())]

@@ -32,7 +32,7 @@ TITLE = 'Raspberry Pi 4 Model B'
 # Parameters (mm). Sources: Raspberry Pi 4 Model B mechanical drawing (PDF and DXF), see
 # provenance/raspberry_pi_4b.md. Heights "Z" are the drawing's heights above the board's top face.
 # ---------------------------------------------------------------------------------------------
-NAME = 'raspberry_pi_4B'
+NAME = 'raspberry_pi_4b'
 BOARD_LENGTH = 85.0
 BOARD_WIDTH = 56.0
 BOARD_THICKNESS = 1.6  # Not in the drawing: the common FR-4 thickness

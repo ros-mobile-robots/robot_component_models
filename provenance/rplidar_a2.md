@@ -8,7 +8,7 @@ Generator: [`generators/rplidar_a2.py`](../generators/rplidar_a2.py).
 
 ## Mesh
 
-`rplidar-a2`: one mesh with three sub-parts. `housing` (material `body`, black) is the base and the head. `trim` (copper-coloured) is the band and the window's bezel. `windows` (dark glass) are the two panes. The STL file is closed and consistently oriented: several closed shells that touch.
+`rplidar_a2`: one mesh with three sub-parts. `housing` (material `body`, black) is the base and the head. `trim` (copper-coloured) is the band and the window's bezel. `windows` (dark glass) are the two panes. The STL file is closed and consistently oriented: several closed shells that touch.
 
 ## Frame
 

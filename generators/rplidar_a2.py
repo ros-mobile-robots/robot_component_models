@@ -221,4 +221,4 @@ def build() -> List[Model]:
     sub_parts = [SubPart(part, {material: tessellate_faces(solids[material], LINEAR_DEFLECTION,
                                                            ANGULAR_DEFLECTION)})
                  for part, material in SUB_PARTS.items()]
-    return [Model('rplidar-a2', TITLE, FRAME, MATERIALS, sub_parts)]
+    return [Model('rplidar_a2', TITLE, FRAME, MATERIALS, sub_parts)]

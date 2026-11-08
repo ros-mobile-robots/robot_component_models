@@ -4,15 +4,15 @@
 
 A pressed-steel swivel caster with a 30 mm plastic wheel, as on DiffBot. DiffBot is built on the Joy-IT Robot Car Kit 2WD (robot05), and this is the kit's caster. The model was created independently, from public product photos, the robot's own URDF numbers and photos of DiffBot's caster. No geometry was imported, converted, traced or sampled from another 3D model, and no vendor or third-party 3D model was downloaded.
 
-Generator: [`generators/caster.py`](../generators/caster.py).
+Generator: [`generators/swivel_caster_30mm.py`](../generators/swivel_caster_30mm.py).
 
 ## Meshes
 
 | Mesh | What | Materials |
 |---|---|---|
-| `caster_base` | The fixed part: four brass hex standoffs (M3, 5 mm across flats, 10 mm long), a plate 32 × 38 × 1.5 mm with four corner lugs and concave sides, a pressed raceway dome on top (Ø26 mm) with a domed rivet head, a rounded bearing ring between plate and fork, the stepped race cap under the fork (Ø14.8 mm) with a large flat rivet head (Ø10 mm), four Phillips pan heads under the lugs | `steel` (zinc-plated), `brass` |
-| `caster_wheel_support` | The swivelling fork, bent from one 1.5 mm sheet: a round top plate (r 13 mm) with tight bends into two arms with a concave front edge, and a pressed boss around the axle on each arm. The axle rivet with domed heads and washers on both sides | `steel`, `axle` |
-| `caster_wheel` | The wheel: Ø30 mm, hub 15.6 mm wide, crowned 12 mm tread with 3 mm rounds, dished sides | `wheel` (white) |
+| `swivel_caster_30mm_base` | The fixed part: four brass hex standoffs (M3, 5 mm across flats, 10 mm long), a plate 32 × 38 × 1.5 mm with four corner lugs and concave sides, a pressed raceway dome on top (Ø26 mm) with a domed rivet head, a rounded bearing ring between plate and fork, the stepped race cap under the fork (Ø14.8 mm) with a large flat rivet head (Ø10 mm), four Phillips pan heads under the lugs | `steel` (zinc-plated), `brass` |
+| `swivel_caster_30mm_wheel_support` | The swivelling fork, bent from one 1.5 mm sheet: a round top plate (r 13 mm) with tight bends into two arms with a concave front edge, and a pressed boss around the axle on each arm. The axle rivet with domed heads and washers on both sides | `steel`, `axle` |
+| `swivel_caster_30mm_wheel` | The wheel: Ø30 mm, hub 15.6 mm wide, crowned 12 mm tread with 3 mm rounds, dished sides | `wheel` (white) |
 
 Each STL file is closed and consistently oriented. The three meshes, placed as DiffBot's caster macro places them, only touch. The axle has 0.1 mm clearance in the wheel's bore.
 
@@ -20,17 +20,17 @@ Each STL file is closed and consistently oriented. The three meshes, placed as D
 
 Millimetres in the STL files, metres in the COLLADA and glTF files, z up.
 
-- `caster_base`: z = 0 is the swivel bearing's lower face. The standoffs end at z = +15 mm, at the chassis. The swivel axis is at x = -1 mm, y = 0, because DiffBot's hub joint is 1 mm behind its base joint (`dx` -0.077 and -0.076 m in `caster_wheel.yaml`).
-- `caster_wheel_support`: the swivel axis at x = y = 0, the fork's top at z = 0. The wheel axle runs along y at x = -16 mm, z = -20 mm.
-- `caster_wheel`: centred on its axle, the axle along y.
+- `swivel_caster_30mm_base`: z = 0 is the swivel bearing's lower face. The standoffs end at z = +15 mm, at the chassis. The swivel axis is at x = -1 mm, y = 0, because DiffBot's hub joint is 1 mm behind its base joint (`dx` -0.077 and -0.076 m in `caster_wheel.yaml`).
+- `swivel_caster_30mm_wheel_support`: the swivel axis at x = y = 0, the fork's top at z = 0. The wheel axle runs along y at x = -16 mm, z = -20 mm.
+- `swivel_caster_30mm_wheel`: centred on its axle, the axle along y.
 
 The frames are the frames of the caster meshes DiffBot used before, so the caster macro and `caster_wheel.yaml` keep their numbers. Only the bounding boxes of those earlier meshes were read, to align the frames:
 
 | Mesh | Earlier mesh, min → max (mm) | This mesh, min → max (mm) | Difference |
 |---|---|---|---|
-| `caster_base` | (-15.47, -18.79, -3.30) → (16.53, 19.21, 15.00) | (-17.00, -19.00, -3.30) → (15.00, 19.00, 15.00) | 1.5 mm in x: this base is centred on the swivel axis. Same footprint, top and bottom |
-| `caster_wheel_support` | (-19.97, -12.73, -25.00) → (13.01, 12.27, 0.00) | (-20.50, -12.50, -24.50) → (12.98, 12.50, 0.00) | 0.53 mm or less |
-| `caster_wheel` | (-14.96, -7.80, -14.98) → (14.96, 7.80, 14.98) | (-14.99, -7.80, -15.00) → (15.00, 7.80, 15.00) | 0.04 mm or less |
+| `swivel_caster_30mm_base` | (-15.47, -18.79, -3.30) → (16.53, 19.21, 15.00) | (-17.00, -19.00, -3.30) → (15.00, 19.00, 15.00) | 1.5 mm in x: this base is centred on the swivel axis. Same footprint, top and bottom |
+| `swivel_caster_30mm_wheel_support` | (-19.97, -12.73, -25.00) → (13.01, 12.27, 0.00) | (-20.50, -12.50, -24.50) → (12.98, 12.50, 0.00) | 0.53 mm or less |
+| `swivel_caster_30mm_wheel` | (-14.96, -7.80, -14.98) → (14.96, 7.80, 14.98) | (-14.99, -7.80, -15.00) → (15.00, 7.80, 15.00) | 0.04 mm or less |
 
 The wheel's lowest point is 0.2 mm below DiffBot's `base_footprint`, from the URDF's numbers.
 

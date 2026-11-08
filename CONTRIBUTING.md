@@ -18,7 +18,7 @@ Every model here is the project's own work, under this repository's [license](LI
 
 ## Adding or changing a part
 
-1. Write or change the generator `generators/<part>.py`. Parameters go at the top, each with its source. `build()` returns the part's meshes as `mesh_export.Model` objects, in millimetres, with named sub-parts and materials. Add a new part to `PARTS` in `generators/__init__.py`.
+1. Choose the part's identifier, lowercase snake_case after the product, such as `rplidar_a2` (see the README's file name rules). Write or change the generator `generators/<part>.py`. Parameters go at the top, each with its source. `build()` returns the part's meshes as `mesh_export.Model` objects, in millimetres, with named sub-parts and materials. Add a new part to `PARTS` in `generators/__init__.py`.
 2. Write or update `provenance/<part>.md`: sources, frame, frame alignment, what is simplified or estimated, and which measurements would help.
 3. Regenerate and check, in the pinned environment (see the README):
 

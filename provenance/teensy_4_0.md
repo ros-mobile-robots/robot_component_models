@@ -8,7 +8,7 @@ Generator: [`generators/teensy_4_0.py`](../generators/teensy_4_0.py).
 
 ## Mesh
 
-`teensy_4-0`: one mesh with 20 materials (green solder mask, FR4 edges, gold pads and pins, copper test pads, solder, black ICs with pin-1 dimples, silver leads, the USB shell, grey latch slots, beige capacitors, black resistors, the button's cream cap, pale LEDs and others). Its sub-parts are the board, the pads, the header, the processor (`mcu`), the bootloader chip, the leaded parts, the inductor block, the passives on top and on the bottom, the crystals, the USB connector, the button, the test pads and the bottom's other features. Every part's solid is closed with outward normals.
+`teensy_4_0`: one mesh with 20 materials (green solder mask, FR4 edges, gold pads and pins, copper test pads, solder, black ICs with pin-1 dimples, silver leads, the USB shell, grey latch slots, beige capacitors, black resistors, the button's cream cap, pale LEDs and others). Its sub-parts are the board, the pads, the header, the processor (`mcu`), the bootloader chip, the leaded parts, the inductor block, the passives on top and on the bottom, the crystals, the USB connector, the button, the test pads and the bottom's other features. Every part's solid is closed with outward normals.
 
 ## Frame
 
