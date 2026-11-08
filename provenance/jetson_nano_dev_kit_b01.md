@@ -12,14 +12,14 @@ Generator: [`generators/jetson_nano_dev_kit_b01.py`](../generators/jetson_nano_d
 
 ## Frame
 
-Millimetres in the STL file, metres in the COLLADA and glTF files. The carrier's bottom face is at z = 0. The carrier lies from x = -28.982 to 71.018 mm and from y = -38.847 to 40.153 mm. The port row is at +y and the 40-pin header at -x. While drawing, the generator uses the carrier's own coordinates: u from the left edge (DC jack side) to the right edge (40-pin header side), v from the port edge inwards. They map to (71.018 - u, 40.153 - v): a turn by 180° about z and a shift.
+The files are in metres. Positions on this page are in millimetres. The carrier's bottom face is at z = 0. The carrier lies from x = -28.982 to 71.018 mm and from y = -38.847 to 40.153 mm. The port row is at +y and the 40-pin header at -x. While drawing, the generator uses the carrier's own coordinates: u from the left edge (DC jack side) to the right edge (40-pin header side), v from the port edge inwards. They map to (71.018 - u, 40.153 - v): a turn by 180° about z and a shift.
 
-The frame is the frame of the Jetson Nano mesh Remo used before. Only that mesh's bounding box, origin and axes were read, to align the frame:
+**Frame alignment:** the reference Jetson Nano mesh's bounding box, origin and axes were read to position the model:
 
 | | min (mm) | max (mm) |
 |---|---|---|
-| Earlier mesh | (-28.982, -38.847, -2.230) | (71.018, 42.175, 28.276) |
-| This mesh | (-28.982, -38.847, -1.950) | (71.018, 42.223, 28.250) |
+| Reference mesh | (-28.982, -38.847, -2.230) | (71.018, 42.175, 28.276) |
+| This model | (-28.982, -38.847, -1.950) | (71.018, 42.223, 28.250) |
 
 Independent check: the centres of the four standoff bores of Remo's printed Jetson deck lie within 0.051 mm of this model's mounting holes, at the URDF's position of the kit. This checks the holes' positions, not the clearance: the deck's standoffs end 7.1 mm above the deck and the URDF puts the carrier's bottom 7.0 mm above it, so they overlap by 0.1 mm.
 
