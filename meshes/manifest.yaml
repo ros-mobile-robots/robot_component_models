@@ -224,7 +224,7 @@ parts:
         materials: [pcb, fr4, gold, solder, silver, ic, substrate, plastic_black, cap, res, ceramic, ceramic_grey, copper, usb_slot, ic_mark, button_frame, button_cap, inductor, led_orange, led_red]
         files:
           teensy_4_0/teensy_4_0.stl:
-            sha256: 50d54fc99ab090a364f89314c519724a2e3b008a2fabb111261ba1cb7f0466db
+            sha256: 83ae8b18868d0eba8fa4da60c434d74757dbd233578b98c065fa1ddcc5c10a73
             bytes: 1276084
             units: millimetre
             up_axis: "Z"
@@ -233,16 +233,16 @@ parts:
             bounding_box_max: [21.631, 8.858, 4.355]
             license_file: teensy_4_0/teensy_4_0.stl.license
           teensy_4_0/teensy_4_0.dae:
-            sha256: baf1e61ef180bb22a9da9a76acf93354e6b16dde05431852368943f6bb412c0f
-            bytes: 1649846
+            sha256: 7c49e0b87bbed70536678d4bd772c1d1d1279f4f921c07cbdaa2d4d227c68f9f
+            bytes: 1654257
             units: metre
             up_axis: "Z"
             triangles: 25520
             bounding_box_min: [-0.014629, -0.008922, -0.008500]
             bounding_box_max: [0.021631, 0.008858, 0.004355]
           teensy_4_0/teensy_4_0.glb:
-            sha256: d59c648c8eeff8d9ee8958389c1f2f41508bbacae677f115ea304e3286158694
-            bytes: 899860
+            sha256: de0cd3484747eded64f20e23ce0fac721f971d34ee9fa90d49a3bdd43ded907f
+            bytes: 899476
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
             triangles: 25520
@@ -260,7 +260,7 @@ parts:
         materials: [white, hole, tape, red, blue]
         files:
           breadboard_400_point/breadboard_400_point.stl:
-            sha256: a45e64b62bac357857b1d58210637bfdb1c9a6b3a6aaa72d592cef768d09d182
+            sha256: f2476736c1bb363514c2e789491192daa43f42012077a6fa1f239cccb922aa0e
             bytes: 338484
             units: millimetre
             up_axis: "Z"
@@ -269,15 +269,15 @@ parts:
             bounding_box_max: [27.090, 37.105, 9.530]
             license_file: breadboard_400_point/breadboard_400_point.stl.license
           breadboard_400_point/breadboard_400_point.dae:
-            sha256: ea7026c1cc7e699268137ed1578f201373a89dbd0a6b8409b6cd5639a3ddbf99
-            bytes: 427720
+            sha256: 6440f270d8f55e9dc4f753cc3bac215ee1294dfe9f1bd7e165a6f534e8d90f5c
+            bytes: 427958
             units: metre
             up_axis: "Z"
             triangles: 6768
             bounding_box_min: [-0.028810, -0.046795, 0.000000]
             bounding_box_max: [0.027090, 0.037105, 0.009530]
           breadboard_400_point/breadboard_400_point.glb:
-            sha256: ffd83bbfe8523a81f338cae8170859729f98b1874bd639e18cac643f7ce15c3a
+            sha256: 0321a1163d52f4a91d06c9a31496baecb777150a68d8eda000713746a305c61a
             bytes: 289508
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
@@ -296,7 +296,7 @@ parts:
         materials: [pcb, fr4, module, glass, flex, connector_black, gold, connector_dark, silver, ic, cap, res]
         files:
           raspberry_pi_camera_v2/raspberry_pi_camera_v2.stl:
-            sha256: ebc3fa175274f86480449e6ba18e6d245b3a2de82c5f931c8973da3849a126b9
+            sha256: cde21ddea6039f46265102599188da5ef7621b41e9478db800cbbd51b589a5c8
             bytes: 148884
             units: millimetre
             up_axis: "Z"
@@ -305,16 +305,16 @@ parts:
             bounding_box_max: [4.575, 12.840, 11.579]
             license_file: raspberry_pi_camera_v2/raspberry_pi_camera_v2.stl.license
           raspberry_pi_camera_v2/raspberry_pi_camera_v2.dae:
-            sha256: 2fb69a424fdf830394bc73767665493013ef37ba62d1040a470fb969f27df6ac
-            bytes: 209417
+            sha256: 8a1210620640df8917eee835da7d08390bf1c5313b334d4be6b1826e354e6316
+            bytes: 209190
             units: metre
             up_axis: "Z"
             triangles: 2976
             bounding_box_min: [-0.004145, -0.012160, -0.012283]
             bounding_box_max: [0.004575, 0.012840, 0.011579]
           raspberry_pi_camera_v2/raspberry_pi_camera_v2.glb:
-            sha256: 5488a6de0820ed2f3673d4bb8cbcdbd5236a5db36e49bfdf5df484aad896660d
-            bytes: 116680
+            sha256: 2d4121901e558bbc73cbc2189f06055b8afc6e8d61c12f14b0f57213023908cb
+            bytes: 116152
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
             triangles: 2976

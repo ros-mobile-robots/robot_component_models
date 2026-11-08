@@ -30,7 +30,6 @@ from OCP.BRepLib import BRepLib_ToolTriangulatedShape
 from OCP.BRepMesh import BRepMesh_IncrementalMesh
 from OCP.TopAbs import TopAbs_REVERSED
 from OCP.TopLoc import TopLoc_Location
-import trimesh
 
 Colour = Tuple[float, float, float, float]
 # Splits a piece's triangle corners (m, 3, 3) into materials: an array of m material names
@@ -162,13 +161,53 @@ def tessellate_absolute(workplane: cq.Workplane, linear: float, angular: float) 
 
 
 def smooth_surface(corners: np.ndarray, angle_degrees: float = 30.0) -> Surface:
-    """Return triangle corners (m, 3, 3) as a surface, smooth across edges below the angle."""
-    mesh = trimesh.Trimesh(vertices=corners.reshape(-1, 3),
-                           faces=np.arange(len(corners) * 3).reshape(-1, 3), process=True)
-    mesh = trimesh.graph.smooth_shade(mesh, angle=math.radians(angle_degrees))
-    return Surface(np.asarray(mesh.vertices, dtype=float),
-                   np.asarray(mesh.vertex_normals, dtype=float),
-                   np.asarray(mesh.faces, dtype=np.int64))
+    """Return triangle corners (m, 3, 3) as a surface, smooth across edges below the angle.
+
+    Corners at exactly the same position share a vertex. A corner's normal is the area-weighted
+    sum of the normals of the triangles around its vertex whose normals lie within the angle of
+    its own triangle's normal. Corners of a vertex with the same normal share an output vertex.
+    The triangles keep their order and corners. Only +, -, *, / and sqrt decide, which every
+    CPU rounds alike, so the files don't depend on the CPU's vector instructions.
+    """
+    count = len(corners)
+    positions, inverse = np.unique(corners.reshape(-1, 3), axis=0, return_inverse=True)
+    vertex_of_corner = inverse.reshape(-1)
+    face_of_corner = np.repeat(np.arange(count), 3)
+    area_normals = cross_rows(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0])
+    unit_normals = unit_rows(area_normals)
+    limit = math.cos(math.radians(angle_degrees))
+    order = np.argsort(vertex_of_corner, kind='stable')
+    starts = np.flatnonzero(np.r_[True, np.diff(vertex_of_corner[order]) != 0])
+    groups = np.split(order, starts[1:])
+    own = np.concatenate([np.repeat(group, len(group)) for group in groups])
+    other = np.concatenate([np.tile(group, len(group)) for group in groups])
+    first, second = unit_normals[face_of_corner[own]], unit_normals[face_of_corner[other]]
+    dots = (first[:, 0] * second[:, 0] + first[:, 1] * second[:, 1]
+            + first[:, 2] * second[:, 2])
+    within = dots >= limit
+    sums = np.zeros((count * 3, 3))
+    np.add.at(sums, own[within], area_normals[face_of_corner[other[within]]])
+    normals = unit_rows(sums)
+    index: Dict[Tuple[int, float, float, float], int] = {}
+    corner_index = np.empty(count * 3, dtype=np.int64)
+    for corner, (vertex, normal) in enumerate(zip(vertex_of_corner.tolist(), normals.tolist())):
+        corner_index[corner] = index.setdefault((vertex, *normal), len(index))
+    keys = list(index)
+    return Surface(positions[[key[0] for key in keys]], np.array([key[1:] for key in keys]),
+                   corner_index.reshape(-1, 3))
+
+
+def cross_rows(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """Return the cross products of the rows, component by component."""
+    return np.stack([a[:, 1] * b[:, 2] - a[:, 2] * b[:, 1],
+                     a[:, 2] * b[:, 0] - a[:, 0] * b[:, 2],
+                     a[:, 0] * b[:, 1] - a[:, 1] * b[:, 0]], axis=1)
+
+
+def unit_rows(rows: np.ndarray) -> np.ndarray:
+    """Return the rows scaled to unit length, zero rows as they are."""
+    lengths = np.sqrt(rows[:, 0] * rows[:, 0] + rows[:, 1] * rows[:, 1] + rows[:, 2] * rows[:, 2])
+    return rows / np.where(lengths > 0, lengths, 1.0)[:, None]
 
 
 def vertex_normals(vertices: np.ndarray, triangles: np.ndarray) -> np.ndarray:
