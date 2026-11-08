@@ -4,9 +4,9 @@
 
 Run from the repository's root, with the packages of generators/requirements.txt:
 
-  python3 -m generators            write all meshes and the manifest
-  python3 -m generators --check    regenerate into a temporary folder, compare with meshes/
-  python3 -m generators caster     write one part's meshes, leave the manifest as it is
+  python3 -m generators                       write all meshes and the manifest
+  python3 -m generators --check               regenerate into a temporary folder, compare
+  python3 -m generators swivel_caster_30mm    write one part's meshes, not the manifest
 """
 import argparse
 from concurrent.futures import ProcessPoolExecutor
