@@ -1,3 +1,5 @@
+<!-- SPDX-FileCopyrightText: 2026 ROS Mobile Robots
+     SPDX-License-Identifier: BSD-3-Clause -->
 # Raspberry Pi 4 Model B
 
 A display model of the Raspberry Pi 4 Model B: the board with its connectors, chips and small parts on both sides. Remo carries one. The model was created independently, from Raspberry Pi's public mechanical drawing and product brief. No geometry was imported, converted, traced or sampled from another 3D model. No logos and no printed text.
@@ -21,7 +23,7 @@ The frame is the frame of the Raspberry Pi mesh Remo used before. Only that mesh
 
 The board sits exactly where the earlier mesh's board sat. In +y the mesh is 0.89 mm shorter: the drawing ends the Ethernet and USB fronts 3.0 mm past the board's edge. The top is the USB height, 16.0 mm above a 1.6 mm board. The bottom is the GPIO solder tails, 2.0 mm below the board.
 
-Independent check: the centres of the four standoff bores of Remo's printed Raspberry Pi deck lie within 0.071 mm of this model's mounting holes, at the URDF's position of the board.
+Independent check: the centres of the four standoff bores of Remo's printed Raspberry Pi deck lie within 0.071 mm of this model's mounting holes, at the URDF's position of the board. This checks the holes' positions, not the clearance: the deck's standoffs end 7.0 mm above the deck, where the URDF puts the board's mid-plane, so the board's lower half (0.8 mm) overlaps the standoffs, as with the earlier mesh. A frame with z = 0 at the board's bottom face would change the URDF.
 
 ## Sources
 

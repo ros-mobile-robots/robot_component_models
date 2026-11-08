@@ -1,3 +1,5 @@
+<!-- SPDX-FileCopyrightText: 2026 ROS Mobile Robots
+     SPDX-License-Identifier: BSD-3-Clause -->
 # Jetson Nano Developer Kit B01
 
 A display model of the NVIDIA Jetson Nano Developer Kit B01: the carrier board P3449-B01 with the module P3448 and its heatsink. Remo carries one. The model was created independently, from NVIDIA's public documents and pictures and a public forum post. No geometry was imported, converted, traced or sampled from another 3D model. NVIDIA's own 3D model of the kit is behind a developer login and wasn't downloaded or looked at. No logos and no printed text.
@@ -19,7 +21,7 @@ The frame is the frame of the Jetson Nano mesh Remo used before. Only that mesh'
 | Earlier mesh | (-28.982, -38.847, -2.230) | (71.018, 42.175, 28.276) |
 | This mesh | (-28.982, -38.847, -1.950) | (71.018, 42.223, 28.250) |
 
-Independent check: the centres of the four standoff bores of Remo's printed Jetson deck lie within 0.051 mm of this model's mounting holes, at the URDF's position of the kit.
+Independent check: the centres of the four standoff bores of Remo's printed Jetson deck lie within 0.051 mm of this model's mounting holes, at the URDF's position of the kit. This checks the holes' positions, not the clearance: the deck's standoffs end 7.1 mm above the deck and the URDF puts the carrier's bottom 7.0 mm above it, so they overlap by 0.1 mm.
 
 ## Sources
 
