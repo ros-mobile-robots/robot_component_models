@@ -4,7 +4,7 @@
      SPDX-License-Identifier: BSD-3-Clause -->
 <package format="3">
   <name>robot_component_models</name>
-  <version>1.1.0</version>
+  <version>1.0.0</version>
   <description>
     Display meshes (STL, COLLADA, glTF) of off-the-shelf robot components, such as a laser
     scanner, single-board computers and a caster, created independently from public datasheets,

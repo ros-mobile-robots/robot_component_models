@@ -2,13 +2,6 @@
 Changelog for package robot_component_models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.1.0 (2026-11-08)
-------------------
-* More realistic Raspberry Pi 4 Model B and Jetson Nano Developer Kit B01: metal and
-  solder mask materials with highlights, FR-4 board edges, connector shells with frames,
-  spring fingers and dark insides, pointed header pins, small parts with end caps, and the
-  Jetson's heatsink after its drawing. Frames, bounding boxes and mounting holes are unchanged
-
 1.0.0 (2026-11-08)
 ------------------
 * The first release: display models of DiffBot's swivel caster (three meshes), a 360 degree
@@ -16,5 +9,9 @@ Changelog for package robot_component_models
   Kit B01, the Teensy 4.0 with two 14-pin headers, a 400-point breadboard and the Raspberry Pi
   Camera Module v2. Each mesh comes as STL, COLLADA and glTF (coloured), all in metres, in a
   local frame documented in the manifest and the part's provenance page
+* The Raspberry Pi 4 Model B and the Jetson Nano Developer Kit B01 in detail: metal and
+  solder mask materials with highlights, FR-4 board edges, connector shells with frames,
+  spring fingers and dark insides, pointed header pins, small parts with end caps, and the
+  Jetson's heatsink after its drawing
 * The CadQuery generators, the sources of every model, meshes/manifest.yaml with checksums,
   units, frames and bounding boxes, and checks in CI
