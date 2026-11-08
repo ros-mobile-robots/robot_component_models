@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 ROS Mobile Robots
 # SPDX-License-Identifier: BSD-3-Clause
-# The environment that regenerates the meshes byte for byte: Python 3.12.3 on Ubuntu 24.04
-# (glibc 2.39), as in CI's regeneration job, with every package pinned. Install it into a
-# virtual environment:
+# The Python packages that regenerate the meshes byte for byte in CI's generator environment
+# (Ubuntu 24.04 with Python 3.12.3 and glibc 2.39), pinned to exact versions. Install them into
+# a virtual environment:
 #   python3 -m venv .venv && .venv/bin/pip install -r generators/requirements.txt
 # Other versions of CadQuery, OCP or NumPy can triangulate differently: the meshes are then
 # still valid, but their checksums change.

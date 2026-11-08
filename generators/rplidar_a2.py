@@ -10,8 +10,8 @@ the colours from a photo of Remo on ros-mobile-robots.com. No cable, no logos, n
 Sources in provenance/rplidar_a2.md.
 
 Frame: the rotation axis along z, the bottom at z = -29.85 mm (so the optical window's centre
-is at z = +0.95 mm), the cable exit towards -x, the window towards +x. Millimetres in the STL,
-metres in the COLLADA and glTF files.
+is at z = +0.95 mm), the cable exit towards -x, the window towards +x. Positions in mm,
+the files are in metres.
 """
 import math
 from typing import Dict
@@ -32,7 +32,7 @@ TITLE = '360 degree laser scanner, RPLIDAR A2 size'
 # Parameters, in mm. Datasheet values are marked (DS), values read off the drawing's scale
 # (drawing) and choices (choice).
 # ---------------------------------------------------------------------------------------------
-BOTTOM_Z = -29.85            # frame alignment: the earlier mesh's bottom
+BOTTOM_Z = -29.85            # frame alignment: the reference mesh's bottom
 BASE_DIAMETER = 75.70        # DS
 BASE_HEIGHT = 18.60          # DS
 BASE_CHAMFER = 0.8           # choice

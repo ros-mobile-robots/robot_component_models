@@ -7,7 +7,7 @@ parts placement and product photos, NXP's package drawing of the i.MX RT1062 (10
 MAPBGA) and Winbond's W25Q16JV datasheet (USON 2 x 3 x 0.6 mm). No logos, no printed text.
 Sources and measurements in provenance/teensy_4_0.md.
 
-Frame: millimetres in the STL, metres in the COLLADA and glTF files, the board's bottom face at
+Frame (positions in mm, the files are in metres): the board's bottom face at
 z = 0, the long axis along x with the USB connector at -x, the row with the inner pin hole at +y.
 """
 from typing import List
