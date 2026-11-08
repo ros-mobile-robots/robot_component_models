@@ -12,15 +12,15 @@ Generator: [`generators/raspberry_pi_camera_v2.py`](../generators/raspberry_pi_c
 
 ## Frame
 
-Millimetres in the STL file, metres in the COLLADA and glTF files. The board stands in the yz plane with its back face at x = -1.645 mm and the lens looking along +x. The board's edges are at y = -12.16 mm and z = -12.283 mm. The mounting holes are at (y, z) = (-10.16, -10.283), (-10.16, 2.217), (10.84, -10.283) and (10.84, 2.217) mm, where the screws of Remo's printed holder go. The edge 2 mm from the holes is at -z. The ribbon connector's edge is at +z, on the back.
+The files are in metres. Positions on this page are in millimetres. The board stands in the yz plane with its back face at x = -1.645 mm and the lens looking along +x. The board's edges are at y = -12.16 mm and z = -12.283 mm. The mounting holes are at (y, z) = (-10.16, -10.283), (-10.16, 2.217), (10.84, -10.283) and (10.84, 2.217) mm, where the screws of Remo's printed holder go. The edge 2 mm from the holes is at -z. The ribbon connector's edge is at +z, on the back.
 
-The frame is the frame of the camera mesh Remo used before. Only that mesh's bounding box, (-1.645, -12.160, -12.283) to (18.269, 12.840, 12.109) mm, and the positions of its board's back face, edges and holes were read, to align the frame. This mesh spans (-4.145, -12.160, -12.283) to (4.575, 12.840, 11.579) mm:
+**Frame alignment:** the reference camera mesh's bounding box, (-1.645, -12.160, -12.283) to (18.269, 12.840, 12.109) mm, and the positions of its board's back face, edges and mounting holes were read to position the model. This model spans (-4.145, -12.160, -12.283) to (4.575, 12.840, 11.579) mm:
 
-- The back reaches 2.5 mm further, to the ribbon connector, which the earlier mesh didn't have.
-- The front ends 13.7 mm earlier: the v2's small camera module instead of the earlier mesh's large lens.
+- The back reaches 2.5 mm further than the reference, to the ribbon connector.
+- The front ends 13.7 mm short of the reference: the v2's small camera module, where the reference has a large lens.
 - The top is 0.53 mm lower: the drawing's 23.862 mm board.
 
-The camera module's centre is at (y, z) = (0.34, 2.12) mm. The URDF's `camera_link`, the Gazebo camera's frame, doesn't move.
+The camera module's centre is at (y, z) = (0.34, 2.12) mm.
 
 ## Sources
 

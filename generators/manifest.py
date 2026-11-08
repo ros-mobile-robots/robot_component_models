@@ -19,9 +19,9 @@ import xml.etree.ElementTree as ElementTree
 import numpy as np
 
 COLLADA_NS = '{http://www.collada.org/2005/11/COLLADASchema}'
-UNITS = {'.stl': 'millimetre', '.dae': 'metre', '.glb': 'metre'}
+UNITS = {'.stl': 'metre', '.dae': 'metre', '.glb': 'metre'}
 UP_AXES = {'.stl': 'Z', '.dae': 'Z', '.glb': 'Y (the root node turns the Z-up vertex data)'}
-DECIMALS = {'.stl': 3, '.dae': 6, '.glb': 6}
+DECIMALS = {'.stl': 6, '.dae': 6, '.glb': 6}
 
 
 class FileFacts(NamedTuple):
@@ -131,8 +131,9 @@ def manifest_text(parts: List[PartEntry], spdx_lines: Sequence[str], license_id:
     """Return the manifest as YAML text, with the SPDX lines as its first comments."""
     lines = [f'# {line}' for line in spdx_lines]
     lines += ['# meshes/manifest.yaml: written by `python3 -m generators`, not by hand.',
-              '# STL files are in millimetres, COLLADA (.dae) and glTF (.glb) files in metres.',
-              "# Bounding boxes are in the file's own units and frame, before any URDF scale.",
+              "# All files are in metres. Bounding boxes are in each mesh's own frame (see",
+              '# frame), before any URDF transform. For glTF, the box of the vertex data, before',
+              "# the root node turns them into glTF's Y up.",
               '# STL and glTF files carry their license in the <file>.license next to them.',
               'package: robot_component_models',
               f'license: {license_id}',

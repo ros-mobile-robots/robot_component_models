@@ -3,11 +3,12 @@
 """Turn the generators' CadQuery solids into STL, COLLADA and binary glTF files.
 
 Every generator returns its meshes as Model objects: named sub-parts, each with one Surface per
-material, in millimetres in the mesh's own frame. This module writes each Model three times:
+material, in millimetres in the mesh's own frame. This module writes each Model three times, all
+in metres (ROS's unit, REP 103), converted from millimetres when it writes the vertices:
 
-- <name>.stl: binary STL in millimetres, without colours,
-- <name>.dae: COLLADA 1.4.1 in metres, Z up, one node per sub-part, coloured materials,
-- <name>.glb: binary glTF 2.0 in metres, one node per sub-part with the same materials.
+- <name>.stl: binary STL, without colours,
+- <name>.dae: COLLADA 1.4.1, Z up, one node per sub-part, coloured materials,
+- <name>.glb: binary glTF 2.0, one node per sub-part with the same materials.
 
 The glTF vertex data stay in the mesh's frame (Z up). A root node turns them into glTF's Y up.
 The files contain no time stamps or paths, so a second run writes the same bytes.
@@ -332,15 +333,15 @@ def xml_id(text: str) -> str:
 # STL
 # ---------------------------------------------------------------------------------------------
 def write_stl(model: Model, path: str) -> int:
-    """Write the model as one binary STL in millimetres and return its number of triangles."""
+    """Write the model as one binary STL in metres and return its number of triangles."""
     corners = triangle_corners(model)
     normals = np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0])
     lengths = np.linalg.norm(normals, axis=1, keepdims=True)
     normals = normals / np.where(lengths > 0, lengths, 1.0)
     records = np.zeros(len(corners), dtype=[('n', '<f4', 3), ('v', '<f4', (3, 3)), ('a', '<u2')])
     records['n'] = normals
-    records['v'] = corners
-    header = f'{model.name}: robot_component_models display model, {LICENSE_ID}, mm'
+    records['v'] = corners * MM_TO_M
+    header = f'{model.name}, metres, {LICENSE_ID}, robot_component_models'
     with open(path, 'wb') as stl:
         stl.write(header.encode('ascii')[:80].ljust(80, b' '))
         stl.write(struct.pack('<I', len(records)))

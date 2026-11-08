@@ -1,8 +1,9 @@
 # SPDX-FileCopyrightText: 2026 ROS Mobile Robots
 # SPDX-License-Identifier: BSD-3-Clause
 # meshes/manifest.yaml: written by `python3 -m generators`, not by hand.
-# STL files are in millimetres, COLLADA (.dae) and glTF (.glb) files in metres.
-# Bounding boxes are in the file's own units and frame, before any URDF scale.
+# All files are in metres. Bounding boxes are in each mesh's own frame (see
+# frame), before any URDF transform. For glTF, the box of the vertex data, before
+# the root node turns them into glTF's Y up.
 # STL and glTF files carry their license in the <file>.license next to them.
 package: robot_component_models
 license: BSD-3-Clause
@@ -18,13 +19,13 @@ parts:
         materials: [steel, brass]
         files:
           swivel_caster_30mm/swivel_caster_30mm_base.stl:
-            sha256: fc3942e4361a915213ab8ea7a3e92d6d863aac7413baf98c1c4a6564c1818605
+            sha256: 653685cacbfc9f396a9437161beda99e3d8bc341bf8d382257c577159b3f090f
             bytes: 491084
-            units: millimetre
+            units: metre
             up_axis: "Z"
             triangles: 9820
-            bounding_box_min: [-17.000, -19.000, -3.300]
-            bounding_box_max: [15.000, 19.000, 15.000]
+            bounding_box_min: [-0.017000, -0.019000, -0.003300]
+            bounding_box_max: [0.015000, 0.019000, 0.015000]
             license_file: swivel_caster_30mm/swivel_caster_30mm_base.stl.license
           swivel_caster_30mm/swivel_caster_30mm_base.dae:
             sha256: 731a88d7a099bc83f56acfb84b8e2fade86e55cca536f873a4ef320285ea9891
@@ -49,13 +50,13 @@ parts:
         materials: [steel, axle]
         files:
           swivel_caster_30mm/swivel_caster_30mm_wheel_support.stl:
-            sha256: 81c21cc2007c31d5994de60f17f54d4862b407e5b8c2612084b5b4c66e7c61e8
+            sha256: 05874fb485a355205e3aeee4915a2dd2e911464ffdcc11619befa3a93a75f859
             bytes: 329684
-            units: millimetre
+            units: metre
             up_axis: "Z"
             triangles: 6592
-            bounding_box_min: [-20.500, -12.500, -24.499]
-            bounding_box_max: [12.985, 12.500, 0.000]
+            bounding_box_min: [-0.020500, -0.012500, -0.024499]
+            bounding_box_max: [0.012985, 0.012500, 0.000000]
             license_file: swivel_caster_30mm/swivel_caster_30mm_wheel_support.stl.license
           swivel_caster_30mm/swivel_caster_30mm_wheel_support.dae:
             sha256: 59d58de163ac206742571024965672fa035982b5797f0f723bdf66ef89fbaca8
@@ -80,13 +81,13 @@ parts:
         materials: [wheel]
         files:
           swivel_caster_30mm/swivel_caster_30mm_wheel.stl:
-            sha256: 42a381b16b826780e7a99a1a09f7d4ec6410d49025609c39d0c61962638c9e3d
+            sha256: bdd1407e49dbb304a82fdcadcd97ee78220a7c1f3ae033398d82cac1281ad413
             bytes: 278684
-            units: millimetre
+            units: metre
             up_axis: "Z"
             triangles: 5572
-            bounding_box_min: [-14.985, -7.800, -14.996]
-            bounding_box_max: [15.000, 7.800, 14.996]
+            bounding_box_min: [-0.014985, -0.007800, -0.014996]
+            bounding_box_max: [0.015000, 0.007800, 0.014996]
             license_file: swivel_caster_30mm/swivel_caster_30mm_wheel.stl.license
           swivel_caster_30mm/swivel_caster_30mm_wheel.dae:
             sha256: d10350855a113d204859adb2b871f102aabb5b1bbb718c25b4f973a5e4727efb
@@ -116,13 +117,13 @@ parts:
         materials: [body, trim, window]
         files:
           rplidar_a2/rplidar_a2.stl:
-            sha256: 58d9c42ad3d71b27f6f69344ac56343b6022c02e910684adc688f80961f09501
+            sha256: ec4e5ccae5f67b77d5e3288d41c46790c25e5d6f1a1ff2f592abbc72bb1a975a
             bytes: 650784
-            units: millimetre
+            units: metre
             up_axis: "Z"
             triangles: 13014
-            bounding_box_min: [-40.850, -37.845, -29.850]
-            bounding_box_max: [37.850, 37.845, 10.950]
+            bounding_box_min: [-0.040850, -0.037845, -0.029850]
+            bounding_box_max: [0.037850, 0.037845, 0.010950]
             license_file: rplidar_a2/rplidar_a2.stl.license
           rplidar_a2/rplidar_a2.dae:
             sha256: 96997989645293f9d439ea9fc9092645f2b7877328daff3fff8a4dcf69e7c25c
@@ -152,13 +153,13 @@ parts:
         materials: [pcb_green, gold, silver, black, chip, ceramic, substrate, inductor, usb3_blue, latch_tan, led_red, led_green, led_yellow]
         files:
           raspberry_pi_4b/raspberry_pi_4b.stl:
-            sha256: c193ce738b8eb7471d8b8ff177225176685fe85884f36bc2d50447704711dab3
+            sha256: f2b1888faaa487b288f984b709e131536daa58d714c1eccd1addcf8ee87d4d42
             bytes: 755884
-            units: millimetre
+            units: metre
             up_axis: "Z"
             triangles: 15116
-            bounding_box_min: [-7.569, -42.123, -2.800]
-            bounding_box_max: [50.921, 45.977, 16.800]
+            bounding_box_min: [-0.007569, -0.042123, -0.002800]
+            bounding_box_max: [0.050921, 0.045977, 0.016800]
             license_file: raspberry_pi_4b/raspberry_pi_4b.stl.license
           raspberry_pi_4b/raspberry_pi_4b.dae:
             sha256: 9237409dfb0bc00419eda5dacdf51ef1506ab16642c7ce3a198302bd6f4b577b
@@ -188,13 +189,13 @@ parts:
         materials: [pcb_black, module_green, heatsink, black, silver, gold, usb3_blue, white, latch_brown, led_green, led_yellow]
         files:
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.stl:
-            sha256: 9eda05b3d5475ebaf0bb5229036393e97c974b92e68ace7ad6d41cee84519ac5
+            sha256: 9bd1a6f1fe97c3880f0f5a4b2c704ea87a74c2f616e5e7cc131a3850b64442bd
             bytes: 284884
-            units: millimetre
+            units: metre
             up_axis: "Z"
             triangles: 5696
-            bounding_box_min: [-28.982, -38.847, -1.950]
-            bounding_box_max: [71.018, 42.223, 28.250]
+            bounding_box_min: [-0.028982, -0.038847, -0.001950]
+            bounding_box_max: [0.071018, 0.042223, 0.028250]
             license_file: jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.stl.license
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.dae:
             sha256: fa949486dd6bbb9733b0f37b020ceafef1bbcbba55e1d0e2f6a0206ebe3a851f
@@ -224,13 +225,13 @@ parts:
         materials: [pcb, fr4, gold, solder, silver, ic, substrate, plastic_black, cap, res, ceramic, ceramic_grey, copper, usb_slot, ic_mark, button_frame, button_cap, inductor, led_orange, led_red]
         files:
           teensy_4_0/teensy_4_0.stl:
-            sha256: 83ae8b18868d0eba8fa4da60c434d74757dbd233578b98c065fa1ddcc5c10a73
+            sha256: a9231d3213366e05fd75af9b2b270f4116e8cb8ab3f22857f5f257a168b2e7b2
             bytes: 1276084
-            units: millimetre
+            units: metre
             up_axis: "Z"
             triangles: 25520
-            bounding_box_min: [-14.629, -8.922, -8.500]
-            bounding_box_max: [21.631, 8.858, 4.355]
+            bounding_box_min: [-0.014629, -0.008922, -0.008500]
+            bounding_box_max: [0.021631, 0.008858, 0.004355]
             license_file: teensy_4_0/teensy_4_0.stl.license
           teensy_4_0/teensy_4_0.dae:
             sha256: 7c49e0b87bbed70536678d4bd772c1d1d1279f4f921c07cbdaa2d4d227c68f9f
@@ -260,13 +261,13 @@ parts:
         materials: [white, hole, tape, red, blue]
         files:
           breadboard_400_point/breadboard_400_point.stl:
-            sha256: f2476736c1bb363514c2e789491192daa43f42012077a6fa1f239cccb922aa0e
+            sha256: 3e95f7995a628616794877319615467d34bc7e6b6aac325666c53f48bd726795
             bytes: 338484
-            units: millimetre
+            units: metre
             up_axis: "Z"
             triangles: 6768
-            bounding_box_min: [-28.810, -46.795, 0.000]
-            bounding_box_max: [27.090, 37.105, 9.530]
+            bounding_box_min: [-0.028810, -0.046795, 0.000000]
+            bounding_box_max: [0.027090, 0.037105, 0.009530]
             license_file: breadboard_400_point/breadboard_400_point.stl.license
           breadboard_400_point/breadboard_400_point.dae:
             sha256: 6440f270d8f55e9dc4f753cc3bac215ee1294dfe9f1bd7e165a6f534e8d90f5c
@@ -296,13 +297,13 @@ parts:
         materials: [pcb, fr4, module, glass, flex, connector_black, gold, connector_dark, silver, ic, cap, res]
         files:
           raspberry_pi_camera_v2/raspberry_pi_camera_v2.stl:
-            sha256: cde21ddea6039f46265102599188da5ef7621b41e9478db800cbbd51b589a5c8
+            sha256: 5bf83b5e818a46944d3e75a9ff56a1a66263a5fde9d81e55e0ad280963c0eeb2
             bytes: 148884
-            units: millimetre
+            units: metre
             up_axis: "Z"
             triangles: 2976
-            bounding_box_min: [-4.145, -12.160, -12.283]
-            bounding_box_max: [4.575, 12.840, 11.579]
+            bounding_box_min: [-0.004145, -0.012160, -0.012283]
+            bounding_box_max: [0.004575, 0.012840, 0.011579]
             license_file: raspberry_pi_camera_v2/raspberry_pi_camera_v2.stl.license
           raspberry_pi_camera_v2/raspberry_pi_camera_v2.dae:
             sha256: 8a1210620640df8917eee835da7d08390bf1c5313b334d4be6b1826e354e6316

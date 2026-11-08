@@ -10,7 +10,7 @@ arms. The wheel on an axle rivet with domed heads and washers. Sizes come from D
 caster_wheel.yaml (wheel radius, joint offsets), the shapes from photos and video frames of
 DiffBot's caster and from Joy-IT's product photos. Sources in provenance/swivel_caster_30mm.md.
 
-Frames (millimetres in the STL, metres in the COLLADA and glTF files, z up):
+Frames (positions in mm, the files are in metres, z up):
 - swivel_caster_30mm_base: the fixed part, with standoffs, plate, bearing and rivet. z = 0 is
   the swivel bearing's lower face. The standoffs end at z = +15 mm. The swivel axis is at
   x = -1 mm (DiffBot's hub joint is 1 mm behind its base joint).
@@ -34,15 +34,15 @@ from generators.mesh_export import tessellate_faces
 TITLE = 'Swivel caster with a 30 mm wheel (DiffBot)'
 
 # ---------------------------------------------------------------------------------------------
-# Parameters, in mm. Frame values come from caster_wheel.yaml and the earlier meshes' bounds,
+# Parameters, in mm. Frame values come from caster_wheel.yaml and the reference meshes' bounds,
 # the shapes from video frames of DiffBot's caster and Joy-IT's photos
 # (provenance/swivel_caster_30mm.md).
 # ---------------------------------------------------------------------------------------------
 SWIVEL_AXIS_X = -1.0          # in the base's frame: hub joint dx -0.077 minus base dx -0.076
-STANDOFF_TOP_Z = 15.0         # frame alignment: the earlier base's top
+STANDOFF_TOP_Z = 15.0         # frame alignment: the reference base's top
 STANDOFF_LENGTH = 10.0        # brass hex standoffs between chassis and plate (video frames)
 STANDOFF_ACROSS_FLATS = 5.0   # hexagonal M3 standoff
-PLATE_SIZE = (32.0, 38.0)     # x, y: the earlier base's footprint
+PLATE_SIZE = (32.0, 38.0)     # x, y: the reference base's footprint
 PLATE_THICKNESS = 1.5
 PLATE_CORNER_RADIUS = 3.0
 PLATE_HOLES = (12.0, 15.0)    # hole centres at (+-x, +-y) from the swivel axis
@@ -59,9 +59,9 @@ RIVET_HEAD_TOP = (6.5, 1.2)   # domed head on the plate's top: diameter, height
 # The cap fits between the fork's bends (about 0.6 of the fork's dish, video frames)
 RACE_CAP = ((7.4, 0.0), (7.4, 0.4), (6.9, 0.8), (6.0, 0.8), (5.6, 1.2), (5.2, 1.2))
 RIVET_HEAD_BOTTOM_RADIUS = 5.0  # large flat rivet head, about 10 mm (video frames)
-RIVET_BOTTOM_Z = -3.3         # frame alignment: the earlier base's lowest point
+RIVET_BOTTOM_Z = -3.3         # frame alignment: the reference base's lowest point
 
-FORK_TOP_RADIUS = 13.0        # frame alignment: the earlier fork reached 13 mm forward
+FORK_TOP_RADIUS = 13.0        # frame alignment: the reference fork reaches 13 mm forward
 FORK_THICKNESS = 1.5
 FORK_INNER_HALF_WIDTH = 8.6   # 17.2 mm between the arms for the 15.6 mm wheel
 FORK_BEND_RADIUS = 1.0        # inner radius of the sheet bend from top plate to arm
