@@ -321,3 +321,39 @@ parts:
             bounding_box_min: [-0.004145, -0.012160, -0.012283]
             bounding_box_max: [0.004575, 0.012840, 0.011579]
             license_file: raspberry_pi_camera_v2/raspberry_pi_camera_v2.glb.license
+  tt_motor_wheel_65mm:
+    title: "Wheel 65 mm for TT gear motors (DiffBot, Remo)"
+    generator: generators/tt_motor_wheel_65mm.py
+    provenance: provenance/tt_motor_wheel_65mm.md
+    meshes:
+      tt_motor_wheel_65mm:
+        frame: "The axle along z at x = y = 0, the tyre's outer face at z = -13 mm, the rim's motor-side flange face at z = +12.74 mm and the hub tube's end at z = +16.16 mm."
+        sub_parts: [rim, tyre]
+        materials: [rim, tyre]
+        files:
+          tt_motor_wheel_65mm/tt_motor_wheel_65mm.stl:
+            sha256: 34d112b386d2a1a933e40a0b5f9a3375185064d8513a898f93ba2a557a589481
+            bytes: 2512984
+            units: millimetre
+            up_axis: "Z"
+            triangles: 50258
+            bounding_box_min: [-33.292, -33.298, -13.000]
+            bounding_box_max: [33.292, 33.298, 16.160]
+            license_file: tt_motor_wheel_65mm/tt_motor_wheel_65mm.stl.license
+          tt_motor_wheel_65mm/tt_motor_wheel_65mm.dae:
+            sha256: 9dbbd942ebaf62594da54141fd9ba3676489a96e09ee87d584aeedd5ef46fe1d
+            bytes: 3158705
+            units: metre
+            up_axis: "Z"
+            triangles: 50258
+            bounding_box_min: [-0.033292, -0.033298, -0.013000]
+            bounding_box_max: [0.033292, 0.033298, 0.016160]
+          tt_motor_wheel_65mm/tt_motor_wheel_65mm.glb:
+            sha256: ecb521883d87dd7360526bad9abcf351dcdd595ce978b7dc753dd0ea6dfe7d0b
+            bytes: 1371240
+            units: metre
+            up_axis: "Y (the root node turns the Z-up vertex data)"
+            triangles: 50258
+            bounding_box_min: [-0.033292, -0.033298, -0.013000]
+            bounding_box_max: [0.033292, 0.033298, 0.016160]
+            license_file: tt_motor_wheel_65mm/tt_motor_wheel_65mm.glb.license

@@ -35,11 +35,12 @@ BACKGROUND = ((0.98, 0.98, 0.97), (0.86, 0.87, 0.88))  # top and bottom of the g
 
 
 class Placement(NamedTuple):
-    """A mesh file and where it goes: offset (m) and turn about z (degrees)."""
+    """A mesh file and where it goes: offset (m), turn about z and, first, about x (degrees)."""
 
     path: str
     offset: Tuple[float, float, float] = (0.0, 0.0, 0.0)
     yaw: float = 0.0
+    roll: float = 0.0
 
 
 class PartView(NamedTuple):
@@ -74,13 +75,17 @@ PARTS: Dict[str, PartView] = {
     'raspberry_pi_camera_v2': PartView(
         'Camera Module v2', [Placement('raspberry_pi_camera_v2/raspberry_pi_camera_v2.dae')],
         30.0, 18.0),
+    # The wheel stands on its tread: turned about x, its outer face looks towards +y
+    'tt_motor_wheel_65mm': PartView(
+        'Wheel 65 mm', [Placement('tt_motor_wheel_65mm/tt_motor_wheel_65mm.dae', roll=90.0)],
+        60.0, 15.0),
 }
 # All parts together, real size, as seen from the overview's camera: back row, then front row,
 # each part turned so that its typical side faces the camera.
 OVERVIEW_AZIMUTH, OVERVIEW_ELEVATION = -90.0, 32.0
 OVERVIEW_ROWS = [
     [('jetson_nano_dev_kit_b01', 180.0), ('raspberry_pi_4b', 180.0),
-     ('breadboard_400_point', 90.0)],
+     ('breadboard_400_point', 90.0), ('tt_motor_wheel_65mm', 180.0)],
     [('raspberry_pi_camera_v2', -90.0), ('teensy_4_0', 0.0), ('swivel_caster_30mm', -30.0),
      ('rplidar_a2', -90.0)],
 ]
@@ -117,13 +122,20 @@ def turn_z(points: np.ndarray, degrees: float) -> np.ndarray:
     return points @ np.array([[c, -s, 0.0], [s, c, 0.0], [0.0, 0.0, 1.0]]).T
 
 
+def turn_x(points: np.ndarray, degrees: float) -> np.ndarray:
+    """Return points (..., 3) turned about x."""
+    c, s = math.cos(math.radians(degrees)), math.sin(math.radians(degrees))
+    return points @ np.array([[1.0, 0.0, 0.0], [0.0, c, -s], [0.0, s, c]]).T
+
+
 def placed_surfaces(view: PartView, yaw: float = 0.0) -> List[Surface]:
     """Return a part's surfaces, placed, then turned about z by yaw."""
     surfaces = []
     for placement in view.placements:
         for surface in read_dae(os.path.join(MESHES, placement.path)):
-            corners = turn_z(surface.corners, placement.yaw) + np.array(placement.offset)
-            normals = turn_z(surface.normals, placement.yaw)
+            corners = (turn_z(turn_x(surface.corners, placement.roll), placement.yaw)
+                       + np.array(placement.offset))
+            normals = turn_z(turn_x(surface.normals, placement.roll), placement.yaw)
             surfaces.append(surface._replace(corners=turn_z(corners, yaw),
                                              normals=turn_z(normals, yaw)))
     return surfaces
