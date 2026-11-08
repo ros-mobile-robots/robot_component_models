@@ -18,14 +18,14 @@ These are display models for visualisation in RViz, Gazebo and web viewers. They
 | [Jetson Nano Developer Kit B01](provenance/jetson_nano_dev_kit_b01.md) | <img src="docs/images/jetson_nano_dev_kit_b01.png" width="200" alt="Jetson Nano Developer Kit"> | `jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01` | Remo | 5,696 | 285 / 396 / 252 kB |
 | [Teensy 4.0 with two 14-pin headers](provenance/teensy_4_0.md) | <img src="docs/images/teensy_4_0.png" width="200" alt="Teensy 4.0"> | `teensy_4_0/teensy_4_0` | Remo | 25,520 | 1,276 / 1,650 / 900 kB |
 | [400-point solderless breadboard](provenance/breadboard_400_point.md) | <img src="docs/images/breadboard_400_point.png" width="200" alt="Breadboard"> | `breadboard_400_point/breadboard_400_point` | Remo | 6,768 | 338 / 428 / 290 kB |
-| [Raspberry Pi Camera Module v2](provenance/raspberry_pi_camera_v2.md) | <img src="docs/images/raspberry_pi_camera_v2.png" width="200" alt="Camera Module v2"> | `raspberry_pi_camera_v2/raspberry_pi_camera_v2` | Remo | 2,976 | 149 / 209 / 117 kB |
+| [Raspberry Pi Camera Module v2](provenance/raspberry_pi_camera_v2.md) | <img src="docs/images/raspberry_pi_camera_v2.png" width="200" alt="Camera Module v2"> | `raspberry_pi_camera_v2/raspberry_pi_camera_v2` | Remo | 2,976 | 149 / 209 / 116 kB |
 | Wheel 65 × 25 mm | Planned | `wheel/…` | DiffBot, Remo | | |
 
 Each mesh comes in three files in `meshes/<part>/`:
 
 - `<name>.stl`: binary STL in **millimetres**, without colours.
 - `<name>.dae`: COLLADA 1.4.1 in **metres**, Z up, with coloured materials and one node per sub-part.
-- `<name>.glb`: binary glTF 2.0 in **metres** with the same materials, for web viewers. Each sub-part, such as a connector, is a named node, so a viewer can move the sub-parts apart. The vertex data are in the same Z-up frame as the other files. The root node turns them into glTF's Y up.
+- `<name>.glb`: binary glTF 2.0 in **metres** with the same materials, for web viewers. The COLLADA colours are sRGB values, as viewers show them, and the glTF base colours are the same colours as linear values, as glTF defines them. Metal parts are metallic, and the roughness follows from the COLLADA shininess. Each sub-part, such as a connector, is a named node, so a viewer can move the sub-parts apart. The vertex data are in the same Z-up frame as the other files. The root node turns them into glTF's Y up.
 
 [`meshes/manifest.yaml`](meshes/manifest.yaml) lists every file with its checksum, size, units, frame, bounding box, triangle count, sub-parts and materials. The provenance page of each part, linked in the table, lists its sources, what was estimated or simplified, and which measurements would improve it.
 
