@@ -166,8 +166,9 @@ def smooth_surface(corners: np.ndarray, angle_degrees: float = 30.0) -> Surface:
     Corners at exactly the same position share a vertex. A corner's normal is the area-weighted
     sum of the normals of the triangles around its vertex whose normals lie within the angle of
     its own triangle's normal. Corners of a vertex with the same normal share an output vertex.
-    The triangles keep their order and corners. Only +, -, *, / and sqrt decide, which every
-    CPU rounds alike, so the files don't depend on the CPU's vector instructions.
+    The triangles keep their order and corners. Only +, -, *, / and sqrt decide the normals, and
+    every CPU rounds these alike, so this step doesn't depend on the CPU's vector instructions.
+    The triangles themselves come from OCP's mesher.
     """
     count = len(corners)
     positions, inverse = np.unique(corners.reshape(-1, 3), axis=0, return_inverse=True)
