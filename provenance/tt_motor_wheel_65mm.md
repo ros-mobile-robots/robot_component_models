@@ -15,18 +15,18 @@ Generator: [`generators/tt_motor_wheel_65mm.py`](../generators/tt_motor_wheel_65
 
 ## Frame
 
-Millimetres in the STL file, metres in the COLLADA and glTF files. The axle runs along z at x = y = 0. The tyre's outer face is at z = -13 mm, the rim's outer face (flange and boss) 0.74 mm behind it, the rim's motor-side flange face at z = +12.74 mm, and the hub tube's end at z = +16.16 mm. Both robots turn the mesh so that +z points towards the robot.
+The files are in metres. Positions on this page are in millimetres. The axle runs along z at x = y = 0. The tyre's outer face is at z = -13 mm, the rim's outer face (flange and boss) 0.74 mm behind it, the rim's motor-side flange face at z = +12.74 mm, and the hub tube's end at z = +16.16 mm. Both robots turn the mesh so that +z points towards the robot.
 
-The frame is the frame of the wheel mesh both robots used before. Only that mesh's bounding box was read, to align the frame:
+**Frame alignment:** the reference wheel mesh's bounding box was read to position the model:
 
 | | min (mm) | max (mm) |
 |---|---|---|
-| Earlier mesh | (-34.46, -34.46, -13.00) | (34.46, 34.41, 17.00) |
-| This mesh | (-33.29, -33.30, -13.00) | (33.29, 33.30, 16.16) |
+| Reference mesh | (-34.46, -34.46, -13.00) | (34.46, 34.41, 17.00) |
+| This model | (-33.29, -33.30, -13.00) | (33.29, 33.30, 16.16) |
 
-- The outer face and the axle are the same.
-- The radius is 1.17 mm smaller: the measured Ø66.6 mm. DiffBot's URDF radius is 33.3 mm, so the tyre touches the ground. Remo's is 33.0 mm, so the visual tyre reaches 0.3 mm below the ground (the earlier mesh 1.46 mm).
-- The motor-side end is at +16.16 mm instead of +17.00 mm: the real rim is 28.42 mm long. The end depends on how far the tyre's side stands in front of the flange, which isn't measured (see below). Nothing in the robots' URDFs refers to that end. The tyre is 26.48 mm wide instead of 24.82 mm, so its centre plane is 0.74 mm nearer the robot than before. Joints, collisions and inertias don't depend on the mesh.
+- The outer face and the axle are the reference's.
+- The radius is 1.17 mm smaller than the reference's: the measured Ø66.6 mm. DiffBot's URDF radius is 33.3 mm, so the tyre touches the ground. Remo's is 33.0 mm, so the visual tyre reaches 0.3 mm below the ground.
+- The motor-side end is at +16.16 mm, the reference's at +17.00 mm: the real rim is 28.42 mm long. The end depends on how far the tyre's side stands in front of the flange, which isn't measured (see below). Nothing in the robots' URDFs refers to that end. The tyre is 26.48 mm wide, the reference's 24.82 mm, so its centre plane is 0.74 mm nearer the robot than the reference's. Joints, collisions and inertias don't depend on the mesh.
 
 ## Sources
 

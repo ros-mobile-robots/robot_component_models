@@ -10,10 +10,10 @@ behind each, a recessed bowl around the centre boss with five small pads, and a 
 collar on the motor side. The tyre's thin edge lips hook over the flanges and two inner rings sit
 in the plain bands. Sources in provenance/tt_motor_wheel_65mm.md.
 
-Frame (the frame of the wheel.stl that DiffBot and Remo used before): the axle along z. The
+Frame (positions in mm, the files are in metres): the axle along z. The
 tyre's outer face is at z = -13 mm, the rim's outer flange face and the boss 0.74 mm behind it
 (the tyre's lip), the rim's motor-side flange face at +12.74 mm and the hub tube's end at
-+16.16 mm. Millimetres in the STL, metres in the COLLADA and glTF files.
++16.16 mm.
 """
 import math
 from typing import List
@@ -38,7 +38,7 @@ TITLE = 'Wheel 65 mm for TT gear motors (DiffBot, Remo)'
 #   choice    not measured: an estimate that looks like the photos
 # z is along the axle (see the module docstring). Diameters as D_, radii are derived.
 # ---------------------------------------------------------------------------------------------
-TYRE_OUTER_FACE_Z = -13.0    # frame alignment: the earlier wheel.stl's outer face
+TYRE_OUTER_FACE_Z = -13.0    # frame alignment: the reference wheel mesh's outer face
 
 # Tyre
 TYRE_OUTER_D = 66.6          # measured on DiffBot: 66.3 and 66.8 (front_wheel.yaml)
