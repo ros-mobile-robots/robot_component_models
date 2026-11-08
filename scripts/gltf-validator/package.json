@@ -1,0 +1,8 @@
+{
+  "name": "robot-component-models-gltf-check",
+  "private": true,
+  "description": "Validates the package's glTF files with the Khronos glTF-Validator",
+  "dependencies": {
+    "gltf-validator": "2.0.0-dev.3.10"
+  }
+}
