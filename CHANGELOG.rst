@@ -2,6 +2,13 @@
 Changelog for package robot_component_models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.0 (2026-11-08)
+------------------
+* More realistic Raspberry Pi 4 Model B and Jetson Nano Developer Kit B01: metal and
+  solder mask materials with highlights, FR-4 board edges, connector shells with frames,
+  spring fingers and dark insides, pointed header pins, small parts with end caps, and the
+  Jetson's heatsink after its drawing. Frames, bounding boxes and mounting holes are unchanged
+
 1.0.0 (2026-11-08)
 ------------------
 * The first release: display models of DiffBot's swivel caster (three meshes), a 360 degree

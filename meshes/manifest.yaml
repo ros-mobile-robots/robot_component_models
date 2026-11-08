@@ -149,31 +149,31 @@ parts:
       raspberry_pi_4b:
         frame: "The board's mid-plane at z = 0, the board from x = -7.569 to 48.431 mm and from y = -42.123 to 42.877 mm, the USB and Ethernet end at +y, the GPIO header along -x."
         sub_parts: [board, headers, ethernet, usb_2, usb_3, usb_c, micro_hdmi, audio_jack, camera_connector, display_connector, chips, small_parts, bottom_side]
-        materials: [pcb_green, gold, silver, black, chip, ceramic, substrate, inductor, usb3_blue, latch_tan, led_red, led_green, led_yellow]
+        materials: [solder_mask_green, fr4_edge, gold, nickel, steel_lid, tin, black_plastic, chip, ceramic, substrate, inductor, usb3_blue, latch_white, led_red, led_green, led_yellow]
         files:
           raspberry_pi_4b/raspberry_pi_4b.stl:
-            sha256: c193ce738b8eb7471d8b8ff177225176685fe85884f36bc2d50447704711dab3
-            bytes: 755884
+            sha256: 64aeeadaa10c4f066ceac24c611be849bede29263f4a2a3d665984c52bd68efe
+            bytes: 1719784
             units: millimetre
             up_axis: "Z"
-            triangles: 15116
+            triangles: 34394
             bounding_box_min: [-7.569, -42.123, -2.800]
             bounding_box_max: [50.921, 45.977, 16.800]
             license_file: raspberry_pi_4b/raspberry_pi_4b.stl.license
           raspberry_pi_4b/raspberry_pi_4b.dae:
-            sha256: 9237409dfb0bc00419eda5dacdf51ef1506ab16642c7ce3a198302bd6f4b577b
-            bytes: 1001437
+            sha256: 56370f4c85c02ba62b3534da3094ba784c1e8e22955c174f0cd358221fff3dbb
+            bytes: 2349753
             units: metre
             up_axis: "Z"
-            triangles: 15116
+            triangles: 34394
             bounding_box_min: [-0.007569, -0.042123, -0.002800]
             bounding_box_max: [0.050921, 0.045977, 0.016800]
           raspberry_pi_4b/raspberry_pi_4b.glb:
-            sha256: 60a5c2d2d0ec74b1f153f8fea56fb05c48da6de9a8503000020ed6c98be406a8
-            bytes: 594124
+            sha256: f4b7fbb40b1eccefc9e4d43b7856b20797775b03d068c7a97f542c55f136f124
+            bytes: 1351004
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
-            triangles: 15116
+            triangles: 34394
             bounding_box_min: [-0.007569, -0.042123, -0.002800]
             bounding_box_max: [0.050921, 0.045977, 0.016800]
             license_file: raspberry_pi_4b/raspberry_pi_4b.glb.license
@@ -185,31 +185,31 @@ parts:
       jetson_nano_dev_kit_b01:
         frame: "The carrier board's bottom face at z = 0, the carrier from x = -28.982 to 71.018 mm and from y = -38.847 to 40.153 mm, the port row at +y, the 40-pin header at -x."
         sub_parts: [carrier, dc_jack, hdmi_dp, usb_stacks, ethernet, micro_usb, module, heatsink, carrier_parts, bottom_side]
-        materials: [pcb_black, module_green, heatsink, black, silver, gold, usb3_blue, white, latch_brown, led_green, led_yellow]
+        materials: [solder_mask_black, module_mask_green, fr4_edge, anodised_black, nickel, gold, tin, brass, black_plastic, usb3_blue, white_plastic, latch_brown, led_green, led_yellow]
         files:
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.stl:
-            sha256: 9eda05b3d5475ebaf0bb5229036393e97c974b92e68ace7ad6d41cee84519ac5
-            bytes: 284884
+            sha256: dcf39f8f105419759ed85c558d0d8717418e7b9bcf53ecf10740954dbb24ce3a
+            bytes: 634084
             units: millimetre
             up_axis: "Z"
-            triangles: 5696
+            triangles: 12680
             bounding_box_min: [-28.982, -38.847, -1.950]
             bounding_box_max: [71.018, 42.223, 28.250]
             license_file: jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.stl.license
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.dae:
-            sha256: fa949486dd6bbb9733b0f37b020ceafef1bbcbba55e1d0e2f6a0206ebe3a851f
-            bytes: 395630
+            sha256: c7460ee7ac6434e0713d17b745e1bbd1179ebf3d303e8a2b6c2ad5931790357e
+            bytes: 920790
             units: metre
             up_axis: "Z"
-            triangles: 5696
+            triangles: 12680
             bounding_box_min: [-0.028982, -0.038847, -0.001950]
             bounding_box_max: [0.071018, 0.042223, 0.028250]
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.glb:
-            sha256: d0906541330813511817be7af236a926753ef69ea5d3367e38db42836ece2782
-            bytes: 251700
+            sha256: 5a69b4629d3b02074ff9095ba07ce72e4e719bdf397b9629552e35ebbee7c08f
+            bytes: 538620
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
-            triangles: 5696
+            triangles: 12680
             bounding_box_min: [-0.028982, -0.038847, -0.001950]
             bounding_box_max: [0.071018, 0.042223, 0.028250]
             license_file: jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.glb.license

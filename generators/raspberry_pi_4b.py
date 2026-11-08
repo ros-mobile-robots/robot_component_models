@@ -13,12 +13,29 @@ The meshes are turned and moved into Remo's frame for the board (see BOARD_TO_ME
 from typing import List
 from typing import Sequence
 from typing import Tuple
+from typing import Union
 
 import cadquery as cq
 import numpy as np
 
+from generators.board_parts import box
+from generators.board_parts import chamfered_rectangle
+from generators.board_parts import cylinder
+from generators.board_parts import drop_degenerate
+from generators.board_parts import materials
+from generators.board_parts import Part
+from generators.board_parts import pin_header
+from generators.board_parts import place
+from generators.board_parts import prism
+from generators.board_parts import quad_package
+from generators.board_parts import ring
+from generators.board_parts import rj45_jack
+from generators.board_parts import rounded_box
+from generators.board_parts import shell_with_opening
+from generators.board_parts import split_board
+from generators.board_parts import two_terminal
+from generators.board_parts import usb_a_stack
 from generators.mesh_export import Model
-from generators.mesh_export import phong
 from generators.mesh_export import SubPart
 from generators.mesh_export import Surface
 from generators.mesh_export import surfaces_by_material
@@ -43,8 +60,6 @@ HOLES = ((3.5, 3.5), (61.5, 3.5), (3.5, 52.5), (61.5, 52.5))
 TOP = BOARD_THICKNESS / 2  # z of the board's top face
 BOTTOM = -BOARD_THICKNESS / 2
 
-PIN_SIZE = 0.64  # Square pins of 2.54 mm headers
-HEADER_BASE_HEIGHT = 2.5
 HEADER_PIN_HEIGHT = 8.5  # Drawing: GPIO header Z = 8.5
 PIN_TAIL = 2.0  # Solder tails below the board
 GPIO_PINS_X = [8.37 + 2.54 * k for k in range(20)]
@@ -305,236 +320,149 @@ SMALL_PARTS_BOTTOM = """
 # (48.431 - y, x - 42.123): a turn by +90 degrees about z and a shift.
 BOARD_TO_MESH = (48.431, -42.123)
 
-# Colours (red, green, blue, alpha) of the COLLADA materials.
-# Colours (red, green, blue, alpha) of the materials.
-COLOURS = {
-    'pcb_green': (0.10, 0.42, 0.22, 1.0),
-    'gold': (0.86, 0.69, 0.27, 1.0),
-    'silver': (0.78, 0.78, 0.80, 1.0),
-    'black': (0.05, 0.05, 0.05, 1.0),
-    'chip': (0.11, 0.11, 0.12, 1.0),
-    'ceramic': (0.64, 0.54, 0.38, 1.0),
-    'substrate': (0.14, 0.24, 0.16, 1.0),
-    'inductor': (0.26, 0.26, 0.28, 1.0),
-    'usb3_blue': (0.10, 0.38, 0.85, 1.0),
-    'latch_tan': (0.80, 0.72, 0.55, 1.0),
-    'led_red': (0.90, 0.10, 0.10, 1.0),
-    'led_green': (0.20, 0.85, 0.25, 1.0),
-    'led_yellow': (0.95, 0.80, 0.10, 1.0),
-}
-METALS = ('gold', 'silver')
-# A darker ambient than diffuse keeps the shading in Gazebo, whose scenes have ambient light.
-AMBIENT_FACTOR = 0.6
-MATERIALS = {name: phong(rgba, (0.5, 0.5, 0.5) if name in METALS else (0.1, 0.1, 0.1),
-                         30.0 if name in METALS else 10.0, name in METALS, AMBIENT_FACTOR)
-             for name, rgba in COLOURS.items()}
+
+# Materials (generators/board_parts.py): colours sampled from Raspberry Pi's product photo.
+MATERIALS = materials(['solder_mask_green', 'fr4_edge', 'gold', 'nickel', 'steel_lid', 'tin',
+                       'black_plastic', 'chip', 'ceramic', 'substrate', 'inductor', 'usb3_blue',
+                       'latch_white', 'led_red', 'led_green', 'led_yellow'])
 TOLERANCE = 0.03  # Tessellation: linear (mm) and angular (rad) deflection
 ANGULAR_TOLERANCE = 0.35
-
-Part = Tuple[str, cq.Shape]
-
-
-# ---------------------------------------------------------------------------------------------
-# Shape helpers
-# ---------------------------------------------------------------------------------------------
-def box(x0: float, y0: float, z0: float, x1: float, y1: float, z1: float) -> cq.Shape:
-    """Return the box between two corners."""
-    return cq.Solid.makeBox(x1 - x0, y1 - y0, z1 - z0, cq.Vector(x0, y0, z0))
-
-
-def prism(points: Sequence[Tuple[float, float]], z0: float, z1: float) -> cq.Shape:
-    """Return the polygon extruded from z0 to z1."""
-    return cq.Workplane('XY', origin=(0, 0, z0)).polyline(list(points)).close() \
-        .extrude(z1 - z0).val()
-
-
-def cylinder(radius: float, base: Tuple[float, float, float],
-             direction: Tuple[float, float, float], length: float) -> cq.Shape:
-    """Return a cylinder from its base centre along the direction."""
-    return cq.Solid.makeCylinder(radius, length, cq.Vector(*base), cq.Vector(*direction))
-
-
-def ring(centre: Tuple[float, float], outer: float, inner: float, z0: float,
-         z1: float) -> cq.Shape:
-    """Return a flat annulus between z0 and z1, given its outer and inner diameters."""
-    disc = cylinder(outer / 2, (centre[0], centre[1], z0), (0, 0, 1), z1 - z0)
-    hole = cylinder(inner / 2, (centre[0], centre[1], z0 - 0.1), (0, 0, 1), z1 - z0 + 0.2)
-    return disc.cut(hole)
-
-
-def front_opening(width: float, height: float, chamfer: float, centre_x: float, bottom_z: float,
-                  front_y: float, depth: float) -> cq.Shape:
-    """Return a prism along +y from the front face: a rectangle with chamfered lower corners."""
-    half = width / 2
-    points = [(-half + chamfer, 0), (half - chamfer, 0), (half, chamfer), (half, height),
-              (-half, height), (-half, chamfer)]
-    points = [(centre_x + px, bottom_z + pz) for px, pz in points]
-    return cq.Workplane('XZ', origin=(0, front_y, 0)).polyline(points).close() \
-        .extrude(-depth).val()
+Piece = Union[Part, Tuple[str, Surface]]
 
 
 # ---------------------------------------------------------------------------------------------
 # Parts
 # ---------------------------------------------------------------------------------------------
-def board() -> List[Part]:
-    """Return the board with its four holes and their gold pads on both sides."""
+def board() -> List[Piece]:
+    """Return the board: solder mask, FR-4 edges, plated holes with gold pads on both sides."""
     plate = cq.Workplane('XY', origin=(BOARD_LENGTH / 2, BOARD_WIDTH / 2, BOTTOM)) \
         .rect(BOARD_LENGTH, BOARD_WIDTH).extrude(BOARD_THICKNESS).edges('|Z') \
         .fillet(CORNER_RADIUS).val()
-    parts: List[Part] = []
+    parts: List[Piece] = []
     for x, y in HOLES:
         plate = plate.cut(cylinder(HOLE_DIAMETER / 2, (x, y, BOTTOM - 1), (0, 0, 1), 5))
         parts.append(('gold', ring((x, y), HOLE_PAD_DIAMETER, HOLE_DIAMETER, TOP, TOP + 0.04)))
         parts.append(('gold', ring((x, y), HOLE_PAD_DIAMETER, HOLE_DIAMETER,
                                    BOTTOM - 0.04, BOTTOM)))
     for x, y in J2_PADS:
+        plate = plate.cut(cylinder(0.5, (x, y, BOTTOM - 1), (0, 0, 1), 5))
         parts.append(('gold', ring((x, y), 1.6, 1.0, TOP, TOP + 0.04)))
-    return [('pcb_green', plate)] + parts
+        parts.append(('gold', ring((x, y), 1.6, 1.0, BOTTOM - 0.04, BOTTOM)))
+    surface = tessellate_shape(plate, TOLERANCE, ANGULAR_TOLERANCE)
+    plated = list(HOLES) + list(J2_PADS)
+    return list(split_board(surface, 'solder_mask_green', plated, HOLE_DIAMETER / 2 + 0.1)) \
+        + parts
 
 
-def header_pins(pins: Sequence[Tuple[float, float]]) -> List[Part]:
-    """Return square header pins from below the board to the header's height."""
-    half = PIN_SIZE / 2
-    return [('gold', box(x - half, y - half, BOTTOM - PIN_TAIL, x + half, y + half,
-                         TOP + HEADER_PIN_HEIGHT)) for x, y in pins]
-
-
-def headers() -> List[Part]:
+def headers() -> List[Piece]:
     """Return the 40-pin GPIO header and the 4-pin PoE header."""
     gpio = [(x, y) for x in GPIO_PINS_X for y in GPIO_PINS_Y]
-    parts = [('black', box(7.1, 50.0, TOP, 57.9, 55.0, TOP + HEADER_BASE_HEIGHT))]
-    parts += header_pins(gpio)
-    parts.append(('black', box(59.0, 43.82, TOP, 64.0, 48.9, TOP + HEADER_BASE_HEIGHT)))
-    parts += header_pins(POE_PINS)
-    return parts
+    return list(pin_header(gpio, TOP, BOTTOM, HEADER_PIN_HEIGHT, PIN_TAIL)) \
+        + list(pin_header(POE_PINS, TOP, BOTTOM, HEADER_PIN_HEIGHT, PIN_TAIL))
 
 
-def ethernet() -> List[Part]:
-    """Return the RJ45 jack: metal shield, dark plug opening with contacts, two LEDs."""
+def ethernet() -> List[Piece]:
+    """Return the RJ45 jack, its opening towards +x."""
     x0, y0, x1, y1, height = ETHERNET
-    centre_y = (y0 + y1) / 2
-    shell = box(x0, y0, TOP, x1, y1, TOP + height)
-    # The opening faces +x: 11.7 wide, 9 high, with the latch notch at the bottom.
-    bottom = TOP + 2.2
-    profile = [(centre_y - 5.85, bottom + 1.6), (centre_y - 3.0, bottom + 1.6),
-               (centre_y - 3.0, bottom), (centre_y + 3.0, bottom), (centre_y + 3.0, bottom + 1.6),
-               (centre_y + 5.85, bottom + 1.6), (centre_y + 5.85, bottom + 9.0),
-               (centre_y - 5.85, bottom + 9.0)]
-    depth = 12.0
-    opening = cq.Workplane('YZ', origin=(x1 - depth, 0, 0)).polyline(profile).close() \
-        .extrude(depth + 0.1).val()
-    cavity = cq.Workplane('YZ', origin=(x1 - depth + 0.3, 0, 0)).polyline(profile).close() \
-        .offset2D(-0.3).extrude(depth).val()
-    liner = cq.Workplane('YZ', origin=(x1 - depth, 0, 0)).polyline(profile).close() \
-        .extrude(depth).val().cut(cavity)
-    parts = [('silver', shell.cut(opening)), ('black', liner)]
-    for k in range(8):
-        y = centre_y - 3.57 + 1.02 * k
-        parts.append(('gold', box(x1 - 9.0, y - 0.15, bottom + 8.3, x1 - 4.0, y + 0.15,
-                                  bottom + 8.7)))
-    parts.append(('led_green', box(x1 - 0.05, y0 + 0.8, TOP + 0.8, x1 + 0.1, y0 + 2.8, TOP + 2.0)))
-    parts.append(('led_yellow', box(x1 - 0.05, y1 - 2.8, TOP + 0.8, x1 + 0.1, y1 - 0.8,
-                                    TOP + 2.0)))
-    return parts
+    return list(place(rj45_jack(y1 - y0, x1 - x0, height), 0.0, (x1, (y0 + y1) / 2, TOP)))
 
 
-def usb_stack(spec: Tuple[float, float, float, float, float], tongue: str) -> List[Part]:
-    """Return a stacked double USB-A receptacle facing +x, with its tongues and front flange."""
+def usb_stack(spec: Tuple[float, float, float, float, float], tongue: str) -> List[Piece]:
+    """Return a stacked double USB-A receptacle, its openings towards +x."""
     x0, y0, x1, y1, height = spec
-    centre_y = (y0 + y1) / 2
-    shell = box(x0, y0, TOP, x1 - 0.3, y1, TOP + height)
-    flange = box(x1 - 0.3, y0 - 0.35, TOP, x1, y1 + 0.35, TOP + height)
-    parts: List[Part] = []
-    for bottom in (TOP + 1.5, TOP + 9.3):
-        opening = box(x1 - 14.0, centre_y - 6.25, bottom, x1 + 0.1, centre_y + 6.25, bottom + 5.12)
-        shell = shell.cut(opening)
-        flange = flange.cut(opening)
-        back = box(x1 - 14.0, centre_y - 6.25, bottom, x1 - 13.5, centre_y + 6.25, bottom + 5.12)
-        parts.append(('black', back))
-        # The tongue hangs from the top of the opening, contacts underneath.
-        parts.append((tongue, box(x1 - 13.5, centre_y - 5.55, bottom + 2.7, x1 - 1.0,
-                                  centre_y + 5.55, bottom + 4.55)))
-        for k in range(4):
-            y = centre_y - 3.5 + 2.33 * k
-            parts.append(('gold', box(x1 - 9.0, y - 0.5, bottom + 2.62, x1 - 2.0, y + 0.5,
-                                      bottom + 2.7)))
-    return [('silver', shell), ('silver', flange)] + parts
+    return list(place(usb_a_stack(y1 - y0, x1 - x0, height, tongue), 0.0,
+                      (x1, (y0 + y1) / 2, TOP)))
 
 
-def usb_c() -> List[Part]:
-    """Return the USB-C power receptacle facing -y, with its tongue."""
+def usb_c() -> List[Piece]:
+    """Return the USB-C power receptacle, its opening towards -y."""
     centre_x, front, back, width, height = USB_C
     centre_z = TOP + height / 2
     shell = cq.Workplane('XZ', origin=(0, front, 0)).center(centre_x, centre_z) \
         .slot2D(width, height).extrude(-(back - front)).val()
     opening = cq.Workplane('XZ', origin=(0, front - 0.1, 0)).center(centre_x, centre_z) \
         .slot2D(width - 0.6, height - 0.6).extrude(-6.0).val()
-    tongue = box(centre_x - 3.3, front + 0.9, centre_z - 0.35, centre_x + 3.3, front + 6.0,
-                 centre_z + 0.35)
-    return [('silver', shell.cut(opening)), ('black', tongue),
-            ('silver', box(centre_x - 4.33, back - 2.0, TOP, centre_x + 4.33, back, TOP + 0.6))]
-
-
-def micro_hdmi() -> List[Part]:
-    """Return the two micro-HDMI receptacles facing -y, with gold tongues."""
-    width, height = MICRO_HDMI_SIZE
-    parts: List[Part] = []
-    for centre_x, front, back in MICRO_HDMI:
-        shell = box(centre_x - width / 2, front, TOP, centre_x + width / 2, back, TOP + height)
-        opening = front_opening(width - 0.6, height - 0.7, 0.5, centre_x, TOP + 0.35, front - 0.1,
-                                5.0)
-        parts.append(('silver', shell.cut(opening)))
-        parts.append(('black', box(centre_x - width / 2 + 0.3, front + 4.8, TOP + 0.35,
-                                   centre_x + width / 2 - 0.3, front + 5.0, TOP + height - 0.35)))
-        parts.append(('gold', box(centre_x - 1.9, front + 0.8, TOP + 1.2, centre_x + 1.9,
-                                  front + 4.8, TOP + 1.65)))
+    liner = cq.Workplane('XZ', origin=(0, front, 0)).center(centre_x, centre_z) \
+        .slot2D(width - 0.6, height - 0.6).extrude(-5.9).val().cut(
+            cq.Workplane('XZ', origin=(0, front - 0.1, 0)).center(centre_x, centre_z)
+            .slot2D(width - 1.0, height - 1.0).extrude(-5.8).val())
+    parts: List[Piece] = [('nickel', shell.cut(opening)), ('black_plastic', liner),
+                          ('black_plastic', box(centre_x - 3.3, front + 0.9, centre_z - 0.35,
+                                                centre_x + 3.3, front + 5.9, centre_z + 0.35))]
+    for k in range(12):
+        x = centre_x - 2.75 + 0.5 * k
+        for z in (centre_z + 0.35, centre_z - 0.4):
+            parts.append(('gold', box(x - 0.13, front + 1.4, z, x + 0.13, front + 4.5, z + 0.05)))
+    parts.append(('nickel', box(centre_x - 4.33, back - 2.0, TOP, centre_x + 4.33, back,
+                                TOP + 0.6)))
     return parts
 
 
-def audio_jack() -> List[Part]:
-    """Return the 3.5 mm AV jack: black body, barrel with hole, metal clip on top."""
+def micro_hdmi() -> List[Piece]:
+    """Return the two micro-HDMI receptacles, their openings towards -y."""
+    width, height = MICRO_HDMI_SIZE
+    opening = chamfered_rectangle(width - 0.6, height - 0.7, 0.5, 0.35)
+    parts: List[Piece] = []
+    for centre_x, front, back in MICRO_HDMI:
+        receptacle = shell_with_opening(width, back - front, height, opening, 5.0, 0.5,
+                                        contacts=(1.55, 1.9, 10), tongue=(2.1, 1.05, 1.55))
+        parts += place(receptacle, -90.0, (centre_x, front, TOP))
+    return parts
+
+
+def audio_jack() -> List[Piece]:
+    """Return the 3.5 mm AV jack: black body, barrel with hole, metal contact clips."""
     x0, y0, x1, y1, height = AUDIO
     centre_x, front, diameter = AUDIO_BARREL
     centre_z = TOP + height / 2
-    body = box(x0, y0, TOP, x1, y1, TOP + height)
+    body = rounded_box(x0, y0, TOP, x1, y1, TOP + height, chamfer_top=0.3)
     barrel = cylinder(diameter / 2, (centre_x, y0 + 0.01, centre_z), (0, -1, 0), y0 - front)
     hole = cylinder(1.8, (centre_x, front - 0.1, centre_z), (0, 1, 0), 9.0)
-    clip = box(x0 + 0.4, y0 + 3.0, TOP + height, x1 - 0.4, y1 - 1.0, TOP + height + 0.3)
-    return [('black', body.fuse(barrel).cut(hole)), ('silver', clip)]
+    clip = box(x0 + 1.4, y0 + 3.0, TOP + height - 0.01, x1 - 1.4, y1 - 2.0, TOP + height + 0.3)
+    side_clip = box(x1 - 0.3, y0 + 4.0, TOP, x1 - 0.01, y1 - 3.0, TOP + height - 1.0)
+    return [('black_plastic', body.fuse(barrel).cut(hole)), ('nickel', clip),
+            ('nickel', side_clip)]
 
 
 def ffc_connector(spec: Tuple[float, float, float, float, float],
-                  pins_at_low_x: bool) -> List[Part]:
+                  pins_at_low_x: bool) -> List[Piece]:
     """Return a vertical flat flex connector (camera or display) with its latch and pins."""
     x0, y0, x1, y1, height = spec
-    body = box(x0 + 0.9, y0, TOP, x1 - 0.2, y1, TOP + height - 1.2) if pins_at_low_x else \
-        box(x0 + 0.2, y0, TOP, x1 - 0.9, y1, TOP + height - 1.2)
+    body = rounded_box(x0 + 0.9, y0, TOP, x1 - 0.2, y1, TOP + height - 1.2, vertical=0.2) \
+        if pins_at_low_x else \
+        rounded_box(x0 + 0.2, y0, TOP, x1 - 0.9, y1, TOP + height - 1.2, vertical=0.2)
     latch = box(x0 + 1.1, y0 + 1.0, TOP + height - 1.2, x1 - 0.4, y1 - 1.0, TOP + height) \
         if pins_at_low_x else \
         box(x0 + 0.4, y0 + 1.0, TOP + height - 1.2, x1 - 1.1, y1 - 1.0, TOP + height)
     centre_x = (x0 + x1) / 2 + (0.35 if pins_at_low_x else -0.35)
     slot = box(centre_x - 0.35, y0 + 3.0, TOP + 1.0, centre_x + 0.35, y1 - 3.0, TOP + height + 0.1)
-    parts: List[Part] = [('black', body.cut(slot)), ('latch_tan', latch.cut(slot))]
+    parts: List[Piece] = [('black_plastic', body.cut(slot)), ('latch_white', latch.cut(slot))]
     tail_x0, tail_x1 = (x0, x0 + 0.9) if pins_at_low_x else (x1 - 0.9, x1)
     for k in range(15):
         y = (y0 + y1) / 2 - 7.0 + k
         parts.append(('gold', box(tail_x0, y - 0.15, TOP, tail_x1, y + 0.15, TOP + 0.25)))
+        parts.append(('gold', box(centre_x - 0.36, y - 0.12, TOP + 1.0, centre_x - 0.3, y + 0.12,
+                                  TOP + height - 1.4)))
     return parts
 
 
-def chips() -> List[Part]:
-    """Return the processor with its metal lid, the RAM and the wireless module's shield."""
+def chips() -> List[Piece]:
+    """Return the processor with its stamped lid, the RAM and the wireless module's shield."""
     x0, y0, x1, y1, height = SOC
-    parts: List[Part] = [('substrate', box(x0, y0, TOP, x1, y1, TOP + 1.1))]
-    lid = cq.Workplane('XY', origin=((x0 + x1) / 2, (y0 + y1) / 2, TOP + 1.1)) \
-        .rect(14.2, 14.2).extrude(0.4).edges('|Z').fillet(1.0).val()
-    top = cq.Workplane('XY', origin=((x0 + x1) / 2, (y0 + y1) / 2, TOP + 1.5)) \
-        .rect(12.2, 12.2).extrude(height - 1.5).edges('|Z').fillet(0.8).val()
-    parts += [('silver', lid), ('silver', top)]
+    centre = ((x0 + x1) / 2, (y0 + y1) / 2)
+    parts: List[Piece] = [('substrate', box(x0, y0, TOP, x1, y1, TOP + 1.1))]
+    flange = cq.Workplane('XY', origin=(centre[0], centre[1], TOP + 1.1)).rect(14.2, 14.2) \
+        .extrude(0.4).edges('|Z').fillet(1.0).val()
+    cap = cq.Workplane('XY', origin=(centre[0], centre[1], TOP + 1.5)).rect(12.2, 12.2) \
+        .extrude(height - 1.5).edges('|Z').fillet(0.8).faces('>Z').edges().fillet(0.3).val()
+    parts += [('steel_lid', flange), ('steel_lid', cap)]
     x0, y0, x1, y1, height = RAM
-    parts.append(('chip', box(x0 + 0.3, y0 + 0.3, TOP, x1 - 0.3, y1 - 0.3, TOP + height)))
+    parts.append(('chip', rounded_box(x0 + 0.3, y0 + 0.3, TOP, x1 - 0.3, y1 - 0.3,
+                                      TOP + height, chamfer_top=0.15)))
     x0, y0, x1, y1, height = WIRELESS_CAN
-    parts.append(('silver', box(x0, y0, TOP, x1, y1, TOP + height)))
+    can = rounded_box(x0, y0, TOP, x1, y1, TOP + height, vertical=0.4, top=0.2)
+    parts.append(('nickel', can.cut(box(x0 + 1.2, y0 + 1.2, TOP + height - 0.06, x1 - 1.2,
+                                        y1 - 1.2, TOP + height + 0.1))))
     return parts
 
 
@@ -565,41 +493,58 @@ def outline_box(points: Sequence[Tuple[float, float]]) -> Tuple[float, float, fl
     return (round(min(xs), 2), round(min(ys), 2), round(max(xs), 2), round(max(ys), 2))
 
 
-def small_part(points: Sequence[Tuple[float, float]], top_side: bool) -> Part:
-    """Return one small part: height and colour by size, a few named parts by outline."""
+def small_part(points: Sequence[Tuple[float, float]], top_side: bool) -> List[Piece]:
+    """Return one small part, its look chosen by size and outline.
+
+    Two-terminal parts (rectangles below 3.5 mm²) get tin end caps, larger rectangles are
+    chips with pads along their edges, a few parts are named by their outline.
+    """
     area = polygon_area(points)
     bounds = outline_box(points)
-    material = 'ceramic' if area < 3.5 else 'chip'
     height = 0.3 if area < 0.3 else 0.45 if area < 1.0 else 0.6 if area < 3.5 else 0.9
+    z0, z1 = (TOP, TOP + height) if top_side else (BOTTOM - height, BOTTOM)
+    rectangle = len(points) == 4 and abs(polygon_area(points) - (bounds[2] - bounds[0])
+                                         * (bounds[3] - bounds[1])) < 1e-6
     if bounds == INDUCTOR_BOX:
-        material, height = 'inductor', 2.0
-    elif bounds in TALL_PARTS:
-        material, height = 'chip', TALL_PARTS[bounds]
+        z1 = TOP + 2.0
+        return [('inductor', prism(points, z0, z1))]
+    if bounds in TALL_PARTS:
+        z1 = TOP + TALL_PARTS[bounds]
+        return [('chip', rounded_box(*bounds[:2], z0, *bounds[2:], z1, chamfer_top=0.15))]
     for led_box, led_material in LEDS:
         if bounds == led_box:
-            material, height = led_material, 0.6
+            return [(led_material, prism(points, z0, TOP + 0.6))]
+    if not rectangle:
+        return [('chip', prism(points, z0, z1))]
+    if area < 3.5:
+        return list(two_terminal(points, z0, z1, 'ceramic'))
     if top_side:
-        return material, prism(points, TOP, TOP + height)
-    return material, prism(points, BOTTOM - height, BOTTOM)
+        return list(quad_package(*bounds[:2], *bounds[2:], z0, height))
+    return [('chip', prism(points, z0, z1))]
 
 
-def small_parts() -> List[Part]:
+def small_parts() -> List[Piece]:
     """Return the small parts on both sides of the board."""
-    parts = [small_part(points, True) for points in parse_outlines(SMALL_PARTS_TOP)]
-    parts += [small_part(points, False) for points in parse_outlines(SMALL_PARTS_BOTTOM)]
+    parts: List[Piece] = []
+    for points in parse_outlines(SMALL_PARTS_TOP):
+        parts += small_part(points, True)
+    for points in parse_outlines(SMALL_PARTS_BOTTOM):
+        parts += small_part(points, False)
     return parts
 
 
-def bottom_side() -> List[Part]:
+def bottom_side() -> List[Piece]:
     """Return the microSD card socket and the solder joints of the through-hole connectors."""
     x0, y0, x1, y1, height = MICRO_SD
     socket = box(x0, y0, BOTTOM - height, x1, y1, BOTTOM)
     slot = box(x0 - 0.1, y0 + 0.6, BOTTOM - height + 0.25, x0 + 8.0, y1 - 0.6, BOTTOM - 0.3)
-    parts: List[Part] = [('silver', socket.cut(slot))]
+    parts: List[Piece] = [('nickel', socket.cut(slot))]
     for x, y in THROUGH_HOLE_PINS:
-        parts.append(('silver', cylinder(0.55, (x, y, BOTTOM - 0.9), (0, 0, 1), 0.9)))
+        joint = cq.Workplane('XY').circle(0.55).workplane(offset=0.9).circle(0.25) \
+            .loft().translate((x, y, BOTTOM - 0.9)).mirror('XY', (0, 0, BOTTOM - 0.45)).val()
+        parts.append(('tin', joint))
     for x, y in SHELL_PEGS:
-        parts.append(('silver', box(x - 0.6, y - 0.3, BOTTOM - 1.4, x + 0.6, y + 0.3, BOTTOM)))
+        parts.append(('nickel', box(x - 0.6, y - 0.3, BOTTOM - 1.4, x + 0.6, y + 0.3, BOTTOM)))
     return parts
 
 
@@ -616,18 +561,22 @@ def to_mesh_frame(surface: Surface) -> Surface:
     return transform_surface(surface, turn, (BOARD_TO_MESH[0], BOARD_TO_MESH[1], 0.0))
 
 
-def sub_part(name: str, parts: Sequence[Part]) -> SubPart:
-    """Return a named sub-part from its (material, shape) pieces."""
-    pieces = [(material, to_mesh_frame(tessellate_shape(shape, TOLERANCE, ANGULAR_TOLERANCE)))
-              for material, shape in parts]
-    return SubPart(name, surfaces_by_material(pieces, list(MATERIALS)))
+def sub_part(name: str, pieces: Sequence[Piece]) -> SubPart:
+    """Return a named sub-part from its (material, shape or surface) pieces."""
+    surfaces = []
+    for material, piece in pieces:
+        surface = piece if isinstance(piece, Surface) else \
+            drop_degenerate(tessellate_shape(piece, TOLERANCE, ANGULAR_TOLERANCE))
+        surfaces.append((material, to_mesh_frame(surface)))
+    return SubPart(name, surfaces_by_material(surfaces, list(MATERIALS)))
 
 
 def build() -> List[Model]:
     """Return the board's mesh, one sub-part per connector or group of parts."""
     groups = [('board', board()), ('headers', headers()), ('ethernet', ethernet()),
-              ('usb_2', usb_stack(USB2, 'black')), ('usb_3', usb_stack(USB3, 'usb3_blue')),
-              ('usb_c', usb_c()), ('micro_hdmi', micro_hdmi()), ('audio_jack', audio_jack()),
+              ('usb_2', usb_stack(USB2, 'black_plastic')),
+              ('usb_3', usb_stack(USB3, 'usb3_blue')), ('usb_c', usb_c()),
+              ('micro_hdmi', micro_hdmi()), ('audio_jack', audio_jack()),
               ('camera_connector', ffc_connector(CSI, True)),
               ('display_connector', ffc_connector(DSI, False)), ('chips', chips()),
               ('small_parts', small_parts()), ('bottom_side', bottom_side())]
