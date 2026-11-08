@@ -2,7 +2,7 @@
      SPDX-License-Identifier: BSD-3-Clause -->
 # robot_component_models
 
-Display models of off-the-shelf robot components, such as a laser scanner, single-board computers and a caster, for ROS 1 (Noetic) and ROS 2 (Humble and later). The [DiffBot and Remo](https://ros-mobile-robots.com) robot descriptions use them. Every model was created independently, from public datasheets, drawings and photos. The CadQuery generator and the sources of every model are in this repository, under the [license](#license) below.
+Display models of off-the-shelf robot components, such as a laser scanner, single-board computers and a caster, for ROS 1 (Noetic) and ROS 2 (Humble and later), made for the [DiffBot and Remo](https://ros-mobile-robots.com) robots. Every model was created independently, from public datasheets, drawings and photos, by a generator script with [CadQuery](https://cadquery.readthedocs.io/), the Python library used to generate the models. The generator and the sources of every model are in this repository, under the [license](#license) below.
 
 ![All parts at their real size](docs/images/all_parts.png)
 
@@ -16,34 +16,24 @@ These are display models for visualisation in RViz, Gazebo and web viewers. They
 | [360 degree laser scanner, RPLIDAR A2 size](provenance/rplidar_a2.md) | <img src="docs/images/rplidar_a2.png" width="200" alt="Laser scanner"> | `rplidar_a2/rplidar_a2` | DiffBot, Remo | 13,014 | 651 / 718 / 332 kB |
 | [Raspberry Pi 4 Model B](provenance/raspberry_pi_4b.md) | <img src="docs/images/raspberry_pi_4b.png" width="200" alt="Raspberry Pi 4 Model B"> | `raspberry_pi_4b/raspberry_pi_4b` | Remo | 15,116 | 756 / 1,001 / 594 kB |
 | [Jetson Nano Developer Kit B01](provenance/jetson_nano_dev_kit_b01.md) | <img src="docs/images/jetson_nano_dev_kit_b01.png" width="200" alt="Jetson Nano Developer Kit"> | `jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01` | Remo | 5,696 | 285 / 396 / 252 kB |
-| [Teensy 4.0 with two 14-pin headers](provenance/teensy_4_0.md) | <img src="docs/images/teensy_4_0.png" width="200" alt="Teensy 4.0"> | `teensy_4_0/teensy_4_0` | Remo | 25,520 | 1,276 / 1,650 / 900 kB |
+| [Teensy 4.0 with two 14-pin headers](provenance/teensy_4_0.md) | <img src="docs/images/teensy_4_0.png" width="200" alt="Teensy 4.0"> | `teensy_4_0/teensy_4_0` | Remo | 25,520 | 1,276 / 1,654 / 899 kB |
 | [400-point solderless breadboard](provenance/breadboard_400_point.md) | <img src="docs/images/breadboard_400_point.png" width="200" alt="Breadboard"> | `breadboard_400_point/breadboard_400_point` | Remo | 6,768 | 338 / 428 / 290 kB |
-| [Raspberry Pi Camera Module v2](provenance/raspberry_pi_camera_v2.md) | <img src="docs/images/raspberry_pi_camera_v2.png" width="200" alt="Camera Module v2"> | `raspberry_pi_camera_v2/raspberry_pi_camera_v2` | Remo | 2,976 | 149 / 209 / 117 kB |
+| [Raspberry Pi Camera Module v2](provenance/raspberry_pi_camera_v2.md) | <img src="docs/images/raspberry_pi_camera_v2.png" width="200" alt="Camera Module v2"> | `raspberry_pi_camera_v2/raspberry_pi_camera_v2` | Remo | 2,976 | 149 / 209 / 116 kB |
 | Wheel 65 × 25 mm | Planned | `wheel/…` | DiffBot, Remo | | |
 
-Each mesh comes in three files in `meshes/<part>/`:
+Each mesh comes in three files in `meshes/<part>/`, all in metres:
 
-- `<name>.stl`: binary STL in **millimetres**, without colours.
-- `<name>.dae`: COLLADA 1.4.1 in **metres**, Z up, with coloured materials and one node per sub-part.
-- `<name>.glb`: binary glTF 2.0 in **metres** with the same materials, for web viewers. Each sub-part, such as a connector, is a named node, so a viewer can move the sub-parts apart. The vertex data are in the same Z-up frame as the other files. The root node turns them into glTF's Y up.
+- `<name>.dae`: COLLADA 1.4.1, Z up, with coloured materials and one node per sub-part.
+- `<name>.stl`: binary STL, without colours.
+- `<name>.glb`: binary glTF 2.0 with the same materials, for web viewers. Each sub-part, such as a connector, is a named node, so a viewer can move the sub-parts apart.
 
-[`meshes/manifest.yaml`](meshes/manifest.yaml) lists every file with its checksum, size, units, frame, bounding box, triangle count, sub-parts and materials. The provenance page of each part, linked in the table, lists its sources, what was estimated or simplified, and which measurements would improve it.
+[`meshes/manifest.yaml`](meshes/manifest.yaml) lists every file with its checksum, size, units, frame, bounding box, triangle count, sub-parts and materials. The provenance page of each part, linked in the table, lists its sources, its frame, what was estimated or simplified, and which measurements would improve it.
 
 ## Using the meshes in a URDF
 
-Refer to the files with `package://robot_component_models/meshes/...`. The STL files are in millimetres, so they need a scale of 0.001:
+Refer to the files with `package://robot_component_models/meshes/...`. Each mesh's origin and axes are documented in the manifest and its provenance page. The robot description supplies the transforms that place the mesh.
 
-```xml
-<visual>
-  <geometry>
-    <mesh filename="package://robot_component_models/meshes/rplidar_a2/rplidar_a2.stl"
-          scale="0.001 0.001 0.001"/>
-  </geometry>
-  <material name="dark_grey"/>
-</visual>
-```
-
-The COLLADA files are in metres and bring their own colours. Leave out the scale, and leave out the visual's `<material>` and the link's Gazebo `<material>`: RViz and Gazebo would paint the whole mesh in that one colour.
+**COLLADA (`.dae`) for coloured visuals**, in ROS 1 and in ROS 2. The files bring their own colours. Leave out the scale, and leave out material overrides, the visual's `<material>` and the link's Gazebo `<material>`, to keep the mesh's embedded colours across viewers.
 
 ```xml
 <visual>
@@ -53,7 +43,52 @@ The COLLADA files are in metres and bring their own colours. Leave out the scale
 </visual>
 ```
 
-Each mesh's frame, its origin and axes, is described in the manifest and on the part's provenance page. The frames are the frames of the meshes DiffBot and Remo used before, so their joint origins stay as they are.
+**STL as a colourless fallback.** The files are in metres, so they need no scale either. The colour comes from the URDF's material.
+
+```xml
+<visual>
+  <geometry>
+    <mesh filename="package://robot_component_models/meshes/rplidar_a2/rplidar_a2.stl"/>
+  </geometry>
+  <material name="dark_grey"/>
+</visual>
+```
+
+**glTF (`.glb`) for web viewers.** Whether a robot viewer reads glTF depends on the viewer, so the URDF examples use COLLADA and STL.
+
+Tested so far: the COLLADA and STL files in DiffBot's and Remo's descriptions with ROS 1 Noetic, in RViz and Gazebo Classic 11. For ROS 2 Humble, CI checks the package's build and install. RViz 2 and the newer Gazebo haven't rendered these meshes in a test yet.
+
+Keep the collision shapes and inertias in the robot description, for example as boxes and cylinders.
+
+## Mesh conventions
+
+### Units
+
+All files are in metres, ROS's unit for lengths ([REP 103](https://www.ros.org/reps/rep-0103.html)). STL has no unit field, and ROS reads its coordinates as metres, so no file needs a scale. The generators build the models in millimetres and convert the coordinates when they write the files. The provenance pages give positions in millimetres.
+
+### Frames
+
+Each mesh has its own local frame, Z up. The origin isn't always the part's centre, and the axes follow each part. For example:
+
+- [Raspberry Pi 4 Model B](provenance/raspberry_pi_4b.md#frame): z = 0 at the board's mid-plane.
+- [Jetson Nano Developer Kit](provenance/jetson_nano_dev_kit_b01.md#frame) and [Teensy 4.0](provenance/teensy_4_0.md#frame): z = 0 at the board's bottom face.
+- [Laser scanner](provenance/rplidar_a2.md#frame): the rotation axis along z, the bottom at z = -29.85 mm, the optical window's centre at z = +0.95 mm.
+- [Camera Module v2](provenance/raspberry_pi_camera_v2.md#frame): the board in the yz plane, the lens looking along +x.
+- [Swivel caster](provenance/swivel_caster_30mm.md#frames): the base's swivel axis at x = -1 mm, the fork's axle along y at x = -16 mm, z = -20 mm.
+
+Every mesh's frame is described in the manifest (`frame`) and in the Frame section of its provenance page. The manifest's bounding boxes are in this local frame.
+
+The glTF files use the same local frame for their vertex data. Their root node turns the data by -90° about x into glTF's Y-up scene. The manifest's glTF bounding boxes are those of the vertex data, before this root rotation.
+
+### File names
+
+Names are lowercase snake_case and name the product. A part's folder, generator module, provenance page and picture share one identifier, for example `rplidar_a2`. A part with one mesh uses that identifier as the file stem: `meshes/rplidar_a2/rplidar_a2.stl`. A part with several meshes adds each mesh's role: `swivel_caster_30mm_base`, `swivel_caster_30mm_wheel_support` and `swivel_caster_30mm_wheel`. A further design of the same kind gets its own qualifier, for example a different caster.
+
+### Versioning
+
+A released file keeps its frame, units and attachment points. A change that moves the origin, turns the axes, changes the units or moves an attachment point, such as mounting holes or an axle, gets a **new file name**. The old file stays, so robots that use it don't change. A change that keeps all of these keeps the file name, even if the bounding box grows with a finer detail. The manifest then shows the new checksum and bounding box.
+
+The version follows [Semantic Versioning](https://semver.org): the first number rises when a file is removed or renamed, the second when files are added or changed, the third for fixes that leave the meshes as they are.
 
 ## Adding the package to a workspace
 
@@ -84,19 +119,11 @@ colcon build --packages-up-to robot_component_models
 
 `vcs import --skip-existing` doesn't move an existing checkout to a new tag. To update one, run `git fetch --tags && git checkout <tag>` in `src/robot_component_models`.
 
-## File names and frames
-
-Names are lowercase snake_case and name the product. A part's folder, generator module, provenance page and picture share one identifier, for example `rplidar_a2`. A part with one mesh uses that identifier as the file stem: `meshes/rplidar_a2/rplidar_a2.stl`. A part with several meshes adds each mesh's role: `swivel_caster_30mm_base`, `swivel_caster_30mm_wheel_support` and `swivel_caster_30mm_wheel`. A further design of the same kind gets its own qualifier, for example a different caster.
-
-A released file keeps its geometry's frame, units and attachment points. A geometry change that moves the origin, turns the axes, changes the units or moves an attachment point, such as mounting holes or an axle, gets a **new file name**. The old file stays, so robots that use it don't change. A change that keeps all of these, such as a corrected colour or a finer detail, keeps the file name and changes the checksum in the manifest.
-
-The version follows [Semantic Versioning](https://semver.org): the first number rises when a file is removed or renamed, the second when files are added or changed, the third for fixes that leave the meshes as they are.
-
 ## Regenerating the meshes
 
-The generators are Python scripts with CadQuery, one per part, in [`generators/`](generators/). Each has its parameters at the top, with the source of each value. [`generators/mesh_export.py`](generators/mesh_export.py) writes the three file formats for all of them.
+The generators are Python scripts, one per part, in [`generators/`](generators/). They use [CadQuery](https://github.com/CadQuery/cadquery) and its OCP bindings to OpenCASCADE. Each has its parameters at the top, with the source of each value. [`generators/mesh_export.py`](generators/mesh_export.py) writes the three file formats for all of them. CadQuery is needed only to regenerate the files, not to build or use the package.
 
-The meshes are reproducible byte for byte in the pinned environment of [`generators/requirements.txt`](generators/requirements.txt): Python 3.12.3 on Ubuntu 24.04 (glibc 2.39), as in CI. From the repository's root:
+CI regenerates the files byte for byte in its generator environment: the Ubuntu 24.04 image, pinned by its digest, with Python 3.12.3 and glibc 2.39, and the Python packages of [`generators/requirements.txt`](generators/requirements.txt), pinned to exact versions. The Ubuntu packages that CI installs with apt aren't pinned. From the repository's root:
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r generators/requirements.txt
@@ -112,7 +139,7 @@ Other versions of CadQuery, OCP or NumPy, or another operating system, can trian
 
 [CI](.github/workflows/ci.yml) runs on every pull request:
 
-1. **Regeneration**: regenerates all parts twice in the pinned environment and fails if any file differs from the manifest's checksum.
+1. **Regeneration**: regenerates all parts twice in the generator environment and fails if any file differs from the manifest's checksum.
 2. **Mesh checks**: every STL is closed and consistently oriented. Triangle counts, units and bounding boxes match the manifest. The COLLADA files are valid against the COLLADA 1.4.1 schema and load in pycollada. The glTF files load in trimesh and pass the Khronos glTF Validator.
 3. **ROS packages**: builds and installs the package in the `ros:noetic` and `ros:humble` containers and checks that the installed `share/robot_component_models` holds exactly the manifest's files, their license files, the manifest, the provenance pages, `LICENSE`, `package.xml` and the build tools' own files. The ROS 1 build is checked with `catkin_make_isolated` and with colcon.
 4. **Code style**: flake8 with ROS 2's ament_flake8 settings and mypy on the generators and scripts.

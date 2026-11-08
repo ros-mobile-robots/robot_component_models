@@ -12,13 +12,13 @@ Generator: [`generators/breadboard_400_point.py`](../generators/breadboard_400_p
 
 ## Frame
 
-Millimetres in the STL file, metres in the COLLADA and glTF files. The bottom of the foam backing is at z = 0 and the top at z = 9.5 mm. The centre channel runs along y at x = -0.16 mm. The hole columns lie at y = -0.335 mm + n × 2.54 mm. The dovetail tabs are on the -x and -y sides, the slots on +x and +y.
+The files are in metres. Positions on this page are in millimetres. The bottom of the foam backing is at z = 0 and the top at z = 9.5 mm. The centre channel runs along y at x = -0.16 mm. The hole columns lie at y = -0.335 mm + n × 2.54 mm. The dovetail tabs are on the -x and -y sides, the slots on +x and +y.
 
-The frame is the frame of the breadboard mesh Remo used before. Only that mesh's bounding box was read, to align the frame: (-28.826, -46.371, 0.000) to (27.254, 36.639, 9.510) mm. This mesh spans (-28.810, -46.795, 0.000) to (27.090, 37.105, 9.530) mm: 82.5 mm long instead of about 81.7 mm. The earlier box reaches 1.3 mm further on -x and -y than on +x and +y, so the tabs are on -x and -y.
+**Frame alignment:** the reference breadboard mesh's bounding box was read to position the model: (-28.826, -46.371, 0.000) to (27.254, 36.639, 9.510) mm. It reaches 1.3 mm further on -x and -y than on +x and +y, so the tabs are on -x and -y. This model spans (-28.810, -46.795, 0.000) to (27.090, 37.105, 9.530) mm: its body is 82.5 mm long, the reference's about 81.7 mm.
 
 ### Hole grid
 
-The hole grid isn't taken from the earlier mesh. It puts the header pins of the Teensy 4.0 and the BNO055 IMU into holes, at their positions in Remo's URDF:
+The hole grid isn't taken from the reference mesh. It puts the header pins of the Teensy 4.0 and the BNO055 IMU into holes, at their positions in Remo's URDF:
 
 - Teensy: PJRC's 0.1 in pin grid, placed with Remo's `mcu` joint (`-0.0414 -0.0206 0.012`, yaw -90°). Its two rows land at x = -9.052 and +6.188 mm in the breadboard's frame, its columns at y = -7.941 - 2.54 k mm.
 - BNO055: the pin positions in Adafruit's published board layout (header JP1 with 6 pins at y = 1.27 mm, JP2 with 4 pins at y = 19.05 mm), moved by (-13.717, -10.217) mm into the frame of Remo's IMU mesh and placed with Remo's `imu_xyz` (`-0.0401 0.0234 0.013`, yaw -90°). Rows at x = -9.047 and +8.733 mm, columns at y = 30.132 - 2.54 k and 27.592 - 2.54 k mm.

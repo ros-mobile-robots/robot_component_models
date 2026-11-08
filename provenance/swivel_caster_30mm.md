@@ -18,15 +18,15 @@ Each STL file is closed and consistently oriented. The three meshes, placed as D
 
 ## Frames
 
-Millimetres in the STL files, metres in the COLLADA and glTF files, z up.
+The files are in metres, z up. Positions on this page are in millimetres.
 
 - `swivel_caster_30mm_base`: z = 0 is the swivel bearing's lower face. The standoffs end at z = +15 mm, at the chassis. The swivel axis is at x = -1 mm, y = 0, because DiffBot's hub joint is 1 mm behind its base joint (`dx` -0.077 and -0.076 m in `caster_wheel.yaml`).
 - `swivel_caster_30mm_wheel_support`: the swivel axis at x = y = 0, the fork's top at z = 0. The wheel axle runs along y at x = -16 mm, z = -20 mm.
 - `swivel_caster_30mm_wheel`: centred on its axle, the axle along y.
 
-The frames are the frames of the caster meshes DiffBot used before, so the caster macro and `caster_wheel.yaml` keep their numbers. Only the bounding boxes of those earlier meshes were read, to align the frames:
+**Frame alignment:** the bounding boxes of the reference caster meshes were read to position the three meshes. DiffBot's caster macro and `caster_wheel.yaml` place them:
 
-| Mesh | Earlier mesh, min → max (mm) | This mesh, min → max (mm) | Difference |
+| Mesh | Reference, min → max (mm) | This mesh, min → max (mm) | Difference |
 |---|---|---|---|
 | `swivel_caster_30mm_base` | (-15.47, -18.79, -3.30) → (16.53, 19.21, 15.00) | (-17.00, -19.00, -3.30) → (15.00, 19.00, 15.00) | 1.5 mm in x: this base is centred on the swivel axis. Same footprint, top and bottom |
 | `swivel_caster_30mm_wheel_support` | (-19.97, -12.73, -25.00) → (13.01, 12.27, 0.00) | (-20.50, -12.50, -24.50) → (10.00, 12.50, 0.00) | 3 mm less at +x: the fork's top disc is r 10 mm, so the race's outer lip shows around it as on DiffBot's caster. Elsewhere 0.53 mm or less. The swivel axis and the axle are where they were |

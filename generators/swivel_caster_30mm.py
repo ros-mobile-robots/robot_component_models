@@ -10,7 +10,7 @@ arms. The wheel on an axle rivet with domed heads and washers. Sizes come from D
 caster_wheel.yaml (wheel radius, joint offsets), the shapes from photos and video frames of
 DiffBot's caster and from Joy-IT's product photos. Sources in provenance/swivel_caster_30mm.md.
 
-Frames (millimetres in the STL, metres in the COLLADA and glTF files, z up):
+Frames (positions in mm, the files are in metres, z up):
 - swivel_caster_30mm_base: the fixed part, with standoffs, plate, bearing and rivet. z = 0 is
   the swivel bearing's lower face. The standoffs end at z = +15 mm. The swivel axis is at
   x = -1 mm (DiffBot's hub joint is 1 mm behind its base joint).
@@ -34,19 +34,19 @@ from generators.mesh_export import tessellate_faces
 TITLE = 'Swivel caster with a 30 mm wheel (DiffBot)'
 
 # ---------------------------------------------------------------------------------------------
-# Parameters, in mm. Frame values come from caster_wheel.yaml and the earlier meshes' bounds,
+# Parameters, in mm. Frame values come from caster_wheel.yaml and the reference meshes' bounds,
 # the shapes from video frames of DiffBot's caster and Joy-IT's photos
 # (provenance/swivel_caster_30mm.md).
 # ---------------------------------------------------------------------------------------------
 SWIVEL_AXIS_X = -1.0          # in the base's frame: hub joint dx -0.077 minus base dx -0.076
-STANDOFF_TOP_Z = 15.0         # frame alignment: the earlier base's top
+STANDOFF_TOP_Z = 15.0         # frame alignment: the reference base's top
 STANDOFF_LENGTH = 10.0        # brass hex standoffs between chassis and plate (video frames)
 STANDOFF_ACROSS_FLATS = 5.0   # hexagonal M3 standoff
 STANDOFF_CHAMFER = 0.3        # the hexagon's end edges (choice)
 # The M3 internal thread at the chassis end, shown as a smooth blind bore of the tapping
 # diameter, without a thread profile (choice)
 STANDOFF_THREAD = (2.5, 3.0)  # diameter, depth
-PLATE_SIZE = (32.0, 38.0)     # x, y: the earlier base's footprint
+PLATE_SIZE = (32.0, 38.0)     # x, y: the reference base's footprint
 PLATE_THICKNESS = 1.5
 PLATE_CORNER_RADIUS = 3.0
 PLATE_HOLES = (12.0, 15.0)    # hole centres at (+-x, +-y) from the swivel axis
@@ -64,7 +64,7 @@ RIVET_HEAD_TOP = (6.5, 1.2)   # domed head on the plate's top: diameter, height
 # about 0.46 of it: on the r 10 mm disc r 5.7 and r 4.6
 RACE_CAP = ((5.7, 0.0), (5.7, 0.4), (5.2, 0.8), (4.9, 0.8), (4.8, 1.2), (4.7, 1.2))
 RIVET_HEAD_BOTTOM_RADIUS = 4.6  # the large flat rivet head (video frames)
-RIVET_BOTTOM_Z = -3.3         # frame alignment: the earlier base's lowest point
+RIVET_BOTTOM_Z = -3.3         # frame alignment: the reference base's lowest point
 
 # The fork's top disc sits inside the race's outer lip, about three quarters of its diameter,
 # and the arms leave the disc's sides (video frames)

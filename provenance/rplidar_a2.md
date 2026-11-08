@@ -12,16 +12,16 @@ Generator: [`generators/rplidar_a2.py`](../generators/rplidar_a2.py).
 
 ## Frame
 
-Millimetres in the STL file, metres in the COLLADA and glTF files. The rotation axis runs along z at x = y = 0. The bottom is at z = -29.85 mm, so the optical window's centre is at z = +0.95 mm. The window faces +x and the cable exit is at -x. Both robots turn the mesh by π about z (visual yaw π in a link with joint yaw π), so the window faces the robot's front.
+The files are in metres. Positions on this page are in millimetres. The rotation axis runs along z at x = y = 0. The bottom is at z = -29.85 mm, so the optical window's centre is at z = +0.95 mm. The window faces +x and the cable exit is at -x. Both robots turn the mesh by π about z (visual yaw π in a link with joint yaw π), so the window faces the robot's front.
 
-The frame is the frame of the scanner mesh both robots used before. Only that mesh's bounding box was read, to align the frame:
+**Frame alignment:** the reference scanner mesh's bounding box was read to position the model:
 
 | | min (mm) | max (mm) |
 |---|---|---|
-| Earlier mesh | (-40.84, -37.51, -29.85) | (38.17, 37.50, 10.95) |
-| This mesh | (-40.85, -37.85, -29.85) | (37.85, 37.85, 10.95) |
+| Reference mesh | (-40.84, -37.51, -29.85) | (38.17, 37.50, 10.95) |
+| This model | (-40.85, -37.85, -29.85) | (37.85, 37.85, 10.95) |
 
-The height, 40.80 mm, and the bottom are the same. The radius is 0.35 mm larger in y, from the datasheet's Ø75.70 mm.
+The height, 40.80 mm, and the bottom are the reference's. The radius is 0.35 mm larger in y, from the datasheet's Ø75.70 mm.
 
 ## Sources
 
