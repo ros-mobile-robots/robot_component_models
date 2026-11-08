@@ -324,7 +324,7 @@ BOARD_TO_MESH = (48.431, -42.123)
 # Materials (generators/board_parts.py): colours sampled from Raspberry Pi's product photo.
 MATERIALS = materials(['solder_mask_green', 'fr4_edge', 'gold', 'nickel', 'steel_lid', 'tin',
                        'black_plastic', 'chip', 'ceramic', 'substrate', 'inductor', 'usb3_blue',
-                       'latch_white', 'led_red', 'led_green', 'led_yellow'])
+                       'cream_plastic', 'led_red', 'led_green', 'led_yellow'])
 TOLERANCE = 0.03  # Tessellation: linear (mm) and angular (rad) deflection
 ANGULAR_TOLERANCE = 0.35
 Piece = Union[Part, Tuple[str, Surface]]
@@ -426,7 +426,7 @@ def audio_jack() -> List[Piece]:
 
 def ffc_connector(spec: Tuple[float, float, float, float, float],
                   pins_at_low_x: bool) -> List[Piece]:
-    """Return a vertical flat flex connector (camera or display) with its latch and pins."""
+    """Return a vertical flat flex connector (camera or display): cream body, dark latch, pins."""
     x0, y0, x1, y1, height = spec
     body = rounded_box(x0 + 0.9, y0, TOP, x1 - 0.2, y1, TOP + height - 1.2, vertical=0.2) \
         if pins_at_low_x else \
@@ -436,7 +436,7 @@ def ffc_connector(spec: Tuple[float, float, float, float, float],
         box(x0 + 0.4, y0 + 1.0, TOP + height - 1.2, x1 - 1.1, y1 - 1.0, TOP + height)
     centre_x = (x0 + x1) / 2 + (0.35 if pins_at_low_x else -0.35)
     slot = box(centre_x - 0.35, y0 + 3.0, TOP + 1.0, centre_x + 0.35, y1 - 3.0, TOP + height + 0.1)
-    parts: List[Piece] = [('black_plastic', body.cut(slot)), ('latch_white', latch.cut(slot))]
+    parts: List[Piece] = [('cream_plastic', body.cut(slot)), ('black_plastic', latch.cut(slot))]
     tail_x0, tail_x1 = (x0, x0 + 0.9) if pins_at_low_x else (x1 - 0.9, x1)
     for k in range(15):
         y = (y0 + y1) / 2 - 7.0 + k

@@ -183,7 +183,10 @@ def hdmi_dp_stack() -> List[Part]:
     frame_outer = chamfered_rectangle(opening_width + 0.9, opening_height + 0.9, 1.6,
                                       bottom - 0.45)
     frame = front_profile(frame_outer, 0.0, 1.5).cut(front_profile(profile, 0.1, 1.7))
-    parts += [('black_plastic', housing.cut(cut)), ('black_plastic', liner), ('nickel', frame)]
+    # The frame sits in a seat cut into the housing, so their front faces don't overlap.
+    seat = front_profile(frame_outer, 0.1, 1.6)
+    parts += [('black_plastic', housing.cut(cut).cut(seat)), ('black_plastic', liner),
+              ('nickel', frame)]
     middle = bottom + opening_height / 2
     parts.append(('black_plastic', box(-8.9, -5.0, middle - 0.7, -1.5, 5.0, middle + 0.7)))
     for k in range(10):

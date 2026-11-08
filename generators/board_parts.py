@@ -4,8 +4,11 @@
 
 The connectors are drawn in their own frame and placed with place(): the opening faces +x, the
 front face is at x = 0, the body reaches back to x = -depth, it is centred on y = 0 and stands
-on z = 0. Every shape stays inside the box (-depth ... 0) x (-width / 2 ... width / 2) x
-(0 ... height) that the caller gives, so the details never change a model's bounding box.
+on z = 0. The body stays inside the box (-depth ... 0) x (-width / 2 ... width / 2) x
+(0 ... height) that the caller gives. Two allowances reach out of it, as the connectors' fronts
+do on the real boards: a USB stack's front frame has ears of `ears` on both sides (y), and an
+RJ45 jack's LEDs stand out of the front face by `led_protrusion` (x). All other details stay
+inside the box.
 
 The materials are Phong values for COLLADA (Gazebo and RViz show the specular highlights) and
 metal or not for glTF (PBR metallic and roughness).
@@ -47,7 +50,7 @@ MATERIAL_SPECS: Dict[str, Tuple[Tuple[float, float, float], float, float, bool]]
     'substrate': ((0.14, 0.24, 0.16), 0.25, 20.0, False),
     'inductor': ((0.22, 0.22, 0.24), 0.15, 12.0, False),
     'usb3_blue': ((0.20, 0.50, 0.85), 0.30, 25.0, False),
-    'latch_white': ((0.86, 0.85, 0.80), 0.20, 15.0, False),
+    'cream_plastic': ((0.86, 0.85, 0.80), 0.20, 15.0, False),
     'latch_brown': ((0.30, 0.22, 0.14), 0.20, 15.0, False),
     'white_plastic': ((0.92, 0.91, 0.86), 0.20, 15.0, False),
     'led_red': ((0.90, 0.10, 0.10), 0.40, 30.0, False),
