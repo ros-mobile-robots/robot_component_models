@@ -42,6 +42,10 @@ SWIVEL_AXIS_X = -1.0          # in the base's frame: hub joint dx -0.077 minus b
 STANDOFF_TOP_Z = 15.0         # frame alignment: the earlier base's top
 STANDOFF_LENGTH = 10.0        # brass hex standoffs between chassis and plate (video frames)
 STANDOFF_ACROSS_FLATS = 5.0   # hexagonal M3 standoff
+STANDOFF_CHAMFER = 0.3        # the hexagon's end edges (choice)
+# The M3 internal thread at the chassis end, shown as a smooth blind bore of the tapping
+# diameter, without a thread profile (choice)
+STANDOFF_THREAD = (2.5, 3.0)  # diameter, depth
 PLATE_SIZE = (32.0, 38.0)     # x, y: the earlier base's footprint
 PLATE_THICKNESS = 1.5
 PLATE_CORNER_RADIUS = 3.0
@@ -54,18 +58,23 @@ SCREW_HEAD = (5.6, 1.7)       # M3 Phillips pan heads under the plate: diameter,
 SCREW_CROSS = (3.0, 0.6, 0.6)  # cross recess: length, width, depth
 RIVET_DIAMETER = 4.0
 RIVET_HEAD_TOP = (6.5, 1.2)   # domed head on the plate's top: diameter, height
-# Race cap under the fork's top plate (wheel side), concentric pressed steps (video frames):
+# Race cap under the fork's top disc (wheel side), concentric pressed steps (video frames):
 # (radius, depth below the fork's underside) from the rim inwards to the flat rivet head.
-# The cap fits between the fork's bends (about 0.6 of the fork's dish, video frames)
-RACE_CAP = ((7.4, 0.0), (7.4, 0.4), (6.9, 0.8), (6.0, 0.8), (5.6, 1.2), (5.2, 1.2))
-RIVET_HEAD_BOTTOM_RADIUS = 5.0  # large flat rivet head, about 10 mm (video frames)
+# Across the video frame the cap is about 0.57 of the fork's top disc and the flat rivet head
+# about 0.46 of it: on the r 10 mm disc r 5.7 and r 4.6
+RACE_CAP = ((5.7, 0.0), (5.7, 0.4), (5.2, 0.8), (4.9, 0.8), (4.8, 1.2), (4.7, 1.2))
+RIVET_HEAD_BOTTOM_RADIUS = 4.6  # the large flat rivet head (video frames)
 RIVET_BOTTOM_Z = -3.3         # frame alignment: the earlier base's lowest point
 
-FORK_TOP_RADIUS = 13.0        # frame alignment: the earlier fork reached 13 mm forward
+# The fork's top disc sits inside the race's outer lip, about three quarters of its diameter,
+# and the arms leave the disc's sides (video frames)
+FORK_TOP_RADIUS = 10.0
 FORK_THICKNESS = 1.5
 FORK_INNER_HALF_WIDTH = 8.6   # 17.2 mm between the arms for the 15.6 mm wheel
 FORK_BEND_RADIUS = 1.0        # inner radius of the sheet bend from top plate to arm
-FORK_ARM_ROOT = (-12.0, 9.0)  # x range where each arm leaves the top plate
+# x range where each arm leaves the top disc: the disc's chord at the bend,
+# sqrt(10.0^2 - 7.6^2) = 6.50
+FORK_ARM_ROOT = (-6.49, 6.49)
 FORK_FRONT_CURVE = (-3.6, -8.2)  # a point on the arm's concave front edge (photos)
 AXLE_X, AXLE_Z = -16.0, -20.0  # caster_wheel.yaml: wheel dx -0.016, dz -0.04 (fork offset 0.02)
 AXLE_BOSS_RADIUS = 4.5
@@ -85,12 +94,17 @@ WHEEL_BORE = AXLE_DIAMETER / 2 + 0.1
 LINEAR_DEFLECTION = 0.03
 ANGULAR_DEFLECTION = 0.3
 
-STEEL = phong((0.76, 0.77, 0.79, 1.0), (0.60, 0.60, 0.60, 1.0), 40.0, metallic=True)
+# Materials, as on DiffBot's caster (video frames): zinc-plated steel plate, raceway, fork and
+# rivets, brass standoffs, a matte white plastic wheel. In COLLADA (Gazebo, RViz) a darker
+# diffuse colour with strong, tight highlights reads as metal, a light diffuse colour with weak,
+# broad highlights as plastic. In glTF the metals are metallic, with a low roughness from the
+# shininess, the wheel is not metallic and rough.
+STEEL = phong((0.56, 0.58, 0.62, 1.0), (0.90, 0.91, 0.95, 1.0), 30.0, metallic=True)
 MATERIALS = {
     'steel': STEEL,
-    'brass': phong((0.78, 0.60, 0.28, 1.0), (0.55, 0.50, 0.40, 1.0), 40.0, metallic=True),
-    'axle': phong((0.62, 0.63, 0.66, 1.0), (0.60, 0.60, 0.60, 1.0), 50.0, metallic=True),
-    'wheel': phong((0.93, 0.93, 0.91, 1.0), (0.30, 0.30, 0.30, 1.0), 25.0),
+    'brass': phong((0.72, 0.53, 0.20, 1.0), (0.95, 0.85, 0.55, 1.0), 30.0, metallic=True),
+    'axle': phong((0.62, 0.63, 0.66, 1.0), (0.92, 0.92, 0.95, 1.0), 40.0, metallic=True),
+    'wheel': phong((0.93, 0.93, 0.90, 1.0), (0.08, 0.08, 0.08, 1.0), 6.0),
 }
 
 
@@ -221,10 +235,20 @@ def make_base() -> Dict[str, cq.Workplane]:
     steel = steel.union(cap)
     for x, y in holes:
         steel = steel.union(phillips_screw(x, y, plate_bottom))
-    brass = union_all([cq.Workplane('XY', origin=(x, y, plate_top))
-                       .polygon(6, STANDOFF_ACROSS_FLATS / math.cos(math.pi / 6))
-                       .extrude(STANDOFF_TOP_Z - plate_top) for x, y in holes])
+    brass = union_all([standoff(x, y, plate_top) for x, y in holes])
     return {'steel': steel, 'brass': brass}
+
+
+def standoff(x: float, y: float, z0: float) -> cq.Workplane:
+    """Return a hexagonal brass standoff from z0 up to the chassis, chamfered, with a bore."""
+    body = (cq.Workplane('XY', origin=(x, y, z0))
+            .polygon(6, STANDOFF_ACROSS_FLATS / math.cos(math.pi / 6))
+            .extrude(STANDOFF_TOP_Z - z0))
+    body = body.faces('>Z').edges().chamfer(STANDOFF_CHAMFER)
+    body = body.faces('<Z').edges().chamfer(STANDOFF_CHAMFER)
+    diameter, depth = STANDOFF_THREAD
+    return body.cut(cq.Workplane('XY', origin=(x, y, STANDOFF_TOP_Z - depth))
+                    .circle(diameter / 2).extrude(depth + 0.01))
 
 
 def fork_arm(side: int) -> cq.Workplane:
@@ -257,6 +281,11 @@ def make_fork() -> Dict[str, cq.Workplane]:
     """Return the swivelling fork per material: bent steel fork, axle rivet with washers."""
     x0, x1 = FORK_ARM_ROOT
     flat = FORK_INNER_HALF_WIDTH - FORK_BEND_RADIUS
+    chord = math.sqrt(FORK_TOP_RADIUS ** 2 - flat ** 2)
+    if max(-x0, x1) > chord:
+        raise ValueError("the fork's arms must leave the top disc within its chord at the bend")
+    if FORK_TOP_RADIUS >= RACE_RING[1]:
+        raise ValueError("the fork's top disc must leave the race's outer lip visible")
     top = (cq.Workplane('XY', origin=(0, 0, -FORK_THICKNESS)).circle(FORK_TOP_RADIUS)
            .extrude(FORK_THICKNESS)
            .intersect(cq.Workplane('XY', origin=(0, 0, -FORK_THICKNESS))

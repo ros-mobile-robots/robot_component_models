@@ -18,28 +18,28 @@ parts:
         materials: [steel, brass]
         files:
           swivel_caster_30mm/swivel_caster_30mm_base.stl:
-            sha256: fc3942e4361a915213ab8ea7a3e92d6d863aac7413baf98c1c4a6564c1818605
-            bytes: 491084
+            sha256: 319ed12def9d29be5affe358e6b2e370ccc4bf31ab7b5fd87441ddd0d2729c39
+            bytes: 527284
             units: millimetre
             up_axis: "Z"
-            triangles: 9820
+            triangles: 10544
             bounding_box_min: [-17.000, -19.000, -3.300]
             bounding_box_max: [15.000, 19.000, 15.000]
             license_file: swivel_caster_30mm/swivel_caster_30mm_base.stl.license
           swivel_caster_30mm/swivel_caster_30mm_base.dae:
-            sha256: 731a88d7a099bc83f56acfb84b8e2fade86e55cca536f873a4ef320285ea9891
-            bytes: 498915
+            sha256: 62f568ee6e736bc7b918aecd1b6396256b4a6895c1f14f69d36485d8c342787e
+            bytes: 542453
             units: metre
             up_axis: "Z"
-            triangles: 9820
+            triangles: 10544
             bounding_box_min: [-0.017000, -0.019000, -0.003300]
             bounding_box_max: [0.015000, 0.019000, 0.015000]
           swivel_caster_30mm/swivel_caster_30mm_base.glb:
-            sha256: 2dc7578abd3a85946dfb74213490c49db28f8229d46fd5be48ef1a3e9a0cdc0e
-            bytes: 231692
+            sha256: 76e4f85372397c14f9171e7bf37b64cc194b5830bc9fba07840689a7af0b47bd
+            bytes: 255912
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
-            triangles: 9820
+            triangles: 10544
             bounding_box_min: [-0.017000, -0.019000, -0.003300]
             bounding_box_max: [0.015000, 0.019000, 0.015000]
             license_file: swivel_caster_30mm/swivel_caster_30mm_base.glb.license
@@ -49,30 +49,30 @@ parts:
         materials: [steel, axle]
         files:
           swivel_caster_30mm/swivel_caster_30mm_wheel_support.stl:
-            sha256: 81c21cc2007c31d5994de60f17f54d4862b407e5b8c2612084b5b4c66e7c61e8
-            bytes: 329684
+            sha256: b791e7257346bf80199405b603eff80495c56b8fb7fa2929c3465d6decebe55e
+            bytes: 332884
             units: millimetre
             up_axis: "Z"
-            triangles: 6592
+            triangles: 6656
             bounding_box_min: [-20.500, -12.500, -24.499]
-            bounding_box_max: [12.985, 12.500, 0.000]
+            bounding_box_max: [10.000, 12.500, 0.000]
             license_file: swivel_caster_30mm/swivel_caster_30mm_wheel_support.stl.license
           swivel_caster_30mm/swivel_caster_30mm_wheel_support.dae:
-            sha256: 59d58de163ac206742571024965672fa035982b5797f0f723bdf66ef89fbaca8
-            bytes: 336669
+            sha256: 76b12671fbf11398414d99eb30628d5e9732649b6c3c094ce5c9fb3bb32debb6
+            bytes: 340279
             units: metre
             up_axis: "Z"
-            triangles: 6592
+            triangles: 6656
             bounding_box_min: [-0.020500, -0.012500, -0.024499]
-            bounding_box_max: [0.012985, 0.012500, 0.000000]
+            bounding_box_max: [0.010000, 0.012500, 0.000000]
           swivel_caster_30mm/swivel_caster_30mm_wheel_support.glb:
-            sha256: 2cfc029fb705b884ec5077cb58ece518fa3602033f825e5b7f246e46dff9c348
-            bytes: 153352
+            sha256: de91d3b1228b31fb2a62057f808b2681db1d59b6e7f879d52e4be1f0f5f6c2c1
+            bytes: 154744
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
-            triangles: 6592
+            triangles: 6656
             bounding_box_min: [-0.020500, -0.012500, -0.024499]
-            bounding_box_max: [0.012985, 0.012500, 0.000000]
+            bounding_box_max: [0.010000, 0.012500, 0.000000]
             license_file: swivel_caster_30mm/swivel_caster_30mm_wheel_support.glb.license
       swivel_caster_30mm_wheel:
         frame: "Centred on the wheel's axle, the axle along y. Radius 15 mm."
@@ -89,7 +89,7 @@ parts:
             bounding_box_max: [15.000, 7.800, 14.996]
             license_file: swivel_caster_30mm/swivel_caster_30mm_wheel.stl.license
           swivel_caster_30mm/swivel_caster_30mm_wheel.dae:
-            sha256: d10350855a113d204859adb2b871f102aabb5b1bbb718c25b4f973a5e4727efb
+            sha256: 91eb9f177cc57792fdeeef474e201149a39b83f30c5aec2255f6ffd9766b6c90
             bytes: 272290
             units: metre
             up_axis: "Z"
@@ -97,8 +97,8 @@ parts:
             bounding_box_min: [-0.014985, -0.007800, -0.014996]
             bounding_box_max: [0.015000, 0.007800, 0.014996]
           swivel_caster_30mm/swivel_caster_30mm_wheel.glb:
-            sha256: d55545787d37c970dd71157994700381d177d9dc0845c32d2a5c564b7f8f2bdc
-            bytes: 120804
+            sha256: e2349a542a32a55e98af74b4066698a731720105fca088f49a36345bada4da0c
+            bytes: 120800
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
             triangles: 5572
