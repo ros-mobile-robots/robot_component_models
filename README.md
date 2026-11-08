@@ -135,6 +135,8 @@ python3 -m venv .venv && .venv/bin/pip install -r generators/requirements.txt
 
 Other versions of CadQuery, OCP or NumPy, or another operating system, can triangulate differently. The meshes are then still valid, but their checksums change.
 
+The models are written with CadQuery because its models are plain Python driven by the dimensions from the sources, built on the OpenCASCADE solid modelling kernel. A change to a model is a readable diff of parameters and code, the generators need no graphical CAD program, and CI regenerates and checks every file. [build123d](https://build123d.readthedocs.io/) is the closest alternative, also a Python library on OpenCASCADE.
+
 ## Checks
 
 [CI](.github/workflows/ci.yml) runs on every pull request:
@@ -143,6 +145,17 @@ Other versions of CadQuery, OCP or NumPy, or another operating system, can trian
 2. **Mesh checks**: every STL is closed and consistently oriented. Triangle counts, units and bounding boxes match the manifest. The COLLADA files are valid against the COLLADA 1.4.1 schema and load in pycollada. The glTF files load in trimesh and pass the Khronos glTF Validator.
 3. **ROS packages**: builds and installs the package in the `ros:noetic` and `ros:humble` containers and checks that the installed `share/robot_component_models` holds exactly the manifest's files, their license files, the manifest, the provenance pages, `LICENSE`, `package.xml` and the build tools' own files. The ROS 1 build is checked with `catkin_make_isolated` and with colcon.
 4. **Code style**: flake8 with ROS 2's ament_flake8 settings and mypy on the generators and scripts.
+
+## Related work
+
+Other collections model similar parts:
+
+- [cq-electronics](https://cq-electronics.readthedocs.io/): electronic boards and components, such as a Raspberry Pi 3B, pin headers and RJ45 jacks, as CadQuery code. MIT License.
+- KiCad's [3D model libraries](https://gitlab.com/kicad/libraries/kicad-packages3D) and [KiCad Library Tools](https://gitlab.com/kicad/libraries/kicad-library-tools): models of a very large range of electronic components, and the scripts that generate them. The libraries are under the [KiCad library license](https://www.kicad.org/libraries/license/), CC BY-SA 4.0 with an exception for electronic designs. The exception doesn't cover redistributing the models as a collection or as part of one: such collections stay under CC BY-SA 4.0.
+- [Adafruit_CAD_Parts](https://github.com/adafruit/Adafruit_CAD_Parts): Adafruit's boards and parts as STEP, Fusion 360 and STL files. MIT License.
+- [NopSCADlib](https://github.com/nophead/NopSCADlib): an OpenSCAD library of bought parts, such as motors, bearings, boards and cameras. GPL v3.
+
+The models in this repository are created independently, as [CONTRIBUTING.md](CONTRIBUTING.md) describes, and contain no geometry from these collections.
 
 ## Contributing
 
