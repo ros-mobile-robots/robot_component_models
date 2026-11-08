@@ -19,7 +19,7 @@ parts:
         materials: [steel, brass]
         files:
           swivel_caster_30mm/swivel_caster_30mm_base.stl:
-            sha256: 19086a37872273b44a175f1f058130836f0dcb1e28e8a05e2bfa8be3e72baaa0
+            sha256: 653685cacbfc9f396a9437161beda99e3d8bc341bf8d382257c577159b3f090f
             bytes: 491084
             units: metre
             up_axis: "Z"
@@ -50,7 +50,7 @@ parts:
         materials: [steel, axle]
         files:
           swivel_caster_30mm/swivel_caster_30mm_wheel_support.stl:
-            sha256: 20e2b1fddc4270f4551c0c8d41ae927b17ca35c8fd94dcf653d75e0c2fa66b12
+            sha256: 05874fb485a355205e3aeee4915a2dd2e911464ffdcc11619befa3a93a75f859
             bytes: 329684
             units: metre
             up_axis: "Z"
@@ -81,7 +81,7 @@ parts:
         materials: [wheel]
         files:
           swivel_caster_30mm/swivel_caster_30mm_wheel.stl:
-            sha256: bc123257dfe63f620d4b16a4cfe3f7d7cad06ecb2fc0303166cb8f171d1ee6d2
+            sha256: bdd1407e49dbb304a82fdcadcd97ee78220a7c1f3ae033398d82cac1281ad413
             bytes: 278684
             units: metre
             up_axis: "Z"
@@ -117,7 +117,7 @@ parts:
         materials: [body, trim, window]
         files:
           rplidar_a2/rplidar_a2.stl:
-            sha256: 17d8b4236dd9b4b9142f33871dd6aad48389f3514ca0258b62f92c3df93242dd
+            sha256: ec4e5ccae5f67b77d5e3288d41c46790c25e5d6f1a1ff2f592abbc72bb1a975a
             bytes: 650784
             units: metre
             up_axis: "Z"
@@ -153,7 +153,7 @@ parts:
         materials: [pcb_green, gold, silver, black, chip, ceramic, substrate, inductor, usb3_blue, latch_tan, led_red, led_green, led_yellow]
         files:
           raspberry_pi_4b/raspberry_pi_4b.stl:
-            sha256: 703743932d44ac51ee428010a17aa61675fdab944ecfb2d15d1df809d17468a5
+            sha256: f2b1888faaa487b288f984b709e131536daa58d714c1eccd1addcf8ee87d4d42
             bytes: 755884
             units: metre
             up_axis: "Z"
@@ -189,7 +189,7 @@ parts:
         materials: [pcb_black, module_green, heatsink, black, silver, gold, usb3_blue, white, latch_brown, led_green, led_yellow]
         files:
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.stl:
-            sha256: 7298fcd200f28c2e619db5e48a71fc9d4567eeb0b931c23b2809d5b09bf5f495
+            sha256: 9bd1a6f1fe97c3880f0f5a4b2c704ea87a74c2f616e5e7cc131a3850b64442bd
             bytes: 284884
             units: metre
             up_axis: "Z"
@@ -225,7 +225,7 @@ parts:
         materials: [pcb, fr4, gold, solder, silver, ic, substrate, plastic_black, cap, res, ceramic, ceramic_grey, copper, usb_slot, ic_mark, button_frame, button_cap, inductor, led_orange, led_red]
         files:
           teensy_4_0/teensy_4_0.stl:
-            sha256: 02ccd78e5499fcdc416609d9ba34b844a2ebaca6b6ceae76e88c53fa60c354d0
+            sha256: a9231d3213366e05fd75af9b2b270f4116e8cb8ab3f22857f5f257a168b2e7b2
             bytes: 1276084
             units: metre
             up_axis: "Z"
@@ -261,7 +261,7 @@ parts:
         materials: [white, hole, tape, red, blue]
         files:
           breadboard_400_point/breadboard_400_point.stl:
-            sha256: 071d277030f67ec8500b234700a5c73a1af860cf6e417e8b54876de851004726
+            sha256: 3e95f7995a628616794877319615467d34bc7e6b6aac325666c53f48bd726795
             bytes: 338484
             units: metre
             up_axis: "Z"
@@ -297,7 +297,7 @@ parts:
         materials: [pcb, fr4, module, glass, flex, connector_black, gold, connector_dark, silver, ic, cap, res]
         files:
           raspberry_pi_camera_v2/raspberry_pi_camera_v2.stl:
-            sha256: 2cb72d970a5c788462620ebe34a44be3d43bd32018b98a86f1b4ad25fc024dba
+            sha256: 5bf83b5e818a46944d3e75a9ff56a1a66263a5fde9d81e55e0ad280963c0eeb2
             bytes: 148884
             units: metre
             up_axis: "Z"

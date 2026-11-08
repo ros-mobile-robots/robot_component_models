@@ -341,7 +341,7 @@ def write_stl(model: Model, path: str) -> int:
     records = np.zeros(len(corners), dtype=[('n', '<f4', 3), ('v', '<f4', (3, 3)), ('a', '<u2')])
     records['n'] = normals
     records['v'] = corners * MM_TO_M
-    header = f'{model.name}: robot_component_models display model, {LICENSE_ID}, metres'
+    header = f'{model.name}, metres, {LICENSE_ID}, robot_component_models'
     with open(path, 'wb') as stl:
         stl.write(header.encode('ascii')[:80].ljust(80, b' '))
         stl.write(struct.pack('<I', len(records)))
