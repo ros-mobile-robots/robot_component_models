@@ -1,4 +1,4 @@
-# Copyright (c) 2026, ROS Mobile Robots
+# SPDX-FileCopyrightText: 2026 ROS Mobile Robots
 # SPDX-License-Identifier: BSD-3-Clause
 """Generate DiffBot's swivel caster in three meshes: mounting base, swivel fork and wheel.
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2026, ROS Mobile Robots
+// SPDX-FileCopyrightText: 2026 ROS Mobile Robots
 // SPDX-License-Identifier: BSD-3-Clause
 // Validate binary glTF files with the Khronos glTF-Validator.
 // Usage: node validate.js FILE.glb...   Exit code 1 if a file has errors or warnings.

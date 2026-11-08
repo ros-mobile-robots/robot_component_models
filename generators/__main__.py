@@ -1,4 +1,4 @@
-# Copyright (c) 2026, ROS Mobile Robots
+# SPDX-FileCopyrightText: 2026 ROS Mobile Robots
 # SPDX-License-Identifier: BSD-3-Clause
 """Regenerate the meshes of every part and meshes/manifest.yaml, or check that they are current.
 
@@ -13,7 +13,6 @@ from concurrent.futures import ProcessPoolExecutor
 import difflib
 import importlib
 import os
-import re
 import sys
 import tempfile
 from typing import List
@@ -25,24 +24,19 @@ from generators.manifest import manifest_text
 from generators.manifest import MeshEntry
 from generators.manifest import PartEntry
 from generators.manifest import sha256
+from generators.mesh_export import LICENSE_ID
+from generators.mesh_export import SPDX_LINES
 from generators.mesh_export import used_materials
 from generators.mesh_export import write_dae
 from generators.mesh_export import write_glb
+from generators.mesh_export import write_license_file
 from generators.mesh_export import write_stl
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MESHES = os.path.join(ROOT, 'meshes')
 MANIFEST = os.path.join(MESHES, 'manifest.yaml')
 EXTENSIONS = ('.stl', '.dae', '.glb')
-
-
-def package_version() -> str:
-    """Return the version in package.xml."""
-    with open(os.path.join(ROOT, 'package.xml'), encoding='utf-8') as package:
-        match = re.search(r'<version>([^<]+)</version>', package.read())
-    if not match:
-        raise RuntimeError('package.xml has no <version>')
-    return match.group(1)
+BINARY_EXTENSIONS = ('.stl', '.glb')  # these get a <file>.license next to them
 
 
 def generate_part(name: str, out: str) -> PartEntry:
@@ -55,6 +49,8 @@ def generate_part(name: str, out: str) -> PartEntry:
         write_stl(model, os.path.join(out, relative + '.stl'))
         write_dae(model, os.path.join(out, relative + '.dae'), f'generators/{name}.py')
         write_glb(model, os.path.join(out, relative + '.glb'))
+        for extension in BINARY_EXTENSIONS:
+            write_license_file(os.path.join(out, relative + extension))
         files = [file_facts(out, relative + extension) for extension in EXTENSIONS]
         meshes.append(MeshEntry(model.name, model.frame, [part.name for part in model.sub_parts],
                                 used_materials(model), files))
@@ -75,7 +71,7 @@ def committed_files() -> List[str]:
     found = []
     for folder, _, files in os.walk(MESHES):
         found += [os.path.relpath(os.path.join(folder, f), MESHES) for f in files
-                  if f.endswith(EXTENSIONS)]
+                  if f.endswith(EXTENSIONS + ('.license',))]
     return sorted(found)
 
 
@@ -83,9 +79,11 @@ def check() -> int:
     """Regenerate everything into a temporary folder and compare with meshes/: 0 if equal."""
     with tempfile.TemporaryDirectory() as out:
         parts = generate(PARTS, out)
-        text = manifest_text(parts, package_version())
-        generated = sorted(facts.path for part in parts for mesh in part.meshes
-                           for facts in mesh.files)
+        text = manifest_text(parts, SPDX_LINES, LICENSE_ID)
+        generated = sorted([facts.path for part in parts for mesh in part.meshes
+                            for facts in mesh.files]
+                           + [facts.license_file for part in parts for mesh in part.meshes
+                              for facts in mesh.files if facts.license_file])
         problems = [f'{path}: regenerated file differs from meshes/{path}'
                     for path in generated if os.path.exists(os.path.join(MESHES, path))
                     and sha256(os.path.join(out, path)) != sha256(os.path.join(MESHES, path))]
@@ -122,7 +120,7 @@ def main() -> int:
     parts = generate(args.parts or PARTS, MESHES)
     if not args.parts:
         with open(MANIFEST, 'w', encoding='utf-8', newline='\n') as manifest:
-            manifest.write(manifest_text(parts, package_version()))
+            manifest.write(manifest_text(parts, SPDX_LINES, LICENSE_ID))
         print(f'wrote {os.path.relpath(MANIFEST, ROOT)}')
     return 0
 

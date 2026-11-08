@@ -1,3 +1,5 @@
+<!-- SPDX-FileCopyrightText: 2026 ROS Mobile Robots
+     SPDX-License-Identifier: BSD-3-Clause -->
 # Swivel caster with a 30 mm wheel (DiffBot)
 
 A pressed-steel swivel caster with a 30 mm plastic wheel, as on DiffBot. DiffBot is built on the Joy-IT Robot Car Kit 2WD (robot05), and this is the kit's caster. The model was created independently, from public product photos, the robot's own URDF numbers and photos of DiffBot's caster. No geometry was imported, converted, traced or sampled from another 3D model, and no vendor or third-party 3D model was downloaded.

@@ -1,3 +1,5 @@
+<!-- SPDX-FileCopyrightText: 2026 ROS Mobile Robots
+     SPDX-License-Identifier: BSD-3-Clause -->
 # Raspberry Pi Camera Module v2
 
 A display model of the Raspberry Pi Camera Module v2: the board with its four mounting holes, the camera module with its lens, the module's flex and connector on the front, the 15-way ribbon connector and the small parts on the back. Remo carries this camera. The model was created independently, from Raspberry Pi's public mechanical drawing, documentation and product photo. No geometry was imported, converted, traced or sampled from another 3D model, and no third-party 3D model was downloaded. No logos and no printed text.

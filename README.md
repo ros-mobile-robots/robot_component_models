@@ -1,3 +1,5 @@
+<!-- SPDX-FileCopyrightText: 2026 ROS Mobile Robots
+     SPDX-License-Identifier: BSD-3-Clause -->
 # robot_component_models
 
 Display models of off-the-shelf robot components, such as a laser scanner, single-board computers and a caster, for ROS 1 (Noetic) and ROS 2 (Humble and later). The [DiffBot and Remo](https://ros-mobile-robots.com) robot descriptions use them. Every model was created independently, from public datasheets, drawings and photos. The CadQuery generator and the sources of every model are in this repository, under the [license](#license) below.
@@ -55,7 +57,7 @@ Each mesh's frame, its origin and axes, is described in the manifest and on the 
 
 ## Adding the package to a workspace
 
-The package installs only data: `meshes/` with the manifest, and the license. It builds with catkin under ROS 1 and with ament_cmake under ROS 2. CadQuery isn't needed to build or use it.
+The package installs only data: `meshes/` with the manifest, `provenance/` with the sources of each part, and `LICENSE`. It builds with catkin under ROS 1 and with ament_cmake under ROS 2. CadQuery isn't needed to build or use it.
 
 Declare the dependency in the package that uses the meshes:
 
@@ -110,7 +112,7 @@ Other versions of CadQuery, OCP or NumPy, or another operating system, can trian
 
 1. **Regeneration**: regenerates all parts twice in the pinned environment and fails if any file differs from the manifest's checksum.
 2. **Mesh checks**: every STL is closed and consistently oriented. Triangle counts, units and bounding boxes match the manifest. The COLLADA files are valid against the COLLADA 1.4.1 schema and load in pycollada. The glTF files load in trimesh and pass the Khronos glTF Validator.
-3. **ROS packages**: builds and installs the package in the `ros:noetic` and `ros:humble` containers and checks that the installed `share/robot_component_models` holds exactly the manifest's files, the manifest, the license and the build tools' own files.
+3. **ROS packages**: builds and installs the package in the `ros:noetic` and `ros:humble` containers and checks that the installed `share/robot_component_models` holds exactly the manifest's files, their license files, the manifest, the provenance pages, `LICENSE`, `package.xml` and the build tools' own files. The ROS 1 build is checked with `catkin_make_isolated` and with colcon.
 4. **Code style**: flake8 with ROS 2's ament_flake8 settings and mypy on the generators and scripts.
 
 ## Contributing
@@ -119,4 +121,8 @@ Corrections from measurements of the real parts are welcome. See [CONTRIBUTING.m
 
 ## License
 
-[BSD 3-Clause License](LICENSE), Copyright (c) 2026, ROS Mobile Robots. The meshes, the generators, the scripts and the documentation are all under this license. Product names such as Raspberry Pi, Jetson, Teensy and RPLIDAR identify the products these models show. They are trademarks of their owners, and the models carry no logos or brand marks.
+Everything in this repository is under the [BSD 3-Clause License](LICENSE), Copyright (c) 2026, ROS Mobile Robots: the CadQuery designs and generators, the generated STL, COLLADA and glTF files, the scripts, the ROS packaging and the documentation. Text files carry the license as SPDX lines in their header. The STL and glTF files, which are binary, carry it in a `<file>.license` next to them. When you redistribute the meshes, keep `LICENSE` with them, as the BSD 3-Clause License asks. The installed package does this, and it also installs each part's provenance page.
+
+*Optional:* if you show or share these models, a credit is appreciated, but not required: "Models by ROS Mobile Robots, [robot_component_models](https://github.com/ros-mobile-robots/robot_component_models)".
+
+Product names such as Raspberry Pi, Jetson, Teensy and RPLIDAR identify the products these models show. They are trademarks of their owners, and the models carry no logos or brand marks.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2026, ROS Mobile Robots
+# SPDX-FileCopyrightText: 2026 ROS Mobile Robots
 # SPDX-License-Identifier: BSD-3-Clause
 """Render the README's pictures from the COLLADA meshes: one per part and all parts together.
 

@@ -1,8 +1,11 @@
+# SPDX-FileCopyrightText: 2026 ROS Mobile Robots
+# SPDX-License-Identifier: BSD-3-Clause
 # meshes/manifest.yaml: written by `python3 -m generators`, not by hand.
 # STL files are in millimetres, COLLADA (.dae) and glTF (.glb) files in metres.
 # Bounding boxes are in the file's own units and frame, before any URDF scale.
+# STL and glTF files carry their license in the <file>.license next to them.
 package: robot_component_models
-version: 1.0.0
+license: BSD-3-Clause
 parts:
   caster:
     title: "Swivel caster with a 30 mm wheel (DiffBot)"
@@ -22,9 +25,10 @@ parts:
             triangles: 9820
             bounding_box_min: [-17.000, -19.000, -3.300]
             bounding_box_max: [15.000, 19.000, 15.000]
+            license_file: caster/caster_base.stl.license
           caster/caster_base.dae:
-            sha256: 9287508f7055f75eeb331e29f7b445088e43b0c58b3c8633ac2318afabce9161
-            bytes: 498436
+            sha256: c9fcadd7dff8404d173fcac1043f8c4387e03cb687213d04b1f011b44458fc0c
+            bytes: 498531
             units: metre
             up_axis: "Z"
             triangles: 9820
@@ -38,6 +42,7 @@ parts:
             triangles: 9820
             bounding_box_min: [-0.017000, -0.019000, -0.003300]
             bounding_box_max: [0.015000, 0.019000, 0.015000]
+            license_file: caster/caster_base.glb.license
       caster_wheel_support:
         frame: "The swivel axis at x = y = 0, the fork's top at z = 0, the wheel axle at x = -16 mm, z = -20 mm along y."
         sub_parts: [fork, axle]
@@ -51,9 +56,10 @@ parts:
             triangles: 6592
             bounding_box_min: [-20.500, -12.500, -24.499]
             bounding_box_max: [12.985, 12.500, 0.000]
+            license_file: caster/caster_wheel_support.stl.license
           caster/caster_wheel_support.dae:
-            sha256: 8a75eb9801677ffad5cb6221905ebeced971b246b87b38d858341974b0aa7578
-            bytes: 336190
+            sha256: ca4ae22b00f874d0e50c1399b4446dc2ee1baf2c27d46aab7c8029a42f2ba1eb
+            bytes: 336285
             units: metre
             up_axis: "Z"
             triangles: 6592
@@ -67,6 +73,7 @@ parts:
             triangles: 6592
             bounding_box_min: [-0.020500, -0.012500, -0.024499]
             bounding_box_max: [0.012985, 0.012500, 0.000000]
+            license_file: caster/caster_wheel_support.glb.license
       caster_wheel:
         frame: "Centred on the wheel's axle, the axle along y. Radius 15 mm."
         sub_parts: [wheel]
@@ -80,9 +87,10 @@ parts:
             triangles: 5572
             bounding_box_min: [-14.985, -7.800, -14.996]
             bounding_box_max: [15.000, 7.800, 14.996]
+            license_file: caster/caster_wheel.stl.license
           caster/caster_wheel.dae:
-            sha256: f532494688c1efc018afb88885f3b155918225bcf48de12bc67308bfba919d53
-            bytes: 271979
+            sha256: 9b3ed9df4008fc680441630c661c24c72b886c496d948fbd0ceb18d863e5d28f
+            bytes: 272074
             units: metre
             up_axis: "Z"
             triangles: 5572
@@ -96,6 +104,7 @@ parts:
             triangles: 5572
             bounding_box_min: [-0.014985, -0.007800, -0.014996]
             bounding_box_max: [0.015000, 0.007800, 0.014996]
+            license_file: caster/caster_wheel.glb.license
   rplidar_a2:
     title: "360 degree laser scanner, RPLIDAR A2 size"
     generator: generators/rplidar_a2.py
@@ -114,9 +123,10 @@ parts:
             triangles: 13014
             bounding_box_min: [-40.850, -37.845, -29.850]
             bounding_box_max: [37.850, 37.845, 10.950]
+            license_file: rplidar_a2/rplidar-a2.stl.license
           rplidar_a2/rplidar-a2.dae:
-            sha256: 44e3c84a4977f6aed4926f363372fc80e78e2d4cc82dc2b0b4905a99dc46e600
-            bytes: 717584
+            sha256: b1eb9f07cb823c98ac692a350d1a843099d55efa56b2f661987750943e17094a
+            bytes: 717679
             units: metre
             up_axis: "Z"
             triangles: 13014
@@ -130,6 +140,7 @@ parts:
             triangles: 13014
             bounding_box_min: [-0.040850, -0.037845, -0.029850]
             bounding_box_max: [0.037850, 0.037845, 0.010950]
+            license_file: rplidar_a2/rplidar-a2.glb.license
   raspberry_pi_4b:
     title: "Raspberry Pi 4 Model B"
     generator: generators/raspberry_pi_4b.py
@@ -148,9 +159,10 @@ parts:
             triangles: 15116
             bounding_box_min: [-7.569, -42.123, -2.800]
             bounding_box_max: [50.921, 45.977, 16.800]
+            license_file: raspberry_pi_4b/raspberry_pi_4B.stl.license
           raspberry_pi_4b/raspberry_pi_4B.dae:
-            sha256: 62ffce338980719456cc9d7698879bd255136aca80efa16201a05db766063b58
-            bytes: 1001342
+            sha256: 8de0aa017d972e32ff0b88fa962171c1cf521833f9767ccbc72b9024b33b8ee4
+            bytes: 1001437
             units: metre
             up_axis: "Z"
             triangles: 15116
@@ -164,6 +176,7 @@ parts:
             triangles: 15116
             bounding_box_min: [-0.007569, -0.042123, -0.002800]
             bounding_box_max: [0.050921, 0.045977, 0.016800]
+            license_file: raspberry_pi_4b/raspberry_pi_4B.glb.license
   jetson_nano_dev_kit_b01:
     title: "Jetson Nano Developer Kit B01"
     generator: generators/jetson_nano_dev_kit_b01.py
@@ -182,9 +195,10 @@ parts:
             triangles: 5696
             bounding_box_min: [-28.982, -38.847, -1.950]
             bounding_box_max: [71.018, 42.223, 28.250]
+            license_file: jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.stl.license
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.dae:
-            sha256: 192bc0467170dc3a37b1227bc756fae1ddc9780f9e1d2ab8586c2b392711c2ef
-            bytes: 395535
+            sha256: fa949486dd6bbb9733b0f37b020ceafef1bbcbba55e1d0e2f6a0206ebe3a851f
+            bytes: 395630
             units: metre
             up_axis: "Z"
             triangles: 5696
@@ -198,6 +212,7 @@ parts:
             triangles: 5696
             bounding_box_min: [-0.028982, -0.038847, -0.001950]
             bounding_box_max: [0.071018, 0.042223, 0.028250]
+            license_file: jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.glb.license
   teensy_4_0:
     title: "Teensy 4.0 with two 14-pin headers"
     generator: generators/teensy_4_0.py
@@ -216,9 +231,10 @@ parts:
             triangles: 25520
             bounding_box_min: [-14.629, -8.922, -8.500]
             bounding_box_max: [21.631, 8.858, 4.355]
+            license_file: teensy_4_0/teensy_4-0.stl.license
           teensy_4_0/teensy_4-0.dae:
-            sha256: 1648a6ddc504125da80fd17d9f5b3ccf2a78206a1d40b52bcea3c91df93c7145
-            bytes: 1649751
+            sha256: 9b273d88c7e912ee9b4e4422007584aa79da033f9492d807776d88c878f1ff88
+            bytes: 1649846
             units: metre
             up_axis: "Z"
             triangles: 25520
@@ -232,6 +248,7 @@ parts:
             triangles: 25520
             bounding_box_min: [-0.014629, -0.008922, -0.008500]
             bounding_box_max: [0.021631, 0.008858, 0.004355]
+            license_file: teensy_4_0/teensy_4-0.glb.license
   breadboard_400_point:
     title: "400-point solderless breadboard"
     generator: generators/breadboard_400_point.py
@@ -250,9 +267,10 @@ parts:
             triangles: 6768
             bounding_box_min: [-28.810, -46.795, 0.000]
             bounding_box_max: [27.090, 37.105, 9.530]
+            license_file: breadboard_400_point/breadboard_400_point.stl.license
           breadboard_400_point/breadboard_400_point.dae:
-            sha256: 2a7f4e7862ac7d8605564ecc7a71d87707432a8e2cdb67acbcc14fd318997430
-            bytes: 427625
+            sha256: ea7026c1cc7e699268137ed1578f201373a89dbd0a6b8409b6cd5639a3ddbf99
+            bytes: 427720
             units: metre
             up_axis: "Z"
             triangles: 6768
@@ -266,6 +284,7 @@ parts:
             triangles: 6768
             bounding_box_min: [-0.028810, -0.046795, 0.000000]
             bounding_box_max: [0.027090, 0.037105, 0.009530]
+            license_file: breadboard_400_point/breadboard_400_point.glb.license
   raspi_cam_v2:
     title: "Raspberry Pi Camera Module v2"
     generator: generators/raspi_cam_v2.py
@@ -284,9 +303,10 @@ parts:
             triangles: 2976
             bounding_box_min: [-4.145, -12.160, -12.283]
             bounding_box_max: [4.575, 12.840, 11.579]
+            license_file: raspi_cam_v2/raspi_cam_v2_IMX219.stl.license
           raspi_cam_v2/raspi_cam_v2_IMX219.dae:
-            sha256: 0d11edbc7fbf8c98f41a176e7710c828b032b149f043827988f1fa9f2dbc10cc
-            bytes: 209020
+            sha256: d1a93e26fcd2a73b8314d9360054d88268057f4e96ef9f840c96fefef171d7ff
+            bytes: 209115
             units: metre
             up_axis: "Z"
             triangles: 2976
@@ -300,3 +320,4 @@ parts:
             triangles: 2976
             bounding_box_min: [-0.004145, -0.012160, -0.012283]
             bounding_box_max: [0.004575, 0.012840, 0.011579]
+            license_file: raspi_cam_v2/raspi_cam_v2_IMX219.glb.license

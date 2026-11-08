@@ -1,3 +1,5 @@
+<!-- SPDX-FileCopyrightText: 2026 ROS Mobile Robots
+     SPDX-License-Identifier: BSD-3-Clause -->
 # 400-point solderless breadboard
 
 A display model of a half-size solderless breadboard: 300 terminal holes (30 columns, rows a to e and f to j on both sides of the centre channel) and four 25-hole power rails with red and blue lines, dovetail tabs and slots, on its adhesive foam backing. Remo's Teensy and IMU boards plug into it. The model was created independently, from BusBoard's public BB400 datasheet, the 0.1 in standard and the positions of the boards that plug into it. No geometry was imported, converted, traced or sampled from another 3D model, and no third-party 3D model was downloaded. No numbers, letters, "+" or "-" signs and no logos.

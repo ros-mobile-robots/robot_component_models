@@ -1,4 +1,4 @@
-# Copyright (c) 2026, ROS Mobile Robots
+# SPDX-FileCopyrightText: 2026 ROS Mobile Robots
 # SPDX-License-Identifier: BSD-3-Clause
 """Generate the display model of a 400-point solderless breadboard (half size).
 

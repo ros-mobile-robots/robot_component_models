@@ -1,4 +1,4 @@
-# Copyright (c) 2026, ROS Mobile Robots
+# SPDX-FileCopyrightText: 2026 ROS Mobile Robots
 # SPDX-License-Identifier: BSD-3-Clause
 """Generate a 360 degree laser scanner of the RPLIDAR A2 type: base, rotating head, window.
 

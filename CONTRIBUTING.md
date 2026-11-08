@@ -1,3 +1,5 @@
+<!-- SPDX-FileCopyrightText: 2026 ROS Mobile Robots
+     SPDX-License-Identifier: BSD-3-Clause -->
 # Contributing to robot_component_models
 
 This package holds display models of off-the-shelf components that robots carry: their meshes, the CadQuery generators that make them, and the sources of every model. Robot assembly, joints, collision shapes and inertias belong in each robot's description package, such as [remo_description](https://github.com/ros-mobile-robots/remo_description) or `diffbot_description` in the [diffbot repository](https://github.com/ros-mobile-robots/diffbot).
@@ -29,6 +31,8 @@ Every model here is the project's own work, under this repository's [license](LI
 
 4. Load the mesh in a robot model and look at it in RViz and Gazebo.
 5. Update the README's parts table: the picture, triangles and file sizes.
+
+**License lines:** every new text file starts with the two SPDX lines `SPDX-FileCopyrightText: 2026 ROS Mobile Robots` and `SPDX-License-Identifier: BSD-3-Clause`, in the file's comment syntax. The generators write these lines into each COLLADA file and the manifest, and into a `<file>.license` next to each STL and glTF file.
 
 **File names:** a change that moves a mesh's origin, turns its axes, changes its units or moves an attachment point, such as mounting holes or an axle, gets a new file name. The old file stays, so the robots that use it keep working. Other changes keep the file name.
 

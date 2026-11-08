@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2026, ROS Mobile Robots
+# SPDX-FileCopyrightText: 2026 ROS Mobile Robots
 # SPDX-License-Identifier: BSD-3-Clause
 """Check the mesh files in meshes/ against meshes/manifest.yaml.
 
@@ -11,7 +11,9 @@ so they don't share the generators' mistakes:
 - triangle counts and bounding boxes match the manifest, in each file's units,
 - the COLLADA and glTF files have the STL's geometry in metres,
 - every COLLADA file is valid against the COLLADA 1.4.1 schema and loads in pycollada,
-- every glTF file loads in trimesh, with the manifest's sub-parts as named nodes.
+- every glTF file loads in trimesh, with the manifest's sub-parts as named nodes,
+- every file carries the manifest's license: SPDX lines in the COLLADA header, in a
+  <file>.license next to each STL and glTF file.
 
 Usage: python3 scripts/check_meshes.py [--schema-dir DIR]
 The COLLADA schema is downloaded from Khronos into DIR (default .cache/collada) and verified by
@@ -53,6 +55,7 @@ XML_NAMESPACE_SCHEMA = b"""<?xml version="1.0"?>
 # glTF's root node turns the Z-up vertex data into Y up: (x, y, z) Z up is (x, z, -y) Y up
 Y_UP_TO_Z_UP = np.array([[1.0, 0.0, 0.0], [0.0, 0.0, -1.0], [0.0, 1.0, 0.0]])
 STL_TO_METRES = 0.001
+COPYRIGHT_LINE = 'SPDX-FileCopyrightText: 2026 ROS Mobile Robots'
 # Bounding boxes in the manifest are rounded to 0.001 mm or 0.000001 m. The float32 vertices
 # of the glTF files and the 7 digits of the COLLADA files add less than that.
 BOX_TOLERANCE = {'millimetre': 0.0006, 'metre': 0.0000011}
@@ -64,6 +67,7 @@ class MeshFile(NamedTuple):
     path: str
     mesh: Dict[str, Any]
     entry: Dict[str, Any]
+    license_id: str
 
 
 class Geometry(NamedTuple):
@@ -87,7 +91,7 @@ def manifest_files(manifest: Dict[str, Any]) -> List[MeshFile]:
     for part in manifest['parts'].values():
         for mesh in part['meshes'].values():
             for path, entry in mesh['files'].items():
-                files.append(MeshFile(path, mesh, entry))
+                files.append(MeshFile(path, mesh, entry, manifest['license']))
     return files
 
 
@@ -174,8 +178,8 @@ def check_units(mesh_file: MeshFile) -> List[str]:
     if extension == '.stl':
         size = np.ptp(geometry(mesh_file).corners.reshape(-1, 3), axis=0).max()
         return [] if 5.0 < size < 500.0 else [f'largest size {size:.3f}: not millimetres?']
-    stl = MeshFile(mesh_file.path[:-len(extension)] + '.stl', mesh_file.mesh,
-                   mesh_file.mesh['files'][mesh_file.path[:-len(extension)] + '.stl'])
+    stl_path = mesh_file.path[:-len(extension)] + '.stl'
+    stl = mesh_file._replace(path=stl_path, entry=mesh_file.mesh['files'][stl_path])
     ours = geometry(mesh_file).corners.reshape(-1, 3)
     reference = geometry(stl).corners.reshape(-1, 3) * STL_TO_METRES
     problems = []
@@ -263,8 +267,25 @@ def check_gltf(mesh_file: MeshFile) -> List[str]:
     return problems
 
 
+def check_license(mesh_file: MeshFile) -> List[str]:
+    """Check the file's license: SPDX lines in a .license file for STL and glTF, in the DAE."""
+    expected = [COPYRIGHT_LINE, f'SPDX-License-Identifier: {mesh_file.license_id}']
+    if mesh_file.path.endswith('.dae'):
+        with open(file_path(mesh_file), encoding='utf-8') as stream:
+            head = stream.read(1000)
+        return [] if all(line in head for line in expected) else ['no SPDX lines in the header']
+    if 'license_file' not in mesh_file.entry:
+        return ['no license_file in the manifest']
+    path = os.path.join(MESHES, mesh_file.entry['license_file'])
+    if not os.path.exists(path):
+        return [f'{mesh_file.entry["license_file"]} missing']
+    with open(path, encoding='utf-8') as stream:
+        found = stream.read().splitlines()
+    return [] if found == expected else [f'{mesh_file.entry["license_file"]}: {found}']
+
+
 FILE_CHECKS: List[Check] = [check_checksum, check_triangle_count, check_bounding_box,
-                            check_units, check_closed]
+                            check_units, check_closed, check_license]
 
 
 # ---------------------------------------------------------------------------------------------
@@ -299,7 +320,9 @@ def collada_schema(folder: str) -> etree.XMLSchema:
 
 def check_folder_contents(files: List[MeshFile]) -> List[str]:
     """Check that meshes/ holds exactly the manifest's files and the manifest."""
-    expected = {mesh_file.path for mesh_file in files} | {'manifest.yaml'}
+    expected = ({mesh_file.path for mesh_file in files} | {'manifest.yaml'}
+                | {str(mesh_file.entry['license_file']) for mesh_file in files
+                   if 'license_file' in mesh_file.entry})
     found = {os.path.relpath(os.path.join(folder, name), MESHES)
              for folder, _, names in os.walk(MESHES) for name in names}
     return ([f'meshes/{path}: not in the manifest' for path in sorted(found - expected)]

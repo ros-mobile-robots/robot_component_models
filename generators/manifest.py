@@ -1,4 +1,4 @@
-# Copyright (c) 2026, ROS Mobile Robots
+# SPDX-FileCopyrightText: 2026 ROS Mobile Robots
 # SPDX-License-Identifier: BSD-3-Clause
 """Describe the written mesh files in meshes/manifest.yaml.
 
@@ -12,6 +12,7 @@ import os
 import struct
 from typing import List
 from typing import NamedTuple
+from typing import Sequence
 from typing import Tuple
 import xml.etree.ElementTree as ElementTree
 
@@ -32,6 +33,7 @@ class FileFacts(NamedTuple):
     triangles: int
     low: Tuple[float, float, float]
     high: Tuple[float, float, float]
+    license_file: str
 
 
 class MeshEntry(NamedTuple):
@@ -106,8 +108,9 @@ def file_facts(root: str, relative: str) -> FileFacts:
     points, triangles = READERS[os.path.splitext(path)[1]](path)
     low = tuple(float(v) for v in points.min(axis=0))
     high = tuple(float(v) for v in points.max(axis=0))
+    license_file = relative + '.license' if os.path.exists(path + '.license') else ''
     return FileFacts(relative, sha256(path), os.path.getsize(path), triangles,
-                     low, high)  # type: ignore[arg-type]
+                     low, high, license_file)  # type: ignore[arg-type]
 
 
 def vector(values: Tuple[float, ...], decimals: int) -> str:
@@ -124,14 +127,16 @@ def quoted(text: str) -> str:
     return json.dumps(text, ensure_ascii=False)
 
 
-def manifest_text(parts: List[PartEntry], version: str) -> str:
-    """Return the manifest as YAML text."""
-    lines = ['# meshes/manifest.yaml: written by `python3 -m generators`, not by hand.',
-             '# STL files are in millimetres, COLLADA (.dae) and glTF (.glb) files in metres.',
-             "# Bounding boxes are in the file's own units and frame, before any URDF scale.",
-             'package: robot_component_models',
-             f'version: {version}',
-             'parts:']
+def manifest_text(parts: List[PartEntry], spdx_lines: Sequence[str], license_id: str) -> str:
+    """Return the manifest as YAML text, with the SPDX lines as its first comments."""
+    lines = [f'# {line}' for line in spdx_lines]
+    lines += ['# meshes/manifest.yaml: written by `python3 -m generators`, not by hand.',
+              '# STL files are in millimetres, COLLADA (.dae) and glTF (.glb) files in metres.',
+              "# Bounding boxes are in the file's own units and frame, before any URDF scale.",
+              '# STL and glTF files carry their license in the <file>.license next to them.',
+              'package: robot_component_models',
+              f'license: {license_id}',
+              'parts:']
     for part in parts:
         lines += [f'  {part.name}:',
                   f'    title: {quoted(part.title)}',
@@ -155,4 +160,6 @@ def manifest_text(parts: List[PartEntry], version: str) -> str:
                           f'            triangles: {facts.triangles}',
                           f'            bounding_box_min: {vector(facts.low, decimals)}',
                           f'            bounding_box_max: {vector(facts.high, decimals)}']
+                if facts.license_file:
+                    lines.append(f'            license_file: {facts.license_file}')
     return '\n'.join(lines) + '\n'
