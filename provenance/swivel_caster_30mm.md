@@ -29,7 +29,7 @@ The files are in metres, z up. Positions on this page are in millimetres.
 | Mesh | Reference, min → max (mm) | This mesh, min → max (mm) | Difference |
 |---|---|---|---|
 | `swivel_caster_30mm_base` | (-15.47, -18.79, -3.30) → (16.53, 19.21, 15.00) | (-17.00, -19.00, -3.30) → (15.00, 19.00, 15.00) | 1.5 mm in x: this base is centred on the swivel axis. Same footprint, top and bottom |
-| `swivel_caster_30mm_wheel_support` | (-19.97, -12.73, -25.00) → (13.01, 12.27, 0.00) | (-20.50, -12.50, -24.50) → (10.00, 12.50, 0.00) | 3 mm less at +x: the fork's top disc is r 10 mm, so the race's outer lip shows around it as on DiffBot's caster. Elsewhere 0.53 mm or less. The swivel axis and the axle are where they were |
+| `swivel_caster_30mm_wheel_support` | (-19.97, -12.73, -25.00) → (13.01, 12.27, 0.00) | (-20.50, -12.50, -24.50) → (10.00, 12.50, 0.00) | 3 mm less at +x: the fork's top disc is r 10 mm, so the race's outer lip shows around it as on DiffBot's caster. Elsewhere 0.53 mm or less. The swivel axis and the axle lie at the reference's positions |
 | `swivel_caster_30mm_wheel` | (-14.96, -7.80, -14.98) → (14.96, 7.80, 14.98) | (-14.99, -7.80, -15.00) → (15.00, 7.80, 15.00) | 0.04 mm or less |
 
 The wheel's lowest point is 0.2 mm below DiffBot's `base_footprint`, from the URDF's numbers.
