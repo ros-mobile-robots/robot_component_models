@@ -14,16 +14,9 @@ Generator: [`generators/raspberry_pi_4b.py`](../generators/raspberry_pi_4b.py).
 
 The files are in metres. Positions on this page are in millimetres. The board's mid-plane is at z = 0. The board lies from x = -7.569 to 48.431 mm and from y = -42.123 to 42.877 mm. The USB and Ethernet end is at +y, the GPIO header along -x and the micro-HDMI side at +x. The drawing's (x, y) map to (48.431 - y, x - 42.123): a turn by +90° about z and a shift.
 
-**Frame alignment:** the reference Raspberry Pi mesh's bounding box, origin and axes were read to position the model:
+The top is the USB height, 16.0 mm above a 1.6 mm board. The bottom is the GPIO solder tails, 2.0 mm below the board. The drawing ends the Ethernet and USB fronts 3.0 mm past the board's edge. The Ethernet LEDs stand 0.1 mm proud of the jack, so the model ends at y = 45.977 mm.
 
-| | min (mm) | max (mm) |
-|---|---|---|
-| Reference mesh | (-7.569, -42.123, -2.900) | (50.831, 46.867, 17.000) |
-| This model | (-7.569, -42.123, -2.800) | (50.921, 45.977, 16.800) |
-
-The boards coincide. In +y the model ends 0.89 mm short of the reference: the drawing ends the Ethernet and USB fronts 3.0 mm past the board's edge. The top is the USB height, 16.0 mm above a 1.6 mm board. The bottom is the GPIO solder tails, 2.0 mm below the board.
-
-Independent check: the centres of the four standoff bores of Remo's printed Raspberry Pi deck lie within 0.071 mm of this model's mounting holes, at the URDF's position of the board. This checks the holes' positions, not the clearance: the deck's standoffs end 7.0 mm above the deck, where the URDF puts the board's mid-plane, so the board's lower half (0.8 mm) overlaps the standoffs. A frame with z = 0 at the board's bottom face would change the URDF.
+In [Remo's description](https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/remo.urdf.xacro), `rpi_joint` attaches `rpi_link` to `rpi_deck_link`, 7 mm above it, without a turn. 7 mm is the height of the printed Raspberry Pi deck's standoffs, so the board's mid-plane lies on the standoffs' tops, and the board's lower half (0.8 mm) overlaps them. The centres of the four standoff bores lie within 0.071 mm of the board's mounting holes. A frame with z = 0 at the board's bottom face would change the URDF.
 
 ## Sources
 
