@@ -98,7 +98,7 @@ MICRO_USB = (88.3, 95.8, -0.94, 4.6, 3.0)
 # bottom, 1.85 high, 3.5 deep; the tongue (half width, z0, z1, tip behind the front) with five
 # contacts underneath at 0.65 mm.
 MICRO_USB_OPENING = (6.9, 1.85, 0.85, 0.55)  # width, height, chamfer, bottom above the top face
-MICRO_USB_TONGUE = (1.75, 1.68, 2.18, 0.8)  # 0.5 mm, with the contacts' 0.1 mm GCT's 0.60
+MICRO_USB_TONGUE = (1.75, 1.62, 2.18, 0.8)  # 0.56 mm, with the 0.04 mm contacts GCT's 0.60
 MICRO_USB_SHELL_WIDTH = 7.4
 POWER_LED = (96.4, 10.7, 98.0, 11.5)
 

@@ -82,7 +82,7 @@ The bottom view was mapped by the plane of the carrier's bottom face, fitted to 
 | 40-pin and PoE headers' tails | as on the top | within 0.3 mm | User guide, with solder cones round the tails |
 | Fan header J15's tails | pins at u 68.6 to 76.2, v 24.21 | within 0.7 mm | From the top photo |
 | Button header J50 | 12 holes Ø1.0 mm with Ø1.7 mm pads, pin 1 at u 49.71, v 69.47, 2.54 mm apart towards the DC jack | the same | From the photo, unpopulated as on the kit |
-| Module standoffs' screws | under the carrier at the standoffs, Ø4.0 mm heads, Ø5.8 mm copper pads | u 16.2 and 79.5, v 76.3 | The user guide's v 75.4 is kept: 76.3 would put the module's standoff holes (Ø2.8 mm) 0.1 mm from its back edge. Both photos read 75.6 to 76.3. |
+| Module standoffs' screws | under the carrier at the standoffs, Ø4.0 mm heads, Ø5.8 mm copper pads | u 16.2 and 79.5, v 76.3 | The user guide's v 75.4 is kept: At 76.3, the module's Ø2.8 mm standoff holes would cross its back edge (v 77.4) by 0.3 mm. Both photos read 75.6 to 76.3. |
 | M.2 standoff | (44.4, 57.25) | (42.7, 54.8), a press-fit standoff with a copper ring | The user guide's place is kept, in line with the M.2 slot, which neither photo shows on B01. |
 | Port connectors' solder joints | four approximate joints a connector | about 150 joints in groups | Simplified |
 | Coin cell holder J45 | not modelled | an unpopulated outline with two pads | Not modelled |
@@ -101,7 +101,7 @@ The bottom view was mapped by the plane of the carrier's bottom face, fitted to 
 - **Module parts under the heatsink**: the heatsink hides them, and NVIDIA's module drawings with them aren't public. Placed by the heatsink's underside (see above) and sized as typical packages, all estimated: the processor's 23 × 23 × 0.45 mm substrate with a 10.9 × 10.9 × 0.25 mm bare die, the 10 × 14.5 × 1.0 mm memory package, a 6 × 6 mm power management chip and two 4 × 4 × 1.8 mm inductors under the pocket. The heatsink's base lies 0.75 mm above the module (from the kit's 30.21 mm height), so the substrate, die and 0.05 mm thermal pad fill that gap. The drawing doesn't show which end of the heatsink faces which side of the kit. Turned the other way, the processor and the screws would mirror about u 47.9.
 - **Heatsink screws**: four M2 pan-head screws (Ø3.5 mm heads) from below the module into the heatsink's holes, 2.8 mm deep.
 - **Camera connectors**: two 15-pin flat cable connectors (21.9 × 6.8 × 2.5 mm) with a brown latch at the board's edge and their solder tails on the inner side. Their centres along the edge are read from the CNX photo (source 6), their sizes from Waveshare's (source 10).
-- **J48** is a 2-pin header without a jumper cap, its pins at u 12.99, v 16.58 and 19.12 mm (source 10). The B01's 12-pin button header J50 isn't modelled: its position isn't in the sources.
+- **J48** is a 2-pin header without a jumper cap, its pins at u 12.99, v 16.58 and 19.12 mm (source 10). The B01's 12-pin button header J50 is an unpopulated footprint on the kit: twelve plated holes with pads and no pins, placed from the bottom photo (source 10).
 - **Capacitors**: 8.0 mm high (estimated), Ø6.6 mm from the photo.
 - **Small surface parts** of the carrier aren't modelled: none are in the public drawings.
 - **Bottom**: the header tails with solder cones, the module standoffs' screws with their pads, J50's twelve plated holes, and four approximate solder joints under each port connector.
@@ -111,6 +111,6 @@ The bottom view was mapped by the plane of the carrier's bottom face, fitted to 
 
 - Whether Remo's kit has the heatsink of the drawing (58.7 × 39.4 × 17.3 mm) and where it sits on the module, front to back: a top photo with a ruler.
 - The module's height above the carrier and the base of the heatsink: calipers from the carrier to the module's edge.
-- A photo of the left edge, for the exact places of the two camera connectors, J48 and J50.
+- A photo of the left edge, for the exact places of the two camera connectors and J48.
 - A photo of the module without its heatsink, for the processor's, memory's and power parts' places and sizes, and which end of the heatsink faces the 40-pin header.
 - A ruler photo of the kit without the module, for the module's standoffs and the M.2 slot on B01.
