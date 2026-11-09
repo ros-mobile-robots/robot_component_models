@@ -84,10 +84,11 @@ HDMI_INSULATOR = 6.8
 HDMI_TONGUE = (10.8, 0.9, 2.0)
 DP_OPENING = (16.1, 4.76, 12.7)
 # DisplayPort insides, JAE DP1RD20: insulator face behind the front, tongue (width, thickness
-# (estimated), tip behind the front, gap from the opening's top), its centre 0.5 mm off the
-# opening's, 10 contacts on each face at 1.0 mm.
+# (scaled from the front view), tip behind the front, its centreline above the opening's
+# bottom: 3.4 mm above the board, the opening's bottom 0.88 mm (scaled)), its centre 0.5 mm off
+# the opening's, 10 contacts on each face at 1.0 mm.
 DP_INSULATOR = 8.88
-DP_TONGUE = (12.0, 1.0, 4.1, 1.25)
+DP_TONGUE = (12.0, 1.0, 4.1, 2.52)
 DP_TONGUE_OFFSET = 0.5
 HDMI_HOUSING_HEIGHT = 10.2  # the HDMI receptacle's black housing, the DP shell above it
 USB_STACKS = ((36.15, 49.25, -1.52, 15.9, 16.0), (53.2, 66.3, -1.52, 15.9, 16.0))  # photo
@@ -97,7 +98,7 @@ MICRO_USB = (88.3, 95.8, -0.94, 4.6, 3.0)
 # bottom, 1.85 high, 3.5 deep; the tongue (half width, z0, z1, tip behind the front) with five
 # contacts underneath at 0.65 mm.
 MICRO_USB_OPENING = (6.9, 1.85, 0.85, 0.55)  # width, height, chamfer, bottom above the top face
-MICRO_USB_TONGUE = (1.75, 1.68, 2.18, 0.8)
+MICRO_USB_TONGUE = (1.75, 1.68, 2.18, 0.8)  # 0.5 mm, with the contacts' 0.1 mm GCT's 0.60
 MICRO_USB_SHELL_WIDTH = 7.4
 POWER_LED = (96.4, 10.7, 98.0, 11.5)
 
@@ -122,6 +123,7 @@ SODIMM_CONTACTS = 130
 MODULE_SD_SLOT = (36.0, 63.0, 49.5, 77.4, 7.8)  # on the module's underside, top z = module bottom
 MODULE_FINGERS = (35.4, 0.3)  # the gold fingers reach to v 35.4, 0.3 mm wide
 MODULE_KEY = (51.0, 1.0)  # u of the key notch in the module's edge, its width
+MODULE_FINGER_BANKS = (71, 59)  # fingers a face beside the key: u 15.0 to 50.0, 52.0 to 81.0
 
 # Parts on the module under the heatsink, placed by the heatsink's underside (drawing of
 # source 7): its contact area over the processor, its 2 mm deep pocket over taller parts and
@@ -134,7 +136,7 @@ MEMORY = (61.0, 44.0, 71.0, 58.5, 1.0)  # u0, v0, u1, v1, height: a 10 x 14.5 mm
 MODULE_CHIPS = ((62.0, 63.0, 68.0, 69.0, 0.9), (70.0, 61.0, 74.0, 65.0, 1.8),
                 (70.0, 67.0, 74.0, 71.0, 1.8))  # power management chip and two inductors
 HEATSINK_SCREWS = ((22.08, 45.5), (55.51, 45.5), (22.08, 60.4), (55.51, 60.4))
-HEATSINK_POCKET = (18.95, 2.0, 4.0, 1.0)  # length from the end, depth, corner radius, rim
+HEATSINK_POCKET = (18.95, 2.0, 4.0, 1.0)  # reach from the end, depth, corner radius, rim
 
 # The official heatsink (drawing of the Jetson Nano heatsink, see provenance): an extruded
 # profile 58.7 long (along u), 39.4 wide (along v) and 17.3 high, centred on the module's
@@ -300,10 +302,10 @@ def hdmi_dp_stack() -> List[Part]:
         finger_cut, tab = spring_finger(-1.2, y, height)
         shell = shell.cut(finger_cut)
         parts.append(('nickel', tab))
-    tongue_width, thickness, tip, gap = DP_TONGUE
+    tongue_width, thickness, tip, centre = DP_TONGUE
     parts += [('nickel', shell), ('nickel', shell_frame), ('nickel', liner)]
     parts += hdmi_inside(profile, 0.2, DP_INSULATOR, (tongue_width, thickness, tip),
-                         bottom + opening_height - gap - thickness / 2, DP_TONGUE_OFFSET)
+                         bottom + centre, DP_TONGUE_OFFSET)
     return parts
 
 
@@ -383,11 +385,11 @@ def module_board() -> List[Piece]:
     parts += [('gold', ring((u, v), MODULE_PAD, 2.8, MODULE_Z[1], MODULE_Z[1] + 0.03))
               for u, v in MODULE_STANDOFFS]
     reach, finger_width = MODULE_FINGERS
-    start = (mu0 + mu1) / 2 - (SODIMM_CONTACTS - 1) * SODIMM_PITCH / 2
-    for k in range(SODIMM_CONTACTS):
-        u = start + k * SODIMM_PITCH
-        if abs(u - key_u) < key_width / 2 + finger_width:
-            continue
+    # Two banks beside the key notch, 130 fingers a face in all, the first 1.0 mm from the key.
+    left = MODULE_FINGER_BANKS[0]
+    fingers = [key_u - 1.0 - SODIMM_PITCH * k for k in range(left)] \
+        + [key_u + 1.0 + SODIMM_PITCH * k for k in range(SODIMM_CONTACTS - left)]
+    for u in fingers:
         for z0, z1 in ((MODULE_Z[1], MODULE_Z[1] + 0.02), (MODULE_Z[0] - 0.02, MODULE_Z[0])):
             parts.append(('gold', box(u - finger_width / 2, mv0 + 0.3, z0, u + finger_width / 2,
                                       reach, z1)))
@@ -518,10 +520,10 @@ def heatsink() -> List[Piece]:
     length, depth, radius, rim = HEATSINK_POCKET
     base_v0 = HEATSINK_V0 + (HEATSINK_WIDTH - HEATSINK_BASE[0]) / 2
     u1 = HEATSINK_U0 + HEATSINK_LENGTH
-    pocket = cq.Workplane('XY', origin=(u1 - length / 2 + radius / 2, (base_v0 + base_v0
-                                                                       + HEATSINK_BASE[0]) / 2,
+    # A bounded recess: it reaches `length` from the end, with a rim at the end and both sides.
+    pocket = cq.Workplane('XY', origin=(u1 - (length + rim) / 2, base_v0 + HEATSINK_BASE[0] / 2,
                                         bottom - 0.1)) \
-        .rect(length + radius, HEATSINK_BASE[0] - 2 * rim).extrude(depth + 0.1) \
+        .rect(length - rim, HEATSINK_BASE[0] - 2 * rim).extrude(depth + 0.1) \
         .edges('|Z').fillet(radius).val()
     shape = shape.cut(pocket)
     for u, v in HEATSINK_SCREWS:

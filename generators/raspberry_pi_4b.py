@@ -464,14 +464,17 @@ def audio_jack() -> List[Piece]:
     body = rounded_box(x0, y0, TOP, x1, y1, top, chamfer_top=0.3)
     barrel = cylinder(diameter / 2, (centre_x, y0 + 0.01, centre_z), (0, -1, 0), y0 - front)
     hole = cylinder(1.8, (centre_x, front - 0.1, centre_z), (0, 1, 0), 9.0)
-    band = box(x0, y0, top - 0.01, x1, y0 + 3.6, top + 0.2)
-    parts: List[Piece] = [('black_plastic', body.fuse(barrel).cut(hole)), ('nickel', band)]
-    for leg_x0 in (x0 + 0.3, x1 - 1.3):
-        parts.append(('nickel', box(leg_x0, y0 + 3.6, top - 0.01, leg_x0 + 1.0, y1 - 0.1,
-                                    top + 0.2)))
-    parts.append(('nickel', box(centre_x - 0.65, y0 + 8.0, top - 0.01, centre_x + 0.65,
-                                y0 + 10.6, top + 0.2)))
-    return parts
+    # The metal lies in 0.2 mm recesses of the body's top, flush with it.
+    metal = [box(x0, y0, top - 0.2, x1, y0 + 3.6, top)]
+    metal += [box(leg_x0, y0 + 3.6, top - 0.2, leg_x0 + 1.0, y1 - 0.1, top)
+              for leg_x0 in (x0 + 0.3, x1 - 1.3)]
+    metal.append(box(centre_x - 0.65, y0 + 8.0, top - 0.2, centre_x + 0.65, y0 + 10.6, top))
+    body = body.fuse(barrel).cut(hole)
+    for piece in metal:
+        bounds = piece.BoundingBox()
+        body = body.cut(box(bounds.xmin - 0.01, bounds.ymin - 0.01, top - 0.2,
+                            bounds.xmax + 0.01, bounds.ymax + 0.01, top + 0.1))
+    return [('black_plastic', body)] + [('nickel', piece) for piece in metal]
 
 
 def ffc_connector(spec: Tuple[float, float, float, float, float],
@@ -511,9 +514,11 @@ def soc() -> Dict[str, List[Piece]]:
     cap = cq.Workplane('XY', origin=(centre[0], centre[1], seat + 0.4)) \
         .rect(top_width, top_width).extrude(height - 1.5).edges('|Z').fillet(1.0) \
         .faces('>Z').edges().fillet(radius).val()
-    cavity = box(centre[0] - top_width / 2 + sheet, centre[1] - top_width / 2 + sheet,
-                 seat - 0.1, centre[0] + top_width / 2 - sheet, centre[1] + top_width / 2 - sheet,
-                 TOP + height - sheet)
+    # The cavity follows the cap's rounded edges, one sheet inside, so the walls stay closed.
+    inner = top_width - 2 * sheet
+    cavity = cq.Workplane('XY', origin=(centre[0], centre[1], seat - 0.1)).rect(inner, inner) \
+        .extrude(TOP + height - sheet - seat + 0.1).edges('|Z').fillet(1.0 - sheet) \
+        .faces('>Z').edges().fillet(radius - sheet).val()
     half = die_side / 2
     die_top = seat + die_height
     return {'soc_substrate': [('substrate', box(x0, y0, TOP, x1, y1, seat))],
