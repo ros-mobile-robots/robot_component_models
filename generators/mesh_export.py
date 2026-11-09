@@ -483,11 +483,24 @@ class GlbBuffer:
         return len(self.accessors) - 1
 
 
+def srgb_to_linear(value: float) -> float:
+    """Return the linear value of an sRGB colour component, both from 0 to 1."""
+    if value <= 0.04045:
+        return value / 12.92
+    return ((value + 0.055) / 1.055) ** 2.4
+
+
 def gltf_material(name: str, material: Material) -> Dict[str, object]:
-    """Return a glTF PBR material: the diffuse colour, metal or not, roughness from shininess."""
+    """Return a glTF PBR material: the diffuse colour, metal or not, roughness from shininess.
+
+    The diffuse colour is an sRGB value, as COLLADA viewers show it. glTF defines the base
+    colour factor as linear, so the red, green and blue components are converted. Alpha stays.
+    """
+    red, green, blue, alpha = material.diffuse
+    base_colour = [round(srgb_to_linear(c), 6) for c in (red, green, blue)] + [float(alpha)]
     roughness = round(math.sqrt(2.0 / (material.shininess + 2.0)), 3)
     return {'name': name,
-            'pbrMetallicRoughness': {'baseColorFactor': [float(c) for c in material.diffuse],
+            'pbrMetallicRoughness': {'baseColorFactor': base_colour,
                                      'metallicFactor': 1.0 if material.metallic else 0.0,
                                      'roughnessFactor': roughness}}
 
