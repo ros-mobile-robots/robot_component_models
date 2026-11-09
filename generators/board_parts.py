@@ -16,7 +16,6 @@ metal or not for glTF (PBR metallic and roughness).
 import math
 from typing import Dict
 from typing import List
-from typing import Optional
 from typing import Sequence
 from typing import Tuple
 
@@ -46,6 +45,9 @@ MATERIAL_SPECS: Dict[str, Tuple[Tuple[float, float, float], float, float, bool]]
     'anodised_black': ((0.09, 0.09, 0.10), 0.35, 18.0, True),
     'black_plastic': ((0.05, 0.05, 0.05), 0.25, 20.0, False),
     'chip': ((0.10, 0.10, 0.11), 0.30, 25.0, False),
+    'die': ((0.17, 0.18, 0.22), 0.80, 80.0, False),
+    'thermal_paste': ((0.55, 0.56, 0.58), 0.15, 10.0, False),
+    'thermal_pad': ((0.45, 0.50, 0.58), 0.10, 8.0, False),
     'ceramic': ((0.66, 0.56, 0.40), 0.20, 15.0, False),
     'substrate': ((0.14, 0.24, 0.16), 0.25, 20.0, False),
     'inductor': ((0.22, 0.22, 0.24), 0.15, 12.0, False),
@@ -53,6 +55,7 @@ MATERIAL_SPECS: Dict[str, Tuple[Tuple[float, float, float], float, float, bool]]
     'cream_plastic': ((0.86, 0.85, 0.80), 0.20, 15.0, False),
     'latch_brown': ((0.30, 0.22, 0.14), 0.20, 15.0, False),
     'white_plastic': ((0.92, 0.91, 0.86), 0.20, 15.0, False),
+    'capacitor_stripe': ((0.42, 0.47, 0.58), 0.30, 25.0, False),
     'led_red': ((0.90, 0.10, 0.10), 0.40, 30.0, False),
     'led_green': ((0.20, 0.85, 0.25), 0.40, 30.0, False),
     'led_yellow': ((0.95, 0.80, 0.10), 0.40, 30.0, False),
@@ -203,6 +206,60 @@ def pin_header(pins: Sequence[Point], top: float, bottom: float, pin_height: flo
 # ---------------------------------------------------------------------------------------------
 # Connectors in their own frame (opening towards +x, front face at x = 0)
 # ---------------------------------------------------------------------------------------------
+# Insides of the USB Type-A receptacles, from GCT's drawing of the stacked USB 3.0 Type-A
+# receptacle USB1100 (see the provenance pages): the opening, the tongue and its gap to the
+# opening's top, the depth to the rear housing, the ports 8.5 mm apart, the USB 2.0 contacts'
+# positions and width, and the SuperSpeed contacts within 3 mm of the tongue's tip.
+USB_A_OPENING = (12.5, 5.12)  # width, height
+USB_A_TONGUE = (11.1, 1.84, 0.40)  # width, thickness, gap from the opening's top
+USB_A_PORT_DEPTH = 10.25  # from the front to the rear housing
+USB_A_PORT_BOTTOMS = (0.95, 9.45)  # above the board
+USB2_CONTACTS = ((-3.5, -1.0, 1.0, 3.5), 0.95, 0.35)  # y, width, reach below the tongue
+USB3_CONTACTS = (5, 2.3, 1.0, 3.0)  # count, pitch (estimated), width, length from the tip
+# RJ45: eight spring contacts at the modular plug's 1.02 mm (0.040 in) pitch, angled down and
+# back from the top of the plug opening; wire size and angle estimated from photos.
+RJ45_CONTACTS = (8, 1.02, 0.4, 0.3)  # count, pitch, width, thickness
+# A small receptacle's tongue: (half width, z of the bottom face, z of the top face, distance of
+# the tip behind the front) and its contact rows: (count, pitch, contact width, on the top face).
+Tongue = Tuple[float, float, float, float]
+ContactRow = Tuple[int, float, float, bool]
+
+
+def side_profile(points: Sequence[Point], y0: float, y1: float) -> cq.Shape:
+    """Return an (x, z) outline extruded across y from y0 to y1."""
+    return cq.Workplane('XZ', origin=(0, y1, 0)).polyline(list(points)).close() \
+        .extrude(y1 - y0).val()
+
+
+def bent_strip(path: Sequence[Point], thickness: float, y: float, width: float) -> cq.Shape:
+    """Return a stamped contact: a strip along an (x, z) path, its thickness above the path."""
+    outline = list(path) + [(x, z + thickness) for x, z in reversed(path)]
+    return side_profile(outline, y - width / 2, y + width / 2)
+
+
+def tongue_block(x0: float, y0: float, z0: float, x1: float, y1: float, z1: float,
+                 chamfer: float) -> cq.Shape:
+    """Return a connector tongue: a block with chamfered edges at its tip (x1)."""
+    return cq.Workplane('XY').box(x1 - x0, y1 - y0, z1 - z0, centered=False) \
+        .translate((x0, y0, z0)).faces('>X').edges('|Y').chamfer(chamfer).val()
+
+
+def contact_rows(rows: Sequence[ContactRow], tongue: Tongue, length: float,
+                 centre_y: float = 0.0) -> List[Part]:
+    """Return gold contacts on a tongue's faces, each row centred on centre_y."""
+    half, z0, z1, tip = tongue
+    parts: List[Part] = []
+    for count, pitch, width, on_top in rows:
+        for k in range(count):
+            y = centre_y + (k - (count - 1) / 2) * pitch
+            if abs(y) + width / 2 > half:
+                continue
+            z = (z1, z1 + 0.04) if on_top else (z0 - 0.04, z0)
+            parts.append(('gold', box(-tip - length, y - width / 2, z[0], -tip - 0.15,
+                                      y + width / 2, z[1])))
+    return parts
+
+
 def spring_finger(x_front: float, y: float, z_top: float, length: float = 3.2,
                   width: float = 1.4) -> Tuple[cq.Shape, cq.Shape]:
     """Return the cut and the bent-in tab of a stamped spring finger in a shell's top face."""
@@ -214,43 +271,58 @@ def spring_finger(x_front: float, y: float, z_top: float, length: float = 3.2,
     return cut, tab
 
 
+def usb_a_port(bottom: float, tongue: str) -> List[Part]:
+    """Return one USB Type-A port's inside: rear housing, tongue, contacts and latch dimples.
+
+    The tongue hangs from the top of the opening. The four USB 2.0 contacts are springs under
+    it that bulge 0.35 mm below its face, a USB 3.0 tongue also has five flat SuperSpeed
+    contacts near its tip.
+    """
+    width, height = USB_A_OPENING
+    tongue_width, thickness, gap = USB_A_TONGUE
+    top = bottom + height
+    underside = top - gap - thickness
+    rear = -USB_A_PORT_DEPTH + 0.3
+    parts: List[Part] = [
+        ('black_plastic', box(-USB_A_PORT_DEPTH, -width / 2, bottom, rear, width / 2, top)),
+        (tongue, tongue_block(rear, -tongue_width / 2, underside, -0.3, tongue_width / 2,
+                              top - gap, 0.3))]
+    ys, contact_width, reach = USB2_CONTACTS
+    path = [(-8.8, underside + 0.02), (-6.6, underside + 0.02), (-5.4, underside - reach),
+            (-4.6, underside - reach), (-3.6, underside - 0.1)]
+    parts += [('gold', bent_strip(path, 0.12, y, contact_width)) for y in ys]
+    if tongue == 'usb3_blue':
+        count, pitch, pad_width, length = USB3_CONTACTS
+        for k in range(count):
+            y = (k - (count - 1) / 2) * pitch
+            parts.append(('gold', box(-0.3 - length, y - pad_width / 2, underside - 0.04, -0.6,
+                                      y + pad_width / 2, underside + 0.02)))
+    # Two dimples in the bottom wall hold the plug.
+    for y in (-3.0, 3.0):
+        parts.append(('nickel', box(-5.0, y - 0.6, bottom - 0.01, -4.0, y + 0.6,
+                                    bottom + 0.3)))
+    return parts
+
+
 def usb_a_stack(width: float, depth: float, height: float, tongue: str,
                 flange: float = 0.3, ears: float = 0.35) -> List[Part]:
-    """Return a stacked double USB Type-A receptacle (nickel shell, two ports, tongues).
+    """Return a stacked double USB Type-A receptacle: nickel shell, two ports with insides.
 
-    The shell has a front frame with side ears, a divider between the ports, two spring
-    fingers per port in the top, dimples and side snap recesses; the inside is lined dark and
-    each tongue carries its contacts underneath.
+    The shell has a front frame with side ears, a metal wall between the ports, two spring
+    fingers per port in the top, dimples and side snap recesses. Inside, the metal walls show
+    up to the rear housing.
     """
     half = width / 2
     shell = rounded_box(-depth, -half, 0.0, -flange, half, height, vertical=0.4)
     frame = box(-flange, -half - ears, 0.0, 0.0, half + ears, height)
+    opening_width, opening_height = USB_A_OPENING
     parts: List[Part] = []
-    opening_height, opening_width = 5.12, 12.5
-    for bottom in (1.5, 9.3):
-        port = box(-14.0, -opening_width / 2, bottom, 0.1, opening_width / 2,
+    for bottom in USB_A_PORT_BOTTOMS:
+        port = box(-USB_A_PORT_DEPTH, -opening_width / 2, bottom, 0.1, opening_width / 2,
                    bottom + opening_height)
         shell = shell.cut(port)
         frame = frame.cut(port)
-        parts.append(('black_plastic', box(-14.0, -opening_width / 2, bottom, -13.5,
-                                           opening_width / 2, bottom + opening_height)))
-        # The inside of the shell is in shadow: a thin dark lining shows the port's depth.
-        lining = box(-13.5, -opening_width / 2, bottom, 0.0, opening_width / 2,
-                     bottom + opening_height)
-        parts.append(('black_plastic', lining.cut(box(-13.6, -opening_width / 2 + 0.15,
-                                                      bottom + 0.15, 0.1,
-                                                      opening_width / 2 - 0.15,
-                                                      bottom + opening_height - 0.15))))
-        parts.append((tongue, box(-13.5, -5.55, bottom + 2.7, -1.0, 5.55, bottom + 4.55)))
-        for k in range(4):
-            y = -3.5 + 2.33 * k
-            parts.append(('gold', box(-9.0, y - 0.5, bottom + 2.62, -2.0, y + 0.5,
-                                      bottom + 2.7)))
-        if tongue == 'usb3_blue':
-            for k in range(5):
-                y = -4.2 + 2.1 * k
-                parts.append(('gold', box(-12.5, y - 0.35, bottom + 2.62, -10.0, y + 0.35,
-                                          bottom + 2.7)))
+        parts += usb_a_port(bottom, tongue)
     for y in (-3.2, 3.2):
         cut, tab = spring_finger(-1.2, y, height)
         shell = shell.cut(cut)
@@ -258,15 +330,20 @@ def usb_a_stack(width: float, depth: float, height: float, tongue: str,
     for x, y in ((-8.0, -2.5), (-8.0, 2.5)):
         shell = shell.cut(cylinder(0.55, (x, y, height - 0.2), (0, 0, 1), 0.3))
     for side in (-1, 1):
-        for bottom in (2.5, 10.3):
+        for bottom in USB_A_PORT_BOTTOMS:
             y0 = side * half - (0.2 if side > 0 else 0.0)
-            shell = shell.cut(box(-7.5, y0, bottom, -4.5, y0 + 0.2, bottom + 2.5))
+            shell = shell.cut(box(-7.5, y0, bottom + 1.0, -4.5, y0 + 0.2, bottom + 3.5))
     return [('nickel', shell), ('nickel', frame)] + parts
 
 
 def rj45_jack(width: float, depth: float, height: float, led_protrusion: float = 0.1) -> \
         List[Part]:
-    """Return an RJ45 jack with magnetics: rounded shield, dark plug opening, contacts, LEDs."""
+    """Return an RJ45 jack with magnetics: rounded shield, plug opening, contacts, LEDs.
+
+    The opening is black plastic inside, with the latch notch at the bottom. Eight gold spring
+    contacts come down from its top at the front and run back at about 23 degrees, as in a
+    jack without a plug.
+    """
     half = width / 2
     shield = cq.Workplane('XY').box(depth, width, height, centered=False) \
         .translate((-depth, -half, 0.0)).edges('|Z').fillet(0.5) \
@@ -281,42 +358,41 @@ def rj45_jack(width: float, depth: float, height: float, led_protrusion: float =
         y0 = side * half - (0.25 if side > 0 else 0.0)
         shield = shield.cut(box(-6.0, y0, 1.0, -3.0, y0 + 0.25, height - 3.0))
     parts: List[Part] = [('nickel', shield), ('black_plastic', liner)]
-    for k in range(8):
-        y = -3.57 + 1.02 * k
-        parts.append(('gold', box(-9.0, y - 0.15, bottom + 8.3, -4.0, y + 0.15, bottom + 8.7)))
+    count, pitch, contact_width, thickness = RJ45_CONTACTS
+    ceiling = bottom + 9.0 - 0.3
+    path = [(-1.4, ceiling - thickness), (-2.2, ceiling - 0.9), (-8.0, ceiling - 3.4),
+            (-9.0, ceiling - 3.4)]
+    for k in range(count):
+        parts.append(('gold', bent_strip(path, thickness, (k - (count - 1) / 2) * pitch,
+                                         contact_width)))
+    # The comb that guides the contacts' ends
+    parts.append(('black_plastic', box(-11.7, -5.55, ceiling - 4.0, -8.6, 5.55,
+                                       ceiling - 3.45)))
     parts.append(('led_green', box(-0.05, -half + 0.8, 0.8, led_protrusion, -half + 2.8, 2.0)))
     parts.append(('led_yellow', box(-0.05, half - 2.8, 0.8, led_protrusion, half - 0.8, 2.0)))
     return parts
 
 
-def shell_with_opening(width: float, depth: float, height: float, opening: Sequence[Point],
-                       opening_depth: float, round_top: float,
-                       contacts: Optional[Tuple[float, float, int]] = None,
-                       tongue: Optional[Tuple[float, float, float]] = None) -> List[Part]:
-    """Return a small metal receptacle (micro-HDMI, micro-USB, USB-C body) facing +x.
+def small_receptacle(width: float, depth: float, height: float, opening: Sequence[Point],
+                     opening_depth: float, round_top: float, tongue: Tongue,
+                     rows: Sequence[ContactRow], contact_length: float) -> List[Part]:
+    """Return a small metal receptacle (micro-HDMI, micro-USB) facing +x.
 
-    contacts: (z of the contact row, half width, count) of gold contacts, tongue: (half width,
-    z bottom, z top) of a dark tongue that carries them.
+    The shell's metal shows inside the opening up to the black insulator at opening_depth,
+    from which the tongue reaches forward with its gold contact rows.
     """
     half = width / 2
     shell = cq.Workplane('XY').box(depth, width, height, centered=False) \
         .translate((-depth, -half, 0.0))
     if round_top:
         shell = shell.edges('|X and >Z').fillet(round_top)
-    cut, liner = opening_with_liner(opening, opening_depth, 0.2)
-    parts: List[Part] = [('nickel', shell.val().cut(cut)), ('black_plastic', liner)]
-    if tongue:
-        tongue_half, z0, z1 = tongue
-        parts.append(('black_plastic', box(-opening_depth + 0.2, -tongue_half, z0, -0.6,
-                                           tongue_half, z1)))
-    if contacts:
-        z, contact_half, count = contacts
-        pitch = 2 * contact_half / max(count - 1, 1)
-        for k in range(count):
-            y = -contact_half + k * pitch
-            parts.append(('gold', box(-opening_depth + 0.4, y - pitch * 0.3, z, -0.8,
-                                      y + pitch * 0.3, z + 0.05)))
-    return parts
+    cut = front_profile(opening, 0.1, opening_depth + 0.1)
+    insulator = front_profile(opening, -opening_depth + 0.25, 0.25)
+    tongue_half, z0, z1, tip = tongue
+    parts: List[Part] = [('nickel', shell.val().cut(cut)), ('black_plastic', insulator),
+                         ('black_plastic', tongue_block(-opening_depth + 0.25, -tongue_half, z0,
+                                                        -tip, tongue_half, z1, 0.1))]
+    return parts + contact_rows(rows, tongue, contact_length)
 
 
 # ---------------------------------------------------------------------------------------------
