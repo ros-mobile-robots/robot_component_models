@@ -142,6 +142,42 @@ parts:
             bounding_box_min: [-0.040850, -0.037845, -0.029850]
             bounding_box_max: [0.037850, 0.037845, 0.010950]
             license_file: rplidar_a2/rplidar_a2.glb.license
+  rplidar_a1:
+    title: "360 degree laser scanner, RPLIDAR A1 size"
+    generator: generators/rplidar_a1.py
+    provenance: provenance/rplidar_a1.md
+    meshes:
+      rplidar_a1:
+        frame: "The head's rotation axis along z at x = y = 0, z = 0 in the scan plane (42 mm above the motor's bottom), the base's round end towards +x, the motor's axis at x = -45.5 mm, the window's middle towards -x."
+        sub_parts: [base, pcb, connectors, motor, pulley, belt, head, window]
+        materials: [body, rubber, steel, screw, pcb, part, connector, contact, window]
+        files:
+          rplidar_a1/rplidar_a1.stl:
+            sha256: 1954f2e44eb5d0a5a40ab3de50224fa3d8082f1bb4c364ead83f8fdb217970e6
+            bytes: 1197184
+            units: metre
+            up_axis: "Z"
+            triangles: 23942
+            bounding_box_min: [-0.061600, -0.035500, -0.042000]
+            bounding_box_max: [0.035480, 0.035500, 0.009000]
+            license_file: rplidar_a1/rplidar_a1.stl.license
+          rplidar_a1/rplidar_a1.dae:
+            sha256: f6b851a4b48ecabcf6f4a08ffbb7fd5e882f1793c0443f259d1b21f05529b45d
+            bytes: 1309090
+            units: metre
+            up_axis: "Z"
+            triangles: 23942
+            bounding_box_min: [-0.061600, -0.035500, -0.042000]
+            bounding_box_max: [0.035480, 0.035500, 0.009000]
+          rplidar_a1/rplidar_a1.glb:
+            sha256: 989b5aa29d13ee7ed54dff710936ff4e512022c8441426d2d6b97e688a2e29fa
+            bytes: 614340
+            units: metre
+            up_axis: "Y (the root node turns the Z-up vertex data)"
+            triangles: 23942
+            bounding_box_min: [-0.061600, -0.035500, -0.042000]
+            bounding_box_max: [0.035480, 0.035500, 0.009000]
+            license_file: rplidar_a1/rplidar_a1.glb.license
   raspberry_pi_4b:
     title: "Raspberry Pi 4 Model B"
     generator: generators/raspberry_pi_4b.py
