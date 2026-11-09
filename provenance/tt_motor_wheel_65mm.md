@@ -17,16 +17,9 @@ Generator: [`generators/tt_motor_wheel_65mm.py`](../generators/tt_motor_wheel_65
 
 The files are in metres. Positions on this page are in millimetres. The axle runs along z at x = y = 0. The wheel's outer face is at z = -13 mm: the rim's outer flange face, flush with the tyre's sidewalls at their widest. The rim's motor-side flange face is at z = +12.00 mm, and the hub tube's end at z = +15.42 mm. Both robots turn the mesh so that +z points towards the robot.
 
-**Frame alignment:** the reference wheel mesh's bounding box was read to position the model:
+In [DiffBot's description](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_description/urdf/include/common_macros.urdf.xacro) and [Remo's description](https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/include/common_macros.urdf.xacro), the `wheel` macro's `front_left_wheel_joint` and `front_right_wheel_joint` attach `front_left_wheel` and `front_right_wheel` to `chassis_link`: on DiffBot at x = 18.5, y = ±69 and z = -17 mm, on Remo at x = 36, y = ±72 and z = -33.6 mm. The joint's origin is the axle's centre in the mesh's frame. The visual turns the mesh by 90° about x, and on the right side then by 180° about z, so +z points towards the robot on both sides. The wheel's outer face lies 13 mm outboard of the joint's origin, 0.5 mm beyond the URDF's 25 mm wheel cylinder.
 
-| | min (mm) | max (mm) |
-|---|---|---|
-| Reference mesh | (-34.46, -34.46, -13.00) | (34.46, 34.41, 17.00) |
-| This model | (-33.30, -33.30, -13.00) | (33.30, 33.30, 15.42) |
-
-- The outer face and the axle are the reference's.
-- The radius is 1.17 mm smaller than the reference's: the measured Ø66.6 mm. DiffBot's URDF radius is 33.3 mm, so the tyre touches the ground. Remo's is 33.0 mm, so the visual tyre reaches 0.3 mm below the ground.
-- The motor-side end is at +15.42 mm, the reference's at +17.00 mm: the real rim is 28.42 mm long, and its outer flange face is the wheel's outer face. Nothing in the robots' URDFs refers to that end. The tyre is 25.00 mm wide, the reference's 24.82 mm, so the two centre planes are 0.09 mm apart. Joints, collisions and inertias don't depend on the mesh.
+The tyre's radius is 33.3 mm. The axle lies one URDF wheel radius above `base_footprint`. DiffBot's [`front_wheel.yaml`](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_description/config/diffbot/front_wheel.yaml) gives 33.3 mm, so the tyre touches the ground. Remo's [`front_wheel.yaml`](https://github.com/ros-mobile-robots/remo_description/blob/main/config/remo/front_wheel.yaml) gives 33.0 mm, so the tyre reaches 0.3 mm below the ground. Joints, collisions and inertias don't depend on the mesh. Nothing in the robots' descriptions refers to the motor-side end.
 
 ## Sources
 

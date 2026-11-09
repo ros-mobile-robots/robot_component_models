@@ -24,13 +24,11 @@ The files are in metres, z up. Positions on this page are in millimetres.
 - `swivel_caster_30mm_wheel_support`: the swivel axis at x = y = 0, the fork's top at z = 0. The wheel axle runs along y at x = -16 mm, z = -20 mm.
 - `swivel_caster_30mm_wheel`: centred on its axle, the axle along y.
 
-**Frame alignment:** the bounding boxes of the reference caster meshes were read to position the three meshes. DiffBot's caster macro and `caster_wheel.yaml` place them:
+DiffBot's caster macro, [`diffbot_caster_macro.urdf.xacro`](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_description/urdf/include/diffbot_caster_macro.urdf.xacro), with [`caster_wheel.yaml`](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_description/config/diffbot/caster_wheel.yaml), attaches the three meshes:
 
-| Mesh | Reference, min → max (mm) | This mesh, min → max (mm) | Difference |
-|---|---|---|---|
-| `swivel_caster_30mm_base` | (-15.47, -18.79, -3.30) → (16.53, 19.21, 15.00) | (-17.00, -19.00, -3.30) → (15.00, 19.00, 15.00) | 1.5 mm in x: this base is centred on the swivel axis. Same footprint, top and bottom |
-| `swivel_caster_30mm_wheel_support` | (-19.97, -12.73, -25.00) → (13.01, 12.27, 0.00) | (-20.50, -12.50, -24.50) → (12.98, 12.50, 0.00) | 0.53 mm or less |
-| `swivel_caster_30mm_wheel` | (-14.96, -7.80, -14.98) → (14.96, 7.80, 14.98) | (-14.99, -7.80, -15.00) → (15.00, 7.80, 15.00) | 0.04 mm or less |
+- `rear_caster_base_joint` puts `rear_caster_base_link` 76 mm behind and 4.5 mm above `chassis_link`. The macro draws `swivel_caster_30mm_base` 20 mm below that link, so the standoffs' tops lie 0.5 mm below the chassis plate's top face, inside the plate where the screws hold them.
+- `rear_caster_rotation_joint` puts the swivelling `rear_caster_rotation_link` 77 mm behind `chassis_link`, 1 mm behind the base link, at the same height. The macro draws `swivel_caster_30mm_wheel_support` 20 mm below it. So the swivel axis lies at x = -1 mm in the base's frame and at x = 0 in the fork's frame.
+- `rear_caster_wheel_joint` puts `rear_caster_wheel_link` 16 mm behind and 40 mm below the rotation link, on the fork's axle at x = -16 mm, z = -20 mm. `swivel_caster_30mm_wheel` is drawn at that link's origin.
 
 The wheel's lowest point is 0.2 mm below DiffBot's `base_footprint`, from the URDF's numbers.
 

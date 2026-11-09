@@ -39,19 +39,19 @@ TITLE = 'Wheel 65 mm for TT gear motors (DiffBot, Remo)'
 #   choice    not measured: an estimate that looks like the photos
 # z is along the axle (see the module docstring). Diameters as D_, radii are derived.
 # ---------------------------------------------------------------------------------------------
-TYRE_OUTER_FACE_Z = -13.0    # frame alignment: the reference wheel mesh's outer face
+TYRE_OUTER_FACE_Z = -13.0    # the outer face: 13 mm outboard of both robots' wheel joints
 
-# Tyre: a hollow section like a car tyre's (owner, photos p04-p09). The beads at its inner
+# Tyre: a hollow section like a car tyre's (the real tyre, p03-p09). The beads at its inner
 # diameter sit inside the rim, in the plain bands between the flanges and the outer ridges. The
 # sidewalls rise over the flanges and are widest halfway up, flush with the flanges' faces. The
 # crown is a little narrower. Inside, an arched channel spans the barrel's ridges and ribs
 TYRE_OUTER_D = 66.6          # measured on DiffBot: 66.3 and 66.8 (front_wheel.yaml)
 TYRE_BEAD_D = 49.4           # p07, p08: bead to tread 8.38 and 8.82 -> 66.6 - 2 x 8.6
 TYRE_BEAD_WIDTH = 1.8        # choice: the bead's base in the plain band (p37 sil.: band 2.0)
-# The sidewalls stand this far past the flanges' faces at their widest: flush, the owner says
-# (provenance: measurement 1)
-TYRE_BULGE = 0.0             # owner
-TYRE_WIDEST_D = 59.2         # owner: widest halfway between the flange (51.22) and the tread
+# The sidewalls stand this far past the flanges' faces at their widest: flush on the real
+# tyre, not measured (provenance: measurement 1)
+TYRE_BULGE = 0.0             # the real tyre
+TYRE_WIDEST_D = 59.2         # the real tyre: widest halfway between flange (51.22) and tread
 TYRE_CROWN_WIDTH = 18.6      # choice (shop photos): the tread between the shoulders' rounds
 TYRE_CROWN_DROP = 0.25       # choice (shop photos): the crown's edges below its middle
 # The channel's ceiling, from the tread's top (radial, tyre off the rim). Three readings, 5.77
