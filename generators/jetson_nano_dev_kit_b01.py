@@ -106,6 +106,14 @@ MODULE = (13.3, 32.4, 82.9, 77.4)  # u0, v0, u1, v1: 69.6 x 45
 MODULE_Z = (9.2, 10.2)
 MODULE_STANDOFFS = ((16.3, 75.4), (79.9, 75.4))
 MODULE_PAD = 5.6  # gold pads round the standoff holes on the module's top (photo)
+# Under the carrier (Waveshare's bottom photo): the standoffs' screws in holes with copper pads,
+# and the twelve unpopulated holes of the button header J50, pin 1 at u 49.71.
+CARRIER_SCREW_HOLE = 2.6
+CARRIER_SCREW_PAD = 5.8
+CARRIER_SCREW_HEAD = (4.0, 1.2)  # diameter, height
+J50_PINS = [(49.71 - 2.54 * k, 69.47) for k in range(12)]
+J50_HOLE = 1.0
+J50_PAD = 1.7
 SODIMM = (13.3, 28.0, 82.9, 36.6, 11.0)  # u0, v0, u1, v1, top z
 SODIMM_POSTS = ((11.0, 13.3), (82.9, 85.6))  # u ranges of the connector's end posts
 SODIMM_LATCHES = ((12.3, 13.1), (83.1, 83.9))  # u ranges of the metal latches, v to 54.1
@@ -184,21 +192,35 @@ Piece = Union[Part, Tuple[str, Surface]]
 # Parts
 # ---------------------------------------------------------------------------------------------
 def board_surface(u0: float, v0: float, u1: float, v1: float, z0: float, z1: float,
-                  radius: float, holes: Sequence[Tuple[float, float]],
-                  hole_diameter: float) -> Surface:
-    """Return a board's tessellated surface: a rounded rectangle with holes."""
+                  radius: float, holes: Sequence[Tuple[float, float, float]]) -> Surface:
+    """Return a board's tessellated surface: a rounded rectangle with holes (u, v, diameter)."""
     plate = cq.Workplane('XY', origin=((u0 + u1) / 2, (v0 + v1) / 2, z0)) \
         .rect(u1 - u0, v1 - v0).extrude(z1 - z0).edges('|Z').fillet(radius).val()
-    for u, v in holes:
-        plate = plate.cut(cylinder(hole_diameter / 2, (u, v, z0 - 1), (0, 0, 1), z1 - z0 + 2))
+    for u, v, diameter in holes:
+        plate = plate.cut(cylinder(diameter / 2, (u, v, z0 - 1), (0, 0, 1), z1 - z0 + 2))
     return tessellate_shape(plate, TOLERANCE, ANGULAR_TOLERANCE)
 
 
 def carrier() -> List[Piece]:
-    """Return the carrier board: black solder mask, FR-4 edges, unplated mounting holes."""
+    """Return the carrier board: black solder mask, FR-4 edges, holes and pads.
+
+    The mounting holes are bare. The holes of the module's standoff screws have copper pads
+    on the bottom face, the twelve unpopulated holes of the button header J50 pads on both.
+    """
+    plated = [(u, v, CARRIER_SCREW_HOLE) for u, v in MODULE_STANDOFFS] \
+        + [(u, v, J50_HOLE) for u, v in J50_PINS]
+    holes = [(u, v, HOLE_DIAMETER) for u, v in HOLES] + plated
     surface = board_surface(0.0, 0.0, BOARD_U, BOARD_V, 0.0, BOARD_THICKNESS, CORNER_RADIUS,
-                            HOLES, HOLE_DIAMETER)
-    return list(split_board(surface, 'solder_mask_black'))
+                            holes)
+    parts: List[Piece] = list(split_board(surface, 'solder_mask_black',
+                                          [(u, v) for u, v, _ in plated],
+                                          CARRIER_SCREW_HOLE / 2 + 0.1))
+    for u, v in MODULE_STANDOFFS:
+        parts.append(('gold', ring((u, v), CARRIER_SCREW_PAD, CARRIER_SCREW_HOLE, -0.03, 0.0)))
+    for u, v in J50_PINS:
+        for z0 in (-0.03, BOARD_THICKNESS):
+            parts.append(('gold', ring((u, v), J50_PAD, J50_HOLE, z0, z0 + 0.03)))
+    return parts
 
 
 def dc_jack() -> List[Piece]:
@@ -416,6 +438,29 @@ def module_chips() -> Dict[str, List[Piece]]:
     return {'memory': memory, 'module_power': power}
 
 
+def cross_head(u: float, v: float, z: float, diameter: float, height: float,
+               up: bool) -> cq.Shape:
+    """Return a pan head with a cross recess, its flat face on z, the head towards +z or -z."""
+    head = cq.Workplane('XY').circle(diameter / 2).extrude(height) \
+        .faces('>Z' if up else '<Z').edges().fillet(min(0.5, height / 2.5)) \
+        .translate((u, v, z if up else z - height)).val()
+    face = z + height if up else z - height
+    for du, dv in ((1.2, 0.25), (0.25, 1.2)):
+        head = head.cut(box(u - du, v - dv, face - 0.5, u + du, v + dv, face + 0.5))
+    return head
+
+
+def carrier_screws() -> List[Piece]:
+    """Return the screws that hold the module's standoffs, from below the carrier."""
+    diameter, height = CARRIER_SCREW_HEAD
+    screws: List[Piece] = []
+    for u, v in MODULE_STANDOFFS:
+        shank = cylinder(CARRIER_SCREW_HOLE / 2 - 0.1, (u, v, -0.01), (0, 0, 1), TOP + 3.0)
+        screws.append(('nickel', cross_head(u, v, 0.0, diameter, height, False).fuse(shank)
+                       .clean()))
+    return screws
+
+
 def module_mounting() -> Dict[str, List[Piece]]:
     """Return the module's brass standoffs and their cross-head screws."""
     standoffs: List[Piece] = []
@@ -565,12 +610,21 @@ def m2_slot() -> Dict[str, List[Piece]]:
 
 
 def solder_joints() -> List[Piece]:
-    """Return solder joints of the through-hole connectors under the carrier (approximate)."""
+    """Return the solder joints under the carrier.
+
+    Cones round the headers' tails, and approximate joints of the port connectors' pins.
+    """
     joints = []
     for u0, u1, front, back, _ in (DC_JACK, HDMI_DP, *USB_STACKS, RJ45):
         for u in (u0 + 1.0, u1 - 1.0):
             for v in (max(front, 0.0) + 2.0, back - 2.0):
                 joints.append(box(u - 0.6, v - 0.3, -1.4, u + 0.6, v + 0.3, 0.0))
+    u0, _, u1, _, _ = FAN_HEADER
+    fan_pins = [((u0 + u1) / 2 + 2.54 * (k - 1.5), FAN_PINS_V) for k in range(4)]
+    for u, v in [*GPIO_PINS, *POE_PINS, *POWER_SELECT_PINS, *fan_pins]:
+        joints.append(cq.Workplane('XY').polygon(8, 1.4).workplane(offset=0.8).polygon(8, 0.6)
+                      .loft(ruled=True).translate((u, v, -0.8)).mirror('XY', (0, 0, -0.4))
+                      .val())
     return [('tin', joint) for joint in joints]
 
 
@@ -613,7 +667,8 @@ def build() -> List[Model]:
     groups += list(module_soc().items()) + list(module_chips().items())
     groups += [('thermal_pad', thermal_pad()), ('heatsink', heatsink()),
                ('heatsink_screws', heatsink_screws())]
-    groups += list(module_mounting().items()) + list(headers().items())
+    groups += list(module_mounting().items()) + [('carrier_screws', carrier_screws())]
+    groups += list(headers().items())
     groups += [('fan_header', fan_header()), ('capacitors', capacitors()),
                ('camera_connector_j13', camera_connector(CAMERA_CENTRES_V[0])),
                ('camera_connector_j49', camera_connector(CAMERA_CENTRES_V[1]))]

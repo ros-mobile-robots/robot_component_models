@@ -51,7 +51,7 @@ Raspberry Pi's [licensing page](https://www.raspberrypi.com/licensing/) puts its
 
 ## Photo check
 
-The model was rendered through the camera of the Wikimedia Commons top photo (source 4) and compared with it: side by side, as a 50 % overlay and as outlines. The camera was fitted to the four mounting holes and the tips of the 40 GPIO and 4 PoE pins (8.5 mm above the board): they fit within 0.04 and 0.09 mm (RMS). Each part's top face was then resampled from the photo at 80 pixels per mm, and its edges were read by eye. The photo itself isn't part of this repository.
+The model was rendered through the camera of the Wikimedia Commons top photo (source 4) and compared with it: side by side, as a 50 % overlay and as outlines. The camera was fitted to the four mounting holes and the tips of the 40 GPIO and 4 PoE pins (8.5 mm above the board): they fit within 0.04 and 0.09 mm (RMS). Each part's top face was then resampled from the photo at 80 pixels per mm, and its edges were read by eye. The photo itself isn't part of this repository. No public photo of the Pi 4's bottom was found (Wikimedia Commons, Raspberry Pi's documentation), so the bottom follows the drawing only.
 
 Inside the board, every part's centre in the photo lies 0.1 to 0.45 mm towards +x and 0.25 to 0.55 mm towards -y of the drawing's position. J2's three holes, which the drawing locates exactly, show the same shift (0.39 and 0.50 mm). So the shift is the photo's, not the drawing's, and the positions follow the drawing. The table compares sizes (x along the 85 mm edge, y along the 56 mm edge):
 

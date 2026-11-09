@@ -18,7 +18,8 @@ Changelog for package robot_component_models
   centre pin and sleeve spring
 * Both boards with every part a named node, so viewers can show them exploded: the
   processors' dies under their lids, the wireless chip under its shield, and the Jetson
-  module's board, processor, memory and power parts, thermal pad, heatsink and screws
+  module's board, processor, memory and power parts, thermal pad, heatsink and screws, and
+  the screws, pads and plated holes under the carrier
 * Both boards checked against product photos, sizes and positions in the provenance pages:
   the Pi's processor lid, AV jack and flat cable connectors, the Jetson's black module, fan
   header, capacitors, J48, camera connectors and port widths after the photos

@@ -14,7 +14,7 @@ Each sub-part is a named node in the COLLADA and glTF files, so a viewer can mov
 
 - `carrier`
 - port row: `dc_jack`, `hdmi_dp`, `usb_stack_j32`, `usb_stack_j33`, `ethernet`, `micro_usb`, `power_led`
-- module: `sodimm_connector`, `module_board` (with its gold fingers), `module_sd_slot` under it, `soc_substrate` and `soc_die` (the processor), `memory`, `module_power` (a power management chip and two inductors), `module_standoffs`, `module_screws`
+- module: `sodimm_connector`, `module_board` (with its gold fingers), `module_sd_slot` under it, `soc_substrate` and `soc_die` (the processor), `memory`, `module_power` (a power management chip and two inductors), `module_standoffs`, `module_screws`, `carrier_screws` (the standoffs' screws from below the carrier)
 - heatsink: `thermal_pad`, `heatsink`, `heatsink_screws` (four M2 screws from below the module)
 - carrier parts: `gpio_header`, `poe_header`, `power_select_header` (J48), `fan_header` (J15), `capacitors`, `camera_connector_j13`, `camera_connector_j49`, `m2_slot`, `m2_standoff`, `solder_joints`
 
@@ -44,7 +44,7 @@ Independent check: the centres of the four standoff bores of Remo's printed Jets
 7. **Heatsink**: the dimensioned drawing and photos of "The Official Heatsink for Jetson Nano" (Waveshare part 21599, <https://www.waveshare.com/nano-heatsink.htm>, and the same drawing in Botland's listing, <https://botland.store/nvidia/21614-official-heatsink-for-jetson-nano-waveshare-21599.html>, image <https://cdn1.botland.store/img/art/inne/21614_5.jpg>). Outline 58.7 × 39.4 × 17.3 mm, the base 38.2 mm wide, four Ø2.7 mm fan holes 32 × 32 mm apart, 13.35 mm from the ends and 3.7 mm from the long edges, and the end view of the extruded profile. The photos show the black anodised finish and the flat flanges with the holes along both long edges, as on NVIDIA's B01 picture.
 8. **Fan holes, cross-check**: Noctua's FAQ, <https://www.noctua.at/cn/support/faqs/which-is-the-best-fan-for-the-nvidia-jetson-nano>: 40 mm fans fit the heatsink's holes (unthreaded, Ø2.5 mm there, where the drawing gives Ø2.7 mm). A 40 mm fan's holes are 32 mm apart.
 9. **Look of the connectors**: the B01 photo of source 6 shows the DisplayPort receptacle in a metal shell above the HDMI receptacle in a black housing with a metal frame round its opening, the USB shells with spring fingers in the top, the Ethernet shield and the brass-coloured module standoffs.
-10. **Waveshare's B01 photos**, on its product page <https://www.waveshare.com/jetson-nano-developer-kit-b01.htm>: the top view <https://www.waveshare.com/img/devkit/Jetson-Nano-Developer-Kit-B01/Jetson-Nano-Developer-Kit-B01-5_960.jpg> (960 × 720 pixels, about 6.7 pixels per mm) is the reference of the [photo check](#photo-check). It also shows the black module board with gold pads round its standoff holes, the black fan header J15 with its latch ramp, two electrolytic capacitors (560 µF, 6.3 V), the 2-pin header J48 and the camera connectors' solder tails on their inner side.
+10. **Waveshare's B01 photos**, on its product page <https://www.waveshare.com/jetson-nano-developer-kit-b01.htm>: the top view <https://www.waveshare.com/img/devkit/Jetson-Nano-Developer-Kit-B01/Jetson-Nano-Developer-Kit-B01-5_960.jpg> (960 × 720 pixels, about 6.7 pixels per mm) and the bottom view in the product gallery (800 × 800 pixels, about 5.7 pixels per mm) are the references of the [photo check](#photo-check). It also shows the black module board with gold pads round its standoff holes, the black fan header J15 with its latch ramp, two electrolytic capacitors (560 µF, 6.3 V), the 2-pin header J48 and the camera connectors' solder tails on their inner side.
 11. **Insides of the USB-A receptacles**: GCT's drawing of the stacked USB 3.0 Type-A receptacle USB1100, <https://gct.co/files/drawings/usb1100.pdf>, sheet 1. The opening 12.50 × 5.12 mm, the tongue 11.10 × 1.84 mm with its top 0.40 mm below the opening's top, the rear housing 10.25 mm behind the front, the ports 8.50 mm apart, the four USB 2.0 contacts (pairs 2.0 and 7.0 mm apart, about 0.95 mm wide, 0.35 mm below the tongue) and the five SuperSpeed contacts within 3.0 mm of the tongue's tip.
 12. **Insides of the HDMI receptacle**: Same Sky's drawings of the HDMI Type A receptacles HD05-19-TH-TR, <https://www.sameskydevices.com/product/resource/hd05-19-th-tr.pdf>, page 2 (the opening 14.00 × 4.55 mm, the tongue 10.80 × 0.90 mm centred in it, 10 contacts on its top face and 9 below at 1.00 mm, offset by 0.50 mm), and HD10-19-MSMT-TR, <https://www.sameskydevices.com/product/resource/hd10-19-msmt-tr.pdf>, page 2 (the insulator 6.80 mm behind the front, the tongue 4.80 mm long).
 13. **Insides of the DisplayPort receptacle**: JAE's drawing SJ108326 of the DisplayPort receptacle DP1RD20JQ1, in JAE's DP1 series catalog, page 6, as hosted by DigiKey: <https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/567/DP1_Series.pdf>. The opening 16.1 × 4.76 mm, the tongue 12 mm wide with its centre 0.5 mm off the opening's, 1.25 mm below the opening's top, its root 8.88 mm behind the front and 4.8 mm long, 20 contacts, the odd ones on its top face.
@@ -62,7 +62,6 @@ Board coordinates: u from the left edge (DC jack side), v from the port edge inw
 - **Heights**: heatsink top = 1.6 + (26.5 + 26.8) / 2 = 28.25 mm. With the data sheet's 30.21 mm total height, the solder tails reach 1.96 mm below the carrier.
 - **Holes**: the forum layout's (0, 0) to (86, 58), in a board from (-4, -17), gives u 4 and 90, v 17 and 75. The 40-pin header's pins at u 88.8 and 91.3 lie on the line of the right holes, as in that layout.
 - **Camera connectors (B01)**: in the CNX photo, the pin rows of the two connectors lie 7.8 to 22.1 mm and 33.0 to 46.2 mm from the back left hole along the left edge, scaled by the 58 mm between the two left holes. Centres at v ≈ 60.0 and 35.4.
-
 - **Heatsink underside (drawing of source 7)**: four M2 holes 33.43 × 14.9 mm apart, 21.74 mm from one end and 6.9 mm from one long edge of the 38.2 mm base. A 2.0 mm deep pocket with 4 mm corners over the first 18.95 mm from the same end. Between the holes, a square of about 11.5 mm marks the contact area over the processor, centred about 38.8 mm from that end and 12.1 mm from that edge (scaled from the drawing at 6.95 pixels per mm). The model puts that end at the 40-pin header's side (u 77.25) and that edge at the port side, which places the processor at (38.45, 50.7), the M2 holes at u 22.08 and 55.51, v 45.5 and 60.4, and the pocket over u 58.3 to 77.25.
 
 ## Photo check
@@ -83,6 +82,18 @@ The model was rendered through the camera of Waveshare's top photo (source 10) a
 | Heatsink | u 18.55 to 77.25, v 38.0 to 77.4 | within 0.4 mm | Drawing and user guide |
 | Module | black board, gold pads Ø5.6 mm round the standoff holes | black, pads about Ø5.8 mm | From the photo |
 
+The bottom view was mapped by the plane of the carrier's bottom face, fitted to the four mounting holes (exact), and compared the same way:
+
+| Part | Model (u, v in mm) | Photo | Result |
+|---|---|---|---|
+| 40-pin and PoE headers' tails | as on the top | within 0.3 mm | User guide, with solder cones round the tails |
+| Fan header J15's tails | pins at u 68.6 to 76.2, v 24.21 | within 0.7 mm | From the top photo |
+| Button header J50 | 12 holes Ø1.0 mm with Ø1.7 mm pads, pin 1 at u 49.71, v 69.47, 2.54 mm apart towards the DC jack | the same | From the photo, unpopulated as on the kit |
+| Module standoffs' screws | under the carrier at the standoffs, Ø4.0 mm heads, Ø5.8 mm copper pads | u 16.2 and 79.5, v 76.3 | The user guide's v 75.4 is kept: 76.3 would put the module's standoff holes (Ø2.8 mm) 0.1 mm from its back edge. Both photos read 75.6 to 76.3. |
+| M.2 standoff | (44.4, 57.25) | (42.7, 54.8), a press-fit standoff with a copper ring | The user guide's place is kept, in line with the M.2 slot, which neither photo shows on B01. |
+| Port connectors' solder joints | four approximate joints a connector | about 150 joints in groups | Simplified |
+| Coin cell holder J45 | not modelled | an unpopulated outline with two pads | Not modelled |
+
 ## Estimated or simplified
 
 - **Carrier thickness 1.6 mm** (not published), corner radius 1.0 mm.
@@ -99,8 +110,8 @@ The model was rendered through the camera of Waveshare's top photo (source 10) a
 - **Camera connectors**: two 15-pin flat cable connectors (21.9 × 6.8 × 2.5 mm) with a brown latch at the board's edge and their solder tails on the inner side. Their centres along the edge are read from the CNX photo (source 6), their sizes from Waveshare's (source 10).
 - **J48** is a 2-pin header without a jumper cap, its pins at u 12.99, v 16.58 and 19.12 mm (source 10). The B01's 12-pin button header J50 isn't modelled: its position isn't in the sources.
 - **Capacitors**: 8.0 mm high (estimated), Ø6.6 mm from the photo.
-- **Connector insides**: standard opening sizes, simplified tongues and contacts. The carrier's small surface parts aren't modelled: none are in the public drawings.
-- **Bottom**: the 40-pin, PoE and J48 tails and approximate solder joints under the port connectors.
+- **Small surface parts** of the carrier aren't modelled: none are in the public drawings.
+- **Bottom**: the header tails with solder cones, the module standoffs' screws with their pads, J50's twelve plated holes, and four approximate solder joints under each port connector.
 - **No M.2 card, fan or camera cables**: the kit as shipped.
 
 ## Measurements that would improve the model
@@ -109,3 +120,4 @@ The model was rendered through the camera of Waveshare's top photo (source 10) a
 - The module's height above the carrier and the base of the heatsink: calipers from the carrier to the module's edge.
 - A photo of the left edge, for the exact places of the two camera connectors, J48 and J50.
 - A photo of the module without its heatsink, for the processor's, memory's and power parts' places and sizes, and which end of the heatsink faces the 40-pin header.
+- A ruler photo of the kit without the module, for the module's standoffs and the M.2 slot on B01.
