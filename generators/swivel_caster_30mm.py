@@ -34,19 +34,19 @@ from generators.mesh_export import tessellate_faces
 TITLE = 'Swivel caster with a 30 mm wheel (DiffBot)'
 
 # ---------------------------------------------------------------------------------------------
-# Parameters, in mm. Frame values come from caster_wheel.yaml and the reference meshes' bounds,
-# the shapes from video frames of DiffBot's caster and Joy-IT's photos
+# Parameters, in mm. The joint and visual offsets come from DiffBot's caster_wheel.yaml and caster
+# macro, the shapes from video frames of DiffBot's caster and Joy-IT's photos
 # (provenance/swivel_caster_30mm.md).
 # ---------------------------------------------------------------------------------------------
 SWIVEL_AXIS_X = -1.0          # in the base's frame: hub joint dx -0.077 minus base dx -0.076
-STANDOFF_TOP_Z = 15.0         # frame alignment: the reference base's top
+STANDOFF_TOP_Z = 15.0         # the standoffs' top: on DiffBot 0.5 mm below the chassis plate's top
 STANDOFF_LENGTH = 10.0        # brass hex standoffs between chassis and plate (video frames)
 STANDOFF_ACROSS_FLATS = 5.0   # hexagonal M3 standoff
 STANDOFF_CHAMFER = 0.3        # the hexagon's end edges (choice)
 # The M3 internal thread at the chassis end, shown as a smooth blind bore of the tapping
 # diameter, without a thread profile (choice)
 STANDOFF_THREAD = (2.5, 3.0)  # diameter, depth
-PLATE_SIZE = (32.0, 38.0)     # x, y: the reference base's footprint
+PLATE_SIZE = (32.0, 38.0)     # x, y: the plate's footprint
 PLATE_THICKNESS = 1.5
 PLATE_CORNER_RADIUS = 3.0
 PLATE_HOLES = (12.0, 15.0)    # hole centres at (+-x, +-y) from the swivel axis
@@ -64,7 +64,7 @@ RIVET_HEAD_TOP = (6.5, 1.2)   # domed head on the plate's top: diameter, height
 # about 0.46 of it: on the r 10 mm disc r 5.7 and r 4.6
 RACE_CAP = ((5.7, 0.0), (5.7, 0.4), (5.2, 0.8), (4.9, 0.8), (4.8, 1.2), (4.7, 1.2))
 RIVET_HEAD_BOTTOM_RADIUS = 4.6  # the large flat rivet head (video frames)
-RIVET_BOTTOM_Z = -3.3         # frame alignment: the reference base's lowest point
+RIVET_BOTTOM_Z = -3.3         # the flat rivet head's bottom, the base's lowest point
 
 # The fork's top disc sits inside the race's outer lip, about three quarters of its diameter,
 # and the arms leave the disc's sides (video frames)
@@ -84,7 +84,7 @@ AXLE_WASHER = (3.75, 0.6)     # radius, thickness
 AXLE_HEAD = (3.0, 1.4)        # domed rivet head on each side: radius, height
 
 WHEEL_RADIUS = 15.0           # caster_wheel.yaml: radius 0.015
-WHEEL_HALF_WIDTH = 7.8        # hub width 15.6 mm (frame alignment)
+WHEEL_HALF_WIDTH = 7.8        # hub width 15.6 mm, 0.8 mm clear of each fork arm
 TREAD_HALF_WIDTH = 6.0
 TREAD_ROUND = 3.0             # crowned tread (video frames)
 WHEEL_DISH = (5.5, 10.5, 5.0)  # recessed side: hub radius, dish outer radius, dish face |y|

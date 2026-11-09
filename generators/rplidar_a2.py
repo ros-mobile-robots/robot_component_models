@@ -32,7 +32,7 @@ TITLE = '360 degree laser scanner, RPLIDAR A2 size'
 # Parameters, in mm. Datasheet values are marked (DS), values read off the drawing's scale
 # (drawing) and choices (choice).
 # ---------------------------------------------------------------------------------------------
-BOTTOM_Z = -29.85            # frame alignment: the reference mesh's bottom
+BOTTOM_Z = -29.85            # the bottom: the origin lies in the laser band (window at +0.95)
 BASE_DIAMETER = 75.70        # DS
 BASE_HEIGHT = 18.60          # DS
 BASE_CHAMFER = 0.8           # choice
