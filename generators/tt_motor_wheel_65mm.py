@@ -36,6 +36,8 @@ TITLE = 'Wheel 65 mm for TT gear motors (DiffBot, Remo)'
 #   p37 sil.  the silhouette of side photo 37, scaled with the 25.00 flange to flange (p40)
 #   p41 img.  face-on photo 41, 25.7 px/mm from its own 51.25 reading
 #   video     video frames of DiffBot's wheel
+#   measured  caliper measurement of the real wheel, without a photo
+#   derived   follows from other values in this file
 #   choice    not measured: an estimate that looks like the photos
 # z is along the axle (see the module docstring). Diameters as D_, radii are derived.
 # ---------------------------------------------------------------------------------------------
@@ -95,20 +97,20 @@ LIP_END = 2.4                # choice: depth of the ring's inner edge behind the
 LIP_BACK = 3.2               # choice: where the ring's back meets the barrel's inside
 
 # Hub, outer face: a bowl recessed into the spokes' flat central face, its edge in that face
-# (no raised ring), the boss standing in it below the face (p21, p23, p24, p41). The depths are
-# estimated on the oblique photo p24, scaled with the bowl's 17.62 (provenance: measurement 3)
+# (no raised ring), the boss standing in it below the face (p21, p23, p24, p41)
 BOSS_D = 9.69                # p23
 BOSS_CHAMFER = 0.3           # choice
 BOWL_EDGE_D = 17.9           # p41 img.: the bowl's edge in the spokes' face
 BOWL_D = 17.62               # p21: inside jaws in the bowl at about the boss's top
 # Below that the wall rounds into the floor: p20 reads 14.07 with the jaws deeper in the bowl
 BOWL_FLOOR_D = 13.8          # p41 img.: the wall's foot at r 6.9
-BOWL_DEPTH = 2.8             # p24 img. (2.7 to 3.4): the floor behind the spokes' face
-BOSS_TOP_DEPTH = 1.2         # p24 img. (1.0 to 2.2): the boss's top behind the spokes' face
+BOWL_DEPTH = 5.0             # measured: the floor behind the spokes' face
+BOSS_TOP_DEPTH = 3.0         # measured: the boss's top behind the spokes' face
+BOWL_FLOOR = 1.2             # choice: the floor's thickness, to the cup's back on the motor side
+BOSS_CAP = 0.8               # choice: the boss's closed top (photos), down to the bore's end
 BOWL_EDGE_ROUND = 0.2        # choice
 BOSS_FILLET = 0.3            # choice: where the boss meets the floor
 CUP_D = 20.64                # p24: the bowl's outside behind the face, between the spokes
-CUP_BACK_DEPTH = 5.2         # choice: the cup's back on the motor side, the floor 1.2 thick
 HUB_PINS = 4                 # p41 img.: four small pins on the bowl's floor, 90 deg apart
 HUB_PIN_R = 6.15             # p41 img.
 HUB_PIN_D = 0.9              # p41 img.
@@ -147,7 +149,6 @@ HUB_TUBE_FILLET = 1.0        # choice
 HUB_TUBE_CHAMFER = 0.5       # choice
 BORE_D = 5.44                # p14: the round side; p12, p13 tube wall 2.10 and 2.34
 BORE_FLATS = 3.66            # listings (X2 Robotics, VXB); not measured
-BORE_BOTTOM_DEPTH = 3.2      # choice: blind, the boss's top is closed (photos)
 FIN_THICKNESS = 1.51         # p31
 FIN_TOP_DEPTH = 15.26        # video, p32: the fins reach about half way up the tube
 FIN_OUTER_R = 20.0           # p32: the fins run out along the spokes
@@ -162,7 +163,10 @@ FIN_TOP_Z = RIM_FACE_Z + FIN_TOP_DEPTH
 SPOKE_FACE_Z = RIM_FACE_Z + SPOKE_FACE_DEPTH
 SPOKE_PLATE_BACK_Z = SPOKE_FACE_Z + SPOKE_PLATE
 HUB_BACK_Z = RIM_FACE_Z + HUB_BACK_DEPTH
-CUP_BACK_Z = RIM_FACE_Z + CUP_BACK_DEPTH
+BOSS_TOP_Z = SPOKE_FACE_Z + BOSS_TOP_DEPTH
+BOWL_FLOOR_Z = SPOKE_FACE_Z + BOWL_DEPTH
+CUP_BACK_Z = BOWL_FLOOR_Z + BOWL_FLOOR         # the cup's back on the motor side
+BORE_END_Z = BOSS_TOP_Z + BOSS_CAP             # the blind bore's end inside the boss
 
 # Tessellation: chordal deviation (mm) and angle (rad)
 LINEAR_DEFLECTION = 0.03
@@ -475,10 +479,12 @@ def spoke(angle: float) -> cq.Workplane:
            .center((SPOKE_ROOT_RADIUS + FIN_OUTER_R) / 2, 0)
            .rect(FIN_OUTER_R - SPOKE_ROOT_RADIUS, SPOKE_WEB_WIDTH)
            .extrude(HUB_BACK_Z - SPOKE_PLATE_BACK_Z + 0.1))
+    # The fin starts inside the cup's wall and behind the bowl's floor, so it stays out of the bowl
+    cup_wall, tube = CUP_D / 2 - 0.2, HUB_TUBE_D / 2 - 0.2
     fin = (cq.Workplane('XZ', origin=(0, FIN_THICKNESS / 2, 0))
-           .polyline([(HUB_TUBE_D / 2 - 0.2, HUB_BACK_Z - 0.2),
-                      (FIN_OUTER_R, HUB_BACK_Z - 0.2),
-                      (HUB_TUBE_D / 2 - 0.2, FIN_TOP_Z)]).close().extrude(FIN_THICKNESS))
+           .polyline([(cup_wall, HUB_BACK_Z - 0.2), (FIN_OUTER_R, HUB_BACK_Z - 0.2),
+                      (tube, FIN_TOP_Z), (tube, CUP_BACK_Z - 0.2),
+                      (cup_wall, CUP_BACK_Z - 0.2)]).close().extrude(FIN_THICKNESS))
     web = web.union(fin).rotate((SPOKE_ROOT_RADIUS, 0, 0), (SPOKE_ROOT_RADIUS, 0, 1), lean)
     blends = [root_blend((SPOKE_ROOT_RADIUS, SPOKE_ROOT_EDGES[i]),
                          (SPOKE_TIP_RADIUS, SPOKE_TIP_EDGES[i]), side)
@@ -533,15 +539,17 @@ def hub() -> cq.Workplane:
     """
     face = SPOKE_FACE_Z
     boss, edge, bowl, floor_r = BOSS_D / 2, BOWL_EDGE_D / 2, BOWL_D / 2, BOWL_FLOOR_D / 2
-    boss_top, floor_z = face + BOSS_TOP_DEPTH, face + BOWL_DEPTH
+    boss_top, floor_z = BOSS_TOP_Z, BOWL_FLOOR_Z
     cup, collar, tube = CUP_D / 2, HUB_COLLAR_D / 2, HUB_TUBE_D / 2
     collar_top = CUP_BACK_Z + HUB_COLLAR_HEIGHT
     if not boss + BOSS_FILLET < floor_r < bowl <= edge < cup:
         raise ValueError('the bowl needs boss < floor < wall <= edge < cup')
     if not face < boss_top < floor_z < CUP_BACK_Z:
         raise ValueError("the boss's top must lie between the face and the floor")
-    if not boss_top + 0.5 < RIM_FACE_Z + BORE_BOTTOM_DEPTH < CUP_BACK_Z:
+    if not boss_top < BORE_END_Z < CUP_BACK_Z:
         raise ValueError('the bore must end inside the boss, behind its top')
+    if not collar_top < FIN_TOP_Z:
+        raise ValueError("the fins must reach up the tube, past the collar's top")
     wall = unit(edge - bowl, face - boss_top)            # up the wall's straight part
     return revolve_path((0, boss_top), [
         ('line', (boss - BOSS_CHAMFER, boss_top)), ('line', (boss, boss_top + BOSS_CHAMFER)),
@@ -566,15 +574,13 @@ def make_rim() -> cq.Workplane:
            .circle(CUP_D / 2 - 0.2).extrude(SPOKE_PLATE_BACK_Z - SPOKE_FACE_Z))
     rim = union_all([barrel(), ribs(), hub(), web,
                      *[spoke(360.0 * k / SPOKES) for k in range(SPOKES)]])
-    bottom = RIM_FACE_Z + BORE_BOTTOM_DEPTH
-    bore = (cq.Workplane('XY', origin=(0, 0, bottom)).circle(BORE_D / 2)
-            .extrude(HUB_TUBE_END_Z - bottom + 1)
-            .intersect(cq.Workplane('XY', origin=(0, 0, bottom))
-                       .rect(BORE_FLATS, BORE_D + 1).extrude(HUB_TUBE_END_Z - bottom + 1)))
+    bore_length = HUB_TUBE_END_Z - BORE_END_Z + 1
+    bore = (cq.Workplane('XY', origin=(0, 0, BORE_END_Z)).circle(BORE_D / 2).extrude(bore_length)
+            .intersect(cq.Workplane('XY', origin=(0, 0, BORE_END_Z))
+                       .rect(BORE_FLATS, BORE_D + 1).extrude(bore_length)))
     rim = rim.cut(bore)
     # Small pins on the bowl's floor, a recessed mark on each spoke
-    floor_z = SPOKE_FACE_Z + BOWL_DEPTH
-    pads = union_all([cq.Workplane('XY', origin=(HUB_PIN_R, 0, floor_z - HUB_PIN_HEIGHT))
+    pads = union_all([cq.Workplane('XY', origin=(HUB_PIN_R, 0, BOWL_FLOOR_Z - HUB_PIN_HEIGHT))
                       .circle(HUB_PIN_D / 2).extrude(HUB_PIN_HEIGHT + 0.01)
                       .rotate((0, 0, 0), (0, 0, 1), HUB_PIN_ANGLE + 360.0 * k / HUB_PINS)
                       for k in range(HUB_PINS)])
