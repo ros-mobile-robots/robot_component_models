@@ -333,28 +333,28 @@ parts:
         materials: [rim, tyre]
         files:
           tt_motor_wheel_65mm/tt_motor_wheel_65mm.stl:
-            sha256: e0d434d2009d111edc58cdf9f1e78eeb80dcc429f246814ad19aad580ea7f7c0
-            bytes: 2885884
+            sha256: 688a84c5b46b8fe8d428df174ecf904048f5db4c756a8b107decc7c459807c04
+            bytes: 2904284
             units: metre
             up_axis: "Z"
-            triangles: 57716
+            triangles: 58084
             bounding_box_min: [-0.033299, -0.033298, -0.013000]
             bounding_box_max: [0.033299, 0.033298, 0.015420]
             license_file: tt_motor_wheel_65mm/tt_motor_wheel_65mm.stl.license
           tt_motor_wheel_65mm/tt_motor_wheel_65mm.dae:
-            sha256: 2097303223bae7a55d84b837a5ae73503a39dcc320635616942bb1d0db83ddf3
-            bytes: 3404929
+            sha256: 01a2aff8e7248455747902805d49f8641a2fdfdd9c71df048a4eb412d5a9785a
+            bytes: 3426516
             units: metre
             up_axis: "Z"
-            triangles: 57716
+            triangles: 58084
             bounding_box_min: [-0.033299, -0.033298, -0.013000]
             bounding_box_max: [0.033299, 0.033298, 0.015420]
           tt_motor_wheel_65mm/tt_motor_wheel_65mm.glb:
-            sha256: c7825c0be5faff42eb13b6f6d85f4f722749bf3b105608bfd7b01adb14937213
-            bytes: 1431804
+            sha256: b2a89824711bbce4495da094b15f552775fa42a00effc5df2672f04b6350c00a
+            bytes: 1442844
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
-            triangles: 57716
+            triangles: 58084
             bounding_box_min: [-0.033299, -0.033298, -0.013000]
             bounding_box_max: [0.033299, 0.033298, 0.015420]
             license_file: tt_motor_wheel_65mm/tt_motor_wheel_65mm.glb.license

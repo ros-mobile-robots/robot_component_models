@@ -48,6 +48,7 @@ TYRE_OUTER_FACE_Z = -13.0    # the outer face: 13 mm outboard of both robots' wh
 TYRE_OUTER_D = 66.6          # measured on DiffBot: 66.3 and 66.8 (front_wheel.yaml)
 TYRE_BEAD_D = 49.4           # p07, p08: bead to tread 8.38 and 8.82 -> 66.6 - 2 x 8.6
 TYRE_BEAD_WIDTH = 1.8        # choice: the bead's base in the plain band (p37 sil.: band 2.0)
+TYRE_BEAD_LIP = 0.74         # p03: the bead lip's thickness where it touches the rim
 # The sidewalls stand this far past the flanges' faces at their widest: flush on the real
 # tyre, not measured (provenance: measurement 1)
 TYRE_BULGE = 0.0             # the real tyre
@@ -322,8 +323,9 @@ def tyre_body() -> cq.Workplane:
     """Return the tyre without tread grooves: beads in the rim, sidewalls, crown and channel.
 
     Each bead's base sits in a plain band next to its flange, held between the flange and the
-    outer ridge (its diameter is less than both). From the bead's inner flank the channel's
-    ceiling arches over the three ridges.
+    outer ridge (its diameter is less than both). At the base's inner end the bead lip, as thick
+    as measured, rises to the channel's side, and the channel's ceiling arches over the three
+    ridges.
     """
     r_seat, r_bead = FLANGE_D / 2 + TYRE_SEAT_GAP, TYRE_BEAD_D / 2
     f, i, c = RIM_FACE_Z, RIM_INNER_FACE_Z, TYRE_CENTRE_Z
@@ -335,15 +337,19 @@ def tyre_body() -> cq.Workplane:
     corner_in = (side, c + TYRE_CHANNEL_WIDTH / 2)
     if not RIDGE_D / 2 + TYRE_SEAT_GAP < side < apex:
         raise ValueError("the channel's ceiling must clear the ridges and rise to the middle")
+    lip = r_bead + TYRE_BEAD_LIP
+    if not lip < side:
+        raise ValueError("the bead lip must stay below the channel's ceiling")
     ridge_flank = f + RIDGE_CENTRES[0] - RIDGE_BASE / 2
     if heel_out > ridge_flank or corner_out[1] > f + RIDGE_CENTRES[0] - RIDGE_TOP / 2:
         raise ValueError('the bead and the channel must stay outside the outer ridge')
     return revolve_path(tyre_foot(0.0), [
         *tyre_outer_pieces(0.0),
         ('line', (r_seat, i - FLANGE_TOP)),
-        ('line', (r_bead, toe_in)), ('line', (r_bead, heel_in)), ('line', corner_in),
+        ('line', (r_bead, toe_in)), ('line', (r_bead, heel_in)), ('line', (lip, heel_in)),
+        ('line', corner_in),
         ellipse((side, c), apex - side, TYRE_CHANNEL_WIDTH / 2, 90, -90, 24),
-        ('line', (r_bead, heel_out)), ('line', (r_bead, toe_out)),
+        ('line', (lip, heel_out)), ('line', (r_bead, heel_out)), ('line', (r_bead, toe_out)),
         ('line', (r_seat, f + FLANGE_TOP))])
 
 
