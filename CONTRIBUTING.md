@@ -13,13 +13,13 @@ Every model here is the project's own work, under this repository's [license](LI
 - Model each part from scratch, from public facts about the physical product: datasheets, mechanical drawings, product photos, standards such as the 0.1 in pin pitch, and your own measurements and photos.
 - Record every source in the part's page in `provenance/`: the document, its page or figure, and the values taken from it. Link public documents and photos. Don't copy them into the repository.
 - Never import, convert, trace, sample or otherwise derive geometry from an existing third-party 3D model, and don't download vendor or third-party 3D models for the work.
-- When a model has to fit the frame of an existing reference mesh, read only what places it: the reference's bounding box, origin and axis directions, or the positions of attachment features such as mounting holes. Write a frame-alignment line in the provenance page: what was read, and the numbers.
+- Document each mesh's origin, axes, units and consuming joints in its Frame section. If an existing model must be inspected so that a mesh fits a robot's frame, limit the inspection to the placement information needed: its bounding box, origin and axis directions, or the positions of attachment features such as mounting holes. Keep the source's identity, the measurements and comparisons in the pull request's review.
 - No logos, brand names or printed text on the models. Generic shapes of connectors and chips are fine.
 
 ## Adding or changing a part
 
 1. Choose the part's identifier, lowercase snake_case after the product, such as `rplidar_a2` (see the README's file name rules). Write or change the generator `generators/<part>.py`. Parameters go at the top, each with its source. `build()` returns the part's meshes as `mesh_export.Model` objects, in millimetres, with named sub-parts and materials. The export writes the files in metres. Add a new part to `PARTS` in `generators/__init__.py`.
-2. Write or update `provenance/<part>.md`: sources, frame, frame alignment, what is simplified or estimated, and which measurements would help.
+2. Write or update `provenance/<part>.md`: sources, the Frame section, what is simplified or estimated, and which measurements would help.
 3. Regenerate and check, with the pinned Python packages (see the README):
 
    ```bash

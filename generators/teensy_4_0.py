@@ -30,7 +30,8 @@ PITCH = 2.54
 BOARD_L, BOARD_W, BOARD_T = 35.56, 17.78, 1.57  # PJRC drawing: 1.4 x 0.7 in, 1.57 mm thick
 CORNER_R = 0.4
 # Placement in the frame: the far end (opposite the USB connector) at x = FAR_END_X and the
-# board's centre line at y = CENTRE_Y (frame alignment, see provenance/teensy_4_0.md)
+# board's centre line at y = CENTRE_Y. With Remo's mcu_joint and the Raspberry Pi deck's
+# breadboard_joint, the header pins then lie in the breadboard's holes (provenance/teensy_4_0.md)
 FAR_END_X, CENTRE_Y = 21.631, -0.032
 HOLE_D = 0.965  # PJRC: finished hole diameter 0.965 mm, 34 locations
 PAD_D, PAD_T = 1.9, 0.035  # plated ring around each hole, top and bottom

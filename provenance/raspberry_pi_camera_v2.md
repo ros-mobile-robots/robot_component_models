@@ -12,15 +12,11 @@ Generator: [`generators/raspberry_pi_camera_v2.py`](../generators/raspberry_pi_c
 
 ## Frame
 
-The files are in metres. Positions on this page are in millimetres. The board stands in the yz plane with its back face at x = -1.645 mm and the lens looking along +x. The board's edges are at y = -12.16 mm and z = -12.283 mm. The mounting holes are at (y, z) = (-10.16, -10.283), (-10.16, 2.217), (10.84, -10.283) and (10.84, 2.217) mm, where the screws of Remo's printed holder go. The edge 2 mm from the holes is at -z. The ribbon connector's edge is at +z, on the back.
+The files are in metres. Positions on this page are in millimetres. The board stands in the yz plane with its back face at x = -1.645 mm and the lens looking along +x. The board's edges are at y = -12.16 mm and z = -12.283 mm. The mounting holes are at (y, z) = (-10.16, -10.283), (-10.16, 2.217), (10.84, -10.283) and (10.84, 2.217) mm. The edge 2 mm from the holes is at -z. The ribbon connector's edge is at +z, on the back.
 
-**Frame alignment:** the reference camera mesh's bounding box, (-1.645, -12.160, -12.283) to (18.269, 12.840, 12.109) mm, and the positions of its board's back face, edges and mounting holes were read to position the model. This model spans (-4.145, -12.160, -12.283) to (4.575, 12.840, 11.579) mm:
+The model spans (-4.145, -12.160, -12.283) to (4.575, 12.840, 11.579) mm: from the ribbon connector on the back to the camera module on the front. The camera module's centre is at (y, z) = (0.34, 2.12) mm.
 
-- The back reaches 2.5 mm further than the reference, to the ribbon connector.
-- The front ends 13.7 mm short of the reference: the v2's small camera module, where the reference has a large lens.
-- The top is 0.53 mm lower: the drawing's 23.862 mm board.
-
-The camera module's centre is at (y, z) = (0.34, 2.12) mm.
+In [Remo's description](https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/remo.urdf.xacro), `camera_joint` attaches `camera_link` to `raspi-cam_link`, the frame of the printed camera holder, 5 mm in front of it and 28 mm above it, tilted by 0.35 rad about y. There, the holder's plate is 0.8 mm behind the board's back face. The holder's screw bores and the board's mounting holes don't line up (see "Simplified or estimated"). `camera_link` is also the frame of the simulated camera in Gazebo.
 
 ## Sources
 
@@ -44,8 +40,9 @@ Drawing coordinates: a from the edge next to the holes (along +z), b from the dr
 - Small parts are plain boxes. No traces, no silkscreen and no protective lens sticker.
 - The module's flex is a black strip with an orange edge between the module and its connector.
 - On Remo, some back parts reach into the printed holder's plate: the ribbon connector's lowest 0.9 mm by up to 1.2 mm, and three ICs by 0.2 mm. They are hidden inside the plate in every view.
+- On Remo, the printed holder's four screw bores lie about 2 mm from the board's mounting holes: 1.9 mm towards +z and 0.4 mm towards -y, in the mesh's frame. The mesh shows where the camera sits, not a screw fit.
 
 ## Measurements that would improve the model
 
-1. A side photo of the camera on Remo's holder: whether the board sits flat on the holder's plate or on its corner blocks, and where the ribbon connector is.
+1. A side photo of the camera on Remo's holder: whether the board sits flat on the holder's plate or on its corner blocks, where the screws sit and where the ribbon connector is.
 2. Calipers on the module's height and on the ribbon connector's height.
