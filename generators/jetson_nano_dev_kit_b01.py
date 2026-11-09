@@ -118,9 +118,9 @@ CAMERA = (1.0, 7.5, 20.8, 2.5)  # u0, u1, length along v, height
 M2_SLOT = (71.0, 46.6, 76.6, 67.6, 4.2)  # J18, Key E: u0, v0, u1, v1, height
 M2_STANDOFF = (44.4, 57.25)
 
-# Frame of Remo's reference Jetson Nano mesh (only its bounding box, origin and axes were
-# read): the carrier lies in x -28.982 ... 71.018 and y -38.847 ... 40.153 with the ports at +y,
-# the 40-pin header at -x and z = 0 at the carrier's bottom face. So (u, v) maps to
+# The mesh's frame: the carrier lies in x -28.982 ... 71.018 and y -38.847 ... 40.153 with the
+# ports at +y, the 40-pin header at -x and z = 0 at the carrier's bottom face. Remo's
+# jetson_nano_joint then puts the mounting holes on the deck's standoff bores. So (u, v) maps to
 # (71.018 - u, 40.153 - v): a turn by 180 degrees about z and a shift.
 BOARD_TO_MESH = (71.018, 40.153)
 

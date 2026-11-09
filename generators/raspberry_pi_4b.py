@@ -314,10 +314,11 @@ SMALL_PARTS_BOTTOM = """
     4.25 18.50 7.15 20.10
 """
 
-# Frame of Remo's reference Raspberry Pi mesh (only its bounding box, origin and axes were read):
-# the board lies in x -7.569 ... 48.431 and y -42.123 ... 42.877, the USB and Ethernet end at +y,
-# the GPIO header along -x, z = 0 in the board's mid-plane. So (x, y) of the drawing maps to
-# (48.431 - y, x - 42.123): a turn by +90 degrees about z and a shift.
+# The mesh's frame: the board lies in x -7.569 ... 48.431 and y -42.123 ... 42.877, the USB and
+# Ethernet end at +y, the GPIO header along -x, z = 0 in the board's mid-plane. Remo's rpi_joint
+# then puts the mounting holes on the deck's standoff bores and the mid-plane on their tops.
+# So (x, y) of the drawing maps to (48.431 - y, x - 42.123): a turn by +90 degrees about z and
+# a shift.
 BOARD_TO_MESH = (48.431, -42.123)
 
 
