@@ -31,7 +31,7 @@ The origin lies on the head's rotation axis, in the scan plane: 42 mm above the 
 
 The head turns when the scanner runs, so the window's direction in the mesh is a choice. The model draws the window's middle, between the two openings, towards -x, the motor's side.
 
-No robot description uses this mesh yet. The axes follow the RPLIDAR A2 model's: +x points to the scanner's 0° direction, away from the motor here and away from the cable on the A2. So a description attaches both scanners alike. [rplidar_ros](https://github.com/Slamtec/rplidar_ros) publishes the scan in a frame whose +x points to the scanner's 180° direction, towards the A1's motor, and DiffBot's and Remo's `rplidar_laser_link` is that frame. The `rplidar_laser_link`'s visual turns the mesh by π about z, as for the A2. Remo's printed platform for the A1 holds the scanner with its motor towards the robot's front, so `rplidar_laser_joint` keeps a yaw of 0 there, and the window faces the robot's front.
+No robot description uses this mesh yet. The axes follow the RPLIDAR A2 model's: +x points to the scanner's 0° direction, away from the motor here and away from the cable on the A2. So a description attaches both scanners alike. [rplidar_ros](https://github.com/Slamtec/rplidar_ros) publishes the scan in a frame whose +x points to the scanner's 180° direction, towards the A1's motor, and DiffBot's and Remo's `rplidar_laser_link` is that frame. The `rplidar_laser_link`'s visual turns the mesh by π about z, as for the A2. Remo's printed platform for the A1 holds the scanner with its motor towards the robot's front, so `rplidar_laser_joint` has a yaw of 0 there, and the window faces the robot's front.
 
 ## Sources
 
