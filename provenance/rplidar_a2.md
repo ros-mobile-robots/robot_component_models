@@ -12,16 +12,11 @@ Generator: [`generators/rplidar_a2.py`](../generators/rplidar_a2.py).
 
 ## Frame
 
-The files are in metres. Positions on this page are in millimetres. The rotation axis runs along z at x = y = 0. The bottom is at z = -29.85 mm, so the optical window's centre is at z = +0.95 mm. The window faces +x and the cable exit is at -x. Both robots turn the mesh by π about z (visual yaw π in a link with joint yaw π), so the window faces the robot's front.
+The files are in metres. Positions on this page are in millimetres.
 
-**Frame alignment:** the reference scanner mesh's bounding box was read to position the model:
+The origin lies on the scanner's rotation axis, 29.85 mm above its bottom. +z points to the top, +x towards the optical window, and the cable exit is at -x. The bottom is at z = -29.85 mm, the top at z = +10.95 mm. The optical window's centre is at z = +0.95 mm, in the middle of the 6 mm laser band, so the origin lies in the laser band.
 
-| | min (mm) | max (mm) |
-|---|---|---|
-| Reference mesh | (-40.84, -37.51, -29.85) | (38.17, 37.50, 10.95) |
-| This model | (-40.85, -37.85, -29.85) | (37.85, 37.85, 10.95) |
-
-The height, 40.80 mm, and the bottom are the reference's. The radius is 0.35 mm larger in y, from the datasheet's Ø75.70 mm.
+In [DiffBot's](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_description/urdf/include/common_sensors.xacro) and [Remo's](https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/remo.urdf.xacro) descriptions, `rplidar_laser_joint` attaches `rplidar_laser_link` to `chassis_link` (DiffBot, 40 mm above it) and to `lidar_platform_link` (Remo, 70 mm above it). Both turn the joint and the visual by π about z, so the window faces the robot's front. `rplidar_laser_link` is also the frame of the simulated laser in Gazebo, so its scan plane passes through the window.
 
 ## Sources
 

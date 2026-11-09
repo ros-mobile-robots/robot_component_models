@@ -27,7 +27,8 @@ NAME = 'breadboard_400_point'
 PITCH = 2.54
 # The hole grid. CHANNEL_X: the centre channel's middle. COLUMN_Y0: the y of one hole column.
 # The others follow at PITCH. Both put the Teensy's and the BNO055's header pins, at their
-# URDF positions, into holes (provenance/breadboard_400_point.md, "Hole grid").
+# URDF positions with the Raspberry Pi deck, into holes (provenance/breadboard_400_point.md,
+# "Hole grid").
 CHANNEL_X = -0.16
 COLUMN_Y0 = -0.335
 FIRST_COLUMN = -16  # the 30 columns are COLUMN_Y0 + PITCH * n, n = FIRST_COLUMN ... + 29
