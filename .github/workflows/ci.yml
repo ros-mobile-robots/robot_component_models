@@ -1,0 +1,128 @@
+# SPDX-FileCopyrightText: 2026 ROS Mobile Robots
+# SPDX-License-Identifier: BSD-3-Clause
+# Checks of the meshes, their generators and the ROS package. Every job runs in a container,
+# so the same commands give the same result locally with docker (see CONTRIBUTING.md).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # The meshes are reproducible in this image: Ubuntu 24.04 with Python 3.12.3 and glibc 2.39
+  regenerate:
+    name: Regenerate meshes
+    runs-on: ubuntu-24.04
+    container: ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852
+    steps:
+      - name: Install Python and the libraries OCP loads
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends python3 python3-venv ca-certificates git \
+            libgl1 libxrender1 libxext6 libsm6 libice6 libegl1
+      - uses: actions/checkout@v7
+      - name: Install the pinned Python packages
+        run: python3 -m venv /opt/venv && /opt/venv/bin/pip install -r generators/requirements.txt
+      - name: Regenerate and compare with the manifest, first run
+        run: /opt/venv/bin/python -m generators --check --keep regenerated/first
+      - name: Regenerate and compare with the manifest, second run
+        run: /opt/venv/bin/python -m generators --check --keep regenerated/second
+      - name: Keep the regenerated files of a failed run
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: regenerated-meshes
+          path: regenerated
+
+  meshes:
+    name: Mesh checks
+    runs-on: ubuntu-24.04
+    container: ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852
+    steps:
+      - name: Install Python and the libraries OCP loads
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends python3 python3-venv ca-certificates git \
+            libgl1 libxrender1 libxext6 libsm6 libice6 libegl1
+      - uses: actions/checkout@v7
+      - name: Install the pinned Python packages
+        run: python3 -m venv /opt/venv && /opt/venv/bin/pip install -r generators/requirements.txt
+      - name: Check the files against the manifest, the COLLADA schema and the readers
+        run: /opt/venv/bin/python scripts/check_meshes.py
+
+  gltf:
+    name: glTF validator
+    runs-on: ubuntu-24.04
+    container: node:22-bookworm-slim
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install the Khronos glTF Validator
+        working-directory: scripts/gltf-validator
+        run: npm ci --no-audit --no-fund
+      - name: Validate every glTF file
+        run: node scripts/gltf-validator/validate.js meshes/*/*.glb
+
+  ros:
+    name: ROS ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    container: ros:${{ matrix.distro }}-ros-base
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: noetic, catkin
+            distro: noetic
+            ros_version: 1
+            setup: 'true'
+            build: catkin_make_isolated --install --install-space /tmp/install
+            find: rospack find robot_component_models
+          - name: noetic, colcon
+            distro: noetic
+            ros_version: 1
+            setup: apt-get update && apt-get install -y python3-colcon-common-extensions
+            build: colcon build --merge-install --install-base /tmp/install
+            find: rospack find robot_component_models
+          - name: humble, colcon
+            distro: humble
+            ros_version: 2
+            setup: 'true'
+            build: colcon build --merge-install --install-base /tmp/install
+            find: ros2 pkg prefix robot_component_models
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: ws/src/robot_component_models
+      - name: Install the build tool
+        run: ${{ matrix.setup }}
+      - name: Build and install the package
+        working-directory: ws
+        run: source /opt/ros/${{ matrix.distro }}/setup.bash && ${{ matrix.build }}
+      - name: Find the installed package
+        run: source /tmp/install/setup.bash && ${{ matrix.find }}
+      - name: Check the installed files against the manifest
+        run: python3 ws/src/robot_component_models/scripts/check_install.py /tmp/install ${{ matrix.ros_version }}
+
+  lint:
+    name: Code style
+    runs-on: ubuntu-24.04
+    container: ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852
+    steps:
+      - name: Install Python
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends python3 python3-venv ca-certificates git
+      - uses: actions/checkout@v7
+      - name: Install flake8 and mypy
+        run: python3 -m venv /opt/lint && /opt/lint/bin/pip install -r scripts/requirements-lint.txt
+      - name: flake8 with the ament_flake8 settings
+        run: /opt/lint/bin/flake8 generators scripts
+      - name: mypy
+        run: /opt/lint/bin/mypy generators scripts
