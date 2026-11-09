@@ -107,7 +107,7 @@ FLANGE_INNER_ROUND = 0.5     # choice: the round into the barrel's inside, at bo
 # Barrel inside, from the outer face: plain, a lip that stands inward, plain to the motor side
 LIP_START = 3.5              # measured: the lip's front behind the outer face
 LIP_WIDTH = 1.7              # measured: along the axle (19.8 remain to the motor-side face)
-LIP_INNER_D = 40.5           # p41 img., p25 img.: the windows' outer edge at r 20.2 to 20.4
+LIP_INNER_D = 40.5           # p41 img., p25: the windows' outer edge at r 20.2 to 20.4
 
 # Hub, outer face: a bowl recessed into the spokes' flat central face, its edge in that face
 # (no raised ring), the boss standing in it below the face (p21, p23, p24, p41)
@@ -138,10 +138,9 @@ SPOKES = 5
 SPOKE_WEB_WIDTH = 3.47       # p18, p19: the spoke's back, near the hub
 SPOKE_WEB_DEPTH = 1.8        # choice: how far the web stands behind the plate
 SPOKE_ROOT_RADIUS = 9.6      # choice: the plate starts inside the cup's wall
-# Spoke widths across the flat face, a linear taper from 8.9 at r 13.2 (p41 img.) to 5.35 where
-# the spoke runs into the lip (p25: the caliper across the spoke's tip)
-SPOKE_ROOT_WIDTH = (13.2, 8.9)
-SPOKE_TIP_WIDTH = 5.35
+# Spoke widths across the flat face: a linear taper between two places
+SPOKE_ROOT_WIDTH = (13.2, 8.9)  # p41 img.: the radius and the width there, near the hub
+SPOKE_TIP_WIDTH = 5.35       # p25: across the tip; choice: where the spoke runs into the lip
 SPOKE_TIP_BLEND = 0.5        # tip photo: the sides curve into the lip; radius: choice
 SPOKE_ROOT_BLEND = 3.0       # video, p41: curved sides into the web; radius: choice
 SPOKE_MARK_RADIUS = 15.5     # video, p41: one round mark per spoke
