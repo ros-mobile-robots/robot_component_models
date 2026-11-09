@@ -38,7 +38,7 @@ TITLE = 'Wheel 65 mm for TT gear motors (DiffBot, Remo)'
 #   choice    not measured: an estimate that looks like the photos
 # z is along the axle (see the module docstring). Diameters as D_, radii are derived.
 # ---------------------------------------------------------------------------------------------
-TYRE_OUTER_FACE_Z = -13.0    # frame alignment: the reference wheel mesh's outer face
+TYRE_OUTER_FACE_Z = -13.0    # the outer face: 13 mm outboard of both robots' wheel joints
 
 # Tyre
 TYRE_OUTER_D = 66.6          # measured on DiffBot: 66.3 and 66.8 (front_wheel.yaml)
