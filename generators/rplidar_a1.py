@@ -82,6 +82,7 @@ HEAD_TOP_ROUND = 1.0         # drawing: side view 50.0 to 51.0, top view R34.06
 HEAD_BOTTOM_CHAMFER = 0.3    # choice
 LOGO_RING = (14.44, 14.96)   # drawing: the groove around the badge, inner and outer radius
 LOGO_DEPTH = 0.3             # choice
+LOGO_ROUND = 0.15            # choice: rounded groove edges keep the top's normals in Gazebo
 TOP_SCREW_RADIUS = 28.0      # drawing
 TOP_SCREW_ANGLES = (3.0, -128.0, 138.0)  # drawing: from the window's middle, anticlockwise
 TOP_SCREW_RECESS = (5.0, 2.0)  # drawing: diameter 5.06; depth: choice, the screws left out
@@ -335,10 +336,10 @@ def head() -> Pieces:
         ('line', (seat, bottom)), ('line', (radius - HEAD_BOTTOM_CHAMFER, bottom)),
         ('line', (radius, bottom + HEAD_BOTTOM_CHAMFER)),
         *quarter_arc((radius, top), HEAD_TOP_ROUND, (0, -1), (-1, 0)),
+        *quarter_arc((LOGO_RING[1], top), LOGO_ROUND, (1, 0), (0, -1)),
+        ('line', (LOGO_RING[1], top - LOGO_DEPTH)), ('line', (LOGO_RING[0], top - LOGO_DEPTH)),
+        *quarter_arc((LOGO_RING[0], top), LOGO_ROUND, (0, -1), (-1, 0)),
         ('line', (0, top))])
-    inner, outer = LOGO_RING
-    body = body.cut(disc(0, 0, outer, TOTAL_HEIGHT - LOGO_DEPTH, TOTAL_HEIGHT + 1)
-                    .cut(disc(0, 0, inner, TOTAL_HEIGHT - 2, TOTAL_HEIGHT + 2)))
     recess, depth = TOP_SCREW_RECESS
     for angle in TOP_SCREW_ANGLES:
         a = math.radians(WINDOW_AZIMUTH + angle)

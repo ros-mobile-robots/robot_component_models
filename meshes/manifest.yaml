@@ -153,28 +153,28 @@ parts:
         materials: [body, rubber, steel, screw, pcb, part, connector, contact, window]
         files:
           rplidar_a1/rplidar_a1.stl:
-            sha256: 1954f2e44eb5d0a5a40ab3de50224fa3d8082f1bb4c364ead83f8fdb217970e6
-            bytes: 1197184
+            sha256: 4fd561709c9ad87cb67a4af128fc4a75774d8b4150055536c6bde0f40327421f
+            bytes: 1341384
             units: metre
             up_axis: "Z"
-            triangles: 23942
+            triangles: 26826
             bounding_box_min: [-0.061600, -0.035500, -0.042000]
             bounding_box_max: [0.035480, 0.035500, 0.009000]
             license_file: rplidar_a1/rplidar_a1.stl.license
           rplidar_a1/rplidar_a1.dae:
-            sha256: f6b851a4b48ecabcf6f4a08ffbb7fd5e882f1793c0443f259d1b21f05529b45d
-            bytes: 1309090
+            sha256: 95fe2625111abc2c980aba720482e9009c39ab67f99fc2e104f71933c7d504bd
+            bytes: 1442292
             units: metre
             up_axis: "Z"
-            triangles: 23942
+            triangles: 26826
             bounding_box_min: [-0.061600, -0.035500, -0.042000]
             bounding_box_max: [0.035480, 0.035500, 0.009000]
           rplidar_a1/rplidar_a1.glb:
-            sha256: 989b5aa29d13ee7ed54dff710936ff4e512022c8441426d2d6b97e688a2e29fa
-            bytes: 614340
+            sha256: d814ec451f417eef9acfa3e3342f385261d2ecf2e11a1ba60bc1ae245622a2af
+            bytes: 669756
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
-            triangles: 23942
+            triangles: 26826
             bounding_box_min: [-0.061600, -0.035500, -0.042000]
             bounding_box_max: [0.035480, 0.035500, 0.009000]
             license_file: rplidar_a1/rplidar_a1.glb.license
