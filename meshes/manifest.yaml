@@ -328,33 +328,33 @@ parts:
     provenance: provenance/tt_motor_wheel_65mm.md
     meshes:
       tt_motor_wheel_65mm:
-        frame: "The axle along z at x = y = 0, the tyre's outer face at z = -13 mm, the rim's motor-side flange face at z = +12.74 mm and the hub tube's end at z = +16.16 mm."
+        frame: "The axle along z at x = y = 0, the wheel's outer face (the rim's outer flange face, flush with the tyre's sidewall at its widest) at z = -13 mm, the rim's motor-side flange face at z = +12.00 mm and the hub tube's end at z = +15.42 mm."
         sub_parts: [rim, tyre]
         materials: [rim, tyre]
         files:
           tt_motor_wheel_65mm/tt_motor_wheel_65mm.stl:
-            sha256: fa6f5fa76a1baf9864c45057475baafde1595f8608b3a300632549b77b6621f5
-            bytes: 2512984
+            sha256: e0d434d2009d111edc58cdf9f1e78eeb80dcc429f246814ad19aad580ea7f7c0
+            bytes: 2885884
             units: metre
             up_axis: "Z"
-            triangles: 50258
-            bounding_box_min: [-0.033292, -0.033298, -0.013000]
-            bounding_box_max: [0.033292, 0.033298, 0.016160]
+            triangles: 57716
+            bounding_box_min: [-0.033299, -0.033298, -0.013000]
+            bounding_box_max: [0.033299, 0.033298, 0.015420]
             license_file: tt_motor_wheel_65mm/tt_motor_wheel_65mm.stl.license
           tt_motor_wheel_65mm/tt_motor_wheel_65mm.dae:
-            sha256: 9dbbd942ebaf62594da54141fd9ba3676489a96e09ee87d584aeedd5ef46fe1d
-            bytes: 3158705
+            sha256: 2097303223bae7a55d84b837a5ae73503a39dcc320635616942bb1d0db83ddf3
+            bytes: 3404929
             units: metre
             up_axis: "Z"
-            triangles: 50258
-            bounding_box_min: [-0.033292, -0.033298, -0.013000]
-            bounding_box_max: [0.033292, 0.033298, 0.016160]
+            triangles: 57716
+            bounding_box_min: [-0.033299, -0.033298, -0.013000]
+            bounding_box_max: [0.033299, 0.033298, 0.015420]
           tt_motor_wheel_65mm/tt_motor_wheel_65mm.glb:
-            sha256: ecb521883d87dd7360526bad9abcf351dcdd595ce978b7dc753dd0ea6dfe7d0b
-            bytes: 1371240
+            sha256: c7825c0be5faff42eb13b6f6d85f4f722749bf3b105608bfd7b01adb14937213
+            bytes: 1431804
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
-            triangles: 50258
-            bounding_box_min: [-0.033292, -0.033298, -0.013000]
-            bounding_box_max: [0.033292, 0.033298, 0.016160]
+            triangles: 57716
+            bounding_box_min: [-0.033299, -0.033298, -0.013000]
+            bounding_box_max: [0.033299, 0.033298, 0.015420]
             license_file: tt_motor_wheel_65mm/tt_motor_wheel_65mm.glb.license

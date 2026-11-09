@@ -6,14 +6,15 @@ Modelled from caliper measurements of the real wheel (tyre taken off the rim), p
 frames of DiffBot's and Remo's wheels, shop photos and product listings. The rim is a barrel with
 a flange at each end and three ridges between them, axial ribs across the two pockets, a ring on
 the outer face that curves into the windows, five tapered swept spokes with a narrow web and a fin
-behind each, a recessed bowl around the centre boss with five small pads, and a hub tube on a
-collar on the motor side. The tyre's thin edge lips hook over the flanges and two inner rings sit
-in the plain bands. Sources in provenance/tt_motor_wheel_65mm.md.
+behind each, a bowl recessed into the spokes' central face with the centre boss and four small
+pins in it, and a hub tube on a collar on the motor side. The tyre is a hollow section like a car
+tyre's: its beads sit inside the rim between the flanges and the outer ridges, its sidewalls rise
+over the flanges and are widest halfway up, and an arched channel inside clears the barrel's
+ridges. Sources in provenance/tt_motor_wheel_65mm.md.
 
-Frame (positions in mm, the files are in metres): the axle along z. The
-tyre's outer face is at z = -13 mm, the rim's outer flange face and the boss 0.74 mm behind it
-(the tyre's lip), the rim's motor-side flange face at +12.74 mm and the hub tube's end at
-+16.16 mm.
+Frame (positions in mm, the files are in metres): the axle along z. The wheel's outer face is
+at z = -13 mm: the rim's outer flange face, flush with the tyre's sidewall at its widest. The rim's
+motor-side flange face is at +12.00 mm and the hub tube's end at +15.42 mm.
 """
 import math
 from typing import List
@@ -40,17 +41,27 @@ TITLE = 'Wheel 65 mm for TT gear motors (DiffBot, Remo)'
 # ---------------------------------------------------------------------------------------------
 TYRE_OUTER_FACE_Z = -13.0    # frame alignment: the reference wheel mesh's outer face
 
-# Tyre
+# Tyre: a hollow section like a car tyre's (owner, photos p04-p09). The beads at its inner
+# diameter sit inside the rim, in the plain bands between the flanges and the outer ridges. The
+# sidewalls rise over the flanges and are widest halfway up, flush with the flanges' faces. The
+# crown is a little narrower. Inside, an arched channel spans the barrel's ridges and ribs
 TYRE_OUTER_D = 66.6          # measured on DiffBot: 66.3 and 66.8 (front_wheel.yaml)
-# The edge lips' axial thickness isn't measured: p03 reads 0.74 radially (provenance:
-# measurement 1). It sets the tyre's width and the rim's z position, so the tube's end too
-TYRE_LIP_THICKNESS = 0.74    # choice
-TYRE_LIP_INNER_D = 49.4      # p07, p08: edge lip to tread 8.38 and 8.82 -> 66.6 - 2 x 8.6
-TYRE_SHOULDER_RADIUS = 3.0   # choice (photos: rounded shoulders)
-TYRE_WALL = 7.46             # p06: inner surface to a tread block's top, off the rim
-TYRE_SEAT_GAP = 0.02         # choice: the tyre's lips and rings stand this far off the rim
-# p05/p06: 7.46 - 6.88, conditional: if p05 is at a groove (provenance: measurement 3)
-TREAD_DEPTH = 0.6
+TYRE_BEAD_D = 49.4           # p07, p08: bead to tread 8.38 and 8.82 -> 66.6 - 2 x 8.6
+TYRE_BEAD_WIDTH = 1.8        # choice: the bead's base in the plain band (p37 sil.: band 2.0)
+# The sidewalls stand this far past the flanges' faces at their widest: flush, the owner says
+# (provenance: measurement 1)
+TYRE_BULGE = 0.0             # owner
+TYRE_WIDEST_D = 59.2         # owner: widest halfway between the flange (51.22) and the tread
+TYRE_CROWN_WIDTH = 18.6      # choice (shop photos): the tread between the shoulders' rounds
+TYRE_CROWN_DROP = 0.25       # choice (shop photos): the crown's edges below its middle
+# The channel's ceiling, from the tread's top (radial, tyre off the rim). Three readings, 5.77
+# (p04), 6.88 (p05) and 7.46 (p06), at places across the tyre that aren't recorded: assumed
+# here in the middle (p04) and near a bead (p06) (provenance: measurement 2)
+TYRE_WALL_SIDE = 7.46        # p06, near a bead: assumed
+TYRE_WALL_MIDDLE = 5.77      # p04, in the middle: assumed
+TYRE_CHANNEL_WIDTH = 15.6    # choice: between the beads' inner flanks, over all three ridges
+TYRE_SEAT_GAP = 0.02         # choice: the tyre stands this far off the rim
+TREAD_DEPTH = 0.6            # choice (shop photos; provenance: measurement 4)
 TREAD_ROWS = 42              # p07, p08: about 5 mm row pitch, blocks about 4.3 mm long
 TREAD_TRANSVERSE_GROOVE = 0.7  # p07, p08: narrow grooves between the blocks (width: choice)
 # Circumferential grooves (offset from the tyre's centre plane, width): six block columns
@@ -60,7 +71,7 @@ TREAD_SHOULDER_REACH = 30.0  # radius down to which the shoulder blocks wrap ont
 
 # Rim barrel (from the outer flange face F towards the motor side)
 RIM_WIDTH = 25.00            # p40: flange to flange
-RIM_LENGTH = 28.42           # p33: outer face (flange and boss flush) to the hub tube's end
+RIM_LENGTH = 28.42           # p33: the outer flange face to the hub tube's end
 FLANGE_D = 51.22             # p01, p41 (51.25)
 RIDGE_D = 50.9               # p37 sil.: the ridges stand 0.1 to 0.2 inside the flanges
 BAND_D = 47.91               # p02: the plain bands and the pockets
@@ -82,23 +93,26 @@ LIP_CURL = (21.6, 0.45, 1.6)  # choice: the face curves inward: mid r, mid depth
 LIP_END = 2.4                # choice: depth of the ring's inner edge behind the face
 LIP_BACK = 3.2               # choice: where the ring's back meets the barrel's inside
 
-# Hub, outer face
+# Hub, outer face: a bowl recessed into the spokes' flat central face, its edge in that face
+# (no raised ring), the boss standing in it below the face (p21, p23, p24, p41). The depths are
+# estimated on the oblique photo p24, scaled with the bowl's 17.62 (provenance: measurement 3)
 BOSS_D = 9.69                # p23
-BOSS_CHAMFER = 0.4           # choice
-# The hub cup is a bowl recessed into the spokes' central face, the boss standing in it, flush
-# with the flange (p20-p25, p33, video). Its depths aren't measured (provenance: measurement 2)
-CUP_D = 20.64                # p24: the ring's outside (p16/p17 from behind: 20.49)
-CUP_INNER_D = 17.62          # p21: inside jaws across the bowl at its rim
-# The bowl narrows towards its floor: p20 reads 14.07 with inside jaws deeper in the bowl
-# (provenance: measurement 2)
-BOWL_FLOOR_D = 15.2          # choice
-CUP_RIM_DEPTH = 0.8          # choice: the ring's top, 0.4 in front of the spokes' face
-CUP_FLOOR_DEPTH = 2.2        # choice: the bowl's floor, 1.0 behind the spokes' face
-BOSS_FILLET = 0.4            # choice: where the boss meets the bowl's floor
-RING_ROUND = 0.35            # choice: height of the ring's rounded top
-HUB_PAD_R = 6.8              # p41 img., video: five small raised pads between the spokes
-HUB_PAD_D = 1.0              # choice (video: small round pads)
-HUB_PAD_HEIGHT = 0.3         # choice
+BOSS_CHAMFER = 0.3           # choice
+BOWL_EDGE_D = 17.9           # p41 img.: the bowl's edge in the spokes' face
+BOWL_D = 17.62               # p21: inside jaws in the bowl at about the boss's top
+# Below that the wall rounds into the floor: p20 reads 14.07 with the jaws deeper in the bowl
+BOWL_FLOOR_D = 13.8          # p41 img.: the wall's foot at r 6.9
+BOWL_DEPTH = 2.8             # p24 img. (2.7 to 3.4): the floor behind the spokes' face
+BOSS_TOP_DEPTH = 1.2         # p24 img. (1.0 to 2.2): the boss's top behind the spokes' face
+BOWL_EDGE_ROUND = 0.2        # choice
+BOSS_FILLET = 0.3            # choice: where the boss meets the floor
+CUP_D = 20.64                # p24: the bowl's outside behind the face, between the spokes
+CUP_BACK_DEPTH = 5.2         # choice: the cup's back on the motor side, the floor 1.2 thick
+HUB_PINS = 4                 # p41 img.: four small pins on the bowl's floor, 90 deg apart
+HUB_PIN_R = 6.15             # p41 img.
+HUB_PIN_D = 0.9              # p41 img.
+HUB_PIN_HEIGHT = 0.4         # choice
+HUB_PIN_ANGLE = 42.0         # p41 img.: the first pin 42 deg after a spoke
 WEB_R = 11.2                 # p41 img.: windows start at r 11.4 between the spokes; cup 10.32
 
 # Spokes: five, tapered and swept
@@ -107,7 +121,7 @@ SPOKE_FACE_DEPTH = 1.2       # video: behind the face
 SPOKE_PLATE = 1.5            # choice: thickness of the spoke's front plate
 SPOKE_WEB_WIDTH = 3.47       # p18, p19: the spoke's back, near the hub
 HUB_BACK_DEPTH = 4.5         # choice: the spokes' back plane behind the face
-SPOKE_ROOT_RADIUS = 9.0      # choice: the loft starts inside the cup's wall
+SPOKE_ROOT_RADIUS = 9.0      # choice: the loft starts just outside the bowl's edge
 SPOKE_TIP_RADIUS = 21.5      # choice: ends inside the ring's curl
 # Spoke widths, a linear taper through two of p41 img.'s estimates (9.3 at r 11.7, 5.4 at r 19.5);
 # the model then has 9.31, 7.35 (p41: 7.7) at r 15.6, 5.40, and 5.15 at r 20 (p25: 5.35 across the
@@ -132,19 +146,22 @@ HUB_TUBE_FILLET = 1.0        # choice
 HUB_TUBE_CHAMFER = 0.5       # choice
 BORE_D = 5.44                # p14: the round side; p12, p13 tube wall 2.10 and 2.34
 BORE_FLATS = 3.66            # listings (X2 Robotics, VXB); not measured
-BORE_BOTTOM_DEPTH = 2.0      # choice: blind, the boss is closed (photos)
+BORE_BOTTOM_DEPTH = 3.2      # choice: blind, the boss's top is closed (photos)
 FIN_THICKNESS = 1.51         # p31
-FIN_TOP_Z = 3.0              # video, p32: the fins reach about half way up the tube
+FIN_TOP_DEPTH = 15.26        # video, p32: the fins reach about half way up the tube
 FIN_OUTER_R = 20.0           # p32: the fins run out along the spokes
 
 # Derived positions
-RIM_FACE_Z = TYRE_OUTER_FACE_Z + TYRE_LIP_THICKNESS      # F: the outer flange face, -12.26
-RIM_INNER_FACE_Z = RIM_FACE_Z + RIM_WIDTH                 # the motor-side flange face, 12.74
-HUB_TUBE_END_Z = RIM_FACE_Z + RIM_LENGTH                  # 16.16
-TYRE_INNER_FACE_Z = RIM_INNER_FACE_Z + TYRE_LIP_THICKNESS  # 13.48
+RIM_FACE_Z = TYRE_OUTER_FACE_Z + TYRE_BULGE   # F: the outer flange face, -13.0
+RIM_INNER_FACE_Z = RIM_FACE_Z + RIM_WIDTH      # the motor-side flange face, 12.0
+HUB_TUBE_END_Z = RIM_FACE_Z + RIM_LENGTH       # 15.42
+TYRE_INNER_FACE_Z = RIM_INNER_FACE_Z + TYRE_BULGE  # the tyre's motor side at its widest, 12.0
+TYRE_CENTRE_Z = RIM_FACE_Z + RIM_WIDTH / 2     # -0.5
+FIN_TOP_Z = RIM_FACE_Z + FIN_TOP_DEPTH
 SPOKE_FACE_Z = RIM_FACE_Z + SPOKE_FACE_DEPTH
 SPOKE_PLATE_BACK_Z = SPOKE_FACE_Z + SPOKE_PLATE
 HUB_BACK_Z = RIM_FACE_Z + HUB_BACK_DEPTH
+CUP_BACK_Z = RIM_FACE_Z + CUP_BACK_DEPTH
 
 # Tessellation: chordal deviation (mm) and angle (rad)
 LINEAR_DEFLECTION = 0.03
@@ -182,11 +199,51 @@ def round_corner(corner: Tuple[float, float], radius: float,
     return [('line', start), ('arc', middle, end)]
 
 
+def fillet_corner(corner: Tuple[float, float], radius: float,
+                  first: Tuple[float, float], second: Tuple[float, float]) -> List:
+    """Return the path pieces that round a corner between two straight edges at any angle.
+
+    first and second are the unit directions from the corner to the previous and the next
+    point of the path. The pieces are ('line', end) and ('arc', middle, end) for revolve_path.
+    """
+    cx, cz = corner
+    angle = math.acos(max(-1.0, min(1.0, first[0] * second[0] + first[1] * second[1])))
+    reach = radius / math.tan(angle / 2)
+    start = (cx + first[0] * reach, cz + first[1] * reach)
+    end = (cx + second[0] * reach, cz + second[1] * reach)
+    bx, bz = first[0] + second[0], first[1] + second[1]
+    length = math.hypot(bx, bz)
+    bx, bz = bx / length, bz / length
+    centre_distance = radius / math.sin(angle / 2)
+    middle = (cx + bx * (centre_distance - radius), cz + bz * (centre_distance - radius))
+    return [('line', start), ('arc', middle, end)]
+
+
+def ellipse(centre: Tuple[float, float], radius_r: float, radius_z: float,
+            start: float, end: float, count: int = 12) -> Tuple:
+    """Return a ('through', points) piece along a quarter ellipse, from angle start to end (deg).
+
+    The start point (at angle start) is the path's current point and isn't repeated.
+    """
+    points = []
+    for k in range(1, count + 1):
+        angle = math.radians(start + (end - start) * k / count)
+        points.append((centre[0] + radius_r * math.cos(angle),
+                       centre[1] + radius_z * math.sin(angle)))
+    return ('through', points)
+
+
+def unit(dx: float, dz: float) -> Tuple[float, float]:
+    """Return the direction (dx, dz) with length 1."""
+    length = math.hypot(dx, dz)
+    return dx / length, dz / length
+
+
 def revolve_path(start: Tuple[float, float], pieces: Sequence) -> cq.Workplane:
     """Revolve a closed (r, z) path about the z axis.
 
-    The pieces are ('line', end), ('arc', middle, end) or ('spline', end, start_tangent,
-    end_tangent), all in (r, z).
+    The pieces are ('line', end), ('arc', middle, end), ('spline', end, start_tangent,
+    end_tangent) or ('through', points), a spline through the points, all in (r, z).
     """
     wp = cq.Workplane('XZ').moveTo(*start)
     for piece in pieces:
@@ -194,6 +251,8 @@ def revolve_path(start: Tuple[float, float], pieces: Sequence) -> cq.Workplane:
             wp = wp.lineTo(*piece[1])
         elif piece[0] == 'arc':
             wp = wp.threePointArc(piece[1], piece[2])
+        elif piece[0] == 'through':
+            wp = wp.spline(list(piece[1]), includeCurrent=True)
         else:
             wp = wp.spline([piece[1]], tangents=[piece[2], piece[3]], includeCurrent=True)
     return wp.close().revolve(360, (0, 0, 0), (0, 1, 0))
@@ -215,46 +274,83 @@ def plain_bands() -> List[Tuple[float, float]]:
             (f + RIDGE_CENTRES[-1] + half_base, f + RIM_WIDTH - FLANGE_SLOPE_END)]
 
 
-def tyre_envelope(inset: float) -> cq.Workplane:
-    """Return the tyre's outer layer from r 28 out, its outer surfaces moved inwards by inset."""
+def tyre_outer_pieces(inset: float) -> List:
+    """Return the tyre's outer contour from the outer foot to the motor-side foot, as path pieces.
+
+    The contour starts at the foot on the outer flange's top (the path's start point, see
+    tyre_foot). Each sidewall bulges from its foot to its widest point and rounds over the
+    shoulder to the crown, quarter ellipses, so the widest point is exactly the outermost.
+    With an inset, the feet, the widest points and the crown move inwards by it (the tread's
+    grooves are cut outside the inset copy).
+    """
     outer = TYRE_OUTER_D / 2 - inset
-    z0, z1 = TYRE_OUTER_FACE_Z + inset, TYRE_INNER_FACE_Z - inset
-    shoulder = TYRE_SHOULDER_RADIUS - inset
-    return revolve_path((28.0, z0), [
-        *round_corner((outer, z0), shoulder, (-1, 0), (0, 1)),
-        *round_corner((outer, z1), shoulder, (0, -1), (-1, 0)),
-        ('line', (28.0, z1))])
+    wide = TYRE_WIDEST_D / 2
+    z_out = RIM_FACE_Z - TYRE_BULGE + inset
+    z_in = RIM_INNER_FACE_Z + TYRE_BULGE - inset
+    half = TYRE_CROWN_WIDTH / 2
+    edge = outer - TYRE_CROWN_DROP
+    foot_r, foot_out = tyre_foot(inset)
+    foot_in = RIM_INNER_FACE_Z - FLANGE_EDGE_ROUND - inset
+    c = TYRE_CENTRE_Z
+    sidewall_r, shoulder_r = wide - foot_r, edge - wide
+    return [
+        ellipse((wide, foot_out), sidewall_r, foot_out - z_out, 180, 270),
+        ellipse((wide, c - half), shoulder_r, c - half - z_out, 270, 360),
+        ('arc', (outer, c), (edge, c + half)),
+        ellipse((wide, c + half), shoulder_r, z_in - c - half, 0, 90),
+        ellipse((wide, foot_in), sidewall_r, z_in - foot_in, 90, 180)]
+
+
+def tyre_foot(inset: float) -> Tuple[float, float]:
+    """Return where the tyre's outer sidewall meets the outer flange's top (moved by inset)."""
+    return (FLANGE_D / 2 + TYRE_SEAT_GAP + inset, RIM_FACE_Z + FLANGE_EDGE_ROUND + inset)
+
+
+def tyre_envelope(inset: float) -> cq.Workplane:
+    """Return the region inside the tyre's outer contour (moved inwards by inset)."""
+    return revolve_path(tyre_foot(inset), tyre_outer_pieces(inset))
+
+
+def bead_toe_z(face_z: float, towards: int) -> float:
+    """Return z where a bead's toe meets the flange's sloping inside (towards: +1 or -1)."""
+    r_flange, r_band, r_bead = FLANGE_D / 2, BAND_D / 2, TYRE_BEAD_D / 2
+    along = (r_flange - r_bead) / (r_flange - r_band) * (FLANGE_SLOPE_END - FLANGE_TOP)
+    return face_z + towards * (FLANGE_TOP + along + TYRE_SEAT_GAP)
 
 
 def tyre_body() -> cq.Workplane:
-    """Return the tyre without tread grooves: lips over the flanges, rings in the plain bands."""
-    outer = TYRE_OUTER_D / 2
-    z0, z1 = TYRE_OUTER_FACE_Z, TYRE_INNER_FACE_Z
-    # The tyre's own inner surface (66.6 - 2 x 7.46 = 51.68) clears the flanges (51.22): the
-    # tyre is held by its edge lips and by the inner rings in the plain bands, not stretched
-    seat = TYRE_OUTER_D / 2 - TYRE_WALL
-    if seat <= FLANGE_D / 2:
-        raise ValueError("the tyre's inner surface must clear the rim's flanges")
-    lip = TYRE_LIP_INNER_D / 2
-    gap = TYRE_SEAT_GAP
-    rings = []
-    for lo, hi in reversed(plain_bands()):
-        a, b = lo + 0.3, hi - 0.3
-        depth = seat - BAND_D / 2 - gap
-        rings += [('line', (seat, b)), ('line', (seat - depth, b - 0.4)),
-                  ('line', (seat - depth, a + 0.4)), ('line', (seat, a))]
-    return revolve_path((lip, z0), [
-        *round_corner((outer, z0), TYRE_SHOULDER_RADIUS, (-1, 0), (0, 1)),
-        *round_corner((outer, z1), TYRE_SHOULDER_RADIUS, (0, -1), (-1, 0)),
-        ('line', (lip, z1)), ('line', (lip, RIM_INNER_FACE_Z + gap)),
-        ('line', (seat, RIM_INNER_FACE_Z + gap)), *rings,
-        ('line', (seat, RIM_FACE_Z - gap)), ('line', (lip, RIM_FACE_Z - gap))])
+    """Return the tyre without tread grooves: beads in the rim, sidewalls, crown and channel.
+
+    Each bead's base sits in a plain band next to its flange, held between the flange and the
+    outer ridge (its diameter is less than both). From the bead's inner flank the channel's
+    ceiling arches over the three ridges.
+    """
+    r_seat, r_bead = FLANGE_D / 2 + TYRE_SEAT_GAP, TYRE_BEAD_D / 2
+    f, i, c = RIM_FACE_Z, RIM_INNER_FACE_Z, TYRE_CENTRE_Z
+    toe_out, toe_in = bead_toe_z(f, 1), bead_toe_z(i, -1)
+    heel_out, heel_in = toe_out + TYRE_BEAD_WIDTH, toe_in - TYRE_BEAD_WIDTH
+    side = TYRE_OUTER_D / 2 - TYRE_WALL_SIDE
+    apex = TYRE_OUTER_D / 2 - TYRE_WALL_MIDDLE
+    corner_out = (side, c - TYRE_CHANNEL_WIDTH / 2)
+    corner_in = (side, c + TYRE_CHANNEL_WIDTH / 2)
+    if not RIDGE_D / 2 + TYRE_SEAT_GAP < side < apex:
+        raise ValueError("the channel's ceiling must clear the ridges and rise to the middle")
+    ridge_flank = f + RIDGE_CENTRES[0] - RIDGE_BASE / 2
+    if heel_out > ridge_flank or corner_out[1] > f + RIDGE_CENTRES[0] - RIDGE_TOP / 2:
+        raise ValueError('the bead and the channel must stay outside the outer ridge')
+    return revolve_path(tyre_foot(0.0), [
+        *tyre_outer_pieces(0.0),
+        ('line', (r_seat, i - FLANGE_TOP)),
+        ('line', (r_bead, toe_in)), ('line', (r_bead, heel_in)), ('line', corner_in),
+        ellipse((side, c), apex - side, TYRE_CHANNEL_WIDTH / 2, 90, -90, 24),
+        ('line', (r_bead, heel_out)), ('line', (r_bead, toe_out)),
+        ('line', (r_seat, f + FLANGE_TOP))])
 
 
 def tread_cutter() -> cq.Workplane:
     """Return the grooves: circumferential rings and transverse slabs, one tread depth deep."""
     reach = TYRE_OUTER_D / 2 + 5
-    centre = (TYRE_OUTER_FACE_Z + TYRE_INNER_FACE_Z) / 2
+    centre = TYRE_CENTRE_Z
     width = TYRE_INNER_FACE_Z - TYRE_OUTER_FACE_Z
     rings = union_all([
         revolve_profile([(TREAD_SHOULDER_REACH + 1.0, centre + off - w / 2),
@@ -267,8 +363,9 @@ def tread_cutter() -> cq.Workplane:
         .translate((TREAD_SHOULDER_REACH + length / 2, 0, centre))
         .rotate((0, 0, 0), (0, 0, 1), 360.0 * (k + 0.5) / TREAD_ROWS)
         for k in range(TREAD_ROWS)])
-    skin = tyre_envelope(0.0).cut(tyre_envelope(TREAD_DEPTH))
-    return rings.union(slabs).intersect(skin)
+    # Only the part outside the contour's inset copy: one tread depth deep, and beyond the
+    # tyre (no faces in common with the tyre's own outer surface)
+    return rings.union(slabs).cut(tyre_envelope(TREAD_DEPTH))
 
 
 def make_tyre() -> cq.Workplane:
@@ -421,36 +518,32 @@ def ribs() -> cq.Workplane:
 
 
 def hub() -> cq.Workplane:
-    """Return the hub: boss standing in the bowl, the ring around it, the collar and the tube.
+    """Return the hub: the bowl in the spokes' face with the boss in it, the cup, collar and tube.
 
-    The bowl's wall curves from the ring's inside (CUP_INNER_D) down to its floor; the ring's
-    top is rounded and its outside drops to the spokes' face.
+    The bowl's edge lies in the spokes' face with a small round. Its wall runs almost straight
+    down to the depth of the boss's top, then rounds into the flat floor. The boss stands on
+    the floor, its top below the face. Behind the face the bowl's outside (CUP_D) runs back to
+    the cup's back, which carries the collar and the tube.
     """
-    f = RIM_FACE_Z
-    boss, cup, inner = BOSS_D / 2, CUP_D / 2, CUP_INNER_D / 2
-    floor_r = BOWL_FLOOR_D / 2
-    rim_z, floor_z = f + CUP_RIM_DEPTH, f + CUP_FLOOR_DEPTH
-    top = rim_z + RING_ROUND
-    collar, tube = HUB_COLLAR_D / 2, HUB_TUBE_D / 2
-    collar_top = HUB_BACK_Z + HUB_COLLAR_HEIGHT
-    if not boss + BOSS_FILLET < floor_r < inner < cup:
-        raise ValueError('the bowl needs boss < floor < inner wall < ring')
-    if not top < SPOKE_FACE_Z < floor_z < f + BORE_BOTTOM_DEPTH + 1.0:
-        raise ValueError("the ring must stand in front of the spokes' face, the floor behind it")
-    # The bowl's wall: a concave spline from the floor's edge up to the ring's inside, leaving
-    # the floor flat and arriving with the tangent of the ring's rounded top, so both joins are
-    # smooth. The ring's top is the circle through (inner, top), (middle, rim_z), (cup, top)
-    half = (cup - inner) / 2
-    centre_z = (half * half + top * top - rim_z * rim_z) / (2 * (top - rim_z))
-    length = math.hypot(centre_z - top, half)
-    ring_tangent = ((centre_z - top) / length, -half / length)
-    return revolve_path((0, f), [
-        ('line', (boss - BOSS_CHAMFER, f)), ('line', (boss, f + BOSS_CHAMFER)),
+    face = SPOKE_FACE_Z
+    boss, edge, bowl, floor_r = BOSS_D / 2, BOWL_EDGE_D / 2, BOWL_D / 2, BOWL_FLOOR_D / 2
+    boss_top, floor_z = face + BOSS_TOP_DEPTH, face + BOWL_DEPTH
+    cup, collar, tube = CUP_D / 2, HUB_COLLAR_D / 2, HUB_TUBE_D / 2
+    collar_top = CUP_BACK_Z + HUB_COLLAR_HEIGHT
+    if not boss + BOSS_FILLET < floor_r < bowl <= edge < cup:
+        raise ValueError('the bowl needs boss < floor < wall <= edge < cup')
+    if not face < boss_top < floor_z < CUP_BACK_Z:
+        raise ValueError("the boss's top must lie between the face and the floor")
+    if not boss_top + 0.5 < RIM_FACE_Z + BORE_BOTTOM_DEPTH < CUP_BACK_Z:
+        raise ValueError('the bore must end inside the boss, behind its top')
+    wall = unit(edge - bowl, face - boss_top)            # up the wall's straight part
+    return revolve_path((0, boss_top), [
+        ('line', (boss - BOSS_CHAMFER, boss_top)), ('line', (boss, boss_top + BOSS_CHAMFER)),
         *round_corner((boss, floor_z), BOSS_FILLET, (0, -1), (1, 0)),
         ('line', (floor_r, floor_z)),
-        ('spline', (inner, top), (1.0, 0.0), ring_tangent),
-        ('arc', ((inner + cup) / 2, rim_z), (cup, top)),
-        ('line', (cup, HUB_BACK_Z)), ('line', (collar, HUB_BACK_Z)),
+        ellipse((floor_r, boss_top), bowl - floor_r, floor_z - boss_top, 90, 0),
+        *fillet_corner((edge, face), BOWL_EDGE_ROUND, (-wall[0], -wall[1]), (1.0, 0.0)),
+        ('line', (cup, face)), ('line', (cup, CUP_BACK_Z)), ('line', (collar, CUP_BACK_Z)),
         ('line', (collar, collar_top - HUB_COLLAR_CHAMFER)),
         ('line', (collar - HUB_COLLAR_CHAMFER, collar_top)),
         *round_corner((tube, collar_top), HUB_TUBE_FILLET, (1, 0), (0, 1)),
@@ -462,7 +555,7 @@ def make_rim() -> cq.Workplane:
     """Return the yellow rim: barrel, ribs, ring, hub, web, spokes, fins, bore and marks."""
     if SPOKE_TIP_RADIUS >= BARREL_INNER_D / 2 or SPOKE_TIP_RADIUS <= WINDOW_OUTER_R:
         raise ValueError("the spokes' tips must end inside the ring's curl")
-    # The spokes' central face: an annulus from the ring to WEB_R (the bowl stays open)
+    # The spokes' central face: an annulus from the cup to WEB_R (the bowl stays open)
     web = (cq.Workplane('XY', origin=(0, 0, SPOKE_FACE_Z)).circle(WEB_R)
            .circle(CUP_D / 2 - 0.2).extrude(SPOKE_PLATE_BACK_Z - SPOKE_FACE_Z))
     rim = union_all([barrel(), ribs(), hub(), web,
@@ -473,12 +566,12 @@ def make_rim() -> cq.Workplane:
             .intersect(cq.Workplane('XY', origin=(0, 0, bottom))
                        .rect(BORE_FLATS, BORE_D + 1).extrude(HUB_TUBE_END_Z - bottom + 1)))
     rim = rim.cut(bore)
-    # Raised pads on the hub cup's floor between the spokes, a recessed mark on each spoke
-    floor_z = RIM_FACE_Z + CUP_FLOOR_DEPTH
-    pads = union_all([cq.Workplane('XY', origin=(HUB_PAD_R, 0, floor_z - HUB_PAD_HEIGHT))
-                      .circle(HUB_PAD_D / 2).extrude(HUB_PAD_HEIGHT + 0.01)
-                      .rotate((0, 0, 0), (0, 0, 1), 360.0 * (k + 0.5) / SPOKES)
-                      for k in range(SPOKES)])
+    # Small pins on the bowl's floor, a recessed mark on each spoke
+    floor_z = SPOKE_FACE_Z + BOWL_DEPTH
+    pads = union_all([cq.Workplane('XY', origin=(HUB_PIN_R, 0, floor_z - HUB_PIN_HEIGHT))
+                      .circle(HUB_PIN_D / 2).extrude(HUB_PIN_HEIGHT + 0.01)
+                      .rotate((0, 0, 0), (0, 0, 1), HUB_PIN_ANGLE + 360.0 * k / HUB_PINS)
+                      for k in range(HUB_PINS)])
     marks = union_all([cq.Workplane('XY', origin=(SPOKE_MARK_RADIUS,
                                                   spoke_centre(SPOKE_MARK_RADIUS),
                                                   SPOKE_FACE_Z - 0.01))
@@ -491,8 +584,9 @@ def make_rim() -> cq.Workplane:
 # ---------------------------------------------------------------------------------------------
 # Mesh
 # ---------------------------------------------------------------------------------------------
-FRAME = ("The axle along z at x = y = 0, the tyre's outer face at z = -13 mm, the rim's "
-         "motor-side flange face at z = +12.74 mm and the hub tube's end at z = +16.16 mm.")
+FRAME = ("The axle along z at x = y = 0, the wheel's outer face (the rim's outer flange face, "
+         "flush with the tyre's sidewall at its widest) at z = -13 mm, the rim's motor-side "
+         "flange face at z = +12.00 mm and the hub tube's end at z = +15.42 mm.")
 SUB_PARTS = {'rim': 'rim', 'tyre': 'tyre'}
 
 
