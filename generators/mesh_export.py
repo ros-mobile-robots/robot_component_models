@@ -381,22 +381,31 @@ def collada_source(geometry: str, kind: str, values: np.ndarray, digits: int) ->
 
 
 def collada_geometry(geometry: str, surfaces: Sequence[Tuple[str, Surface]]) -> str:
-    """Return one COLLADA geometry with a triangle list per material, positions in metres."""
+    """Return one COLLADA geometry with a triangle list per material, positions in metres.
+
+    The normals are an input of the triangles, with an index of their own: every corner is
+    written as its position's index followed by its normal's index, both the same number.
+    Gazebo Classic's COLLADA loader merges the vertices that share a position. It keeps the
+    corners of a sharp edge apart only when their normals have an index of their own. With the
+    normals as an input of <vertices>, it gives all the faces around a sharp edge the normal
+    of one of them.
+    """
     merged = merge_surfaces([surface for _, surface in surfaces])
     text = (f'  <geometry id="{geometry}" name="{geometry}">\n   <mesh>\n'
             + collada_source(geometry, 'positions', merged.vertices * MM_TO_M, 7)
             + collada_source(geometry, 'normals', merged.normals, 5)
             + f'    <vertices id="{geometry}-vertices">\n'
             f'     <input semantic="POSITION" source="#{geometry}-positions"/>\n'
-            f'     <input semantic="NORMAL" source="#{geometry}-normals"/>\n'
             f'    </vertices>\n')
     offset = 0
     for material, surface in surfaces:
         indices = surface.triangles + offset
         offset += len(surface.vertices)
+        position_and_normal = np.repeat(indices.reshape(-1), 2)
         text += (f'    <triangles material="{material}" count="{len(indices)}">\n'
                  f'     <input semantic="VERTEX" source="#{geometry}-vertices" offset="0"/>\n'
-                 f'     <p>\n{numbers(indices, 10)}\n     </p>\n'
+                 f'     <input semantic="NORMAL" source="#{geometry}-normals" offset="1"/>\n'
+                 f'     <p>\n{numbers(position_and_normal, 10)}\n     </p>\n'
                  f'    </triangles>\n')
     return text + '   </mesh>\n  </geometry>\n'
 

@@ -11,6 +11,7 @@ so they don't share the generators' mistakes:
 - triangle counts and bounding boxes match the manifest, in each file's units,
 - every file is in metres, and the COLLADA and glTF files have the STL's geometry,
 - every COLLADA file is valid against the COLLADA 1.4.1 schema and loads in pycollada,
+- every COLLADA file gives the normals an index of their own in its triangle lists,
 - every glTF file loads in trimesh, with the manifest's sub-parts as named nodes,
 - every file carries the manifest's license: SPDX lines in the COLLADA header, in a
   <file>.license next to each STL and glTF file.
@@ -238,6 +239,30 @@ def check_collada(mesh_file: MeshFile, schema: etree.XMLSchema) -> List[str]:
     return problems
 
 
+def check_collada_normals(mesh_file: MeshFile) -> List[str]:
+    """Check that a COLLADA file's triangle lists give the normals an index of their own.
+
+    Gazebo Classic's COLLADA loader merges the vertices that share a position. It keeps the
+    corners of a sharp edge apart only when the normals are an input of <triangles> with an
+    offset of their own. With the normals as an input of <vertices>, it shades all the faces
+    around a sharp edge with the normal of one of them.
+    """
+    document = etree.parse(file_path(mesh_file))
+    namespace = {'c': 'http://www.collada.org/2005/11/COLLADASchema'}
+    problems = []
+    vertex_inputs = document.xpath('//c:mesh/c:vertices/c:input/@semantic', namespaces=namespace)
+    if set(vertex_inputs) != {'POSITION'}:
+        problems.append(f'<vertices> has the inputs {sorted(set(vertex_inputs))}, not only'
+                        ' POSITION')
+    for triangles in document.xpath('//c:mesh/c:triangles', namespaces=namespace):
+        offsets = {triangle_input.get('semantic'): triangle_input.get('offset')
+                   for triangle_input in triangles.findall('c:input', namespace)}
+        if offsets != {'VERTEX': '0', 'NORMAL': '1'}:
+            problems.append(f'<triangles material="{triangles.get("material")}"> has the inputs'
+                            f' {offsets}, not VERTEX at offset 0 and NORMAL at offset 1')
+    return problems
+
+
 def gltf_document(path: str) -> Dict[str, Any]:
     """Return the JSON chunk of a binary glTF file."""
     with open(path, 'rb') as stream:
@@ -340,6 +365,7 @@ def main() -> int:
         found = [problem for check in FILE_CHECKS for problem in check(mesh_file)]
         if mesh_file.path.endswith('.dae'):
             found += check_collada(mesh_file, schema)
+            found += check_collada_normals(mesh_file)
         if mesh_file.path.endswith('.glb'):
             found += check_gltf(mesh_file)
         print(f'{mesh_file.path}: ' + ('; '.join(found) if found else 'ok'))
