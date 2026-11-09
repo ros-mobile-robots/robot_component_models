@@ -61,6 +61,8 @@ PARTS: Dict[str, PartView] = {
         -60.0, 15.0),
     'rplidar_a2': PartView('Laser scanner (RPLIDAR A2 size)',
                            [Placement('rplidar_a2/rplidar_a2.dae')], 25.0, 22.0),
+    'rplidar_a1': PartView('Laser scanner (RPLIDAR A1 size)',
+                           [Placement('rplidar_a1/rplidar_a1.dae')], 215.0, 24.0),
     'raspberry_pi_4b': PartView('Raspberry Pi 4 Model B',
                                 [Placement('raspberry_pi_4b/raspberry_pi_4b.dae')], 50.0, 38.0),
     'jetson_nano_dev_kit_b01': PartView(
@@ -80,7 +82,7 @@ PARTS: Dict[str, PartView] = {
 OVERVIEW_AZIMUTH, OVERVIEW_ELEVATION = -90.0, 32.0
 OVERVIEW_ROWS = [
     [('jetson_nano_dev_kit_b01', 180.0), ('raspberry_pi_4b', 180.0),
-     ('breadboard_400_point', 90.0)],
+     ('breadboard_400_point', 90.0), ('rplidar_a1', 55.0)],
     [('raspberry_pi_camera_v2', -90.0), ('teensy_4_0', 0.0), ('swivel_caster_30mm', -30.0),
      ('rplidar_a2', -90.0)],
 ]

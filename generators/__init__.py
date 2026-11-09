@@ -11,6 +11,7 @@ mesh_export.Model objects. `python3 -m generators` writes all meshes and meshes/
 PARTS = (
     'swivel_caster_30mm',
     'rplidar_a2',
+    'rplidar_a1',
     'raspberry_pi_4b',
     'jetson_nano_dev_kit_b01',
     'teensy_4_0',

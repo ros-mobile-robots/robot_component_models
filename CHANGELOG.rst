@@ -11,3 +11,6 @@ Changelog for package robot_component_models
   local frame documented in the manifest and the part's provenance page
 * The CadQuery generators, the sources of every model, meshes/manifest.yaml with checksums,
   units, frames and bounding boxes, and checks in CI
+* A display model of a 360 degree laser scanner of the RPLIDAR A1's size (A1M8), from the
+  datasheet's mechanical drawing: base, board, connectors, motor, pulley, belt, head and window
+  as sub-parts, z = 0 in the scan plane
