@@ -94,7 +94,7 @@ KINGPIN_HOLE = 2.2            # radius of the hole in the cup's floor
 # t107-110 s, Adafruit, Bits & Parts)
 FORK_ARM_ANGLES = (48.0, 132.0)  # where each arm leaves the cup's wall, deg from +x (front)
 FORK_ARM_FLAT_Z = -9.0        # below this the arms are flat
-FORK_ARM_BEND_STEPS = 6       # sections between the cup's wall and the flat arm
+FORK_ARM_BEND_STEPS = 20      # sections between the cup's wall and the flat arm
 FORK_INNER_HALF_WIDTH = 8.6   # 17.2 mm between the flat arms for the 15.6 mm wheel
 FORK_TIP_RADIUS = 4.75        # the arm's rounded tip around the axle (about 9.5 mm wide)
 FORK_FRONT_FILLET = 3.0       # where the arm's front edge curves into the cup's rim (Adafruit)
@@ -279,8 +279,6 @@ def make_base() -> Dict[str, cq.Workplane]:
                                    BALL_Z))
                        for k in range(BALLS)])
     steel = steel.union(balls)
-    if len(steel.solids().vals()) != BALLS + 1:
-        raise ValueError('the balls must be separate from the plate, the raceway and each other')
     # Kingpin: the flat head on the raceway's centre, the shaft down through the fork's cup
     centre_top = plate_middle + PLATE_RACE[-1][1] + PLATE_THICKNESS / 2
     head_d, head_h, head_round = KINGPIN_HEAD
@@ -311,6 +309,8 @@ def make_base() -> Dict[str, cq.Workplane]:
     steel = steel.union(cap)
     for x, y in holes:
         steel = steel.union(phillips_screw(x, y, plate_bottom))
+    if len(steel.solids().vals()) != BALLS + 1:
+        raise ValueError('the balls must stay separate from the rest of the steel and each other')
     brass = union_all([standoff(x, y, plate_top) for x, y in holes])
     return {'steel': steel, 'brass': brass}
 
@@ -375,9 +375,10 @@ def fork_arm() -> cq.Workplane:
     """Return the arm on the +y side, before its outline: the curved root and the flat sheet.
 
     A ruled loft through closed sections of four edges each (a spline along each face, joined
-    by straight ends), so the faces are smooth across the arm. The sections ease from a sector
-    of the cup's wall at the rim to a flat strip at FORK_ARM_FLAT_Z: steeply away from the wall,
-    flat towards the strip, so the bend between the sections stays slight. A last strip at the
+    by straight ends), so the faces are smooth across the arm. The sections step down evenly
+    from a sector of the cup's wall at the rim to a flat strip at FORK_ARM_FLAT_Z, and blend
+    across with a half cosine: the arm leaves the wall and meets the flat strip running
+    straight down, and the bends between neighbouring sections stay small. A last strip at the
     bottom continues the flat sheet past the axle.
     """
     # The loft starts inside the cup's straight wall, 0.15 mm inside its faces, so the union
@@ -416,9 +417,9 @@ def fork_arm() -> cq.Workplane:
     flat_inner = [(x, y_in) for x in reversed(xs)]
     sections = []
     for k in range(FORK_ARM_BEND_STEPS + 1):
-        quarter = math.pi / 2 * k / FORK_ARM_BEND_STEPS
-        share = 1 - math.cos(quarter)
-        z = rim_z + (FORK_ARM_FLAT_Z - rim_z) * math.sin(quarter)
+        step = k / FORK_ARM_BEND_STEPS
+        share = (1 - math.cos(math.pi * step)) / 2
+        z = rim_z + (FORK_ARM_FLAT_Z - rim_z) * step
         sections.append(section(blend(wall_outer, flat_outer, share),
                                 blend(wall_inner, flat_inner, share), z))
     sections.append(section(flat_outer, flat_inner, AXLE_Z - FORK_TIP_RADIUS - 1))

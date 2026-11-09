@@ -50,30 +50,30 @@ parts:
         materials: [steel, axle]
         files:
           swivel_caster_30mm/swivel_caster_30mm_wheel_support.stl:
-            sha256: fe23ef8faf6d5f2df0e4ecc122f2b0a710cc050a13d20ddb31751e4b72d8d6a9
-            bytes: 537584
+            sha256: 6639c9cf321866a3408aa060653de8734f593aaa79dcbb151d4a266088c85e43
+            bytes: 629684
             units: metre
             up_axis: "Z"
-            triangles: 10750
+            triangles: 12592
             bounding_box_min: [-0.020750, -0.012250, -0.024748]
-            bounding_box_max: [0.012262, 0.012254, -0.000004]
+            bounding_box_max: [0.012262, 0.012259, -0.000003]
             license_file: swivel_caster_30mm/swivel_caster_30mm_wheel_support.stl.license
           swivel_caster_30mm/swivel_caster_30mm_wheel_support.dae:
-            sha256: 6ff6e9e06925037f6d7b0ce93e248bb03fe1edb375ceb5f091b7c39ef4d51ff5
-            bytes: 551338
+            sha256: 9270f89e4e1725b23fdaa62535eb71458d8562f742ef4d6699413552961b49c1
+            bytes: 666789
             units: metre
             up_axis: "Z"
-            triangles: 10750
+            triangles: 12592
             bounding_box_min: [-0.020750, -0.012250, -0.024748]
-            bounding_box_max: [0.012262, 0.012254, -0.000004]
+            bounding_box_max: [0.012262, 0.012259, -0.000003]
           swivel_caster_30mm/swivel_caster_30mm_wheel_support.glb:
-            sha256: 159e261845f08e1dc00785c740e705dd08594964641bdabd8017ad7aec632d12
-            bytes: 233616
+            sha256: 377f36a4280ffc20450f2d5ff789665e610bf27a3d899977495189a5b2cb5032
+            bytes: 279848
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
-            triangles: 10750
+            triangles: 12592
             bounding_box_min: [-0.020750, -0.012250, -0.024748]
-            bounding_box_max: [0.012262, 0.012254, -0.000004]
+            bounding_box_max: [0.012262, 0.012259, -0.000003]
             license_file: swivel_caster_30mm/swivel_caster_30mm_wheel_support.glb.license
       swivel_caster_30mm_wheel:
         frame: "Centred on the wheel's axle, the axle along y. Radius 15 mm."
