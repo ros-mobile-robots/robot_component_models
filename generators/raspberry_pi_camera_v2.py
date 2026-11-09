@@ -28,8 +28,8 @@ TITLE = 'Raspberry Pi Camera Module v2'
 NAME = 'raspberry_pi_camera_v2'
 # Board (drawing): 25 mm along y, 23.862 mm along z, 1 mm thick, corners R 2
 BOARD_Y, BOARD_Z, BOARD_T, CORNER_R = 25.0, 23.862, 1.0, 2.0
-# Placement (frame alignment, see provenance/raspberry_pi_camera_v2.md): the board's -y and -z
-# edges and back face
+# Placement: the board's -y and -z edges and back face. With Remo's camera_joint, the back face
+# lies 0.8 mm in front of the printed holder's plate (provenance/raspberry_pi_camera_v2.md)
 Y0, Z0, X_BACK = -12.16, -12.283, -1.645
 X_FRONT = X_BACK + BOARD_T
 # Drawing coordinates: a from the edge next to the holes (along +z), b from the drawing's top

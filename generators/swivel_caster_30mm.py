@@ -38,19 +38,19 @@ from generators.mesh_export import tessellate_faces
 TITLE = 'Swivel caster with a 30 mm wheel (DiffBot)'
 
 # ---------------------------------------------------------------------------------------------
-# Parameters, in mm. Frame values come from caster_wheel.yaml and the reference meshes' bounds,
-# the shapes from video frames of DiffBot's caster and Joy-IT's photos
+# Parameters, in mm. The joint and visual offsets come from DiffBot's caster_wheel.yaml and caster
+# macro, the shapes from video frames of DiffBot's caster and Joy-IT's photos
 # (provenance/swivel_caster_30mm.md).
 # ---------------------------------------------------------------------------------------------
 SWIVEL_AXIS_X = -1.0          # in the base's frame: hub joint dx -0.077 minus base dx -0.076
-STANDOFF_TOP_Z = 15.0         # frame alignment: the reference base's top
+STANDOFF_TOP_Z = 15.0         # the standoffs' top: on DiffBot 0.5 mm below the chassis plate's top
 STANDOFF_LENGTH = 10.0        # brass hex standoffs between chassis and plate (video frames)
 STANDOFF_ACROSS_FLATS = 5.0   # hexagonal M3 standoff
 STANDOFF_CHAMFER = 0.3        # the hexagon's end edges (choice)
 # The M3 internal thread at the chassis end, shown as a smooth blind bore of the tapping
 # diameter, without a thread profile (choice)
 STANDOFF_THREAD = (2.5, 3.0)  # diameter, depth
-PLATE_SIZE = (32.0, 38.0)     # x, y: the reference base's footprint
+PLATE_SIZE = (32.0, 38.0)     # x, y: the plate's footprint
 PLATE_THICKNESS = 1.3         # listing of the same 38 x 32 mm plate (Electrokit): 1.3 mm
 PLATE_CORNER_RADIUS = 3.0
 PLATE_HOLES = (12.0, 15.0)    # hole centres at (+-x, +-y) from the swivel axis: 24 x 30 mm
@@ -76,7 +76,7 @@ KINGPIN_HEAD = (7.5, 2.0, 0.4)  # flat head on the plate's centre: diameter, hei
 # (radius, depth below the cup floor's underside) from the rim inwards to the flat rivet head
 RACE_CAP = ((5.6, 0.1), (5.6, 0.5), (5.2, 0.9), (4.9, 0.9), (4.8, 1.3), (4.7, 1.3))
 RIVET_HEAD_BOTTOM_RADIUS = 4.6  # the kingpin's flat lower head (frame 140705 t33 s)
-RIVET_BOTTOM_Z = -3.3         # frame alignment: the reference base's lowest point
+RIVET_BOTTOM_Z = -3.3         # the flat lower head's bottom, the base's lowest point
 
 # The fork, bent from one sheet (Makerfabs' listing of the family: 1.2 mm cold-rolled steel)
 FORK_THICKNESS = 1.2
@@ -105,7 +105,7 @@ AXLE_HEAD = (3.25, 1.4)       # domed head: radius, height (frames 134022 t107-1
 AXLE_PAN_HEAD = (5.8, 1.6)    # Phillips pan head on the other side (frame 131939 t107.5 s)
 
 WHEEL_RADIUS = 15.0           # caster_wheel.yaml: radius 0.015
-WHEEL_HALF_WIDTH = 7.8        # hub width 15.6 mm (frame alignment)
+WHEEL_HALF_WIDTH = 7.8        # hub width 15.6 mm, 0.8 mm clear of each fork arm
 TREAD_HALF_WIDTH = 6.0
 TREAD_ROUND = 3.0             # crowned tread (video frames)
 WHEEL_DISH = (5.5, 10.5, 5.0)  # recessed side: hub radius, dish outer radius, dish face |y|
