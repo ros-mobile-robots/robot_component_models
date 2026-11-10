@@ -10,8 +10,8 @@ the colours from a photo of Remo on ros-mobile-robots.com. No cable, no logos, n
 Sources in provenance/rplidar_a2.md.
 
 Frame: the rotation axis along z, the bottom at z = -29.85 mm (so the optical window's centre
-is at z = +0.95 mm), the cable exit towards -x, the window towards +x. Positions in mm.
-The STL and glTF files are in metres, the COLLADA file in millimetres.
+is at z = +0.95 mm), the cable exit towards -x, the window towards +x. Positions in mm,
+the files are in metres.
 """
 import math
 from typing import Dict

@@ -1,11 +1,9 @@
 # SPDX-FileCopyrightText: 2026 ROS Mobile Robots
 # SPDX-License-Identifier: BSD-3-Clause
 # meshes/manifest.yaml: written by `python3 -m generators`, not by hand.
-# The STL and glTF files are in metres. The COLLADA files are in millimetres and
-# declare that in their <unit> element. Each bounding box is in its file's units
-# (see units) and in the mesh's own frame (see frame), before any URDF transform.
-# For glTF, the box of the vertex data, before the root node turns them into
-# glTF's Y up.
+# All files are in metres. Bounding boxes are in each mesh's own frame (see
+# frame), before any URDF transform. For glTF, the box of the vertex data, before
+# the root node turns them into glTF's Y up.
 # STL and glTF files carry their license in the <file>.license next to them.
 package: robot_component_models
 license: BSD-3-Clause
@@ -30,13 +28,13 @@ parts:
             bounding_box_max: [0.015000, 0.019000, 0.015000]
             license_file: swivel_caster_30mm/swivel_caster_30mm_base.stl.license
           swivel_caster_30mm/swivel_caster_30mm_base.dae:
-            sha256: 586d334036be3be719a64cbe33873a2e223c63a061f95ae0f39f9c4e58840df9
-            bytes: 583038
-            units: millimetre
+            sha256: a914bcb08036213fcccad6076dd18ae2d7663f36e4e189a29de2b51cbb03d8df
+            bytes: 640803
+            units: metre
             up_axis: "Z"
             triangles: 9820
-            bounding_box_min: [-17.000, -19.000, -3.300]
-            bounding_box_max: [15.000, 19.000, 15.000]
+            bounding_box_min: [-0.017000, -0.019000, -0.003300]
+            bounding_box_max: [0.015000, 0.019000, 0.015000]
           swivel_caster_30mm/swivel_caster_30mm_base.glb:
             sha256: 2dc7578abd3a85946dfb74213490c49db28f8229d46fd5be48ef1a3e9a0cdc0e
             bytes: 231692
@@ -61,13 +59,13 @@ parts:
             bounding_box_max: [0.012985, 0.012500, 0.000000]
             license_file: swivel_caster_30mm/swivel_caster_30mm_wheel_support.stl.license
           swivel_caster_30mm/swivel_caster_30mm_wheel_support.dae:
-            sha256: 8e92462fc064facd9bd46d9162063ecd9db03a03203d00fd3c92e92a4566ba14
-            bytes: 398739
-            units: millimetre
+            sha256: 170bed830b352d3c19728dbde767af835926afe81351234f2cd11b779dbc9bca
+            bytes: 428175
+            units: metre
             up_axis: "Z"
             triangles: 6592
-            bounding_box_min: [-20.500, -12.500, -24.499]
-            bounding_box_max: [12.985, 12.500, 0.000]
+            bounding_box_min: [-0.020500, -0.012500, -0.024499]
+            bounding_box_max: [0.012985, 0.012500, 0.000000]
           swivel_caster_30mm/swivel_caster_30mm_wheel_support.glb:
             sha256: 2cfc029fb705b884ec5077cb58ece518fa3602033f825e5b7f246e46dff9c348
             bytes: 153352
@@ -92,13 +90,13 @@ parts:
             bounding_box_max: [0.015000, 0.007800, 0.014996]
             license_file: swivel_caster_30mm/swivel_caster_30mm_wheel.stl.license
           swivel_caster_30mm/swivel_caster_30mm_wheel.dae:
-            sha256: b19a0768dc5c485f45a4096383a18655d4f621fe7d051e60d6515a31036c0277
-            bytes: 321094
-            units: millimetre
+            sha256: 0da22bb0ff31d1417f365eb5afa90b8a72577f42473a510cc5766f5a61b9f2be
+            bytes: 351561
+            units: metre
             up_axis: "Z"
             triangles: 5572
-            bounding_box_min: [-14.985, -7.800, -14.996]
-            bounding_box_max: [15.000, 7.800, 14.996]
+            bounding_box_min: [-0.014985, -0.007800, -0.014996]
+            bounding_box_max: [0.015000, 0.007800, 0.014996]
           swivel_caster_30mm/swivel_caster_30mm_wheel.glb:
             sha256: d55545787d37c970dd71157994700381d177d9dc0845c32d2a5c564b7f8f2bdc
             bytes: 120804
@@ -128,13 +126,13 @@ parts:
             bounding_box_max: [0.037850, 0.037845, 0.010950]
             license_file: rplidar_a2/rplidar_a2.stl.license
           rplidar_a2/rplidar_a2.dae:
-            sha256: c1eb5ead8570ec02bb019e44b6e8405debc0feaa4e51bd4074503f3bc4ce9cc2
-            bytes: 832631
-            units: millimetre
+            sha256: c4d050771ddcca7c72816c758b5e3bf1adaa66b62eb66925eefd1bc6c3b12abd
+            bytes: 904010
+            units: metre
             up_axis: "Z"
             triangles: 13014
-            bounding_box_min: [-40.850, -37.845, -29.850]
-            bounding_box_max: [37.850, 37.845, 10.950]
+            bounding_box_min: [-0.040850, -0.037845, -0.029850]
+            bounding_box_max: [0.037850, 0.037845, 0.010950]
           rplidar_a2/rplidar_a2.glb:
             sha256: b6119efb407fe153eabaf32497acf716436cc7c380e40889744ff5bc188d6070
             bytes: 331712
@@ -164,13 +162,13 @@ parts:
             bounding_box_max: [0.050921, 0.045977, 0.016800]
             license_file: raspberry_pi_4b/raspberry_pi_4b.stl.license
           raspberry_pi_4b/raspberry_pi_4b.dae:
-            sha256: f74ce1009f48463f23a80d955947be8fe00ef32b08c10edf5460fd8e9b79c662
-            bytes: 1064965
-            units: millimetre
+            sha256: 4f55a02ff7d09b5023aa7d24aaec20200485e3ffb1fe70ad1be31c84718e9bcc
+            bytes: 1211766
+            units: metre
             up_axis: "Z"
             triangles: 15116
-            bounding_box_min: [-7.569, -42.123, -2.800]
-            bounding_box_max: [50.921, 45.977, 16.800]
+            bounding_box_min: [-0.007569, -0.042123, -0.002800]
+            bounding_box_max: [0.050921, 0.045977, 0.016800]
           raspberry_pi_4b/raspberry_pi_4b.glb:
             sha256: 60a5c2d2d0ec74b1f153f8fea56fb05c48da6de9a8503000020ed6c98be406a8
             bytes: 594124
@@ -200,13 +198,13 @@ parts:
             bounding_box_max: [0.071018, 0.042223, 0.028250]
             license_file: jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.stl.license
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.dae:
-            sha256: 6c92e2b109d932b63ee978c619084a19918fbf73f5f65c78198fa26d84d70d7a
-            bytes: 409938
-            units: millimetre
+            sha256: 0dc3b8a6801da70bf55d1c2d298862ce7993d67511030417d7d59e0c988e1173
+            bytes: 465771
+            units: metre
             up_axis: "Z"
             triangles: 5696
-            bounding_box_min: [-28.982, -38.847, -1.950]
-            bounding_box_max: [71.018, 42.223, 28.250]
+            bounding_box_min: [-0.028982, -0.038847, -0.001950]
+            bounding_box_max: [0.071018, 0.042223, 0.028250]
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.glb:
             sha256: d0906541330813511817be7af236a926753ef69ea5d3367e38db42836ece2782
             bytes: 251700
@@ -236,13 +234,13 @@ parts:
             bounding_box_max: [0.021631, 0.008858, 0.004355]
             license_file: teensy_4_0/teensy_4_0.stl.license
           teensy_4_0/teensy_4_0.dae:
-            sha256: 2a2cf9654ae2b8f3cffe6f8e5f8ad8f353d90367f61d0e5b053ab9d42c924a44
-            bytes: 1792741
-            units: millimetre
+            sha256: 3e0af7eef667395f1bcc300185b8cde34cb5af671844dbfbdae6abe2f6a4644e
+            bytes: 2020712
+            units: metre
             up_axis: "Z"
             triangles: 25520
-            bounding_box_min: [-14.629, -8.922, -8.500]
-            bounding_box_max: [21.631, 8.858, 4.355]
+            bounding_box_min: [-0.014629, -0.008922, -0.008500]
+            bounding_box_max: [0.021631, 0.008858, 0.004355]
           teensy_4_0/teensy_4_0.glb:
             sha256: de0cd3484747eded64f20e23ce0fac721f971d34ee9fa90d49a3bdd43ded907f
             bytes: 899476
@@ -272,13 +270,13 @@ parts:
             bounding_box_max: [0.027090, 0.037105, 0.009530]
             license_file: breadboard_400_point/breadboard_400_point.stl.license
           breadboard_400_point/breadboard_400_point.dae:
-            sha256: 08d4cf943b76c4c63b27fb53d8ae82b46c38cad157e8c3bd1b3a985415897904
-            bytes: 447236
-            units: millimetre
+            sha256: 3d3ba53ced423cd917592638c156c57a2d88ef0ab0df6946eb8b8974a511850d
+            bytes: 525705
+            units: metre
             up_axis: "Z"
             triangles: 6768
-            bounding_box_min: [-28.810, -46.795, 0.000]
-            bounding_box_max: [27.090, 37.105, 9.530]
+            bounding_box_min: [-0.028810, -0.046795, 0.000000]
+            bounding_box_max: [0.027090, 0.037105, 0.009530]
           breadboard_400_point/breadboard_400_point.glb:
             sha256: 0321a1163d52f4a91d06c9a31496baecb777150a68d8eda000713746a305c61a
             bytes: 289508
@@ -308,13 +306,13 @@ parts:
             bounding_box_max: [0.004575, 0.012840, 0.011579]
             license_file: raspberry_pi_camera_v2/raspberry_pi_camera_v2.stl.license
           raspberry_pi_camera_v2/raspberry_pi_camera_v2.dae:
-            sha256: d6b52e7a14357a3fc137f806e9ffc67904cbdbc2ff772f3ed2b1da93a7411134
-            bytes: 215642
-            units: millimetre
+            sha256: ec8def17acc4afd3d2bdb2d4e5f38e7684b05309f44999be30e94977ab7f0b14
+            bytes: 245963
+            units: metre
             up_axis: "Z"
             triangles: 2976
-            bounding_box_min: [-4.145, -12.160, -12.283]
-            bounding_box_max: [4.575, 12.840, 11.579]
+            bounding_box_min: [-0.004145, -0.012160, -0.012283]
+            bounding_box_max: [0.004575, 0.012840, 0.011579]
           raspberry_pi_camera_v2/raspberry_pi_camera_v2.glb:
             sha256: 2d4121901e558bbc73cbc2189f06055b8afc6e8d61c12f14b0f57213023908cb
             bytes: 116152

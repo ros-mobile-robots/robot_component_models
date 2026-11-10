@@ -8,8 +8,8 @@ the 0.1 in grid of the boards that plug into it on Remo (PJRC's Teensy 4.0 drawi
 BNO055 breakout layout) and their positions in remo_description's URDF. No logos, no printed
 numbers or letters. Sources in provenance/breadboard_400_point.md.
 
-Frame (positions in mm): the bottom at z = 0, the centre channel along y, the dovetail tabs on
-the -x and -y sides. The STL and glTF files are in metres, the COLLADA file in millimetres.
+Frame (positions in mm, the files are in metres): the bottom at z = 0, the
+centre channel along y, the dovetail tabs on the -x and -y sides.
 """
 from typing import List
 

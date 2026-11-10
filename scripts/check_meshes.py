@@ -9,9 +9,7 @@ so they don't share the generators' mistakes:
 - meshes/ holds exactly the manifest's files, each with the manifest's checksum and size,
 - every STL is closed and consistently oriented, without collapsed triangles,
 - triangle counts and bounding boxes match the manifest, in each file's units,
-- every STL and glTF file is in metres, every COLLADA file is in millimetres and declares
-  that in its <unit> element,
-- the COLLADA and glTF files have the STL's bounding box, compared in metres,
+- every file is in metres, and the COLLADA and glTF files have the STL's geometry,
 - every COLLADA file is valid against the COLLADA 1.4.1 schema and loads in pycollada,
 - every COLLADA file gives the normals an index of their own in its triangle lists,
 - every glTF file loads in trimesh, with the manifest's sub-parts as named nodes,
@@ -60,12 +58,7 @@ Y_UP_TO_Z_UP = np.array([[1.0, 0.0, 0.0], [0.0, 0.0, -1.0], [0.0, 1.0, 0.0]])
 COPYRIGHT_LINE = 'SPDX-FileCopyrightText: 2026 ROS Mobile Robots'
 # Bounding boxes in the manifest are rounded to 0.001 mm or 0.000001 m. The float32 vertices
 # of the glTF files and the 7 digits of the COLLADA files add less than that.
-BOX_TOLERANCE = {'metre': 0.0000011, 'millimetre': 0.0011}
-# The length of each unit in metres. check_size() compares files of different units: it
-# multiplies each file's coordinates by its unit's factor, once.
-METRES_PER_UNIT = {'metre': 1.0, 'millimetre': 0.001}
-# The unit of each format
-FORMAT_UNITS = {'.stl': 'metre', '.dae': 'millimetre', '.glb': 'metre'}
+BOX_TOLERANCE = {'metre': 0.0000011}
 
 
 class MeshFile(NamedTuple):
@@ -78,7 +71,7 @@ class MeshFile(NamedTuple):
 
 
 class Geometry(NamedTuple):
-    """A file's triangle corners (m, 3, 3) in the file's own units and frame (Z up)."""
+    """A file's triangle corners (m, 3, 3) in its own units and frame (Z up)."""
 
     corners: np.ndarray
 
@@ -117,10 +110,7 @@ def stl_corners(path: str) -> np.ndarray:
 
 
 def dae_corners(path: str) -> np.ndarray:
-    """Return the triangle corners of a COLLADA file, read by pycollada, nodes applied.
-
-    pycollada doesn't apply the file's <unit>: the corners are in the file's units.
-    """
+    """Return the triangle corners of a COLLADA file, read by pycollada, nodes applied."""
     document = collada.Collada(path)
     blocks = [np.asarray(primitive.vertex[primitive.vertex_index])
               for geometry in document.scene.objects('geometry')
@@ -182,36 +172,21 @@ def check_bounding_box(mesh_file: MeshFile) -> List[str]:
     return problems
 
 
-def metres_per_unit(mesh_file: MeshFile) -> float:
-    """Return the factor that turns the file's coordinates into metres, from the manifest."""
-    return METRES_PER_UNIT[str(mesh_file.entry['units'])]
-
-
 def check_units(mesh_file: MeshFile) -> List[str]:
-    """Check the manifest's unit of the file: metres for STL and glTF, millimetres for COLLADA."""
-    expected = FORMAT_UNITS[os.path.splitext(mesh_file.path)[1]]
-    units = mesh_file.entry['units']
-    return [] if units == expected else [f'manifest units {units}, expected {expected}']
-
-
-def check_size(mesh_file: MeshFile) -> List[str]:
-    """Check the file's size in metres: an STL's by its range, the others against the STL.
-
-    The formats differ in their units, so the bounding boxes are compared in metres.
-    """
+    """Check that the files are in metres, the COLLADA and glTF files with the STL's geometry."""
     extension = os.path.splitext(mesh_file.path)[1]
-    ours = geometry(mesh_file).corners.reshape(-1, 3) * metres_per_unit(mesh_file)
     if extension == '.stl':
-        size = np.ptp(ours, axis=0).max()
-        return [] if 0.005 < size < 0.5 else [f'largest size {size:.6f} m: not metres?']
+        size = np.ptp(geometry(mesh_file).corners.reshape(-1, 3), axis=0).max()
+        return [] if 0.005 < size < 0.5 else [f'largest size {size:.6f}: not metres?']
     stl_path = mesh_file.path[:-len(extension)] + '.stl'
     stl = mesh_file._replace(path=stl_path, entry=mesh_file.mesh['files'][stl_path])
-    reference = geometry(stl).corners.reshape(-1, 3) * metres_per_unit(stl)
+    ours = geometry(mesh_file).corners.reshape(-1, 3)
+    reference = geometry(stl).corners.reshape(-1, 3)
     problems = []
     for name, ours_value, reference_value in (('min', ours.min(0), reference.min(0)),
                                               ('max', ours.max(0), reference.max(0))):
         if np.abs(ours_value - reference_value).max() > 1e-6:
-            problems.append(f"bounding box {name} differs from the STL's, both in metres")
+            problems.append(f"bounding box {name} differs from the STL's")
     return problems
 
 
@@ -251,10 +226,8 @@ def check_collada(mesh_file: MeshFile, schema: etree.XMLSchema) -> List[str]:
     if not schema.validate(document):
         problems.append(f'not valid COLLADA 1.4.1: {schema.error_log.last_error}')
     namespace = {'c': 'http://www.collada.org/2005/11/COLLADASchema'}
-    unit = (document.xpath('string(//c:asset/c:unit/@name)', namespaces=namespace),
-            document.xpath('string(//c:asset/c:unit/@meter)', namespaces=namespace))
-    if unit != ('millimeter', '0.001'):
-        problems.append(f'<unit> is {unit}, not the millimetre')
+    if document.xpath('string(//c:asset/c:unit/@meter)', namespaces=namespace) != '1':
+        problems.append('unit is not the metre')
     if document.xpath('string(//c:asset/c:up_axis)', namespaces=namespace) != 'Z_UP':
         problems.append('up axis is not Z')
     materials = document.xpath('//c:library_materials/c:material/@name', namespaces=namespace)
@@ -336,7 +309,7 @@ def check_license(mesh_file: MeshFile) -> List[str]:
 
 
 FILE_CHECKS: List[Check] = [check_checksum, check_triangle_count, check_bounding_box,
-                            check_units, check_size, check_closed, check_license]
+                            check_units, check_closed, check_license]
 
 
 # ---------------------------------------------------------------------------------------------

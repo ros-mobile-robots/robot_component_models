@@ -12,7 +12,7 @@ Generator: [`generators/teensy_4_0.py`](../generators/teensy_4_0.py).
 
 ## Frame
 
-The STL and glTF files are in metres, the COLLADA file is in millimetres. Positions on this page are in millimetres. The board's bottom face is at z = 0, the components on +z. The long axis runs along x with the USB connector at -x: the board lies from x = -13.929 to 21.631 mm, centred at y = -0.032 mm. The row with the inner pin hole is at +y. The header's plastic spacer ends at z = -2.5 mm and the pins at z = -8.5 mm.
+The files are in metres. Positions on this page are in millimetres. The board's bottom face is at z = 0, the components on +z. The long axis runs along x with the USB connector at -x: the board lies from x = -13.929 to 21.631 mm, centred at y = -0.032 mm. The row with the inner pin hole is at +y. The header's plastic spacer ends at z = -2.5 mm and the pins at z = -8.5 mm.
 
 In [Remo's description](https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/remo.urdf.xacro), `mcu_joint` attaches `mcu_link` to `chassis_link` at (-41.4, -20.6, 12.0) mm, turned by -90° about z. The board's bottom is then 12 mm above `chassis_link`, and the header spacer's bottom, 2.5 mm lower, lies on the breadboard's top at 9.5 mm. With the Raspberry Pi deck and the board's far end at x = 21.631 mm and its centre line at y = -0.032 mm, the 28 header pins lie within 0.027 mm of the centres of the breadboard model's holes, in the horizontal plane. With the Jetson deck, `breadboard_joint` lies 10 mm further back while `mcu_joint` stays, so the pins lie 2.4 to 2.7 mm from the nearest hole centres.
 

@@ -10,8 +10,7 @@ arms. The wheel on an axle rivet with domed heads and washers. Sizes come from D
 caster_wheel.yaml (wheel radius, joint offsets), the shapes from photos and video frames of
 DiffBot's caster and from Joy-IT's product photos. Sources in provenance/swivel_caster_30mm.md.
 
-Frames (positions in mm, z up. The STL and glTF files are in metres, the COLLADA files in
-millimetres):
+Frames (positions in mm, the files are in metres, z up):
 - swivel_caster_30mm_base: the fixed part, with standoffs, plate, bearing and rivet. z = 0 is
   the swivel bearing's lower face. The standoffs end at z = +15 mm. The swivel axis is at
   x = -1 mm (DiffBot's hub joint is 1 mm behind its base joint).

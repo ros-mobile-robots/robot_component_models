@@ -12,20 +12,20 @@ These are display models for visualisation in RViz, Gazebo and web viewers. They
 
 | Part | Picture | Meshes | Used by | Triangles | STL / DAE / GLB |
 |---|---|---|---|---|---|
-| [Swivel caster with a 30 mm wheel](provenance/swivel_caster_30mm.md) | <img src="docs/images/swivel_caster_30mm.png" width="200" alt="Swivel caster"> | `swivel_caster_30mm/swivel_caster_30mm_base`<br>`swivel_caster_30mm/swivel_caster_30mm_wheel_support`<br>`swivel_caster_30mm/swivel_caster_30mm_wheel` | DiffBot | 9,820<br>6,592<br>5,572 | 491 / 583 / 232 kB<br>330 / 399 / 153 kB<br>279 / 321 / 121 kB |
-| [360 degree laser scanner, RPLIDAR A2 size](provenance/rplidar_a2.md) | <img src="docs/images/rplidar_a2.png" width="200" alt="Laser scanner"> | `rplidar_a2/rplidar_a2` | DiffBot, Remo | 13,014 | 651 / 833 / 332 kB |
-| [Raspberry Pi 4 Model B](provenance/raspberry_pi_4b.md) | <img src="docs/images/raspberry_pi_4b.png" width="200" alt="Raspberry Pi 4 Model B"> | `raspberry_pi_4b/raspberry_pi_4b` | Remo | 15,116 | 756 / 1,065 / 594 kB |
-| [Jetson Nano Developer Kit B01](provenance/jetson_nano_dev_kit_b01.md) | <img src="docs/images/jetson_nano_dev_kit_b01.png" width="200" alt="Jetson Nano Developer Kit"> | `jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01` | Remo | 5,696 | 285 / 410 / 252 kB |
-| [Teensy 4.0 with two 14-pin headers](provenance/teensy_4_0.md) | <img src="docs/images/teensy_4_0.png" width="200" alt="Teensy 4.0"> | `teensy_4_0/teensy_4_0` | Remo | 25,520 | 1,276 / 1,793 / 899 kB |
-| [400-point solderless breadboard](provenance/breadboard_400_point.md) | <img src="docs/images/breadboard_400_point.png" width="200" alt="Breadboard"> | `breadboard_400_point/breadboard_400_point` | Remo | 6,768 | 338 / 447 / 290 kB |
-| [Raspberry Pi Camera Module v2](provenance/raspberry_pi_camera_v2.md) | <img src="docs/images/raspberry_pi_camera_v2.png" width="200" alt="Camera Module v2"> | `raspberry_pi_camera_v2/raspberry_pi_camera_v2` | Remo | 2,976 | 149 / 216 / 116 kB |
+| [Swivel caster with a 30 mm wheel](provenance/swivel_caster_30mm.md) | <img src="docs/images/swivel_caster_30mm.png" width="200" alt="Swivel caster"> | `swivel_caster_30mm/swivel_caster_30mm_base`<br>`swivel_caster_30mm/swivel_caster_30mm_wheel_support`<br>`swivel_caster_30mm/swivel_caster_30mm_wheel` | DiffBot | 9,820<br>6,592<br>5,572 | 491 / 641 / 232 kB<br>330 / 428 / 153 kB<br>279 / 352 / 121 kB |
+| [360 degree laser scanner, RPLIDAR A2 size](provenance/rplidar_a2.md) | <img src="docs/images/rplidar_a2.png" width="200" alt="Laser scanner"> | `rplidar_a2/rplidar_a2` | DiffBot, Remo | 13,014 | 651 / 904 / 332 kB |
+| [Raspberry Pi 4 Model B](provenance/raspberry_pi_4b.md) | <img src="docs/images/raspberry_pi_4b.png" width="200" alt="Raspberry Pi 4 Model B"> | `raspberry_pi_4b/raspberry_pi_4b` | Remo | 15,116 | 756 / 1,212 / 594 kB |
+| [Jetson Nano Developer Kit B01](provenance/jetson_nano_dev_kit_b01.md) | <img src="docs/images/jetson_nano_dev_kit_b01.png" width="200" alt="Jetson Nano Developer Kit"> | `jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01` | Remo | 5,696 | 285 / 466 / 252 kB |
+| [Teensy 4.0 with two 14-pin headers](provenance/teensy_4_0.md) | <img src="docs/images/teensy_4_0.png" width="200" alt="Teensy 4.0"> | `teensy_4_0/teensy_4_0` | Remo | 25,520 | 1,276 / 2,021 / 899 kB |
+| [400-point solderless breadboard](provenance/breadboard_400_point.md) | <img src="docs/images/breadboard_400_point.png" width="200" alt="Breadboard"> | `breadboard_400_point/breadboard_400_point` | Remo | 6,768 | 338 / 526 / 290 kB |
+| [Raspberry Pi Camera Module v2](provenance/raspberry_pi_camera_v2.md) | <img src="docs/images/raspberry_pi_camera_v2.png" width="200" alt="Camera Module v2"> | `raspberry_pi_camera_v2/raspberry_pi_camera_v2` | Remo | 2,976 | 149 / 246 / 116 kB |
 | Wheel 65 × 25 mm | Planned | `wheel/…` | DiffBot, Remo | | |
 
-Each mesh comes in three files in `meshes/<part>/`:
+Each mesh comes in three files in `meshes/<part>/`, all in metres:
 
-- `<name>.dae`: COLLADA 1.4.1 in millimetres, Z up, with coloured materials and one node per sub-part. The file declares its unit, so the mesh needs no scale (see [Units](#units)).
-- `<name>.stl`: binary STL in metres, without colours.
-- `<name>.glb`: binary glTF 2.0 in metres, with the same materials, for web viewers. Each sub-part, such as a connector, is a named node, so a viewer can move the sub-parts apart.
+- `<name>.dae`: COLLADA 1.4.1, Z up, with coloured materials and one node per sub-part.
+- `<name>.stl`: binary STL, without colours.
+- `<name>.glb`: binary glTF 2.0 with the same materials, for web viewers. Each sub-part, such as a connector, is a named node, so a viewer can move the sub-parts apart.
 
 [`meshes/manifest.yaml`](meshes/manifest.yaml) lists every file with its checksum, size, units, frame, bounding box, triangle count, sub-parts and materials. The provenance page of each part, linked in the table, lists its sources, its frame, what was estimated or simplified, and which measurements would improve it.
 
@@ -33,7 +33,7 @@ Each mesh comes in three files in `meshes/<part>/`:
 
 Refer to the files with `package://robot_component_models/meshes/...`. Each mesh's origin and axes are documented in the manifest and its provenance page. The robot description supplies the transforms that place the mesh.
 
-**COLLADA (`.dae`) for coloured visuals**, in ROS 1 and in ROS 2. The files bring their own colours and declare their unit, the millimetre. RViz and Gazebo read the unit and show the mesh at its real size. So leave out the scale: `scale="0.001 0.001 0.001"` would apply the unit a second time. Also leave out material overrides, the visual's `<material>` and the link's Gazebo `<material>`, to keep the mesh's embedded colours across viewers.
+**COLLADA (`.dae`) for coloured visuals**, in ROS 1 and in ROS 2. The files bring their own colours. Leave out the scale, and leave out material overrides, the visual's `<material>` and the link's Gazebo `<material>`, to keep the mesh's embedded colours across viewers.
 
 ```xml
 <visual>
@@ -56,12 +56,7 @@ Refer to the files with `package://robot_component_models/meshes/...`. Each mesh
 
 **glTF (`.glb`) for web viewers.** Whether a robot viewer reads glTF depends on the viewer, so the URDF examples use COLLADA and STL.
 
-Tested so far:
-
-- ROS 1 Noetic, RViz 1.14 and Gazebo Classic 11: the COLLADA and STL files in DiffBot's and Remo's descriptions.
-- ROS 2 Humble with Gazebo Fortress, and ROS 2 Jazzy with Gazebo Harmonic: RViz 2 and Gazebo load every COLLADA file at its size and place in a test model, without a scale and with `scale="1 1 1"`. The robots' descriptions are ROS 1 packages, so the test model stands in for them.
-- For ROS 2 Humble, CI checks the package's build and install.
-
+Tested so far: the COLLADA and STL files in DiffBot's and Remo's descriptions with ROS 1 Noetic, in RViz and Gazebo Classic 11. For ROS 2 Humble, CI checks the package's build and install. RViz 2 and the newer Gazebo haven't rendered these meshes in a test yet.
 
 Keep the collision shapes and inertias in the robot description, for example as boxes and cylinders.
 
@@ -69,16 +64,7 @@ Keep the collision shapes and inertias in the robot description, for example as 
 
 ### Units
 
-No file needs a scale in the URDF:
-
-- **STL and glTF: metres**, ROS's unit for lengths ([REP 103](https://www.ros.org/reps/rep-0103.html)). STL has no unit field, and ROS reads its coordinates as metres. glTF's unit is the metre.
-- **COLLADA: millimetres.** Each file declares its unit with `<unit name="millimeter" meter="0.001"/>`. A COLLADA reader multiplies the coordinates by this factor, which gives metres.
-
-The COLLADA files are in millimetres because of Gazebo Classic. Its COLLADA loader can treat two positions as one vertex when they lie within 0.001 file units of each other on every axis, and applies the file's unit afterwards. In a file in metres that distance is 1 mm, and some corners of small features are drawn at a neighbouring vertex's position. In a file in millimetres that distance is 1 µm.
-
-A program that ignores the `<unit>` element reads a COLLADA file 1000 times too large. Use the STL or the glTF file there. One such program is [geometric_shapes](https://github.com/moveit/geometric_shapes), which MoveIt uses to load collision meshes.
-
-The generators build the models in millimetres and convert the coordinates to metres when they write the STL and glTF files. The provenance pages give positions in millimetres. The manifest gives each file's unit, and its bounding box in that unit.
+All files are in metres, ROS's unit for lengths ([REP 103](https://www.ros.org/reps/rep-0103.html)). STL has no unit field, and ROS reads its coordinates as metres, so no file needs a scale. The generators build the models in millimetres and convert the coordinates when they write the files. The provenance pages give positions in millimetres.
 
 ### Frames
 
@@ -90,7 +76,7 @@ Each mesh has its own local frame, Z up. The origin isn't always the part's cent
 - [Camera Module v2](provenance/raspberry_pi_camera_v2.md#frame): the board in the yz plane, the lens looking along +x.
 - [Swivel caster](provenance/swivel_caster_30mm.md#frames): the base's swivel axis at x = -1 mm, the fork's axle along y at x = -16 mm, z = -20 mm.
 
-Every mesh's frame is described in the manifest (`frame`) and in the Frame section of its provenance page. The manifest's bounding boxes are in this local frame, in each file's unit.
+Every mesh's frame is described in the manifest (`frame`) and in the Frame section of its provenance page. The manifest's bounding boxes are in this local frame.
 
 The glTF files use the same local frame for their vertex data. Their root node turns the data by -90° about x into glTF's Y-up scene. The manifest's glTF bounding boxes are those of the vertex data, before this root rotation.
 
@@ -156,7 +142,7 @@ The models are written with CadQuery because its models are plain Python driven 
 [CI](.github/workflows/ci.yml) runs on every pull request:
 
 1. **Regeneration**: regenerates all parts twice in the generator environment and fails if any file differs from the manifest's checksum.
-2. **Mesh checks**: every STL is closed and consistently oriented. Triangle counts, units and bounding boxes match the manifest. The STL and glTF files are in metres and the COLLADA files in millimetres, and the three files of a mesh have the same bounding box in metres. The COLLADA files are valid against the COLLADA 1.4.1 schema and load in pycollada. Their triangle lists give the normals an index of their own, which Gazebo Classic needs to shade sharp edges correctly. The glTF files load in trimesh and pass the Khronos glTF Validator.
+2. **Mesh checks**: every STL is closed and consistently oriented. Triangle counts, units and bounding boxes match the manifest. The COLLADA files are valid against the COLLADA 1.4.1 schema and load in pycollada. Their triangle lists give the normals an index of their own, which Gazebo Classic needs to shade sharp edges correctly. The glTF files load in trimesh and pass the Khronos glTF Validator.
 3. **ROS packages**: builds and installs the package in the `ros:noetic` and `ros:humble` containers and checks that the installed `share/robot_component_models` holds exactly the manifest's files, their license files, the manifest, the provenance pages, `LICENSE`, `package.xml` and the build tools' own files. The ROS 1 build is checked with `catkin_make_isolated` and with colcon.
 4. **Code style**: flake8 with ROS 2's ament_flake8 settings and mypy on the generators and scripts.
 
