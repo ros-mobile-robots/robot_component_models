@@ -56,7 +56,11 @@ Refer to the files with `package://robot_component_models/meshes/...`. Each mesh
 
 **glTF (`.glb`) for web viewers.** Whether a robot viewer reads glTF depends on the viewer, so the URDF examples use COLLADA and STL.
 
-Tested so far: the COLLADA and STL files in DiffBot's and Remo's descriptions with ROS 1 Noetic, in RViz and Gazebo Classic 11. For ROS 2 Humble, CI checks the package's build and install. RViz 2 and the newer Gazebo haven't rendered these meshes in a test yet.
+Tested so far:
+
+- ROS 1 Noetic, RViz 1.14 and Gazebo Classic 11: the COLLADA and STL files in DiffBot's and Remo's descriptions.
+- ROS 2 Humble with Gazebo Fortress, and ROS 2 Jazzy with Gazebo Harmonic: RViz 2 and Gazebo load every COLLADA file at its size and place, without a scale. The robots' descriptions are ROS 1 packages, so test models with these meshes stand in for them.
+- For ROS 2 Humble, CI checks the package's build and install.
 
 In close-ups, Gazebo Classic draws some small features of the COLLADA files deformed. [Millimetre COLLADA files for close-ups in Gazebo Classic](#millimetre-collada-files-for-close-ups-in-gazebo-classic) has the cause, the numbers and the files that avoid it.
 
