@@ -19,7 +19,7 @@ These are display models for visualisation in RViz, Gazebo and web viewers. They
 | [Teensy 4.0 with two 14-pin headers](provenance/teensy_4_0.md) | <img src="docs/images/teensy_4_0.png" width="200" alt="Teensy 4.0"> | `teensy_4_0/teensy_4_0` | Remo | 25,520 | 1,276 / 1,654 / 899 kB |
 | [400-point solderless breadboard](provenance/breadboard_400_point.md) | <img src="docs/images/breadboard_400_point.png" width="200" alt="Breadboard"> | `breadboard_400_point/breadboard_400_point` | Remo | 6,768 | 338 / 428 / 290 kB |
 | [Raspberry Pi Camera Module v2](provenance/raspberry_pi_camera_v2.md) | <img src="docs/images/raspberry_pi_camera_v2.png" width="200" alt="Camera Module v2"> | `raspberry_pi_camera_v2/raspberry_pi_camera_v2` | Remo | 2,976 | 149 / 209 / 116 kB |
-| [Wheel 65 mm for TT gear motors](provenance/tt_motor_wheel_65mm.md) | <img src="docs/images/tt_motor_wheel_65mm.png" width="200" alt="Wheel"> | `tt_motor_wheel_65mm/tt_motor_wheel_65mm` | DiffBot, Remo | 58,868 | 2,943 / 3,435 / 1,460 kB |
+| [Wheel 65 mm for TT gear motors](provenance/tt_motor_wheel_65mm.md) | <img src="docs/images/tt_motor_wheel_65mm.png" width="200" alt="Wheel"> | `tt_motor_wheel_65mm/tt_motor_wheel_65mm` | DiffBot, Remo | 58,888 | 2,944 / 3,436 / 1,460 kB |
 
 Each mesh comes in three files in `meshes/<part>/`, all in metres:
 
