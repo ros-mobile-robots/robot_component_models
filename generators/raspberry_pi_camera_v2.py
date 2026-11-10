@@ -9,9 +9,10 @@ the documented size of about 25 x 24 x 9 mm. Heights that the drawing doesn't gi
 estimates from the product photo. No logos, no printed text. Sources in
 provenance/raspberry_pi_camera_v2.md.
 
-Frame (positions in mm, the files are in metres): the board in the yz plane
-with its back face at x = -1.645, the lens looking along +x, the edge with the mounting holes
-2 mm away at -z (the ribbon connector's edge at +z, on the back).
+Frame (positions in mm): the board in the yz plane with its back face at x = -1.645, the lens
+looking along +x, the edge with the mounting holes 2 mm away at -z (the ribbon connector's
+edge at +z, on the back). The STL and glTF files are in metres, the COLLADA file in
+millimetres.
 """
 from typing import List
 

@@ -3,12 +3,22 @@
 """Turn the generators' CadQuery solids into STL, COLLADA and binary glTF files.
 
 Every generator returns its meshes as Model objects: named sub-parts, each with one Surface per
-material, in millimetres in the mesh's own frame. This module writes each Model three times, all
-in metres (ROS's unit, REP 103), converted from millimetres when it writes the vertices:
+material, in millimetres in the mesh's own frame. This module writes each Model three times:
 
-- <name>.stl: binary STL, without colours,
-- <name>.dae: COLLADA 1.4.1, Z up, one node per sub-part, coloured materials,
-- <name>.glb: binary glTF 2.0, one node per sub-part with the same materials.
+- <name>.stl: binary STL in metres, without colours,
+- <name>.dae: COLLADA 1.4.1 in millimetres, Z up, one node per sub-part, coloured materials,
+- <name>.glb: binary glTF 2.0 in metres, one node per sub-part with the same materials.
+
+STL has no unit field and glTF's unit is the metre, so these two are written in metres (ROS's
+unit, REP 103), converted from millimetres when the vertices are written. A COLLADA file
+declares its unit: <unit name="millimeter" meter="0.001"/>. A COLLADA reader multiplies the
+positions by that factor, so the mesh has its real size without a scale in the URDF.
+
+Why the COLLADA positions are in millimetres: Gazebo Classic's COLLADA loader can treat two
+positions as one vertex when they lie within 0.001 file units of each other on every axis. It
+applies the file's unit afterwards. In a file in metres that distance is 1 mm, and some corners
+of small features are drawn at a neighbouring vertex's position. In a file in millimetres it
+is one micrometre.
 
 The glTF vertex data stay in the mesh's frame (Z up). A root node turns them into glTF's Y up.
 The files contain no time stamps or paths, so a second run writes the same bytes.
@@ -47,6 +57,8 @@ COPYRIGHT = f'Copyright (c) {COPYRIGHT_YEAR}, {COPYRIGHT_HOLDER}. {LICENSE_ID}, 
 SPDX_LINES = (f'SPDX-FileCopyrightText: {COPYRIGHT_YEAR} {COPYRIGHT_HOLDER}',
               f'SPDX-License-Identifier: {LICENSE_ID}')
 MM_TO_M = 0.001
+# The unit that every COLLADA file declares: its positions are the generators' millimetres
+COLLADA_UNIT = '<unit name="millimeter" meter="0.001"/>'
 # glTF's root node rotation: -90 degrees about x turns the meshes' Z up into glTF's Y up
 Z_UP_TO_Y_UP = [-math.sqrt(0.5), 0.0, 0.0, math.sqrt(0.5)]
 
@@ -381,7 +393,7 @@ def collada_source(geometry: str, kind: str, values: np.ndarray, digits: int) ->
 
 
 def collada_geometry(geometry: str, surfaces: Sequence[Tuple[str, Surface]]) -> str:
-    """Return one COLLADA geometry with a triangle list per material, positions in metres.
+    """Return one COLLADA geometry with a triangle list per material, positions in millimetres.
 
     The normals are an input of the triangles, with an index of their own: every corner is
     written as its position's index followed by its normal's index, both the same number.
@@ -392,7 +404,7 @@ def collada_geometry(geometry: str, surfaces: Sequence[Tuple[str, Surface]]) -> 
     """
     merged = merge_surfaces([surface for _, surface in surfaces])
     text = (f'  <geometry id="{geometry}" name="{geometry}">\n   <mesh>\n'
-            + collada_source(geometry, 'positions', merged.vertices * MM_TO_M, 7)
+            + collada_source(geometry, 'positions', merged.vertices, 7)
             + collada_source(geometry, 'normals', merged.normals, 5)
             + f'    <vertices id="{geometry}-vertices">\n'
             f'     <input semantic="POSITION" source="#{geometry}-positions"/>\n'
@@ -411,7 +423,7 @@ def collada_geometry(geometry: str, surfaces: Sequence[Tuple[str, Surface]]) -> 
 
 
 def write_dae(model: Model, path: str, generator: str) -> None:
-    """Write the model as COLLADA 1.4.1 in metres, Z up, one node per sub-part."""
+    """Write the model as COLLADA 1.4.1 in millimetres, Z up, one node per sub-part."""
     by_part: Dict[str, List[Tuple[str, Surface]]] = {}
     for part, material, surface in surfaces_in_order(model):
         by_part.setdefault(part, []).append((material, surface))
@@ -440,7 +452,7 @@ def write_dae(model: Model, path: str, generator: str) -> None:
             f'  </contributor>\n'
             f'  <created>{COLLADA_DATE}</created>\n'
             f'  <modified>{COLLADA_DATE}</modified>\n'
-            f'  <unit name="meter" meter="1"/>\n'
+            f'  {COLLADA_UNIT}\n'
             f'  <up_axis>Z_UP</up_axis>\n'
             f' </asset>\n'
             f' <library_effects>\n'

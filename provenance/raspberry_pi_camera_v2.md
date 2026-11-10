@@ -12,7 +12,7 @@ Generator: [`generators/raspberry_pi_camera_v2.py`](../generators/raspberry_pi_c
 
 ## Frame
 
-The files are in metres. Positions on this page are in millimetres. The board stands in the yz plane with its back face at x = -1.645 mm and the lens looking along +x. The board's edges are at y = -12.16 mm and z = -12.283 mm. The mounting holes are at (y, z) = (-10.16, -10.283), (-10.16, 2.217), (10.84, -10.283) and (10.84, 2.217) mm. The edge 2 mm from the holes is at -z. The ribbon connector's edge is at +z, on the back.
+The STL and glTF files are in metres, the COLLADA file is in millimetres. Positions on this page are in millimetres. The board stands in the yz plane with its back face at x = -1.645 mm and the lens looking along +x. The board's edges are at y = -12.16 mm and z = -12.283 mm. The mounting holes are at (y, z) = (-10.16, -10.283), (-10.16, 2.217), (10.84, -10.283) and (10.84, 2.217) mm. The edge 2 mm from the holes is at -z. The ribbon connector's edge is at +z, on the back.
 
 The model spans (-4.145, -12.160, -12.283) to (4.575, 12.840, 11.579) mm: from the ribbon connector on the back to the camera module on the front. The camera module's centre is at (y, z) = (0.34, 2.12) mm.
 

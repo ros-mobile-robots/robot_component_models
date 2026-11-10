@@ -12,7 +12,7 @@ Generator: [`generators/raspberry_pi_4b.py`](../generators/raspberry_pi_4b.py).
 
 ## Frame
 
-The files are in metres. Positions on this page are in millimetres. The board's mid-plane is at z = 0. The board lies from x = -7.569 to 48.431 mm and from y = -42.123 to 42.877 mm. The USB and Ethernet end is at +y, the GPIO header along -x and the micro-HDMI side at +x. The drawing's (x, y) map to (48.431 - y, x - 42.123): a turn by +90° about z and a shift.
+The STL and glTF files are in metres, the COLLADA file is in millimetres. Positions on this page are in millimetres. The board's mid-plane is at z = 0. The board lies from x = -7.569 to 48.431 mm and from y = -42.123 to 42.877 mm. The USB and Ethernet end is at +y, the GPIO header along -x and the micro-HDMI side at +x. The drawing's (x, y) map to (48.431 - y, x - 42.123): a turn by +90° about z and a shift.
 
 The top is the USB height, 16.0 mm above a 1.6 mm board. The bottom is the GPIO solder tails, 2.0 mm below the board. The drawing ends the Ethernet and USB fronts 3.0 mm past the board's edge. The Ethernet LEDs stand 0.1 mm proud of the jack, so the model ends at y = 45.977 mm.
 

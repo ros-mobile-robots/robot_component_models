@@ -18,7 +18,7 @@ Every model here is the project's own work, under this repository's [license](LI
 
 ## Adding or changing a part
 
-1. Choose the part's identifier, lowercase snake_case after the product, such as `rplidar_a2` (see the README's file name rules). Write or change the generator `generators/<part>.py`. Parameters go at the top, each with its source. `build()` returns the part's meshes as `mesh_export.Model` objects, in millimetres, with named sub-parts and materials. The export writes the files in metres. Add a new part to `PARTS` in `generators/__init__.py`.
+1. Choose the part's identifier, lowercase snake_case after the product, such as `rplidar_a2` (see the README's file name rules). Write or change the generator `generators/<part>.py`. Parameters go at the top, each with its source. `build()` returns the part's meshes as `mesh_export.Model` objects, in millimetres, with named sub-parts and materials. The export writes the STL and glTF files in metres and the COLLADA files in millimetres (see [Units](README.md#units) in the README). Add a new part to `PARTS` in `generators/__init__.py`.
 2. Write or update `provenance/<part>.md`: sources, the Frame section, what is simplified or estimated, and which measurements would help.
 3. Regenerate and check, with the pinned Python packages (see the README):
 
@@ -34,7 +34,7 @@ Every model here is the project's own work, under this repository's [license](LI
 
 **License lines:** every new text file starts with the two SPDX lines `SPDX-FileCopyrightText: 2026 ROS Mobile Robots` and `SPDX-License-Identifier: BSD-3-Clause`, in the file's comment syntax. The generators write these lines into each COLLADA file and the manifest, and into a `<file>.license` next to each STL and glTF file.
 
-**File names:** a change that moves a mesh's origin, turns its axes, changes its units or moves an attachment point, such as mounting holes or an axle, gets a new file name. The old file stays, so the robots that use it keep working. Other changes keep the file name.
+**File names:** once a file is released, a change that moves its mesh's origin, turns its axes, changes its units or moves an attachment point, such as mounting holes or an axle, gets a new file name. The old file stays, so the robots that use it keep working. Other changes keep the file name.
 
 **Versions:** raise the version in `package.xml` and add a section to [`CHANGELOG.rst`](CHANGELOG.rst) with a line per change. Raise the first number when a file is removed or renamed, the second when files are added or a mesh changes, the third for fixes that leave the meshes as they are. A pull request that only changes the guides or the README keeps the version. After the merge, a maintainer tags the merge commit with the version, for example `1.1.0`.
 

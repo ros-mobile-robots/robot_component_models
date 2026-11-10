@@ -12,7 +12,7 @@ Generator: [`generators/breadboard_400_point.py`](../generators/breadboard_400_p
 
 ## Frame
 
-The files are in metres. Positions on this page are in millimetres. The bottom of the foam backing is at z = 0 and the top at z = 9.5 mm. The centre channel runs along y at x = -0.16 mm. The hole columns lie at y = -0.335 mm + n × 2.54 mm. The dovetail tabs are on the -x and -y sides, the slots on +x and +y.
+The STL and glTF files are in metres, the COLLADA file is in millimetres. Positions on this page are in millimetres. The bottom of the foam backing is at z = 0 and the top at z = 9.5 mm. The centre channel runs along y at x = -0.16 mm. The hole columns lie at y = -0.335 mm + n × 2.54 mm. The dovetail tabs are on the -x and -y sides, the slots on +x and +y.
 
 In [Remo's description](https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/remo.urdf.xacro), `breadboard_joint` attaches `breadboard_link` to `chassis_link` without a turn or a height: 40 mm behind its origin with the Raspberry Pi deck, 50 mm with the Jetson deck. The foam backing's bottom then lies at `chassis_link`'s z = 0, about 0.1 mm above the top of Remo's chassis mesh. The top, at z = 9.5 mm, is where the Teensy's header spacer ends (`mcu_joint`, 12 mm, minus the 2.5 mm spacer).
 

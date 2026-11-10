@@ -12,7 +12,7 @@ Generator: [`generators/rplidar_a2.py`](../generators/rplidar_a2.py).
 
 ## Frame
 
-The files are in metres. Positions on this page are in millimetres.
+The STL and glTF files are in metres, the COLLADA file is in millimetres. Positions on this page are in millimetres.
 
 The origin lies on the scanner's rotation axis, 29.85 mm above its bottom. +z points to the top, +x towards the optical window, and the cable exit is at -x. The bottom is at z = -29.85 mm, the top at z = +10.95 mm. The optical window's centre is at z = +0.95 mm, in the middle of the 6 mm laser band, so the origin lies in the laser band.
 

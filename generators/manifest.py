@@ -3,8 +3,10 @@
 """Describe the written mesh files in meshes/manifest.yaml.
 
 The numbers are read back from the files as written: checksum, size, triangles and bounding
-box in each file's own units. The manifest is written by hand, not with a YAML library, so its
-text stays the same from run to run.
+box in each file's own units. The STL and glTF files are in metres. A COLLADA file's unit is
+read from its <unit> element (millimetres), and its bounding box stays in that unit. The
+manifest is written by hand, not with a YAML library, so its text stays the same from run to
+run.
 """
 import hashlib
 import json
@@ -19,9 +21,13 @@ import xml.etree.ElementTree as ElementTree
 import numpy as np
 
 COLLADA_NS = '{http://www.collada.org/2005/11/COLLADASchema}'
-UNITS = {'.stl': 'metre', '.dae': 'metre', '.glb': 'metre'}
+# STL has no unit field, and glTF's unit is the metre. A COLLADA file declares its unit.
+FIXED_UNITS = {'.stl': 'metre', '.glb': 'metre'}
+# The units a COLLADA file may declare: the meter attribute of <unit> and the manifest's name
+COLLADA_UNITS = {'1': 'metre', '0.001': 'millimetre'}
 UP_AXES = {'.stl': 'Z', '.dae': 'Z', '.glb': 'Y (the root node turns the Z-up vertex data)'}
-DECIMALS = {'.stl': 6, '.dae': 6, '.glb': 6}
+# Decimals of the bounding boxes: one micrometre in either unit
+DECIMALS = {'metre': 6, 'millimetre': 3}
 
 
 class FileFacts(NamedTuple):
@@ -30,6 +36,7 @@ class FileFacts(NamedTuple):
     path: str
     sha256: str
     size: int
+    units: str
     triangles: int
     low: Tuple[float, float, float]
     high: Tuple[float, float, float]
@@ -102,14 +109,24 @@ def glb_points(path: str) -> Tuple[np.ndarray, int]:
 READERS = {'.stl': stl_points, '.dae': dae_points, '.glb': glb_points}
 
 
+def dae_units(path: str) -> str:
+    """Return the name of the unit that a COLLADA file declares in its <unit> element."""
+    unit = ElementTree.parse(path).getroot().find(f'{COLLADA_NS}asset/{COLLADA_NS}unit')
+    if unit is None:
+        raise ValueError(f'{path}: no <unit> element')
+    return COLLADA_UNITS[unit.get('meter', '')]
+
+
 def file_facts(root: str, relative: str) -> FileFacts:
     """Return the manifest's facts about a written file, its path relative to meshes/."""
     path = os.path.join(root, relative)
-    points, triangles = READERS[os.path.splitext(path)[1]](path)
+    extension = os.path.splitext(path)[1]
+    points, triangles = READERS[extension](path)
+    units = dae_units(path) if extension == '.dae' else FIXED_UNITS[extension]
     low = tuple(float(v) for v in points.min(axis=0))
     high = tuple(float(v) for v in points.max(axis=0))
     license_file = relative + '.license' if os.path.exists(path + '.license') else ''
-    return FileFacts(relative, sha256(path), os.path.getsize(path), triangles,
+    return FileFacts(relative, sha256(path), os.path.getsize(path), units, triangles,
                      low, high, license_file)  # type: ignore[arg-type]
 
 
@@ -131,9 +148,11 @@ def manifest_text(parts: List[PartEntry], spdx_lines: Sequence[str], license_id:
     """Return the manifest as YAML text, with the SPDX lines as its first comments."""
     lines = [f'# {line}' for line in spdx_lines]
     lines += ['# meshes/manifest.yaml: written by `python3 -m generators`, not by hand.',
-              "# All files are in metres. Bounding boxes are in each mesh's own frame (see",
-              '# frame), before any URDF transform. For glTF, the box of the vertex data, before',
-              "# the root node turns them into glTF's Y up.",
+              '# The STL and glTF files are in metres. The COLLADA files are in millimetres and',
+              "# declare that in their <unit> element. Each bounding box is in its file's units",
+              "# (see units) and in the mesh's own frame (see frame), before any URDF transform.",
+              '# For glTF, the box of the vertex data, before the root node turns them into',
+              "# glTF's Y up.",
               '# STL and glTF files carry their license in the <file>.license next to them.',
               'package: robot_component_models',
               f'license: {license_id}',
@@ -152,11 +171,11 @@ def manifest_text(parts: List[PartEntry], spdx_lines: Sequence[str], license_id:
                       '        files:']
             for facts in mesh.files:
                 extension = os.path.splitext(facts.path)[1]
-                decimals = DECIMALS[extension]
+                decimals = DECIMALS[facts.units]
                 lines += [f'          {facts.path}:',
                           f'            sha256: {facts.sha256}',
                           f'            bytes: {facts.size}',
-                          f'            units: {UNITS[extension]}',
+                          f'            units: {facts.units}',
                           f'            up_axis: {quoted(UP_AXES[extension])}',
                           f'            triangles: {facts.triangles}',
                           f'            bounding_box_min: {vector(facts.low, decimals)}',

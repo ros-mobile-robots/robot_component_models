@@ -3,6 +3,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 """Render the README's pictures from the COLLADA meshes: one per part and all parts together.
 
+The COLLADA files are in millimetres. read_dae() converts their positions to metres with the
+unit that each file declares, so everything after it (placements, offsets, cameras) is in
+metres.
+
 The pictures show the meshes as written, with their materials, on a light background:
 docs/images/<part>.png (800 x 600) and docs/images/all_parts.png (1600 x 800), with 256
 colours to keep the files small. VTK renders
@@ -87,7 +91,7 @@ OVERVIEW_ROWS = [
 
 
 class Surface(NamedTuple):
-    """Triangles of one material: corners and normals (k, 3, 3), Phong values."""
+    """Triangles of one material: corners in metres and normals (k, 3, 3), Phong values."""
 
     corners: np.ndarray
     normals: np.ndarray
@@ -97,14 +101,20 @@ class Surface(NamedTuple):
 
 
 def read_dae(path: str) -> List[Surface]:
-    """Return the surfaces of a COLLADA file with their materials, read by pycollada."""
+    """Return the surfaces of a COLLADA file in metres with their materials, read by pycollada.
+
+    pycollada returns the positions in the file's units. The file's <unit> element gives the
+    unit's length in metres.
+    """
     document = collada.Collada(path)
+    metres_per_unit = float(document.assetInfo.unitmeter)
     surfaces = []
     for geometry in document.scene.objects('geometry'):
         for primitive in geometry.primitives():
             effect = primitive.material.effect
             specular = effect.specular if isinstance(effect.specular, tuple) else (0.0,) * 3
-            surfaces.append(Surface(np.asarray(primitive.vertex[primitive.vertex_index]),
+            corners = np.asarray(primitive.vertex[primitive.vertex_index], dtype=float)
+            surfaces.append(Surface(corners * metres_per_unit,
                                     np.asarray(primitive.normal[primitive.normal_index]),
                                     tuple(effect.diffuse), float(np.mean(specular[:3])),
                                     float(effect.shininess or 1.0)))

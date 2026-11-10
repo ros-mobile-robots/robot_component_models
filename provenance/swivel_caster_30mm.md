@@ -18,7 +18,7 @@ Each STL file is closed and consistently oriented. The three meshes, placed as D
 
 ## Frames
 
-The files are in metres, z up. Positions on this page are in millimetres.
+The STL and glTF files are in metres, the COLLADA files are in millimetres, all z up. Positions on this page are in millimetres.
 
 - `swivel_caster_30mm_base`: z = 0 is the swivel bearing's lower face. The standoffs end at z = +15 mm, at the chassis. The swivel axis is at x = -1 mm, y = 0, because DiffBot's hub joint is 1 mm behind its base joint (`dx` -0.077 and -0.076 m in `caster_wheel.yaml`).
 - `swivel_caster_30mm_wheel_support`: the swivel axis at x = y = 0, the fork's top at z = 0. The wheel axle runs along y at x = -16 mm, z = -20 mm.
