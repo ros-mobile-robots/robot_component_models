@@ -138,9 +138,12 @@ SPOKES = 5
 SPOKE_WEB_WIDTH = 3.47       # p18, p19: the spoke's back, near the hub
 SPOKE_WEB_DEPTH = 1.8        # choice: how far the web stands behind the plate
 SPOKE_ROOT_RADIUS = 9.6      # choice: the plate starts inside the cup's wall
-# Spoke widths across the flat face: a linear taper between two places
-SPOKE_ROOT_WIDTH = (13.2, 8.9)  # p41 img.: the radius and the width there, near the hub
-SPOKE_TIP_WIDTH = 5.35       # p25: across the tip; choice: where the spoke runs into the lip
+# Spoke widths across the flat face. The sides taper in straight lines from the width near the
+# hub to the tip, where an arc curves each side into the lip. The spoke is narrowest on these
+# arcs, just before the lip: there it has the width measured across its tip. The taper gives
+# 7.5 at r 15.6, 6.7 at r 17 and 5.6 at r 19 (p41 img.: 7.6, 7.0 and 6.2)
+SPOKE_ROOT_WIDTH = (13.2, 8.9)  # p41 img.: a radius near the hub and the width there
+SPOKE_TIP_WIDTH = 5.35       # p25: across the tip; choice: taken as the narrowest width
 SPOKE_TIP_BLEND = 0.5        # tip photo: the sides curve into the lip; radius: choice
 SPOKE_ROOT_BLEND = 3.0       # video, p41: curved sides into the web; radius: choice
 SPOKE_MARK_RADIUS = 15.5     # video, p41: one round mark per spoke
@@ -399,17 +402,41 @@ def lerp(a: float, b: float, t: float) -> float:
     return a + (b - a) * t
 
 
+def tip_blend_centre() -> Tuple[float, float]:
+    """Return the centre of the arc that curves a spoke's side into the lip, on its +y side.
+
+    The spoke's centre line is the x axis. The arc's point nearest that line is where the spoke
+    is narrowest, half SPOKE_TIP_WIDTH from the line, and the arc meets the lip's inner edge
+    tangentially from inside.
+    """
+    y = SPOKE_TIP_WIDTH / 2 + SPOKE_TIP_BLEND
+    reach = LIP_INNER_D / 2 - SPOKE_TIP_BLEND
+    return math.sqrt(reach * reach - y * y), y
+
+
+def spoke_side() -> Tuple[Tuple[float, float], Tuple[float, float]]:
+    """Return the ends of a spoke's straight side, on its +y side.
+
+    The first end lies near the hub, on the circle of SPOKE_ROOT_WIDTH's radius, half that
+    width from the centre line. From there the side runs as the tangent to the tip's arc
+    (tip_blend_centre()) and ends where it touches the arc.
+    """
+    r0, w0 = SPOKE_ROOT_WIDTH
+    x0, y0 = math.sqrt(r0 * r0 - w0 * w0 / 4), w0 / 2
+    cx, cy = tip_blend_centre()
+    distance = math.hypot(cx - x0, cy - y0)
+    heading = math.atan2(cy - y0, cx - x0) - math.asin(SPOKE_TIP_BLEND / distance)
+    length = math.sqrt(distance * distance - SPOKE_TIP_BLEND * SPOKE_TIP_BLEND)
+    return (x0, y0), (x0 + length * math.cos(heading), y0 + length * math.sin(heading))
+
+
 def spoke_outline() -> List[Tuple[float, float]]:
     """Return a spoke's flat face as a polygon: straight sides, from the cup into the lip.
 
-    The spoke's centre line is the x axis. Each side is the straight line through the points
-    where the spoke has its two measured widths: on the circle of SPOKE_ROOT_WIDTH's radius
-    and on the lip's inner edge. The polygon starts inside the cup's wall and ends inside the
-    lip.
+    The sides are the straight lines through spoke_side()'s ends, mirrored about the centre
+    line. The polygon starts inside the cup's wall and ends inside the lip.
     """
-    (r0, w0), (r1, w1) = SPOKE_ROOT_WIDTH, (LIP_INNER_D / 2, SPOKE_TIP_WIDTH)
-    x0, y0 = math.sqrt(r0 * r0 - w0 * w0 / 4), w0 / 2
-    x1, y1 = math.sqrt(r1 * r1 - w1 * w1 / 4), w1 / 2
+    (x0, y0), (x1, y1) = spoke_side()
     slope = (y1 - y0) / (x1 - x0)
     root, tip = SPOKE_ROOT_RADIUS, (LIP_INNER_D / 2 + FACE_INNER_R) / 2
     half_root, half_tip = y0 + slope * (root - x0), y0 + slope * (tip - x0)
@@ -572,7 +599,7 @@ def hub() -> cq.Workplane:
 
 def make_rim() -> cq.Workplane:
     """Return the yellow rim: barrel, ribs, lip, hub, web, spokes, fins, bore and marks."""
-    if not WEB_R + SPOKE_ROOT_BLEND < LIP_INNER_D / 2 - SPOKE_TIP_BLEND:
+    if not WEB_R + SPOKE_ROOT_BLEND < math.hypot(*spoke_side()[1]):
         raise ValueError('the spokes need straight sides between their root and tip blends')
     # The spokes' central face: an annulus from the cup to WEB_R (the bowl stays open)
     web = (cq.Workplane('XY', origin=(0, 0, SPOKE_FACE_Z)).circle(WEB_R)
