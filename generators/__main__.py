@@ -9,7 +9,7 @@ Run from the repository's root, with the packages of generators/requirements.txt
   python3 -m generators swivel_caster_30mm    write one part's meshes, not the manifest
   python3 -m generators --millimetre-collada DIR
                                               write only the COLLADA files, in millimetres,
-                                              into DIR/<part>/ (meshes/ stays in metres)
+                                              into the new folder DIR (meshes/ stays in metres)
 """
 import argparse
 from concurrent.futures import ProcessPoolExecutor
@@ -96,6 +96,29 @@ def is_inside(path: str, folder: str) -> bool:
     return path == folder or path.startswith(folder + os.sep)
 
 
+def create_millimetre_folder(folder: str) -> str:
+    """Create the folder for the millimetre files and return '', or return why it can't be.
+
+    The folder must lie outside meshes/ and must not exist yet. A folder that this run creates
+    holds no file and no link to one. So the millimetre files can't replace an existing file:
+    not a file in meshes/, not a copy of one somewhere else, and not through a symbolic or a
+    hard link that an existing folder could hold.
+    """
+    if not folder:
+        return 'DIR is empty'
+    if is_inside(folder, MESHES):
+        return 'DIR must lie outside meshes/, whose files stay in metres'
+    try:
+        os.makedirs(folder)
+    except FileExistsError:
+        return (f'{folder} exists already. The option writes only into a folder that it '
+                'creates, so that it never changes an existing file. Remove the folder or '
+                'name another one')
+    except OSError as error:
+        return f"{folder} can't be created: {error.strerror}"
+    return ''
+
+
 def committed_files() -> List[str]:
     """Return the mesh files in meshes/, relative to it."""
     found = []
@@ -150,8 +173,8 @@ def main() -> int:
                         help='with --check: regenerate into DIR and keep the files')
     mode.add_argument('--millimetre-collada', metavar='DIR',
                       help='write only the COLLADA files, in millimetres and with that unit '
-                      'declared, into DIR/<part>/. DIR must be outside meshes/, whose files '
-                      'stay in metres')
+                      'declared, into the new folder DIR, as DIR/<part>/<name>.dae. DIR must '
+                      'not exist yet and must lie outside meshes/, whose files stay in metres')
     args = parser.parse_args()
     unknown = [name for name in args.parts if name not in PARTS]
     if unknown:
@@ -159,9 +182,9 @@ def main() -> int:
     if args.check:
         return check(args.keep)
     if args.millimetre_collada is not None:
-        if not args.millimetre_collada or is_inside(args.millimetre_collada, MESHES):
-            parser.error('--millimetre-collada: DIR must be a folder outside meshes/, '
-                         'whose files stay in metres')
+        problem = create_millimetre_folder(args.millimetre_collada)
+        if problem:
+            parser.error(f'--millimetre-collada: {problem}')
         written = generate_millimetre_collada(args.parts or PARTS, args.millimetre_collada)
         print(f'COLLADA files written in millimetres: {len(written)}')
         return 0

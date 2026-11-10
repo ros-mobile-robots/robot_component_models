@@ -12,5 +12,5 @@ Changelog for package robot_component_models
 * The CadQuery generators, the sources of every model, meshes/manifest.yaml with checksums,
   units, frames and bounding boxes, and checks in CI
 * ``python3 -m generators --millimetre-collada DIR`` writes the COLLADA files in millimetres,
-  with that unit declared in each file, into a folder outside meshes/, for close-ups in Gazebo
-  Classic. The released files stay in metres
+  with that unit declared in each file, into a new folder outside meshes/, for close-ups in
+  Gazebo Classic. The released files stay in metres

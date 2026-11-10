@@ -36,12 +36,8 @@ jobs:
         run: /opt/venv/bin/python -m generators --millimetre-collada regenerated/millimetre
       - name: Compare the millimetre COLLADA files with the files in metres
         run: /opt/venv/bin/python scripts/check_millimetre_collada.py regenerated/millimetre
-      - name: Check that the generators refuse meshes/ as the folder of the millimetre files
-        run: |
-          status=0
-          /opt/venv/bin/python -m generators --millimetre-collada meshes || status=$?
-          echo "exit code $status, expected 2 (usage error)"
-          test "$status" -eq 2
+      - name: Check that the millimetre option never changes an existing file
+        run: /opt/venv/bin/python scripts/check_millimetre_option.py
       - name: Keep the regenerated files of a failed run
         if: failure()
         uses: actions/upload-artifact@v7

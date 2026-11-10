@@ -147,13 +147,13 @@ The models are written with CadQuery because its models are plain Python driven 
 
 ### Millimetre COLLADA files for close-ups in Gazebo Classic
 
-The released files in `meshes/` are in metres. For close-up pictures in Gazebo Classic, the generators write the COLLADA files once more, in millimetres, into a folder that you name:
+The released files in `meshes/` are in metres. For close-up pictures in Gazebo Classic, the generators write the COLLADA files once more, in millimetres, into a new folder that you name:
 
 ```bash
 .venv/bin/python -m generators --millimetre-collada build/meshes_mm
 ```
 
-This writes `build/meshes_mm/<part>/<name>.dae` for every mesh, and no other file. The folder must lie outside `meshes/`: the option refuses a folder inside it. So a released file never changes its unit under its name.
+This creates the folder `build/meshes_mm` and writes `build/meshes_mm/<part>/<name>.dae` for every mesh, and no other file. The option writes only into a folder that it creates itself: it refuses a folder that exists already, and a folder inside `meshes/`. So the option never changes an existing file, and a released file never changes its unit under its name. To write the files again, remove the folder first or name another one.
 
 **What a millimetre file is.** A COLLADA file names its unit of length in its `<unit>` element. A millimetre file declares `<unit name="millimeter" meter="0.001"/>`, and each of its positions is 1000 times the released file's. The normals, triangles, materials and sub-parts are the same. A program that applies the unit loads the same mesh from both files, at the same size and place. So a millimetre file needs no scale in the URDF either. `scale="0.001 0.001 0.001"` would apply the unit a second time.
 
@@ -169,7 +169,7 @@ The millimetre files aren't part of the installed package. A robot description t
 
 [CI](.github/workflows/ci.yml) runs on every pull request:
 
-1. **Regeneration**: regenerates all parts twice in the generator environment and fails if any file differs from the manifest's checksum. The job also writes the [millimetre COLLADA files](#millimetre-collada-files-for-close-ups-in-gazebo-classic) into a folder of their own. [`scripts/check_millimetre_collada.py`](scripts/check_millimetre_collada.py) compares them with the files in `meshes/`: each file declares the millimetre, each position is 1000 times the position in metres, and the rest of the file is the same.
+1. **Regeneration**: regenerates all parts twice in the generator environment and fails if any file differs from the manifest's checksum. The job also writes the [millimetre COLLADA files](#millimetre-collada-files-for-close-ups-in-gazebo-classic) into a folder of their own. [`scripts/check_millimetre_collada.py`](scripts/check_millimetre_collada.py) compares them with the files in `meshes/`: each file declares the millimetre, each position is 1000 times the position in metres, and the rest of the file is the same. [`scripts/check_millimetre_option.py`](scripts/check_millimetre_option.py) tries the folders that the option has to refuse, among them existing folders with links to released files, and checks that no file changes.
 2. **Mesh checks**: every STL is closed and consistently oriented. Triangle counts, units and bounding boxes match the manifest. The COLLADA files are valid against the COLLADA 1.4.1 schema and load in pycollada. Their triangle lists give the normals an index of their own, which Gazebo Classic needs to shade sharp edges correctly. The glTF files load in trimesh and pass the Khronos glTF Validator.
 3. **ROS packages**: builds and installs the package in the `ros:noetic` and `ros:humble` containers and checks that the installed `share/robot_component_models` holds exactly the manifest's files, their license files, the manifest, the provenance pages, `LICENSE`, `package.xml` and the build tools' own files. The ROS 1 build is checked with `catkin_make_isolated` and with colcon.
 4. **Code style**: flake8 with ROS 2's ament_flake8 settings and mypy on the generators and scripts.
