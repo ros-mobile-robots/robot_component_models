@@ -12,8 +12,9 @@ files with lxml, not with the generators' code:
   else,
 - every file in DIR declares <unit name="millimeter" meter="0.001"/>, and its file in meshes/
   declares the metre,
-- every position in DIR is 1000 times the position in meshes/, within the precision of the
-  seven significant digits that the generators write,
+- every position in DIR and in meshes/ is a finite number, and every position in DIR is 1000
+  times the position in meshes/, within the precision of the seven significant digits that
+  the generators write,
 - apart from the <unit> element and the positions, the two files have the same text.
 
 Usage: python3 scripts/check_millimetre_collada.py DIR
@@ -119,7 +120,11 @@ def check_units(pair: FilePair) -> List[str]:
 
 
 def check_positions(pair: FilePair) -> List[str]:
-    """Check that every position is 1000 times the position in meshes/, to seven digits."""
+    """Check that every position is finite and 1000 times the position in meshes/.
+
+    NaN and infinity are valid numbers for a parser but no positions. A comparison with NaN
+    is false whatever the other number is, so the finite numbers are checked first.
+    """
     metre_arrays = position_arrays(pair.metre)
     millimetre_arrays = position_arrays(pair.millimetre)
     if not metre_arrays:
@@ -135,9 +140,14 @@ def check_positions(pair: FilePair) -> List[str]:
             problems.append(f'{millimetre_array.get("id")}: {found.size} numbers, '
                             f'{expected.size} in meshes/')
             continue
-        off = np.abs(found - expected) > RELATIVE_TOLERANCE * np.abs(expected)
+        finite = np.isfinite(found) & np.isfinite(expected)
+        if not finite.all():
+            problems.append(f'{millimetre_array.get("id")}: {int((~finite).sum())} of '
+                            f'{found.size} numbers are not finite, here or in meshes/')
+        difference = np.abs(found[finite] - expected[finite])
+        off = difference > RELATIVE_TOLERANCE * np.abs(expected[finite])
         if off.any():
-            problems.append(f'{millimetre_array.get("id")}: {int(off.sum())} of {off.size} '
+            problems.append(f'{millimetre_array.get("id")}: {int(off.sum())} of {found.size} '
                             'numbers are not 1000 times the numbers in meshes/')
     return problems
 
