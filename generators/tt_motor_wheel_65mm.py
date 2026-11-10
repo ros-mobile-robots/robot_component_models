@@ -6,14 +6,14 @@ Modelled from caliper measurements of the real wheel (tyre taken off the rim), p
 frames of DiffBot's and Remo's wheels, shop photos and product listings. The rim is a barrel with
 a flange at each end, four grooves and three ridges with rounded top edges between them, and
 axial ribs across the two middle grooves. The outer flange's face is flat with a fine groove.
-Inside, a lip stands inward behind the outer face. Five flat tapered spokes run from the hub's
-face over the lip to the barrel's inside. Their face lies a little in front of the lip, and
-each tip rises to the barrel's inside with a round. Behind each spoke are a narrow web and a
-fin. A bowl is recessed into the spokes' central face, with the centre boss and four small
-pins in it, and a hub tube stands on a collar on the motor side. The tyre is a hollow section
-like a car tyre's: its beads sit inside the rim in the grooves next to the flanges, its
-sidewalls rise over the flanges and are widest halfway up, and an arched channel inside clears
-the barrel's ridges. Sources in provenance/tt_motor_wheel_65mm.md.
+Inside, a lip stands inward behind the outer face. Five flat tapered spokes run outwards from
+the hub's face. They pass in front of the lip, and each spoke's end comes down onto the lip in
+a round. Each spoke has a round dimple. Behind each spoke are a narrow web and a fin. A bowl is
+recessed into the spokes' central face, with the centre boss and four small pins in it, and a
+hub tube stands on a collar on the motor side. The tyre is a hollow section like a car tyre's:
+its beads sit inside the rim in the grooves next to the flanges, its sidewalls rise over the
+flanges and are widest halfway up, and an arched channel inside clears the barrel's ridges.
+Sources in provenance/tt_motor_wheel_65mm.md.
 
 Frame (positions in mm, the files are in metres): the axle along z. The wheel's outer face is
 at z = -13 mm: the rim's outer flange face, flush with the tyre's sidewall at its widest. The rim's
@@ -138,28 +138,33 @@ HUB_PIN_HEIGHT = 0.4         # choice
 HUB_PIN_ANGLE = 42.0         # p41 img.: the first pin 42 deg after a spoke
 WEB_R = 11.2                 # p41 img.: windows start at r 11.4 between the spokes; cup 10.32
 
-# Spokes: five, flat and tapered, each symmetric about a radial centre line (p41 img.). A spoke
-# runs from the hub's face over the lip to the barrel's inside. Its face lies a little in front
-# of the lip's front, its tip rises to the barrel's inside with a round, and its back is level
-# with the lip's back (choice, the plate then 2.0 thick). Behind each spoke a narrow web
+# Spokes: five, flat and tapered, each symmetric about a radial centre line (p41 img.). The
+# spokes' plate passes in front of the lip. A spoke's end comes down onto the lip in a round: a
+# quarter circle from the flat face to the corner of the lip's front and the barrel's inside
+# (measured: the shape). From the lip's inner edge outwards the end is solid down to the lip's
+# front, so the spoke stands on the lip. Behind each spoke a narrow web
 SPOKES = 5
-SPOKE_FACE_DEPTH = 3.2       # measured (about): the spokes' face behind the outer flange face
-SPOKE_TIP_ROUND = 1.0        # measured (about): the round from the face up the barrel's inside
+SPOKE_FACE_DEPTH = 1.0       # measured (about): the spokes' face behind the outer flange face
+SPOKE_PLATE = 1.96           # p10, p11 (1.96, 1.95 at a spoke's tip); place: choice
 SPOKE_WEB_WIDTH = 3.47       # p18, p19: the spoke's back, near the hub
 SPOKE_WEB_DEPTH = 1.8        # choice: how far the web stands behind the plate
 SPOKE_ROOT_RADIUS = 9.6      # choice: the plate starts inside the cup's wall
-# Spoke widths across the flat face. The sides are straight lines through two places and run
-# on to the barrel: near the hub, and where the spoke crosses the lip's inner edge, its
-# narrowest place before the lip. Further out the spoke is 5.35 wide at r 21.2, next to the
-# barrel (p25), and 4.8 at the barrel. The taper gives 7.8 at r 15.6, 7.2 at r 17 and 6.3 at
-# r 19 (p41 img.: 7.6, 7.0 and 6.2)
-SPOKE_ROOT_WIDTH = (13.2, 8.9)  # p41 img.: a radius near the hub and the width there
-SPOKE_TIP_WIDTH = 5.6        # measured: the narrowest width before the lip
-WINDOW_CORNER_ROUND = 0.3    # p41 img.: the windows' corners at the lip; radius: choice
+# Spoke widths between the sides. The sides are straight lines through two places: above the
+# lip's inner edge, and at the spoke's end, its foot on the lip at the barrel's inside. The
+# spoke is 6.0 wide where its end's round starts and 5.35 at r 22.0, on the round (p25). The
+# taper gives 8.3 at r 13.2, 7.5 at r 15.6, 7.0 at r 17 and 6.3 at r 19 (p41 img.: 8.9, 7.6,
+# 7.0 and 6.2)
+SPOKE_LIP_WIDTH = 5.8        # measured: 5.8 to 6.0, above the lip's inner edge
+SPOKE_END_WIDTH = 5.2        # measured: where the spoke ends on the lip
 SPOKE_ROOT_BLEND = 3.0       # video, p41: curved sides into the web; radius: choice
-SPOKE_MARK_RADIUS = 15.5     # video, p41: one round mark per spoke
-SPOKE_MARK_D = 1.1           # choice
-SPOKE_MARK_DEPTH = 0.4       # choice
+# Seen from outside, a window's corner between a spoke's side and the lip's inner edge is
+# round (p41 img.). A small gusset on the lip's inner wall makes that round. It is as deep as
+# the lip and reaches a little under the spoke's edge, so its round ends on a face
+WINDOW_CORNER_ROUND = 0.3    # p41 img.; radius: choice
+GUSSET_PAD = 0.4             # choice: how far a gusset reaches under the spoke's edge
+SPOKE_MARK_RADIUS = 15.2     # p41 img.: one round dimple per spoke
+SPOKE_MARK_D = 1.5           # p41 img.: across the dimple at the spoke's face
+SPOKE_MARK_DEPTH = 0.6       # choice: at the centre of the conical dimple
 
 # Motor side
 HUB_COLLAR_D = 15.27         # p15: the collar at the tube's root
@@ -171,7 +176,7 @@ HUB_TUBE_CHAMFER = 0.5       # choice
 BORE_D = 5.44                # p14: the round side; p12, p13 tube wall 2.10 and 2.34
 BORE_FLATS = 3.66            # listings (X2 Robotics, VXB); not measured
 FIN_THICKNESS = 1.51         # p31
-FIN_TOP_DEPTH = 18.0         # choice (p32): the fins reach about 40 % up the tube
+FIN_TOP_DEPTH = 16.9         # choice (p32): the fins reach about 40 % up the tube
 
 # Derived positions
 RIM_FACE_Z = TYRE_OUTER_FACE_Z + TYRE_BULGE   # F: the outer flange face, -13.0
@@ -184,7 +189,9 @@ FACE_INNER_R = FLANGE_D / 2 - FLANGE_FACE      # the barrel's inside at the oute
 LIP_INNER_R = FACE_INNER_R - LIP_HEIGHT        # the lip's inner edge, 20.61
 LIP_FRONT_Z = RIM_FACE_Z + LIP_START
 SPOKE_FACE_Z = RIM_FACE_Z + SPOKE_FACE_DEPTH   # the spokes' face, in front of the lip's front
-SPOKE_PLATE_BACK_Z = LIP_FRONT_Z + LIP_WIDTH   # the plate's back: the lip's back
+SPOKE_PLATE_BACK_Z = SPOKE_FACE_Z + SPOKE_PLATE  # the plate's back, in front of the lip's front
+SPOKE_END_ROUND = LIP_START - SPOKE_FACE_DEPTH  # the round from the face down to the lip, 2.5
+SPOKE_END_START_R = FACE_INNER_R - SPOKE_END_ROUND  # where the flat face ends, 19.91
 HUB_BACK_Z = SPOKE_PLATE_BACK_Z + SPOKE_WEB_DEPTH  # the webs' back plane
 BOSS_TOP_Z = SPOKE_FACE_Z + BOSS_TOP_DEPTH
 BOWL_FLOOR_Z = SPOKE_FACE_Z + BOWL_DEPTH
@@ -433,17 +440,17 @@ def spoke_side() -> Tuple[Tuple[float, float], Tuple[float, float]]:
     """Return the two points that set a spoke's straight side, on its +y side.
 
     The spoke's centre line is the x axis. Each point lies half the spoke's width there from
-    the centre line: the first on the circle of SPOKE_ROOT_WIDTH's radius, near the hub, the
-    second on the lip's inner edge, where the spoke has SPOKE_TIP_WIDTH.
+    the centre line: the first above the lip's inner edge, where the spoke has
+    SPOKE_LIP_WIDTH, the second on the barrel's inside, where it has SPOKE_END_WIDTH.
     """
-    r0, w0 = SPOKE_ROOT_WIDTH
-    r1, w1 = LIP_INNER_R, SPOKE_TIP_WIDTH
+    r0, w0 = LIP_INNER_R, SPOKE_LIP_WIDTH
+    r1, w1 = FACE_INNER_R, SPOKE_END_WIDTH
     return ((math.sqrt(r0 * r0 - w0 * w0 / 4), w0 / 2),
             (math.sqrt(r1 * r1 - w1 * w1 / 4), w1 / 2))
 
 
 def spoke_outline() -> List[Tuple[float, float]]:
-    """Return a spoke's flat face as a polygon: straight sides, from the cup into the barrel.
+    """Return a spoke's outline as a polygon: straight sides, from the cup into the barrel.
 
     The sides are the straight lines through spoke_side()'s points, mirrored about the centre
     line. The polygon starts inside the cup's wall and ends inside the barrel's wall.
@@ -455,92 +462,133 @@ def spoke_outline() -> List[Tuple[float, float]]:
     return [(root, -half_root), (tip, -half_tip), (tip, half_tip), (root, half_root)]
 
 
-def side_blend(start: Tuple[float, float], end: Tuple[float, float], side: int,
-               circle: float, radius: float, at_lip: bool) -> cq.Workplane:
-    """Return the filler that rounds a window's corner between a spoke's side and a circle.
+def side_blend(start: Tuple[float, float], end: Tuple[float, float], side: int) -> cq.Workplane:
+    """Return the filler that rounds a window's corner between a spoke's side and the hub's web.
 
     start and end are the spoke side's ends (unrotated spoke, start nearer the hub), side +1
-    or -1 the window's side of that edge. The circle (its radius about the axle) is the lip's
-    inner edge (at_lip) or the hub web's edge: the window lies inside the lip and outside the
-    web. The filler is the region between the corner, the edge and a concave arc of the given
-    radius tangent to edge and circle. At the web it is as deep as the spoke's plate, at the
-    lip as deep as the lip. It reaches 0.3 mm into the lip or the web, so no gap is left at
-    the circle.
+    or -1 the window's side of that edge. The window lies outside the web's edge, a circle of
+    radius WEB_R about the axle. The filler is the region between the corner, the spoke's
+    side and a concave arc of radius SPOKE_ROOT_BLEND tangent to side and circle, as deep as
+    the spoke's plate. It reaches 0.3 mm into the web, so no gap is left at the circle.
     """
+    circle, radius = WEB_R, SPOKE_ROOT_BLEND
     ax, ay = start
     length = math.hypot(end[0] - ax, end[1] - ay)
     dx, dy = (end[0] - ax) / length, (end[1] - ay) / length
     nx, ny = (-dy, dx) if side > 0 else (dy, -dx)
-    reach = circle - radius if at_lip else circle + radius
-    into = 0.3 if at_lip else -0.3
 
     def along(px: float, py: float, distance: float) -> float:
         """Return t where the line (px, py) + t (dx, dy) reaches the distance from the axle."""
         b = px * dx + py * dy
         return -b + math.sqrt(b * b - (px * px + py * py - distance * distance))
 
-    t = along(ax + radius * nx, ay + radius * ny, reach)
+    t = along(ax + radius * nx, ay + radius * ny, circle + radius)
     cx, cy = ax + radius * nx + t * dx, ay + radius * ny + t * dy
     on_edge = (cx - radius * nx, cy - radius * ny)
     c = math.hypot(cx, cy)
     on_circle = (cx * circle / c, cy * circle / c)
-    past_circle = (cx * (circle + into) / c, cy * (circle + into) / c)
-    u = along(ax, ay, circle) + into
+    past_circle = (cx * (circle - 0.3) / c, cy * (circle - 0.3) / c)
+    u = along(ax, ay, circle) - 0.3
     corner = (ax + u * dx, ay + u * dy)
     mx, my = on_edge[0] + on_circle[0] - 2 * cx, on_edge[1] + on_circle[1] - 2 * cy
     m = math.hypot(mx, my)
     middle = (cx + radius * mx / m, cy + radius * my / m)
-    front = LIP_FRONT_Z if at_lip else SPOKE_FACE_Z
-    return (cq.Workplane('XY', origin=(0, 0, front)).moveTo(*corner).lineTo(*on_edge)
+    return (cq.Workplane('XY', origin=(0, 0, SPOKE_FACE_Z)).moveTo(*corner).lineTo(*on_edge)
             .threePointArc(middle, on_circle).lineTo(*past_circle).close()
-            .extrude(SPOKE_PLATE_BACK_Z - front))
+            .extrude(SPOKE_PLATE_BACK_Z - SPOKE_FACE_Z))
+
+
+def lip_gusset(start: Tuple[float, float], end: Tuple[float, float], side: int) -> cq.Workplane:
+    """Return the gusset that rounds a window's corner between a spoke's side and the lip.
+
+    start and end are the spoke side's ends (unrotated spoke, start nearer the hub), side +1
+    or -1 the window's side of that edge. Seen along the axle, the gusset fills the corner
+    between the spoke's side and the lip's inner edge up to a concave arc of radius
+    WINDOW_CORNER_ROUND tangent to both. It also reaches GUSSET_PAD under the spoke's edge,
+    so the arc ends on the gusset's own face and not in a knife edge. The gusset is as deep
+    as the lip and reaches 0.3 mm into the lip, so no gap is left at the lip's inner wall.
+    """
+    circle, radius = LIP_INNER_R, WINDOW_CORNER_ROUND
+    ax, ay = start
+    length = math.hypot(end[0] - ax, end[1] - ay)
+    dx, dy = (end[0] - ax) / length, (end[1] - ay) / length
+    nx, ny = (-dy, dx) if side > 0 else (dy, -dx)
+
+    def along(px: float, py: float, distance: float) -> float:
+        """Return t where the line (px, py) + t (dx, dy) reaches the distance from the axle."""
+        b = px * dx + py * dy
+        return -b + math.sqrt(b * b - (px * px + py * py - distance * distance))
+
+    t = along(ax + radius * nx, ay + radius * ny, circle - radius)
+    cx, cy = ax + radius * nx + t * dx, ay + radius * ny + t * dy
+    on_edge = (cx - radius * nx, cy - radius * ny)
+    c = math.hypot(cx, cy)
+    on_circle = (cx * circle / c, cy * circle / c)
+    past_circle = (cx * (circle + 0.3) / c, cy * (circle + 0.3) / c)
+    u = along(ax, ay, circle) + 0.3
+    under_spoke = (ax + u * dx - GUSSET_PAD * nx, ay + u * dy - GUSSET_PAD * ny)
+    under_edge = (on_edge[0] - GUSSET_PAD * nx, on_edge[1] - GUSSET_PAD * ny)
+    mx, my = on_edge[0] + on_circle[0] - 2 * cx, on_edge[1] + on_circle[1] - 2 * cy
+    m = math.hypot(mx, my)
+    middle = (cx + radius * mx / m, cy + radius * my / m)
+    return (cq.Workplane('XY', origin=(0, 0, LIP_FRONT_Z)).moveTo(*under_spoke)
+            .lineTo(*under_edge).lineTo(*on_edge).threePointArc(middle, on_circle)
+            .lineTo(*past_circle).close().extrude(LIP_WIDTH))
 
 
 def spoke_plate() -> cq.Workplane:
-    """Return a spoke's plate: a flat face that rises to the barrel's inside with a round.
+    """Return a spoke's plate: a flat face whose end comes down onto the lip in a round.
 
-    The outline is extruded from the plate's back to above the face. A revolved cutter then
-    takes away what stands above the flat face, except a round of radius SPOKE_TIP_ROUND in
-    the corner between the face and the barrel's inside. The round's arc ends 0.02 mm inside
-    the barrel's wall, so the two surfaces cross instead of touching.
+    The outline is extruded from the face to the lip's front. A revolved cutter takes away
+    what lies in front of the round: a quarter circle of radius SPOKE_END_ROUND from the flat
+    face to the corner of the lip's front and the barrel's inside. The round is tangent to
+    the face where it starts and to the barrel's inside where it ends, so in front of the lip
+    a wedge of air stays between the two. A second cutter takes away what lies behind the
+    plate's back inside the lip's inner edge. From that edge outwards the end stays solid
+    down to the lip's front: the spoke's foot on the lip. A little further out the foot
+    reaches 0.1 mm into the lip, so the two solids overlap instead of touching.
     """
-    face, r = SPOKE_FACE_Z, SPOKE_TIP_ROUND
-    wall = FACE_INNER_R + 0.02
-    top = face - r
+    face, back, lip, r = SPOKE_FACE_Z, SPOKE_PLATE_BACK_Z, LIP_FRONT_Z, SPOKE_END_ROUND
+    start, wall, beyond = SPOKE_END_START_R, FACE_INNER_R, FACE_INNER_R + 1.0
     k = r / math.sqrt(2)
-    plate = (cq.Workplane('XY', origin=(0, 0, top)).polyline(spoke_outline()).close()
-             .extrude(SPOKE_PLATE_BACK_Z - top))
-    above_face = revolve_path((0, face), [
-        ('line', (wall - r, face)), ('arc', (wall - r + k, top + k), (wall, top)),
-        ('line', (wall, top - 1)), ('line', (0, top - 1))])
-    return plate.cut(above_face)
+    plate = (cq.Workplane('XY', origin=(0, 0, face)).polyline(spoke_outline()).close()
+             .extrude(lip + 0.1 - face))
+    in_front = revolve_path((start, face), [
+        ('arc', (start + k, lip - k), (wall, lip)), ('line', (beyond, lip)),
+        ('line', (beyond, face - 1)), ('line', (start, face - 1))])
+    foot, in_lip = LIP_INNER_R, LIP_INNER_R + 0.1
+    behind = revolve_path((0, back), [
+        ('line', (foot, back)), ('line', (foot, lip)), ('line', (in_lip, lip)),
+        ('line', (in_lip, lip + 0.2)), ('line', (0, lip + 0.2))])
+    return plate.cut(in_front).cut(behind)
 
 
 def spoke() -> cq.Workplane:
     """Return one spoke with its web and fin, its centre line along the x axis.
 
-    The plate is flat, with straight tapering sides, and rises to the barrel's inside with a
-    round at its tip. Curved fillers round the windows' corners at the hub web and, at the
-    lip's level, at the lip. Behind the plate a narrow web runs along the centre line out to
-    the barrel, and a fin from the web up the hub tube.
+    The plate is flat, with straight tapering sides, and its end comes down onto the lip in a
+    round. Curved fillers round the windows' corners at the hub web, gussets on the lip's
+    inner wall those at the lip. Behind the plate a narrow web runs along the centre line out
+    to the barrel, and a fin from the web up the hub tube.
     """
     outline = spoke_outline()
     plate = spoke_plate()
     wall = BARREL_INNER_D / 2 + 0.3                     # the web and the fin end in the barrel
-    web = (cq.Workplane('XY', origin=(0, 0, SPOKE_PLATE_BACK_Z - 0.1))
-           .center((SPOKE_ROOT_RADIUS + wall) / 2, 0)
-           .rect(wall - SPOKE_ROOT_RADIUS, SPOKE_WEB_WIDTH)
-           .extrude(HUB_BACK_Z - SPOKE_PLATE_BACK_Z + 0.1))
+    # The web starts 0.1 mm inside the plate and, where the lip is, 0.1 mm inside the lip
+    back, lip, in_lip = SPOKE_PLATE_BACK_Z, LIP_FRONT_Z, LIP_INNER_R + 0.2
+    web = (cq.Workplane('XZ', origin=(0, SPOKE_WEB_WIDTH / 2, 0))
+           .polyline([(SPOKE_ROOT_RADIUS, back - 0.1), (in_lip, back - 0.1), (in_lip, lip + 0.1),
+                      (wall, lip + 0.1), (wall, HUB_BACK_Z), (SPOKE_ROOT_RADIUS, HUB_BACK_Z)])
+           .close().extrude(SPOKE_WEB_WIDTH))
     # The fin starts inside the cup's wall and behind the bowl's floor, so it stays out of the bowl
     cup_wall, tube = CUP_D / 2 - 0.2, HUB_TUBE_D / 2 - 0.2
     fin = (cq.Workplane('XZ', origin=(0, FIN_THICKNESS / 2, 0))
            .polyline([(cup_wall, HUB_BACK_Z - 0.2), (wall, HUB_BACK_Z - 0.2),
                       (tube, FIN_TOP_Z), (tube, CUP_BACK_Z - 0.2),
                       (cup_wall, CUP_BACK_Z - 0.2)]).close().extrude(FIN_THICKNESS))
-    corners = ((WEB_R, SPOKE_ROOT_BLEND, False), (LIP_INNER_R, WINDOW_CORNER_ROUND, True))
-    blends = [side_blend(outline[3], outline[2], 1, *corner) for corner in corners]
-    blends += [side_blend(outline[0], outline[1], -1, *corner) for corner in corners]
-    return union_all([plate, web, fin, *blends])
+    blends = [side_blend(outline[3], outline[2], 1), side_blend(outline[0], outline[1], -1)]
+    gussets = [lip_gusset(outline[3], outline[2], 1), lip_gusset(outline[0], outline[1], -1)]
+    return union_all([plate, web, fin, *blends, *gussets])
 
 
 def barrel() -> cq.Workplane:
@@ -637,11 +685,15 @@ def hub() -> cq.Workplane:
 
 
 def make_rim() -> cq.Workplane:
-    """Return the yellow rim: barrel, ribs, lip, hub, web, spokes, fins, bore and marks."""
-    if not WEB_R + SPOKE_ROOT_BLEND < LIP_INNER_R - WINDOW_CORNER_ROUND:
-        raise ValueError("the spokes need straight sides between the windows' corners")
-    if not FLANGE_INNER_ROUND + SPOKE_TIP_ROUND <= SPOKE_FACE_DEPTH <= LIP_START:
-        raise ValueError("the spokes' face must lie between the face's round and the lip")
+    """Return the yellow rim: barrel, ribs, lip, hub, web, spokes, fins, bore, pins, dimples."""
+    if not FLANGE_INNER_ROUND <= SPOKE_FACE_DEPTH < SPOKE_FACE_DEPTH + SPOKE_PLATE <= LIP_START:
+        raise ValueError("the spokes' plate must lie between the face's round and the lip's front")
+    if not SPOKE_PLATE_BACK_Z < HUB_BACK_Z < LIP_FRONT_Z + LIP_WIDTH:
+        raise ValueError("the webs must end at the lip's inner wall, in front of the lip's back")
+    if not SPOKE_MARK_DEPTH < SPOKE_PLATE:
+        raise ValueError("the spokes' dimples must end inside the plate")
+    if not WEB_R + SPOKE_ROOT_BLEND < SPOKE_END_START_R:
+        raise ValueError("the spokes need a flat face between the hub's web and their end's round")
     # The spokes' central face: an annulus from the cup to WEB_R (the bowl stays open)
     web = (cq.Workplane('XY', origin=(0, 0, SPOKE_FACE_Z)).circle(WEB_R)
            .circle(CUP_D / 2 - 0.2).extrude(SPOKE_PLATE_BACK_Z - SPOKE_FACE_Z))
@@ -654,13 +706,17 @@ def make_rim() -> cq.Workplane:
             .intersect(cq.Workplane('XY', origin=(0, 0, BORE_END_Z))
                        .rect(BORE_FLATS, BORE_D + 1).extrude(bore_length)))
     rim = rim.cut(bore)
-    # Small pins on the bowl's floor, a recessed mark on each spoke
+    # Small pins on the bowl's floor, a conical dimple on each spoke. The dimple's cutter
+    # starts a little above the face and widens with the cone's slope up to there
     pads = union_all([cq.Workplane('XY', origin=(HUB_PIN_R, 0, BOWL_FLOOR_Z - HUB_PIN_HEIGHT))
                       .circle(HUB_PIN_D / 2).extrude(HUB_PIN_HEIGHT + 0.01)
                       .rotate((0, 0, 0), (0, 0, 1), HUB_PIN_ANGLE + 360.0 * k / HUB_PINS)
                       for k in range(HUB_PINS)])
-    marks = union_all([cq.Workplane('XY', origin=(SPOKE_MARK_RADIUS, 0, SPOKE_FACE_Z - 0.01))
-                       .circle(SPOKE_MARK_D / 2).extrude(SPOKE_MARK_DEPTH + 0.01)
+    above = 0.01
+    dimple = revolve_path((0, SPOKE_FACE_Z - above), [
+        ('line', (SPOKE_MARK_D / 2 * (1 + above / SPOKE_MARK_DEPTH), SPOKE_FACE_Z - above)),
+        ('line', (0, SPOKE_FACE_Z + SPOKE_MARK_DEPTH))])
+    marks = union_all([dimple.translate((SPOKE_MARK_RADIUS, 0, 0))
                        .rotate((0, 0, 0), (0, 0, 1), 360.0 * k / SPOKES)
                        for k in range(SPOKES)])
     return rim.union(pads).cut(marks)
