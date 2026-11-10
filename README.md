@@ -157,13 +157,13 @@ This writes `build/meshes_mm/<part>/<name>.dae` for every mesh, and no other fil
 
 **What a millimetre file is.** A COLLADA file names its unit of length in its `<unit>` element. A millimetre file declares `<unit name="millimeter" meter="0.001"/>`, and each of its positions is 1000 times the released file's. The normals, triangles, materials and sub-parts are the same. A program that applies the unit loads the same mesh from both files, at the same size and place. So a millimetre file needs no scale in the URDF either. `scale="0.001 0.001 0.001"` would apply the unit a second time.
 
-**When the millimetre files help.** Gazebo Classic's COLLADA loader can treat two positions as one vertex when they lie within 0.001 of each other on every axis, counted in the file's unit. The loader applies the unit afterwards. In a file in metres that distance is 1 mm. In the released files, Gazebo Classic 11.15.1 draws 6 to 3,813 triangle corners per mesh at a neighbouring vertex's position, up to 1.6 mm away, and 2 to 274 triangles per mesh collapse into a line. Close up, some small features look deformed, for example the camera's mounting holes and the Teensy's push button. At whole-robot distance the effect is hardly visible. In a millimetre file that distance is 1 µm, and Gazebo Classic draws every corner of all nine meshes at its place.
+**When the millimetre files help.** Gazebo Classic's COLLADA loader can treat two positions as one vertex when they lie within 0.001 of each other on every axis, counted in the file's unit. The loader applies the unit afterwards. In a file in metres that distance is 1 mm. Gazebo Classic 11.15.1 then draws some triangle corners at a neighbouring vertex's position, and some triangles collapse into a line. In the Raspberry Pi camera's released file, 473 of 8,928 corners are drawn up to 1.6 mm from their place, and 61 of 2,976 triangles collapse. In the Teensy's file these are 3,813 of 76,560 corners and 274 of 25,520 triangles. Close up, some small features look deformed, for example the camera's mounting holes and the Teensy's push button. At whole-robot distance the effect is hardly visible. In a millimetre file that distance is 1 µm, and Gazebo Classic draws every corner at its place.
 
 **Where they change nothing.** RViz 1, RViz 2, Gazebo Fortress and Gazebo Harmonic draw the released files correctly. Their mesh loaders give the same mesh for both files, within 0.00001 mm.
 
 **What ignores the unit.** A program that ignores the `<unit>` element reads a millimetre file 1000 times too large. One such program is [geometric_shapes](https://github.com/moveit/geometric_shapes), which MoveIt uses to load collision meshes (measured with version 2.3.4 on ROS 2 Jazzy). Use the released files in such a program.
 
-The millimetre files aren't part of the installed package, which holds `meshes/` only. A robot description that shows them refers to the folder they were written into.
+The millimetre files aren't part of the installed package. A robot description that shows them refers to the folder they were written into.
 
 ## Checks
 
