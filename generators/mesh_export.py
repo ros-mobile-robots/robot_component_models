@@ -12,6 +12,12 @@ in metres (ROS's unit, REP 103), converted from millimetres when it writes the v
 
 The glTF vertex data stay in the mesh's frame (Z up). A root node turns them into glTF's Y up.
 The files contain no time stamps or paths, so a second run writes the same bytes.
+
+On request, write_dae() writes a COLLADA file in millimetres instead, the unit the generators
+work in. Such a file declares <unit name="millimeter" meter="0.001"/>. A COLLADA reader
+multiplies the positions by the unit's meter attribute, so the mesh keeps its real size. The
+millimetre files are for close-ups in Gazebo Classic (see write_dae) and go into a folder of
+their own, never into meshes/.
 """
 import json
 import math
@@ -352,6 +358,19 @@ def write_stl(model: Model, path: str) -> int:
 # ---------------------------------------------------------------------------------------------
 # COLLADA
 # ---------------------------------------------------------------------------------------------
+class ColladaUnit(NamedTuple):
+    """A COLLADA file's unit of length: its <unit> element and the factor from millimetres."""
+
+    element: str
+    from_millimetres: float
+
+
+# The unit of the released COLLADA files: the metre, as in the STL and glTF files
+METRE = ColladaUnit('<unit name="meter" meter="1"/>', MM_TO_M)
+# The unit of the COLLADA files written on request: the generators' own millimetre
+MILLIMETRE = ColladaUnit('<unit name="millimeter" meter="0.001"/>', 1.0)
+
+
 def collada_effect(name: str, material: Material) -> str:
     """Return the COLLADA effect of a material."""
     return (f'  <effect id="{name}-effect">\n'
@@ -380,8 +399,9 @@ def collada_source(geometry: str, kind: str, values: np.ndarray, digits: int) ->
             f'    </source>\n')
 
 
-def collada_geometry(geometry: str, surfaces: Sequence[Tuple[str, Surface]]) -> str:
-    """Return one COLLADA geometry with a triangle list per material, positions in metres.
+def collada_geometry(geometry: str, surfaces: Sequence[Tuple[str, Surface]],
+                     unit: ColladaUnit) -> str:
+    """Return one COLLADA geometry with a triangle list per material, positions in the unit.
 
     The normals are an input of the triangles, with an index of their own: every corner is
     written as its position's index followed by its normal's index, both the same number.
@@ -392,7 +412,7 @@ def collada_geometry(geometry: str, surfaces: Sequence[Tuple[str, Surface]]) -> 
     """
     merged = merge_surfaces([surface for _, surface in surfaces])
     text = (f'  <geometry id="{geometry}" name="{geometry}">\n   <mesh>\n'
-            + collada_source(geometry, 'positions', merged.vertices * MM_TO_M, 7)
+            + collada_source(geometry, 'positions', merged.vertices * unit.from_millimetres, 7)
             + collada_source(geometry, 'normals', merged.normals, 5)
             + f'    <vertices id="{geometry}-vertices">\n'
             f'     <input semantic="POSITION" source="#{geometry}-positions"/>\n'
@@ -410,8 +430,19 @@ def collada_geometry(geometry: str, surfaces: Sequence[Tuple[str, Surface]]) -> 
     return text + '   </mesh>\n  </geometry>\n'
 
 
-def write_dae(model: Model, path: str, generator: str) -> None:
-    """Write the model as COLLADA 1.4.1 in metres, Z up, one node per sub-part."""
+def write_dae(model: Model, path: str, generator: str, unit: ColladaUnit = METRE) -> None:
+    """Write the model as COLLADA 1.4.1, Z up, one node per sub-part, in metres by default.
+
+    With unit=MILLIMETRE the positions are written in millimetres and the file declares that
+    unit. Everything else in the file stays the same. A reader that applies the <unit> element
+    loads the same mesh from both files.
+
+    The millimetre file is for close-ups in Gazebo Classic. Its COLLADA loader can treat two
+    positions as one vertex when they lie within 0.001 file units of each other on every axis,
+    and it applies the file's unit afterwards. In a file in metres that distance is 1 mm, so
+    some corners of small features are drawn at a neighbouring vertex's position. In a file in
+    millimetres that distance is one micrometre.
+    """
     by_part: Dict[str, List[Tuple[str, Surface]]] = {}
     for part, material, surface in surfaces_in_order(model):
         by_part.setdefault(part, []).append((material, surface))
@@ -419,7 +450,7 @@ def write_dae(model: Model, path: str, generator: str) -> None:
     geometries, nodes = '', ''
     for part, surfaces in by_part.items():
         geometry = xml_id(f'{model.name}-{part}')
-        geometries += collada_geometry(geometry, surfaces)
+        geometries += collada_geometry(geometry, surfaces, unit)
         binds = ''.join(f'       <instance_material symbol="{material}" '
                         f'target="#{material}-material"/>\n' for material, _ in surfaces)
         nodes += (f'   <node id="{geometry}-node" name="{xml_id(part)}">\n'
@@ -440,7 +471,7 @@ def write_dae(model: Model, path: str, generator: str) -> None:
             f'  </contributor>\n'
             f'  <created>{COLLADA_DATE}</created>\n'
             f'  <modified>{COLLADA_DATE}</modified>\n'
-            f'  <unit name="meter" meter="1"/>\n'
+            f'  {unit.element}\n'
             f'  <up_axis>Z_UP</up_axis>\n'
             f' </asset>\n'
             f' <library_effects>\n'

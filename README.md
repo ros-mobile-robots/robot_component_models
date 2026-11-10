@@ -58,6 +58,8 @@ Refer to the files with `package://robot_component_models/meshes/...`. Each mesh
 
 Tested so far: the COLLADA and STL files in DiffBot's and Remo's descriptions with ROS 1 Noetic, in RViz and Gazebo Classic 11. For ROS 2 Humble, CI checks the package's build and install. RViz 2 and the newer Gazebo haven't rendered these meshes in a test yet.
 
+In close-ups, Gazebo Classic draws some small features of the COLLADA files deformed. [Millimetre COLLADA files for close-ups in Gazebo Classic](#millimetre-collada-files-for-close-ups-in-gazebo-classic) has the cause, the numbers and the files that avoid it.
+
 Keep the collision shapes and inertias in the robot description, for example as boxes and cylinders.
 
 ## Mesh conventions
@@ -65,6 +67,8 @@ Keep the collision shapes and inertias in the robot description, for example as 
 ### Units
 
 All files are in metres, ROS's unit for lengths ([REP 103](https://www.ros.org/reps/rep-0103.html)). STL has no unit field, and ROS reads its coordinates as metres, so no file needs a scale. The generators build the models in millimetres and convert the coordinates when they write the files. The provenance pages give positions in millimetres.
+
+For close-ups in Gazebo Classic, the generators can write the COLLADA files in millimetres into a separate folder. See [Millimetre COLLADA files for close-ups in Gazebo Classic](#millimetre-collada-files-for-close-ups-in-gazebo-classic).
 
 ### Frames
 
@@ -137,11 +141,31 @@ Other versions of CadQuery, OCP or NumPy, or another operating system, can trian
 
 The models are written with CadQuery because its models are plain Python driven by the dimensions from the sources, built on the OpenCASCADE solid modelling kernel. A change to a model is a readable diff of parameters and code, the generators need no graphical CAD program, and CI regenerates and checks every file. [build123d](https://build123d.readthedocs.io/) is the closest alternative, also a Python library on OpenCASCADE.
 
+### Millimetre COLLADA files for close-ups in Gazebo Classic
+
+The released files in `meshes/` are in metres. For close-up pictures in Gazebo Classic, the generators write the COLLADA files once more, in millimetres, into a folder that you name:
+
+```bash
+.venv/bin/python -m generators --millimetre-collada build/meshes_mm
+```
+
+This writes `build/meshes_mm/<part>/<name>.dae` for every mesh, and no other file. The folder must lie outside `meshes/`: the option refuses a folder inside it. So a released file never changes its unit under its name.
+
+**What a millimetre file is.** A COLLADA file names its unit of length in its `<unit>` element. A millimetre file declares `<unit name="millimeter" meter="0.001"/>`, and each of its positions is 1000 times the released file's. The normals, triangles, materials and sub-parts are the same. A program that applies the unit loads the same mesh from both files, at the same size and place. So a millimetre file needs no scale in the URDF either. `scale="0.001 0.001 0.001"` would apply the unit a second time.
+
+**When the millimetre files help.** Gazebo Classic's COLLADA loader can treat two positions as one vertex when they lie within 0.001 of each other on every axis, counted in the file's unit. The loader applies the unit afterwards. In a file in metres that distance is 1 mm. In the released files, Gazebo Classic 11.15.1 draws 6 to 3,813 triangle corners per mesh at a neighbouring vertex's position, up to 1.6 mm away, and 2 to 274 triangles per mesh collapse into a line. Close up, some small features look deformed, for example the camera's mounting holes and the Teensy's push button. At whole-robot distance the effect is hardly visible. In a millimetre file that distance is 1 µm, and Gazebo Classic draws every corner of all nine meshes at its place.
+
+**Where they change nothing.** RViz 1, RViz 2, Gazebo Fortress and Gazebo Harmonic draw the released files correctly. Their mesh loaders give the same mesh for both files, within 0.00001 mm.
+
+**What ignores the unit.** A program that ignores the `<unit>` element reads a millimetre file 1000 times too large. One such program is [geometric_shapes](https://github.com/moveit/geometric_shapes), which MoveIt uses to load collision meshes (measured with version 2.3.4 on ROS 2 Jazzy). Use the released files in such a program.
+
+The millimetre files aren't part of the installed package, which holds `meshes/` only. A robot description that shows them refers to the folder they were written into.
+
 ## Checks
 
 [CI](.github/workflows/ci.yml) runs on every pull request:
 
-1. **Regeneration**: regenerates all parts twice in the generator environment and fails if any file differs from the manifest's checksum.
+1. **Regeneration**: regenerates all parts twice in the generator environment and fails if any file differs from the manifest's checksum. The job also writes the [millimetre COLLADA files](#millimetre-collada-files-for-close-ups-in-gazebo-classic) into a folder of their own. [`scripts/check_millimetre_collada.py`](scripts/check_millimetre_collada.py) compares them with the files in `meshes/`: each file declares the millimetre, each position is 1000 times the position in metres, and the rest of the file is the same.
 2. **Mesh checks**: every STL is closed and consistently oriented. Triangle counts, units and bounding boxes match the manifest. The COLLADA files are valid against the COLLADA 1.4.1 schema and load in pycollada. Their triangle lists give the normals an index of their own, which Gazebo Classic needs to shade sharp edges correctly. The glTF files load in trimesh and pass the Khronos glTF Validator.
 3. **ROS packages**: builds and installs the package in the `ros:noetic` and `ros:humble` containers and checks that the installed `share/robot_component_models` holds exactly the manifest's files, their license files, the manifest, the provenance pages, `LICENSE`, `package.xml` and the build tools' own files. The ROS 1 build is checked with `catkin_make_isolated` and with colcon.
 4. **Code style**: flake8 with ROS 2's ament_flake8 settings and mypy on the generators and scripts.

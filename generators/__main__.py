@@ -7,6 +7,9 @@ Run from the repository's root, with the packages of generators/requirements.txt
   python3 -m generators                       write all meshes and the manifest
   python3 -m generators --check               regenerate into a temporary folder, compare
   python3 -m generators swivel_caster_30mm    write one part's meshes, not the manifest
+  python3 -m generators --millimetre-collada DIR
+                                              write only the COLLADA files, in millimetres,
+                                              into DIR/<part>/ (meshes/ stays in metres)
 """
 import argparse
 from concurrent.futures import ProcessPoolExecutor
@@ -25,6 +28,7 @@ from generators.manifest import MeshEntry
 from generators.manifest import PartEntry
 from generators.manifest import sha256
 from generators.mesh_export import LICENSE_ID
+from generators.mesh_export import MILLIMETRE
 from generators.mesh_export import SPDX_LINES
 from generators.mesh_export import used_materials
 from generators.mesh_export import write_dae
@@ -64,6 +68,32 @@ def generate(names: Sequence[str], out: str) -> List[PartEntry]:
     """Write the parts' meshes into out/, one process per part, return them in order."""
     with ProcessPoolExecutor(max_workers=min(len(names), os.cpu_count() or 1)) as pool:
         return list(pool.map(generate_part, names, [out] * len(names)))
+
+
+def generate_part_millimetre_collada(name: str, out: str) -> List[str]:
+    """Write one part's COLLADA files in millimetres into out/<part>/ and return their paths."""
+    module = importlib.import_module(f'generators.{name}')
+    os.makedirs(os.path.join(out, name), exist_ok=True)
+    written = []
+    for model in module.build():
+        path = os.path.join(out, name, model.name + '.dae')
+        write_dae(model, path, f'generators/{name}.py', MILLIMETRE)
+        print(f'{path}: millimetres, {os.path.getsize(path)} bytes', flush=True)
+        written.append(path)
+    return written
+
+
+def generate_millimetre_collada(names: Sequence[str], out: str) -> List[str]:
+    """Write the parts' COLLADA files in millimetres into out/, one process per part."""
+    with ProcessPoolExecutor(max_workers=min(len(names), os.cpu_count() or 1)) as pool:
+        written = pool.map(generate_part_millimetre_collada, names, [out] * len(names))
+        return [path for paths in written for path in paths]
+
+
+def is_inside(path: str, folder: str) -> bool:
+    """Return whether the path is the folder or lies inside it, symbolic links resolved."""
+    path, folder = os.path.realpath(path), os.path.realpath(folder)
+    return path == folder or path.startswith(folder + os.sep)
 
 
 def committed_files() -> List[str]:
@@ -113,16 +143,28 @@ def main() -> int:
     parser.add_argument('parts', nargs='*', metavar='PART',
                         help='parts to write (default: all, with the manifest): '
                         + ', '.join(PARTS))
-    parser.add_argument('--check', action='store_true',
-                        help='regenerate into a temporary folder and compare with meshes/')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--check', action='store_true',
+                      help='regenerate into a temporary folder and compare with meshes/')
     parser.add_argument('--keep', default='', metavar='DIR',
                         help='with --check: regenerate into DIR and keep the files')
+    mode.add_argument('--millimetre-collada', metavar='DIR',
+                      help='write only the COLLADA files, in millimetres and with that unit '
+                      'declared, into DIR/<part>/. DIR must be outside meshes/, whose files '
+                      'stay in metres')
     args = parser.parse_args()
     unknown = [name for name in args.parts if name not in PARTS]
     if unknown:
         parser.error(f'unknown parts: {", ".join(unknown)}')
     if args.check:
         return check(args.keep)
+    if args.millimetre_collada is not None:
+        if not args.millimetre_collada or is_inside(args.millimetre_collada, MESHES):
+            parser.error('--millimetre-collada: DIR must be a folder outside meshes/, '
+                         'whose files stay in metres')
+        written = generate_millimetre_collada(args.parts or PARTS, args.millimetre_collada)
+        print(f'COLLADA files written in millimetres: {len(written)}')
+        return 0
     parts = generate(args.parts or PARTS, MESHES)
     if not args.parts:
         with open(MANIFEST, 'w', encoding='utf-8', newline='\n') as manifest:
