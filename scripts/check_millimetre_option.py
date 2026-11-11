@@ -13,7 +13,10 @@ option has to refuse, and with one that it has to accept:
   meshes/, one whose COLLADA file is a symbolic link or a hard link to a released file, and
   the folder of an earlier run,
 - a symbolic link whose target doesn't exist,
-- a new folder, which must then hold the part's millimetre file and nothing else.
+- each existing folder and link once more, spelled <parent>/missing/../<name>/. with a folder
+  `missing` that doesn't exist: the same place under another spelling,
+- a new folder, also in that spelling, which must then hold the part's millimetre file and
+  nothing else.
 
 A refusal must end with exit code 2, a usage error, and must leave every file as it was. Each
 case runs on a copy of generators/ and meshes/ of its own, in a temporary folder. So a failing
@@ -161,11 +164,51 @@ def folder_of_an_earlier_run(sandbox: Sandbox) -> str:
     return folder
 
 
-REFUSED: List[Case] = [meshes_itself, new_folder_inside_meshes, link_to_meshes,
-                       new_folder_below_a_link_to_meshes, link_to_nowhere,
-                       existing_empty_folder, folder_with_a_linked_part_folder,
-                       folder_with_a_linked_file, folder_with_a_hard_linked_file,
-                       folder_of_an_earlier_run]
+def new_folder_below_a_link_into_meshes_without_a_target(sandbox: Sandbox) -> str:
+    """Return a folder below a symbolic link to a folder in meshes/ that doesn't exist."""
+    link = os.path.join(sandbox.work, 'link')
+    os.symlink(os.path.join(meshes(sandbox), 'missing'), link)
+    return os.path.join(link, 'millimetre')
+
+
+def existing_folder_that_ends_with_two_dots(sandbox: Sandbox) -> str:
+    """Return an existing empty folder, spelled with a missing folder and '..' at its end."""
+    return os.path.join(existing_empty_folder(sandbox), 'missing', os.pardir)
+
+
+def through_a_missing_folder(folder: str) -> str:
+    """Return the folder spelled <parent>/missing/../<name>/. where `missing` doesn't exist.
+
+    The spelling names the same place as the plain path. A function that creates folders
+    along the spelled path would create `missing` and could take the existing folder for a
+    new one.
+    """
+    parent, name = os.path.split(folder)
+    return os.path.join(parent, 'missing', os.pardir, name, os.curdir)
+
+
+def spelled_through_a_missing_folder(case: Case) -> Case:
+    """Return the case with its folder spelled through a missing folder."""
+    def spelled(sandbox: Sandbox) -> str:
+        return through_a_missing_folder(case(sandbox))
+    spelled.__name__ = f'{case.__name__}_through_a_missing_folder'
+    return spelled
+
+
+EXISTING: List[Case] = [link_to_meshes, link_to_nowhere, existing_empty_folder,
+                        folder_with_a_linked_part_folder, folder_with_a_linked_file,
+                        folder_with_a_hard_linked_file, folder_of_an_earlier_run]
+REFUSED: List[Case] = ([meshes_itself, new_folder_inside_meshes,
+                        new_folder_below_a_link_to_meshes,
+                        new_folder_below_a_link_into_meshes_without_a_target,
+                        existing_folder_that_ends_with_two_dots]
+                       + EXISTING
+                       + [spelled_through_a_missing_folder(case) for case in EXISTING])
+# The new folder of the accepted cases, relative to the sandbox's work folder, and every entry
+# that the work folder holds after the run
+NEW_FOLDER = os.path.join('new', 'millimetre')
+NEW_ENTRIES = ['new', NEW_FOLDER, os.path.join(NEW_FOLDER, PART),
+               os.path.join(NEW_FOLDER, PART_FILE)]
 
 
 # ---------------------------------------------------------------------------------------------
@@ -187,22 +230,24 @@ def check_refusal(case: Case, sandbox: Sandbox) -> List[str]:
     return problems
 
 
-def check_new_folder(sandbox: Sandbox) -> List[str]:
-    """Check that the option creates a new folder and writes only the millimetre file."""
-    folder = os.path.join(sandbox.work, 'new', 'millimetre')
+def check_new_folder(spelling: Callable[[str], str], sandbox: Sandbox) -> List[str]:
+    """Check that the option creates the new folder and writes only the millimetre file.
+
+    The folder is passed to the option in the given spelling.
+    """
+    folder = os.path.join(sandbox.work, NEW_FOLDER)
     released = snapshot(sandbox)
-    result = run_option(sandbox, folder)
+    result = run_option(sandbox, spelling(folder))
     if result.returncode != 0:
         return [f'exit code {result.returncode}, expected 0: {result.stderr.strip()[-300:]}']
+    after = snapshot(sandbox)
+    created = sorted(os.path.relpath(path, sandbox.work) for path in set(after) - set(released))
+    if created != sorted(NEW_ENTRIES):
+        return [f'the run created {created}, expected {sorted(NEW_ENTRIES)}']
     problems = []
-    written = sorted(os.path.relpath(os.path.join(parent, name), folder)
-                     for parent, _, files in os.walk(folder) for name in files)
-    if written != [PART_FILE]:
-        return [f'the folder holds {written}, expected only {PART_FILE}']
     with open(os.path.join(folder, PART_FILE), encoding='utf-8') as stream:
         if MILLIMETRE_UNIT not in stream.read():
             problems.append(f'{PART_FILE} does not declare {MILLIMETRE_UNIT}')
-    after = snapshot(sandbox)
     if any(after.get(path) != content for path, content in released.items()):
         problems.append('a file in meshes/ changed')
     return problems
@@ -226,7 +271,9 @@ def main() -> int:
     checks: List[Tuple[str, Check]] = [(f'refuses {case.__name__}',
                                         functools.partial(check_refusal, case))
                                        for case in REFUSED]
-    checks.append(('writes into a new folder', check_new_folder))
+    checks.append(('writes into a new folder', functools.partial(check_new_folder, str)))
+    checks.append(('writes into a new folder through a missing folder',
+                   functools.partial(check_new_folder, through_a_missing_folder)))
     failed = 0
     for name, check in checks:
         with tempfile.TemporaryDirectory() as temporary:

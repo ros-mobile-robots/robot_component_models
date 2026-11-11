@@ -96,27 +96,45 @@ def is_inside(path: str, folder: str) -> bool:
     return path == folder or path.startswith(folder + os.sep)
 
 
+def millimetre_destination(folder: str) -> str:
+    """Return the one path that stands for DIR: its parent resolved, its last name as given.
+
+    The path has no '.', no '..' and no symbolic link in its parent, so it names the same
+    place when it is checked, when it is created and when the files are written. The last
+    name is not resolved: if a symbolic link has that name, the path names the link itself.
+    Raise ValueError if DIR doesn't end with a name, as '', '/' and 'folder/..' do.
+    """
+    parent, name = os.path.split(folder.rstrip(os.sep))
+    while name == os.curdir:
+        parent, name = os.path.split(parent.rstrip(os.sep))
+    if name in ('', os.pardir):
+        raise ValueError('DIR has to end with the name of the new folder')
+    return os.path.join(os.path.realpath(parent), name)
+
+
 def create_millimetre_folder(folder: str) -> str:
-    """Create the folder for the millimetre files and return '', or return why it can't be.
+    """Create the new folder for the millimetre files and return its path.
 
     The folder must lie outside meshes/ and must not exist yet. A folder that this run creates
     holds no file and no link to one. So the millimetre files can't replace an existing file:
     not a file in meshes/, not a copy of one somewhere else, and not through a symbolic or a
-    hard link that an existing folder could hold.
+    hard link that an existing folder could hold. os.mkdir() creates the folder and fails if
+    anything has its name already, also a symbolic link without a target.
+    Raise ValueError with the reason if the folder can't be created.
     """
-    if not folder:
-        return 'DIR is empty'
-    if is_inside(folder, MESHES):
-        return 'DIR must lie outside meshes/, whose files stay in metres'
+    destination = millimetre_destination(folder)
+    if is_inside(destination, MESHES):
+        raise ValueError('DIR must lie outside meshes/, whose files stay in metres')
+    if os.path.lexists(destination):
+        raise ValueError(f'{destination} exists already. The option writes only into a folder '
+                         'that it creates, so that it never changes an existing file. Remove '
+                         'the folder or name another one')
     try:
-        os.makedirs(folder)
-    except FileExistsError:
-        return (f'{folder} exists already. The option writes only into a folder that it '
-                'creates, so that it never changes an existing file. Remove the folder or '
-                'name another one')
+        os.makedirs(os.path.dirname(destination), exist_ok=True)
+        os.mkdir(destination)
     except OSError as error:
-        return f"{folder} can't be created: {error.strerror}"
-    return ''
+        raise ValueError(f"{destination} can't be created: {error.strerror}") from None
+    return destination
 
 
 def committed_files() -> List[str]:
@@ -182,10 +200,11 @@ def main() -> int:
     if args.check:
         return check(args.keep)
     if args.millimetre_collada is not None:
-        problem = create_millimetre_folder(args.millimetre_collada)
-        if problem:
+        try:
+            destination = create_millimetre_folder(args.millimetre_collada)
+        except ValueError as problem:
             parser.error(f'--millimetre-collada: {problem}')
-        written = generate_millimetre_collada(args.parts or PARTS, args.millimetre_collada)
+        written = generate_millimetre_collada(args.parts or PARTS, destination)
         print(f'COLLADA files written in millimetres: {len(written)}')
         return 0
     parts = generate(args.parts or PARTS, MESHES)
