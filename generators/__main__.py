@@ -7,6 +7,9 @@ Run from the repository's root, with the packages of generators/requirements.txt
   python3 -m generators                       write all meshes and the manifest
   python3 -m generators --check               regenerate into a temporary folder, compare
   python3 -m generators swivel_caster_30mm    write one part's meshes, not the manifest
+  python3 -m generators --millimetre-collada DIR
+                                              write only the COLLADA files, in millimetres,
+                                              into the new folder DIR (meshes/ stays in metres)
 """
 import argparse
 from concurrent.futures import ProcessPoolExecutor
@@ -25,6 +28,7 @@ from generators.manifest import MeshEntry
 from generators.manifest import PartEntry
 from generators.manifest import sha256
 from generators.mesh_export import LICENSE_ID
+from generators.mesh_export import MILLIMETRE
 from generators.mesh_export import SPDX_LINES
 from generators.mesh_export import used_materials
 from generators.mesh_export import write_dae
@@ -64,6 +68,73 @@ def generate(names: Sequence[str], out: str) -> List[PartEntry]:
     """Write the parts' meshes into out/, one process per part, return them in order."""
     with ProcessPoolExecutor(max_workers=min(len(names), os.cpu_count() or 1)) as pool:
         return list(pool.map(generate_part, names, [out] * len(names)))
+
+
+def generate_part_millimetre_collada(name: str, out: str) -> List[str]:
+    """Write one part's COLLADA files in millimetres into out/<part>/ and return their paths."""
+    module = importlib.import_module(f'generators.{name}')
+    os.makedirs(os.path.join(out, name), exist_ok=True)
+    written = []
+    for model in module.build():
+        path = os.path.join(out, name, model.name + '.dae')
+        write_dae(model, path, f'generators/{name}.py', MILLIMETRE)
+        print(f'{path}: millimetres, {os.path.getsize(path)} bytes', flush=True)
+        written.append(path)
+    return written
+
+
+def generate_millimetre_collada(names: Sequence[str], out: str) -> List[str]:
+    """Write the parts' COLLADA files in millimetres into out/, one process per part."""
+    with ProcessPoolExecutor(max_workers=min(len(names), os.cpu_count() or 1)) as pool:
+        written = pool.map(generate_part_millimetre_collada, names, [out] * len(names))
+        return [path for paths in written for path in paths]
+
+
+def is_inside(path: str, folder: str) -> bool:
+    """Return whether the path is the folder or lies inside it, symbolic links resolved."""
+    path, folder = os.path.realpath(path), os.path.realpath(folder)
+    return path == folder or path.startswith(folder + os.sep)
+
+
+def millimetre_destination(folder: str) -> str:
+    """Return the one path that stands for DIR: its parent resolved, its last name as given.
+
+    The path has no '.', no '..' and no symbolic link in its parent, so it names the same
+    place when it is checked, when it is created and when the files are written. The last
+    name is not resolved: if a symbolic link has that name, the path names the link itself.
+    Raise ValueError if DIR doesn't end with a name, as '', '/' and 'folder/..' do.
+    """
+    parent, name = os.path.split(folder.rstrip(os.sep))
+    while name == os.curdir:
+        parent, name = os.path.split(parent.rstrip(os.sep))
+    if name in ('', os.pardir):
+        raise ValueError('DIR has to end with the name of the new folder')
+    return os.path.join(os.path.realpath(parent), name)
+
+
+def create_millimetre_folder(folder: str) -> str:
+    """Create the new folder for the millimetre files and return its path.
+
+    The folder must lie outside meshes/ and must not exist yet. A folder that this run creates
+    holds no file and no link to one. So the millimetre files can't replace an existing file:
+    not a file in meshes/, not a copy of one somewhere else, and not through a symbolic or a
+    hard link that an existing folder could hold. os.mkdir() creates the folder and fails if
+    anything has its name already, also a symbolic link without a target.
+    Raise ValueError with the reason if the folder can't be created.
+    """
+    destination = millimetre_destination(folder)
+    if is_inside(destination, MESHES):
+        raise ValueError('DIR must lie outside meshes/, whose files stay in metres')
+    if os.path.lexists(destination):
+        raise ValueError(f'{destination} exists already. The option writes only into a folder '
+                         'that it creates, so that it never changes an existing file. Remove '
+                         'the folder or name another one')
+    try:
+        os.makedirs(os.path.dirname(destination), exist_ok=True)
+        os.mkdir(destination)
+    except OSError as error:
+        raise ValueError(f"{destination} can't be created: {error.strerror}") from None
+    return destination
 
 
 def committed_files() -> List[str]:
@@ -113,16 +184,29 @@ def main() -> int:
     parser.add_argument('parts', nargs='*', metavar='PART',
                         help='parts to write (default: all, with the manifest): '
                         + ', '.join(PARTS))
-    parser.add_argument('--check', action='store_true',
-                        help='regenerate into a temporary folder and compare with meshes/')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--check', action='store_true',
+                      help='regenerate into a temporary folder and compare with meshes/')
     parser.add_argument('--keep', default='', metavar='DIR',
                         help='with --check: regenerate into DIR and keep the files')
+    mode.add_argument('--millimetre-collada', metavar='DIR',
+                      help='write only the COLLADA files, in millimetres and with that unit '
+                      'declared, into the new folder DIR, as DIR/<part>/<name>.dae. DIR must '
+                      'not exist yet and must lie outside meshes/, whose files stay in metres')
     args = parser.parse_args()
     unknown = [name for name in args.parts if name not in PARTS]
     if unknown:
         parser.error(f'unknown parts: {", ".join(unknown)}')
     if args.check:
         return check(args.keep)
+    if args.millimetre_collada is not None:
+        try:
+            destination = create_millimetre_folder(args.millimetre_collada)
+        except ValueError as problem:
+            parser.error(f'--millimetre-collada: {problem}')
+        written = generate_millimetre_collada(args.parts or PARTS, destination)
+        print(f'COLLADA files written in millimetres: {len(written)}')
+        return 0
     parts = generate(args.parts or PARTS, MESHES)
     if not args.parts:
         with open(MANIFEST, 'w', encoding='utf-8', newline='\n') as manifest:
