@@ -321,9 +321,9 @@ def unit(dx: float, dz: float) -> Tuple[float, float]:
 def trace_path(start: Tuple[float, float], pieces: Sequence, y: float = 0.0) -> cq.Workplane:
     """Return a closed (r, z) path as a wire in the plane of the x axis and the axle, moved to y.
 
-    The pieces are ('line', end), ('arc', middle, end), ('spline', end, start_tangent,
-    end_tangent) or ('through', points), a spline through the points, all in (r, z). After
-    its points a 'through' piece may name the spline's directions at its start and its end.
+    The pieces are ('line', end), ('arc', middle, end) or ('through', points), a spline
+    through the points, all in (r, z). After its points a 'through' piece may name the
+    spline's directions at its start and its end.
     """
     wp = cq.Workplane('XZ', origin=(0, y, 0)).moveTo(*start)
     for piece in pieces:
@@ -334,7 +334,7 @@ def trace_path(start: Tuple[float, float], pieces: Sequence, y: float = 0.0) -> 
         elif piece[0] == 'through':
             wp = wp.spline(list(piece[1]), tangents=list(piece[2:]) or None, includeCurrent=True)
         else:
-            wp = wp.spline([piece[1]], tangents=[piece[2], piece[3]], includeCurrent=True)
+            raise ValueError(f'unknown piece: {piece[0]}')
     return wp.close()
 
 
@@ -534,11 +534,6 @@ def tread_cutter() -> cq.Workplane:
 def make_tyre() -> cq.Workplane:
     """Return the black tyre with its block tread."""
     return tyre_body().cut(tread_cutter())
-
-
-def lerp(a: float, b: float, t: float) -> float:
-    """Return the value a fraction t of the way from a to b."""
-    return a + (b - a) * t
 
 
 def spoke_side() -> Tuple[Tuple[float, float], Tuple[float, float]]:
