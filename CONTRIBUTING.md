@@ -18,7 +18,7 @@ Every model here is the project's own work, under this repository's [license](LI
 
 ## Adding or changing a part
 
-1. Choose the part's identifier, lowercase snake_case after the product, such as `rplidar_a2` (see the README's file name rules). Write or change the generator `generators/<part>.py`. Parameters go at the top, each with its source. `build()` returns the part's meshes as `mesh_export.Model` objects, in millimetres, with named sub-parts and materials. The export writes the files in metres. Add a new part to `PARTS` in `generators/__init__.py`.
+1. Choose the part's identifier, lowercase snake_case after the product, such as `rplidar_a2` (see the README's file name rules). Write or change the generator `generators/<part>.py`. Parameters go at the top, each with its source. `build()` returns the part's meshes as `mesh_export.Model` objects, in millimetres, with named sub-parts and materials. The export writes the files in metres. Add a new part to `PARTS` in `generators/__init__.py`. `build()` reads as the list of the part's sub-parts, with one function per sub-part, and every dimension is a named constant in the parameter block, not a number inside a function. [AGENTS.md](AGENTS.md#code) has the code rules.
 2. Write or update `provenance/<part>.md`: sources, the Frame section, what is simplified or estimated, and which measurements would help.
 3. Regenerate and check, with the pinned Python packages (see the README):
 
@@ -31,6 +31,7 @@ Every model here is the project's own work, under this repository's [license](LI
 
 4. Load the mesh in a robot model and look at it in RViz and Gazebo.
 5. Update the README's parts table: the picture, triangles and file sizes.
+6. Update the documentation site: a new part, a change to the generators' shared code and a new check come with a page or an update on ros-mobile-robots.com, as a pull request in [ros-mobile-robots.github.io](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io) that you plan with the change and link under `## Related`. [AGENTS.md](AGENTS.md#documentation) says what the page holds.
 
 **License lines:** every new text file starts with the two SPDX lines `SPDX-FileCopyrightText: 2026 ROS Mobile Robots` and `SPDX-License-Identifier: BSD-3-Clause`, in the file's comment syntax. The generators write these lines into each COLLADA file and the manifest, and into a `<file>.license` next to each STL and glTF file.
 
@@ -62,6 +63,7 @@ python3 -m venv .lint && .lint/bin/pip install -r scripts/requirements-lint.txt
 - **Pull requests are squash-merged.** Maintainers use the PR title as the commit's subject and the description as its message, so write the title as `Area: what changed`, 65 characters or fewer, and start the description with what changes and why.
 - Say how you tested it, and link the issue with `Closes #N`.
 - If a robot's model has to change with yours, open the matching pull request in the robot's repository and link the two.
+- **Fixes:** a fix of a generator or a check comes with a check that fails without it, in `scripts/check_meshes.py` or a script of its own that CI runs.
 
 ## AI-assisted contributions
 
