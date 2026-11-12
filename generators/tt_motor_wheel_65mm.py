@@ -45,7 +45,8 @@ TITLE = 'Wheel 65 mm for TT gear motors (DiffBot, Remo)'
 #   video     video frames of DiffBot's wheel
 #   measured  caliper measurement of the real wheel, without a photo
 #   derived   follows from other values in this file
-#   choice    not measured: an estimate that looks like the photos
+#   choice    not measured: an estimate that looks like the photos. "fits the part" marks a
+#             choice that was held against the real wheel and found right, without a reading
 # z is along the axle (see the module docstring). Diameters as D_, radii are derived.
 # ---------------------------------------------------------------------------------------------
 TYRE_OUTER_FACE_Z = -13.0    # the outer face: 13 mm outboard of both robots' wheel joints
@@ -69,9 +70,9 @@ TYRE_CROWN_WIDTH = 18.6      # choice (shop photos): the tread between the shoul
 TYRE_CROWN_DROP = 0.25       # choice (shop photos): the crown's edges below its middle
 TYRE_SEAT_GAP = 0.02         # choice: the tyre stands this far off the rim
 TYRE_FOOT_INSET = 0.4        # choice: the sidewalls leave the flanges' tops behind the faces
-TREAD_DEPTH = 0.6            # measured: the grooves' depth
+TREAD_DEPTH = 0.6            # choice, fits the part: the grooves' depth
 TREAD_ROWS = 42              # p07, p08: about 5 mm row pitch, blocks about 4.3 mm long
-TREAD_TRANSVERSE_GROOVE = 0.7  # measured: the grooves' width, across and around
+TREAD_TRANSVERSE_GROOVE = 0.7  # choice, fits the part: the grooves' width, across and around
 # Grooves around the tyre (offset from the tyre's centre plane, width): six block columns
 # (p07, p08, video). Measured: the offsets
 TREAD_CIRCUMFERENTIAL_GROOVES = ((0.0, 0.7), (3.15, 0.7), (-3.15, 0.7), (7.8, 0.7), (-7.8, 0.7))
@@ -113,7 +114,7 @@ RIB_WIDTH = 1.0              # choice (photos: thin)
 RIB_D = min(RIDGE_DS)        # choice: the ribs are as high as the lower ridges
 
 # Outer face: the flange's flat face with a fine groove. Both flanges' outer corners are sharp,
-# their inner corners are round (measured: the shapes and the radius)
+# their inner corners are round (measured: the shapes)
 FLANGE_FACE = 3.2            # measured: the face's radial height, so 44.82 inside at the face
 # The fine groove lies in the middle of the face (measured: 1.3 from each of the face's edges).
 # Its side toward the tyre is a chamfer, its side toward the axle a round, and its two edges at
@@ -123,7 +124,7 @@ FACE_GROOVE_BOTTOM = 0.1     # measured: the width of the groove's bottom
 FACE_GROOVE_DEPTH = 0.2      # choice
 FACE_GROOVE_CHAMFER = 45.0   # choice: the chamfer's angle to the face (deg)
 FACE_GROOVE_EDGE = 0.1       # choice: the rounds of the groove's two edges at the face
-FLANGE_INNER_ROUND = 0.5     # measured (about): the round into the barrel's inside, at both ends
+FLANGE_INNER_ROUND = 0.5     # choice, fits the part: the round into the barrel's inside, both ends
 
 # Barrel inside, from the outer face: plain, a lip that stands inward, then the cone above
 LIP_START = 3.5              # measured: the lip's front behind the outer face
@@ -171,11 +172,11 @@ SPOKE_LIP_WIDTH = 5.8        # measured: 5.8 to 6.0, above the lip's inner edge
 SPOKE_END_WIDTH = 5.2        # measured: where the spoke ends on the lip
 SPOKE_ROOT_BLEND = 3.0       # video, p41: curved sides into the web; radius: choice
 # One round dimple per spoke: a small bowl with a straight sloped wall, a rounded bottom and a
-# rounded rim (measured: closed, about 0.6 deep, a small round on the rim, a bit wider than 1.5
-# at the face). The rim's round makes the dimple 1.74 wide at the face
+# rounded rim (measured: closed, a small round on the rim, a bit wider than 1.5 at the face).
+# The rim's round makes the dimple 1.74 wide at the face
 SPOKE_MARK_FROM_END = 7.4    # measured: the dimple's centre before the spoke's end
 SPOKE_MARK_D = 1.5           # p41 img.: across the dimple, its wall continued to the face
-SPOKE_MARK_DEPTH = 0.6       # measured (about): at the centre of the dimple
+SPOKE_MARK_DEPTH = 0.6       # choice, fits the part: at the centre of the dimple
 SPOKE_MARK_ROUND = 0.3       # choice: the round of the dimple's rim
 SPOKE_MARK_BOTTOM = 0.3      # choice: the radius of the dimple's rounded bottom
 
@@ -1126,8 +1127,8 @@ def for_meshing(solid: cq.Workplane) -> cq.Workplane:
 
     On the faces as built, the mesher's triangles cut across the profile's small rounds: a cut
     through the axle then shows a straight piece where the round is, up to 0.09 mm inside a
-    round of 0.5 mm, three times LINEAR_DEFLECTION. On NURBS surfaces the mesher keeps its
-    triangles within LINEAR_DEFLECTION of the rounds.
+    round of 0.5 mm, three times LINEAR_DEFLECTION. On NURBS surfaces the triangles follow the
+    rounds, to about LINEAR_DEFLECTION.
     """
     converted = BRepBuilderAPI_NurbsConvert(solid.val().wrapped, True).Shape()
     return cq.Workplane('XY').newObject([cq.Shape.cast(converted)])
