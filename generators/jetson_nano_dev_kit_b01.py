@@ -112,6 +112,15 @@ MODULE_PAD = 5.6  # gold pads round the standoff holes on the module's top (phot
 CARRIER_SCREW_HOLE = 2.6
 CARRIER_SCREW_PAD = 5.8
 CARRIER_SCREW_HEAD = (4.0, 1.2)  # diameter, height
+# The standoffs' screws, from below the carrier and from above the module (estimated): the
+# shank's diameter and how far it reaches into the standoff. Each end of a standoff has a
+# blind bore for its screw, as wide as the carrier's hole and deeper than the screw's reach.
+STANDOFF_SCREW_SHANK = (2.4, 3.0)
+STANDOFF_BORE = (CARRIER_SCREW_HOLE, 3.5)  # diameter, depth
+# The room round the module's edge in the SO-DIMM connector's slot, and round the key rib in
+# the module's key notch (estimated)
+MODULE_SLOT_CLEARANCE = 0.3
+MODULE_KEY_CLEARANCE = 0.1
 J50_PINS = [(49.71 - 2.54 * k, 69.47) for k in range(12)]
 J50_HOLE = 1.0
 J50_PAD = 1.7
@@ -123,6 +132,8 @@ SODIMM_CONTACTS = 130
 MODULE_SD_SLOT = (36.0, 63.0, 49.5, 77.4, 7.8)  # on the module's underside, top z = module bottom
 MODULE_FINGERS = (35.4, 0.3)  # the gold fingers reach to v 35.4, 0.3 mm wide
 MODULE_KEY = (51.0, 1.0)  # u of the key notch in the module's edge, its width
+MODULE_KEY_DEPTH = 3.0  # how far the key notch reaches into the module from its edge
+MODULE_STANDOFF_HOLE = 2.8  # diameter of the module's holes for the standoffs' screws
 MODULE_FINGER_BANKS = (71, 59)  # fingers a face beside the key: u 15.0 to 50.0, 52.0 to 81.0
 
 # Parts on the module under the heatsink, placed by the heatsink's underside (drawing of
@@ -351,8 +362,17 @@ def sodimm_connector() -> List[Piece]:
     """Return the SO-DIMM connector J2: body, end posts, 130 contacts in front and latches."""
     u0, v0, u1, v1, top = SODIMM
     connector = rounded_box(u0, v0, TOP, u1, v1, top, chamfer_top=0.3)
-    slot = box(u0 + 2.0, v0 + 3.0, MODULE_Z[0] - 0.3, u1 - 2.0, v1 + 0.1, MODULE_Z[1] + 0.3)
-    parts: List[Piece] = [('black_plastic', connector.cut(slot))]
+    # The slot takes the module's edge over the module's whole width, between the end posts.
+    # A rib in the slot fits the key notch in the module's edge.
+    mu0, mv0, mu1, _ = MODULE
+    room = MODULE_SLOT_CLEARANCE
+    slot = box(mu0 - room, v0 + 3.0, MODULE_Z[0] - room, mu1 + room, v1 + 0.1,
+               MODULE_Z[1] + room)
+    key_u, key_width = MODULE_KEY
+    rib_half = key_width / 2 - MODULE_KEY_CLEARANCE
+    rib = box(key_u - rib_half, v0 + 2.9, MODULE_Z[0] - room - 0.1, key_u + rib_half,
+              mv0 + MODULE_KEY_DEPTH - MODULE_KEY_CLEARANCE, MODULE_Z[1] + room + 0.1)
+    parts: List[Piece] = [('black_plastic', connector.cut(slot.cut(rib)))]
     start = (u0 + u1) / 2 - (SODIMM_CONTACTS - 1) * SODIMM_PITCH / 2
     for k in range(SODIMM_CONTACTS):
         u = start + k * SODIMM_PITCH
@@ -364,12 +384,8 @@ def sodimm_connector() -> List[Piece]:
     return parts
 
 
-def module_board() -> List[Piece]:
-    """Return the module's board: black solder mask, FR-4 edges, gold fingers on both faces.
-
-    The fingers along the edge in the SO-DIMM connector (130 a face at 0.5 mm) leave out the
-    key notch's place. The holes take the standoffs' screws and the heatsink's screws.
-    """
+def module_plate() -> cq.Shape:
+    """Return the module's bare board: its outline with the key notch and the screws' holes."""
     mu0, mv0, mu1, mv1 = MODULE
     holes = list(MODULE_STANDOFFS) + list(HEATSINK_SCREWS)
     plate = cq.Workplane('XY', origin=((mu0 + mu1) / 2, (mv0 + mv1) / 2, MODULE_Z[0])) \
@@ -377,13 +393,26 @@ def module_board() -> List[Piece]:
         .fillet(0.8).val()
     key_u, key_width = MODULE_KEY
     plate = plate.cut(box(key_u - key_width / 2, mv0 - 0.1, MODULE_Z[0] - 0.1,
-                          key_u + key_width / 2, mv0 + 3.0, MODULE_Z[1] + 0.1))
+                          key_u + key_width / 2, mv0 + MODULE_KEY_DEPTH, MODULE_Z[1] + 0.1))
     for u, v in holes:
-        diameter = 2.8 if (u, v) in MODULE_STANDOFFS else 2.2
+        diameter = MODULE_STANDOFF_HOLE if (u, v) in MODULE_STANDOFFS else 2.2
         plate = plate.cut(cylinder(diameter / 2, (u, v, MODULE_Z[0] - 1), (0, 0, 1), 3.0))
-    parts: List[Piece] = list(split_board(tessellate_shape(plate, TOLERANCE, ANGULAR_TOLERANCE),
+    return plate
+
+
+def module_board() -> List[Piece]:
+    """Return the module's board: black solder mask, FR-4 edges, gold fingers on both faces.
+
+    The fingers along the edge in the SO-DIMM connector (130 a face at 0.5 mm) leave out the
+    key notch's place. The holes take the standoffs' screws and the heatsink's screws.
+    """
+    mv0 = MODULE[1]
+    key_u = MODULE_KEY[0]
+    parts: List[Piece] = list(split_board(tessellate_shape(module_plate(), TOLERANCE,
+                                                           ANGULAR_TOLERANCE),
                                           'solder_mask_black'))
-    parts += [('gold', ring((u, v), MODULE_PAD, 2.8, MODULE_Z[1], MODULE_Z[1] + 0.03))
+    parts += [('gold', ring((u, v), MODULE_PAD, MODULE_STANDOFF_HOLE, MODULE_Z[1],
+                            MODULE_Z[1] + 0.03))
               for u, v in MODULE_STANDOFFS]
     reach, finger_width = MODULE_FINGERS
     # Two banks beside the key notch, 130 fingers a face in all, the first 1.0 mm from the key.
@@ -457,27 +486,40 @@ def carrier_screws() -> List[Piece]:
     """Return the screws that hold the module's standoffs, from below the carrier."""
     diameter, height = CARRIER_SCREW_HEAD
     screws: List[Piece] = []
+    shank_diameter, reach = STANDOFF_SCREW_SHANK
     for u, v in MODULE_STANDOFFS:
-        shank = cylinder(CARRIER_SCREW_HOLE / 2 - 0.1, (u, v, -0.01), (0, 0, 1), TOP + 3.0)
+        shank = cylinder(shank_diameter / 2, (u, v, -0.01), (0, 0, 1), TOP + reach)
         screws.append(('nickel', cross_head(u, v, 0.0, diameter, height, False).fuse(shank)
                        .clean()))
     return screws
 
 
 def module_mounting() -> Dict[str, List[Piece]]:
-    """Return the module's brass standoffs and their cross-head screws."""
+    """Return the module's brass standoffs and the cross-head screws from above the module.
+
+    Each standoff has a blind bore at both ends: the lower one takes the carrier screw's
+    shank, the upper one the shank of the screw that holds the module.
+    """
     standoffs: List[Piece] = []
     screws: List[Piece] = []
+    shank_diameter, reach = STANDOFF_SCREW_SHANK
+    bore_diameter, bore_depth = STANDOFF_BORE
     for u, v in MODULE_STANDOFFS:
-        standoffs.append(('brass', cq.Workplane('XY').polygon(6, 5.0)
-                          .extrude(MODULE_Z[0] - TOP).translate((u, v, TOP)).val()))
+        standoff = cq.Workplane('XY').polygon(6, 5.0).extrude(MODULE_Z[0] - TOP) \
+            .translate((u, v, TOP)).val()
+        for bottom in (TOP - 0.1, MODULE_Z[0] - bore_depth):
+            standoff = standoff.cut(cylinder(bore_diameter / 2, (u, v, bottom), (0, 0, 1),
+                                             bore_depth + 0.1))
+        standoffs.append(('brass', standoff))
         head = cq.Workplane('XY').circle(2.2).extrude(1.3).faces('>Z').edges().fillet(0.5) \
             .translate((u, v, MODULE_Z[1])).val()
         head = head.cut(box(u - 1.2, v - 0.25, MODULE_Z[1] + 0.8, u + 1.2, v + 0.25,
                             MODULE_Z[1] + 1.5))
         head = head.cut(box(u - 0.25, v - 1.2, MODULE_Z[1] + 0.8, u + 0.25, v + 1.2,
                             MODULE_Z[1] + 1.5))
-        screws.append(('nickel', head))
+        shank = cylinder(shank_diameter / 2, (u, v, MODULE_Z[0] - reach), (0, 0, 1),
+                         MODULE_Z[1] - MODULE_Z[0] + reach + 0.01)
+        screws.append(('nickel', head.fuse(shank).clean()))
     return {'module_standoffs': standoffs, 'module_screws': screws}
 
 

@@ -23,6 +23,11 @@ STEP = 0.05       # mm: how far inside or outside an opening's edge a point is p
 KEY_FROM_THE_SIDE, KEY_ABOVE_THE_BOTTOM = 0.45, 0.35
 
 
+def volume(shape: cq.Shape) -> float:
+    """Return the shape's volume in cubic millimetres, 0 for an empty shape."""
+    return float(sum(solid.Volume() for solid in shape.Solids()))
+
+
 class J6PortsTest(unittest.TestCase):
     """The HDMI and the DisplayPort opening of the stack J6."""
 
@@ -82,6 +87,66 @@ class J6PortsTest(unittest.TestCase):
 
         self.assertTrue(on_the_right)
         self.assertFalse(on_the_left)
+
+
+class ModuleSeatTest(unittest.TestCase):
+    """The module in its SO-DIMM connector, on its standoffs, held by screws."""
+
+    def test_module_and_its_connector_share_no_volume(self) -> None:
+        """Intersect the module's board with each piece of the connector: nothing."""
+        plate = jetson.module_plate()
+
+        shared = [volume(shape.intersect(plate)) for _, shape in jetson.sodimm_connector()
+                  if isinstance(shape, cq.Shape)]
+
+        self.assertEqual(max(shared), 0.0)
+
+    def test_connectors_key_rib_stands_in_the_modules_notch(self) -> None:
+        """Probe the middle of the module's key notch: the connector's rib is there."""
+        key_u = jetson.MODULE_KEY[0]
+        in_the_notch = cq.Vector(key_u, jetson.MODULE[1] + jetson.MODULE_KEY_DEPTH / 2,
+                                 sum(jetson.MODULE_Z) / 2)
+        body = jetson.sodimm_connector()[0][1]
+        assert isinstance(body, cq.Shape)
+
+        self.assertTrue(body.isInside(in_the_notch, 1e-7))
+        self.assertFalse(jetson.module_plate().isInside(in_the_notch, 1e-7))
+
+    def test_standoffs_and_their_screws_share_no_volume(self) -> None:
+        """Intersect each standoff with its screw from below and from above: nothing."""
+        mounting = jetson.module_mounting()
+        shared = []
+        for (_, standoff), (_, upper), (_, lower) in zip(mounting['module_standoffs'],
+                                                         mounting['module_screws'],
+                                                         jetson.carrier_screws()):
+            assert isinstance(standoff, cq.Shape)
+            shared += [volume(standoff.intersect(upper)), volume(standoff.intersect(lower))]
+
+        self.assertEqual(shared, [0.0] * 4)
+
+    def test_screws_reach_into_the_standoffs(self) -> None:
+        """Measure each screw's shank: it ends inside its standoff, by the shank's reach."""
+        reach = jetson.STANDOFF_SCREW_SHANK[1]
+        mounting = jetson.module_mounting()
+        upper_ends = [shape.BoundingBox().zmin for _, shape in mounting['module_screws']
+                      if isinstance(shape, cq.Shape)]
+        lower_ends = [shape.BoundingBox().zmax for _, shape in jetson.carrier_screws()
+                      if isinstance(shape, cq.Shape)]
+
+        for end in upper_ends:
+            self.assertAlmostEqual(end, jetson.MODULE_Z[0] - reach, places=3)
+        for end in lower_ends:
+            self.assertAlmostEqual(end, jetson.TOP + reach - 0.01, places=3)
+
+    def test_module_board_and_its_screws_share_no_volume(self) -> None:
+        """Intersect the module's board with the screws through its holes: nothing."""
+        plate = jetson.module_plate()
+
+        shared = [volume(shape.intersect(plate))
+                  for _, shape in jetson.module_mounting()['module_screws']
+                  if isinstance(shape, cq.Shape)]
+
+        self.assertEqual(shared, [0.0, 0.0])
 
 
 if __name__ == '__main__':

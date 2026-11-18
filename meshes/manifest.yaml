@@ -189,28 +189,28 @@ parts:
         materials: [solder_mask_black, fr4_edge, anodised_black, nickel, gold, tin, brass, black_plastic, chip, die, substrate, inductor, thermal_pad, usb3_blue, latch_brown, capacitor_stripe, led_green, led_yellow]
         files:
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.stl:
-            sha256: dec102b8f653d1d2a039da52e7173e53481ecd1a81612a2dfd1ea119e50ecc3a
-            bytes: 1823284
+            sha256: ffb7a601c1b958548c5c1768c34254fe9e363d39f146193cf8848a85b4f99122
+            bytes: 1867284
             units: metre
             up_axis: "Z"
-            triangles: 36464
+            triangles: 37344
             bounding_box_min: [-0.028982, -0.038847, -0.001950]
             bounding_box_max: [0.071018, 0.042223, 0.028250]
             license_file: jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.stl.license
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.dae:
-            sha256: 11f3c6cd2a2a50f40b5c5cda87b78c6301eea771938b84f779108e76f0b0b7cb
-            bytes: 2421106
+            sha256: 200794ae2a9c61e0e5afaeb045dc06b03fc8d10e587e66d7a8fd7b14af06d64c
+            bytes: 2470027
             units: metre
             up_axis: "Z"
-            triangles: 36464
+            triangles: 37344
             bounding_box_min: [-0.028982, -0.038847, -0.001950]
             bounding_box_max: [0.071018, 0.042223, 0.028250]
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.glb:
-            sha256: 3fcad8f69b7899e23f9174a91983ad8047f41b99dd302e98f09ae26b40034298
-            bytes: 1372872
+            sha256: 7fdf77c2a12b959130975f6549ec06a901ace4da21a44e4580ce23a3ce540684
+            bytes: 1399376
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
-            triangles: 36464
+            triangles: 37344
             bounding_box_min: [-0.028982, -0.038847, -0.001950]
             bounding_box_max: [0.071018, 0.042223, 0.028250]
             license_file: jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.glb.license
