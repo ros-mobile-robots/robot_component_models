@@ -168,7 +168,7 @@ Without the path, gz-sim spawns the robot, logs `Unable to find file with URI [m
 
 - **ROS 1 Noetic, RViz and Gazebo Classic 11:** the COLLADA and STL files in DiffBot's and Remo's descriptions.
 - **ROS 2 Humble:** CI checks the package's build and install.
-- **ROS 2 Jazzy, RViz 2 and gz-sim:** the glTF files, with the result in the table above. RViz 2 and gz-sim haven't rendered the COLLADA and STL files in a test yet.
+- **ROS 2 Jazzy, RViz 2 and gz-sim:** the glTF files, with the result in the table above, and the camera's STL file. RViz 2 and gz-sim haven't drawn the COLLADA files and the other STL files in a test yet.
 
 ## Mesh conventions
 
@@ -230,8 +230,8 @@ The models are written with CadQuery because its models are plain Python driven 
 [CI](.github/workflows/ci.yml) runs on every pull request:
 
 1. **Regeneration**: regenerates all parts twice in the generator environment, each time into a new folder, and fails if any file differs from the manifest's checksum. The check only reads `meshes/`.
-2. **Mesh checks**: every STL is closed and consistently oriented. Triangle counts, units and bounding boxes match the manifest. Each COLLADA and glTF file holds the triangles of its STL file, with the same winding. The COLLADA files are valid against the COLLADA 1.4.1 schema and load in pycollada. The glTF files load in trimesh and pass the Khronos glTF Validator. The job also runs the unit tests in [`tests/`](tests/): the generators' command line, the grouping of a model's pieces by material, the comparison of the three formats, and that every part is registered for its pictures, its provenance page and the README.
-3. **ROS packages**: builds and installs the package in the `ros:noetic` and `ros:humble` containers and checks that the installed `share/robot_component_models` holds exactly the manifest's files, their license files, the manifest, each part's provenance page, generator and frame picture, the generators' other Python files, `LICENSE`, `package.xml` and the build tools' own files. Each installed provenance page is the repository's page, and each of its relative links leads to an installed file. The ROS 1 build is checked with `catkin_make_isolated` and with colcon.
+2. **Mesh checks**: every STL is closed and consistently oriented. Triangle counts, units and bounding boxes match the manifest. Each COLLADA and glTF file holds the triangles of its STL file, with the same winding. The COLLADA files are valid against the COLLADA 1.4.1 schema and load in pycollada. The glTF files load in trimesh and pass the Khronos glTF Validator. The job also runs the unit tests in [`tests/`](tests/): the generators' command line, the grouping of a model's pieces by material, the comparison of the three formats, the comparison of installed provenance pages with the repository's, and that every part is registered for its pictures, its provenance page and the README.
+3. **ROS packages**: builds and installs the package in the `ros:noetic` and `ros:humble` containers and checks that the installed `share/robot_component_models` holds exactly the manifest's files, their license files, the manifest, each part's provenance page, generator and frame picture, the generators' other Python files, `LICENSE`, `package.xml` and the build tools' own files. Each installed provenance page is the repository's page, each page of the manifest exists in the repository, and each relative link of an installed page leads to an installed file. The ROS 1 build is checked with `catkin_make_isolated` and with colcon.
 4. **Code style**: flake8 with ROS 2's ament_flake8 settings and mypy, which requires type hints on every function, on the generators, scripts and tests.
 
 ## Related work
