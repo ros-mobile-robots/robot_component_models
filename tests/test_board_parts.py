@@ -9,6 +9,7 @@ with the packages of generators/requirements.txt:
   python3 -m unittest discover -s tests
 """
 from typing import List
+from typing import Tuple
 import unittest
 
 import cadquery as cq
@@ -25,10 +26,11 @@ FITTING_ROW = (10, 1.0, 0.5, True)
 # Thirteen such contacts are 12.5 mm wide: wider than the tongue
 ROW_WIDER_THAN_THE_TONGUE = (13, 1.0, 0.5, True)
 TONGUE_SHIFT = 3.0  # mm: a tongue and its contacts off the opening's centre
-# An opening 16 mm wide and 5 mm high with its bottom at z = 10
-WIDTH, HEIGHT, BOTTOM = 16.0, 5.0, 10.0
+# An opening 16 mm wide and 5 mm high with its bottom at z = 10 and a 1 mm chamfer
+WIDTH, HEIGHT, CHAMFER, BOTTOM = 16.0, 5.0, 1.0, 10.0
 WALL = 0.2
 DEPTH = 6.0
+INSIDE_THE_CHAMFER = 0.3  # mm from the corner, along y and z: a point that the chamfer cuts off
 SECTION_X = -0.1  # mm behind the front face
 
 
@@ -63,6 +65,26 @@ class ContactRowsTest(unittest.TestCase):
 
 class OpeningTest(unittest.TestCase):
     """An opening's outline is the room for the plug, and its liner lies round it."""
+
+    def corner(self, side: int) -> Tuple[float, float]:
+        """Return a point near the lower corner on the side (-1 left, +1 right) of the opening."""
+        return (side * (WIDTH / 2 - INSIDE_THE_CHAMFER), BOTTOM + INSIDE_THE_CHAMFER)
+
+    def test_lower_left_chamfer_is_on_the_viewers_left(self) -> None:
+        """Key the opening at its lower left: metal near the -y corner, room near the +y one."""
+        outline = board_parts.chamfered_rectangle(WIDTH, HEIGHT, CHAMFER, BOTTOM, 'lower_left')
+        _, liner = board_parts.opening_with_liner(outline, DEPTH, WALL)
+        body = board_parts.box(-DEPTH - 1, -WIDTH, BOTTOM - 2, 0.0, WIDTH, BOTTOM + HEIGHT + 2)
+        seat, _ = board_parts.opening_with_liner(outline, DEPTH, WALL)
+        shapes = [body.cut(seat), liner]
+
+        self.assertTrue(is_solid(shapes, *self.corner(-1)))
+        self.assertFalse(is_solid(shapes, *self.corner(+1)))
+
+    def test_chamfered_rectangle_raises_a_value_error_for_an_unknown_corner(self) -> None:
+        """Ask for the corners 'one': an error names the word."""
+        with self.assertRaisesRegex(ValueError, "'one'"):
+            board_parts.chamfered_rectangle(WIDTH, HEIGHT, CHAMFER, BOTTOM, 'one')
 
     def test_liner_leaves_the_outline_clear(self) -> None:
         """Line a plain opening: room just inside the outline, the liner's wall just outside."""

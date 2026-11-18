@@ -82,11 +82,11 @@ HDMI_OPENING = (14.0, 4.55, 1.4)  # width, height (Same Sky HD05), bottom above 
 # thickness, tip behind the front), 10 contacts on the top face and 9 below at 1.0 mm.
 HDMI_INSULATOR = 6.8
 HDMI_TONGUE = (10.8, 0.9, 2.0)
-DP_OPENING = (16.1, 4.76, 12.7)
+DP_OPENING = (16.1, 4.76, 12.7)  # width, height (JAE DP1), bottom above the top face
 # DisplayPort insides, JAE DP1RD20: insulator face behind the front, tongue (width, thickness
 # (scaled from the front view), tip behind the front, its centreline above the opening's
 # bottom: 3.4 mm above the board, the opening's bottom 0.88 mm (scaled)), its centre 0.5 mm off
-# the opening's, 10 contacts on each face at 1.0 mm.
+# the opening's, away from the keyed lower left corner, 10 contacts on each face at 1.0 mm.
 DP_INSULATOR = 8.88
 DP_TONGUE = (12.0, 1.0, 4.1, 2.52)
 DP_TONGUE_OFFSET = 0.5
@@ -295,7 +295,7 @@ def hdmi_dp_stack() -> List[Part]:
     shell = rounded_box(-depth, -half, HDMI_HOUSING_HEIGHT, -0.3, half, height, vertical=0.4)
     shell_frame = box(-0.3, -half, HDMI_HOUSING_HEIGHT, 0.0, half, height)
     opening_width, opening_height, bottom = DP_OPENING
-    profile = chamfered_rectangle(opening_width, opening_height, 1.0, bottom, 'one')
+    profile = chamfered_rectangle(opening_width, opening_height, 1.0, bottom, 'lower_left')
     cut, liner = opening_with_liner(profile, DP_INSULATOR, 0.2)
     shell = shell.cut(cut)
     shell_frame = shell_frame.cut(cut)

@@ -133,7 +133,12 @@ def front_profile(points: Sequence[Point], front_x: float, depth: float,
 
 def chamfered_rectangle(width: float, height: float, chamfer: float, bottom: float,
                         corners: str = 'lower') -> List[Point]:
-    """Return the (y, z) outline of an opening centred on y = 0, chamfered at two corners."""
+    """Return the (y, z) outline of an opening centred on y = 0, with chamfered corners.
+
+    corners: 'lower' or 'upper' for both lower or both upper corners, 'lower_left' for the one
+    corner that keys a DisplayPort receptacle. Left is as seen by someone who looks into the
+    opening: the connector's front faces +x with z up, so the viewer's left is -y.
+    """
     half = width / 2
     if corners == 'lower':
         return [(-half + chamfer, bottom), (half - chamfer, bottom), (half, bottom + chamfer),
@@ -142,9 +147,10 @@ def chamfered_rectangle(width: float, height: float, chamfer: float, bottom: flo
         return [(-half, bottom), (half, bottom), (half, bottom + height - chamfer),
                 (half - chamfer, bottom + height), (-half + chamfer, bottom + height),
                 (-half, bottom + height - chamfer)]
-    # One chamfered corner, as the DisplayPort receptacle has
-    return [(-half, bottom), (half - chamfer, bottom), (half, bottom + chamfer),
-            (half, bottom + height), (-half, bottom + height)]
+    if corners != 'lower_left':
+        raise ValueError(f"corners is '{corners}', not 'lower', 'upper' or 'lower_left'")
+    return [(-half + chamfer, bottom), (half, bottom), (half, bottom + height),
+            (-half, bottom + height), (-half, bottom + chamfer)]
 
 
 def opening_with_liner(points: Sequence[Point], depth: float,

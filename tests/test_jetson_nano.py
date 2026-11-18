@@ -19,6 +19,8 @@ from generators import jetson_nano_dev_kit_b01 as jetson
 
 SECTION_X = -0.1  # mm behind J6's front face, in front of the tongues
 STEP = 0.05       # mm: how far inside or outside an opening's edge a point is probed
+# The DisplayPort key: a point that the 1 mm chamfer of a lower corner cuts off
+KEY_FROM_THE_SIDE, KEY_ABOVE_THE_BOTTOM = 0.45, 0.35
 
 
 class J6PortsTest(unittest.TestCase):
@@ -53,6 +55,33 @@ class J6PortsTest(unittest.TestCase):
     def test_displayport_has_the_clear_opening_of_its_drawing(self) -> None:
         """Probe the DisplayPort: 16.10 x 4.76 mm are clear, as DP_OPENING says."""
         self.assert_clear_opening(*jetson.DP_OPENING)
+
+    def test_displayport_key_is_at_the_lower_left(self) -> None:
+        """Probe the DisplayPort's lower corners: metal at the left one, room at the right."""
+        width, _, bottom = jetson.DP_OPENING
+        z = bottom + KEY_ABOVE_THE_BOTTOM
+
+        self.assertTrue(self.is_solid(-(width / 2 - KEY_FROM_THE_SIDE), z))
+        self.assertFalse(self.is_solid(width / 2 - KEY_FROM_THE_SIDE, z))
+
+    def test_displayport_tongue_lies_away_from_the_key(self) -> None:
+        """Probe both sides behind the tongue's tip: the tongue reaches further to the right.
+
+        The key is at the lower left, and the tongue's middle lies off the opening's middle,
+        away from the key.
+        """
+        _, _, bottom = jetson.DP_OPENING
+        tongue_width, _, tip, centre = jetson.DP_TONGUE
+        behind_the_tip = cq.Vector(-tip - 0.5, 0.0, bottom + centre)
+        beside = tongue_width / 2 + jetson.DP_TONGUE_OFFSET / 2
+
+        on_the_right = any(shape.isInside(behind_the_tip + cq.Vector(0.0, beside, 0.0), 1e-7)
+                           for shape in self.shapes)
+        on_the_left = any(shape.isInside(behind_the_tip + cq.Vector(0.0, -beside, 0.0), 1e-7)
+                          for shape in self.shapes)
+
+        self.assertTrue(on_the_right)
+        self.assertFalse(on_the_left)
 
 
 if __name__ == '__main__':
