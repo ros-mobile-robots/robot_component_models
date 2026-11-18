@@ -287,7 +287,9 @@ def check_links_lead_to_installed_files(installed: Dict[str, Optional[bytes]],
     regular files that can be read, relative to the share folder. A link's target is taken
     relative to its page's folder in the package and has to be one of these files: not a
     folder, not a file that is missing or can't be read, and nothing outside the package. A
-    page that can't be read has no links to check: check_pages_are_the_checkouts() reports it.
+    target whose last part is empty, '.' or '..', such as picture.png/, names a folder, which
+    normpath() would hide, so it is reported before the path is normalized. A page that can't
+    be read has no links to check: check_pages_are_the_checkouts() reports it.
     """
     problems = []
     for page, contents in sorted(installed.items()):
@@ -298,7 +300,9 @@ def check_links_lead_to_installed_files(installed: Dict[str, Optional[bytes]],
             path = target.split('#')[0]
             if not path or re.match(r'[a-z][a-z0-9+.-]*:', path):
                 continue
-            if posixpath.normpath(posixpath.join(posixpath.dirname(page), path)) not in readable:
+            names_a_folder = posixpath.basename(path) in ('', os.curdir, os.pardir)
+            target_path = posixpath.normpath(posixpath.join(posixpath.dirname(page), path))
+            if names_a_folder or target_path not in readable:
                 problems.append(f"{page}: the link's target {target} isn't an installed file "
                                 'that can be read')
     return problems
