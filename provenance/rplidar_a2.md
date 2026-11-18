@@ -2,21 +2,25 @@
      SPDX-License-Identifier: BSD-3-Clause -->
 # 360 degree laser scanner, RPLIDAR A2 size
 
-A 360 degree laser scanner with the outline of the Slamtec RPLIDAR A2 (A2M8): a black base, a rotating head with a copper-coloured band, and the optical window with two dark openings. DiffBot and Remo carry this scanner. The model was created independently, from the public datasheet's dimensions and a public photo. No geometry was imported, converted, traced or sampled from another 3D model, and no vendor 3D model was downloaded. No cable, no logos and no printed text: the head's badge is left out.
+A 360 degree laser scanner with the outline of the Slamtec RPLIDAR A2 (A2M8): a black base, a rotating head with a copper-coloured band, and the optical window with two dark openings. DiffBot and Remo carry this scanner. The model uses the dimensions of the datasheet's mechanical drawing and the colours of a photo of Remo, both listed under [Sources](#sources). It shows no cable, no logos and no printed text: the head's badge is left out.
 
 Generator: [`generators/rplidar_a2.py`](../generators/rplidar_a2.py).
 
-## Mesh
-
-`rplidar_a2`: one mesh with three sub-parts. `housing` (material `body`, black) is the base and the head. `trim` (copper-coloured) is the band and the window's bezel. `windows` (dark glass) are the two panes. The STL file is closed and consistently oriented: several closed shells that touch.
-
 ## Frame
+
+![The laser scanner from below and from the side, with the origin and axes of its frame, its four mounting holes and its bottom](../docs/images/frames/rplidar_a2.png)
+
+The picture shows the scanner from below and from the side. The red dot is the origin of the mesh's frame and the red arrows are its positive axes. The green rings mark the four M3 mounting holes in the bottom, at (x, y) = (±20.86, ±20.86) mm. The dashed line is the bottom, the mounting plane, at z = -29.85 mm.
 
 The files are in metres. Positions on this page are in millimetres.
 
 The origin lies on the scanner's rotation axis, 29.85 mm above its bottom. +z points to the top, +x towards the optical window, and the cable exit is at -x. The bottom is at z = -29.85 mm, the top at z = +10.95 mm. The optical window's centre is at z = +0.95 mm, in the middle of the 6 mm laser band, so the origin lies in the laser band.
 
 In [DiffBot's](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_description/urdf/include/common_sensors.xacro) and [Remo's](https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/remo.urdf.xacro) descriptions, `rplidar_laser_joint` attaches `rplidar_laser_link` to `chassis_link` (DiffBot, 40 mm above it) and to `lidar_platform_link` (Remo, 70 mm above it). Both turn the joint and the visual by π about z, so the window faces the robot's front. `rplidar_laser_link` is also the frame of the simulated laser in Gazebo, so its scan plane passes through the window.
+
+## Mesh
+
+`rplidar_a2`: one mesh with three sub-parts. `housing` (material `body`, black) is the base and the head. `trim` (copper-coloured) is the band and the window's bezel. `windows` (dark glass) are the two panes. The STL file is closed and consistently oriented: several closed shells that touch.
 
 ## Sources
 

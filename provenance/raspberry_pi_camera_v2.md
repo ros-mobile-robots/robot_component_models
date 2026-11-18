@@ -2,21 +2,25 @@
      SPDX-License-Identifier: BSD-3-Clause -->
 # Raspberry Pi Camera Module v2
 
-A display model of the Raspberry Pi Camera Module v2: the board with its four mounting holes, the camera module with its lens, the module's flex and connector on the front, the 15-way ribbon connector and the small parts on the back. Remo carries this camera. The model was created independently, from Raspberry Pi's public mechanical drawing, documentation and product photo. No geometry was imported, converted, traced or sampled from another 3D model, and no third-party 3D model was downloaded. No logos and no printed text.
+A display model of the Raspberry Pi Camera Module v2: the board with its four mounting holes, the camera module with its lens, the module's flex and connector on the front, the 15-way ribbon connector and the small parts on the back. Remo carries this camera. The model uses the dimensions of Raspberry Pi's mechanical drawing, the camera's documented size and the look of the product photo, listed under [Sources](#sources). It shows no logos and no printed text.
 
 Generator: [`generators/raspberry_pi_camera_v2.py`](../generators/raspberry_pi_camera_v2.py).
 
-## Mesh
-
-`raspberry_pi_camera_v2`: one mesh with 12 materials: green solder mask, FR4 edges, gold hole rings and test pads, the black camera module, dark lens glass, the flex's orange edge, black and dark brown connectors, silver leads, black ICs and beige capacitors. Its sub-parts are the board, the pads, the camera module, the flex, the ribbon connector and the back's small parts. Raspberry Pi's documentation gives the v2's sensor as the Sony IMX219 or, for modules made from November 2026, the Sony IMX355. The model shows no sensor detail, so it fits both, and its name doesn't name a sensor.
-
 ## Frame
+
+![The camera from the front and from the side, with the origin and axes of its frame, its four mounting holes and the board's back face](../docs/images/frames/raspberry_pi_camera_v2.png)
+
+The picture shows the camera from the front and from the side. The red dot is the origin of the mesh's frame and the red arrows are its positive axes: the lens looks along +x. The green rings mark the four mounting holes. The dashed line is the board's back face, the mounting face, at x = -1.645 mm.
 
 The files are in metres. Positions on this page are in millimetres. The board stands in the yz plane with its back face at x = -1.645 mm and the lens looking along +x. The board's edges are at y = -12.16 mm and z = -12.283 mm. The mounting holes are at (y, z) = (-10.16, -10.283), (-10.16, 2.217), (10.84, -10.283) and (10.84, 2.217) mm. The edge 2 mm from the holes is at -z. The ribbon connector's edge is at +z, on the back.
 
 The model spans (-4.145, -12.160, -12.283) to (4.575, 12.840, 11.579) mm: from the ribbon connector on the back to the camera module on the front. The camera module's centre is at (y, z) = (0.34, 2.12) mm.
 
 In [Remo's description](https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/remo.urdf.xacro), `camera_joint` attaches `camera_link` to `raspi-cam_link`, the frame of the printed camera holder, 5 mm in front of it and 28 mm above it, tilted by 0.35 rad about y. There, the holder's plate is 0.8 mm behind the board's back face. The holder's screw bores and the board's mounting holes don't line up (see "Simplified or estimated"). `camera_link` is also the frame of the simulated camera in Gazebo.
+
+## Mesh
+
+`raspberry_pi_camera_v2`: one mesh with 12 materials: green solder mask, FR4 edges, gold hole rings and test pads, the black camera module, dark lens glass, the flex's orange edge, black and dark brown connectors, silver leads, black ICs and beige capacitors. Its sub-parts are the board, the pads, the camera module, the flex, the ribbon connector and the back's small parts. Raspberry Pi's documentation gives the v2's sensor as the Sony IMX219 or, for modules made from November 2026, the Sony IMX355. The model shows no sensor detail, so it fits both, and its name doesn't name a sensor.
 
 ## Sources
 

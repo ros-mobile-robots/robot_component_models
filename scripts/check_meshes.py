@@ -9,7 +9,8 @@ so they don't share the generators' mistakes:
 - meshes/ holds exactly the manifest's files, each with the manifest's checksum and size,
 - every STL is closed and consistently oriented, without collapsed triangles,
 - triangle counts and bounding boxes match the manifest, in each file's units,
-- every file is in metres, and the COLLADA and glTF files have the STL's geometry,
+- every file is in metres, and the COLLADA and glTF files have the STL file's triangles,
+  corner for corner and with the same winding,
 - every COLLADA file is valid against the COLLADA 1.4.1 schema and loads in pycollada,
 - every glTF file loads in trimesh, with the manifest's sub-parts as named nodes,
 - every file carries the manifest's license: SPDX lines in the COLLADA header, in a
@@ -30,11 +31,13 @@ from typing import Callable
 from typing import Dict
 from typing import List
 from typing import NamedTuple
+from typing import Tuple
 import urllib.request
 
 import collada
 from lxml import etree
 import numpy as np
+from scipy.spatial import cKDTree
 import trimesh
 import yaml
 
@@ -58,6 +61,12 @@ COPYRIGHT_LINE = 'SPDX-FileCopyrightText: 2026 ROS Mobile Robots'
 # Bounding boxes in the manifest are rounded to 0.001 mm or 0.000001 m. The float32 vertices
 # of the glTF files and the 7 digits of the COLLADA files add less than that.
 BOX_TOLERANCE = {'metre': 0.0000011}
+# The three files of a mesh are written from the same triangles. For a coordinate below 1 m,
+# the seven significant digits of a COLLADA file round by at most 0.00000005 m and the float32
+# numbers of an STL or glTF file by at most 0.00000003 m. A corner then lies within
+# 0.00000014 m of its vertex in the STL file. A corner of a COLLADA or glTF file is the
+# nearest STL vertex within this distance, 0.2 micrometres
+VERTEX_TOLERANCE = 0.0000002
 
 
 class MeshFile(NamedTuple):
@@ -172,21 +181,85 @@ def check_bounding_box(mesh_file: MeshFile) -> List[str]:
 
 
 def check_units(mesh_file: MeshFile) -> List[str]:
-    """Check that the files are in metres, the COLLADA and glTF files with the STL's geometry."""
+    """Check that an STL file is in metres: a robot component is between 5 mm and 0.5 m long.
+
+    The COLLADA and glTF files are compared with the STL file, see check_same_triangles().
+    """
+    if not mesh_file.path.endswith('.stl'):
+        return []
+    size = np.ptp(geometry(mesh_file).corners.reshape(-1, 3), axis=0).max()
+    return [] if 0.005 < size < 0.5 else [f'largest size {size:.6f}: not metres?']
+
+
+def turned_to_smallest_first(triangles: np.ndarray) -> np.ndarray:
+    """Return triangles (m, 3) of vertex numbers, each turned so that its smallest comes first.
+
+    Turning keeps a triangle's winding: (a, b, c), (b, c, a) and (c, a, b) are the same face.
+    (a, c, b) is that face seen from the other side.
+    """
+    first = triangles.argmin(axis=1)
+    rows = np.arange(len(triangles))
+    return np.stack([triangles[rows, (first + k) % 3] for k in range(3)], axis=1)
+
+
+def triangle_counts(triangles: np.ndarray) -> Dict[Tuple[int, int, int], int]:
+    """Return how often each triangle (a, b, c) of vertex numbers occurs."""
+    unique, counts = np.unique(triangles, axis=0, return_counts=True)
+    return {(int(a), int(b), int(c)): int(count) for (a, b, c), count in zip(unique, counts)}
+
+
+def triangle_differences(reference: np.ndarray, corners: np.ndarray,
+                         tolerance: float) -> List[str]:
+    """Return how the triangles (m, 3, 3) of a file differ from the reference file's.
+
+    The two files may list the triangles in another order and may start each triangle at
+    another corner. They must have the same triangles with the same winding, because a viewer
+    that draws only the front of a face hides a triangle with the opposite winding.
+
+    1. Number the reference's vertices, and give each corner of the file the number of the
+       nearest reference vertex within the tolerance.
+    2. Turn each triangle so that its smallest number comes first.
+    3. Compare how often each triangle occurs in the two files. A triangle of the file whose
+       corners are a reference triangle in the opposite order has the opposite winding.
+    """
+    vertices, numbers = np.unique(reference.reshape(-1, 3), axis=0, return_inverse=True)
+    distances, nearest = cKDTree(vertices).query(corners.reshape(-1, 3),
+                                                 distance_upper_bound=tolerance)
+    away = int(np.isinf(distances).sum())
+    if away:
+        return [f'{away} corners lie more than {tolerance:g} from every vertex of the STL file']
+    expected = triangle_counts(turned_to_smallest_first(numbers.reshape(-1, 3)))
+    found = triangle_counts(turned_to_smallest_first(nearest.reshape(-1, 3)))
+    missing = {triangle: count - found.get(triangle, 0) for triangle, count in expected.items()
+               if count > found.get(triangle, 0)}
+    extra = {triangle: count - expected.get(triangle, 0) for triangle, count in found.items()
+             if count > expected.get(triangle, 0)}
+    opposite = sum(min(count, missing.get((a, c, b), 0)) for (a, b, c), count in extra.items())
+    problems = []
+    if opposite:
+        problems.append(f"{opposite} triangles have the opposite winding of the STL file's")
+    if sum(missing.values()) > opposite:
+        problems.append(f'{sum(missing.values()) - opposite} triangles of the STL file are '
+                        'missing')
+    if sum(extra.values()) > opposite:
+        problems.append(f'{sum(extra.values()) - opposite} triangles are not in the STL file')
+    return problems
+
+
+def check_same_triangles(mesh_file: MeshFile) -> List[str]:
+    """Check that a COLLADA or glTF file has the STL file's triangles, with the same winding.
+
+    The readers apply each file's scene: the COLLADA nodes, and the glTF root node's turn from
+    Z up to Y up, which glb_corners() turns back. So the corners are compared in the mesh's
+    frame, in metres.
+    """
     extension = os.path.splitext(mesh_file.path)[1]
     if extension == '.stl':
-        size = np.ptp(geometry(mesh_file).corners.reshape(-1, 3), axis=0).max()
-        return [] if 0.005 < size < 0.5 else [f'largest size {size:.6f}: not metres?']
+        return []
     stl_path = mesh_file.path[:-len(extension)] + '.stl'
     stl = mesh_file._replace(path=stl_path, entry=mesh_file.mesh['files'][stl_path])
-    ours = geometry(mesh_file).corners.reshape(-1, 3)
-    reference = geometry(stl).corners.reshape(-1, 3)
-    problems = []
-    for name, ours_value, reference_value in (('min', ours.min(0), reference.min(0)),
-                                              ('max', ours.max(0), reference.max(0))):
-        if np.abs(ours_value - reference_value).max() > 1e-6:
-            problems.append(f"bounding box {name} differs from the STL's")
-    return problems
+    return triangle_differences(geometry(stl).corners, geometry(mesh_file).corners,
+                                VERTEX_TOLERANCE)
 
 
 def check_closed(mesh_file: MeshFile) -> List[str]:
@@ -284,7 +357,7 @@ def check_license(mesh_file: MeshFile) -> List[str]:
 
 
 FILE_CHECKS: List[Check] = [check_checksum, check_triangle_count, check_bounding_box,
-                            check_units, check_closed, check_license]
+                            check_units, check_same_triangles, check_closed, check_license]
 
 
 # ---------------------------------------------------------------------------------------------
