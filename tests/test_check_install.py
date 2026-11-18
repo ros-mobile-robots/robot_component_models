@@ -4,10 +4,10 @@
 
 An install space keeps what an earlier build installed. So the check has to notice a page
 that was edited or removed in the checkout after it was installed, and a link of an installed
-page whose target isn't installed. A file that has the expected name but can't be read is a
-problem too, and a page that can't be read must not stop the check. Each test builds a small
-checkout and a small install space in a temporary folder. Run from the repository's root, with
-the packages of generators/requirements.txt:
+page whose target isn't an installed file. A file that has the expected name but can't be read
+is a problem too, and a page that can't be read must not stop the check. Each test builds a
+small checkout and a small install space in a temporary folder. Run from the repository's
+root, with the packages of generators/requirements.txt:
 
   python3 -m unittest discover -s tests
 """
@@ -49,14 +49,16 @@ MANIFEST = f"""parts:
 PASSED, FAILED = 0, 1
 COMMAND_TIMEOUT = 60  # seconds, ten times what the command takes on CI's machine
 # Runs check_install.py with os.stat() failing once with an input/output error on one path:
-# python3 -c STAT_FAILS_ONCE PATH SCRIPT ARGUMENTS...
+# python3 -c STAT_FAILS_ONCE PATH CALL SCRIPT ARGUMENTS...: the CALL-th os.stat() of PATH
+# fails, counted from 1
 STAT_FAILS_ONCE = '\n'.join([
     'import errno, os, runpy, sys',
-    'failing, real_stat, failed = sys.argv.pop(1), os.stat, []',
+    'failing, failing_call, real_stat, calls = sys.argv.pop(1), int(sys.argv.pop(1)), os.stat, []',
     'def stat_failing_once(path, *arguments, **keywords):',
-    '    if str(path) == failing and not failed:',
-    '        failed.append(path)',
-    '        raise OSError(errno.EIO, os.strerror(errno.EIO), path)',
+    '    if str(path) == failing:',
+    '        calls.append(path)',
+    '        if len(calls) == failing_call:',
+    '            raise OSError(errno.EIO, os.strerror(errno.EIO), path)',
     '    return real_stat(path, *arguments, **keywords)',
     'os.stat = stat_failing_once',
     'sys.argv.pop(0)',
@@ -96,7 +98,12 @@ class InstalledPagesTest(unittest.TestCase):
         """Return the problems of the installed page's links."""
         states = check_install.take_inventory(self.share, {PAGE}).states
         installed = check_install.read_installed_pages(self.share, {PAGE}, states)
-        return check_install.check_links_lead_to_installed_files(self.share, installed)
+        readable = {path for path, state in states.items() if state == check_install.READABLE}
+        return check_install.check_links_lead_to_installed_files(installed, readable)
+
+    def link_page_to(self, target: str) -> None:
+        """Let the installed page's picture link lead to the target instead."""
+        write(self.share, PAGE, PAGE_TEXT.replace(f'../{LINKED_FILES[0]}', target))
 
     def test_same_page_and_installed_link_targets_have_no_problems(self) -> None:
         """Check the install space as installed: no problem."""
@@ -141,7 +148,27 @@ class InstalledPagesTest(unittest.TestCase):
         os.remove(os.path.join(self.share, LINKED_FILES[0]))
 
         self.assertEqual(self.link_problems(),
-                         [f"{PAGE}: the link's target ../{LINKED_FILES[0]} isn't installed"])
+                         [f"{PAGE}: the link's target ../{LINKED_FILES[0]} isn't an installed "
+                          'file that can be read'])
+
+    def test_link_to_a_folder_is_reported(self) -> None:
+        """Let the picture link lead to the pictures' folder, which is installed."""
+        target = f'../{os.path.dirname(LINKED_FILES[0])}'
+        self.link_page_to(target)
+
+        self.assertEqual(self.link_problems(),
+                         [f"{PAGE}: the link's target {target} isn't an installed file that "
+                          'can be read'])
+
+    def test_link_out_of_the_package_is_reported(self) -> None:
+        """Let the picture link lead to a file beside the share folder, outside the package."""
+        write(os.path.dirname(self.share), 'other_package/manual.md', 'manual')
+        target = '../../other_package/manual.md'
+        self.link_page_to(target)
+
+        self.assertEqual(self.link_problems(),
+                         [f"{PAGE}: the link's target {target} isn't an installed file that "
+                          'can be read'])
 
 
 class GeneratorFilesTest(unittest.TestCase):
@@ -343,10 +370,11 @@ class CheckInstallCommandTest(unittest.TestCase):
                                self.prefix, '2'], check=False, capture_output=True, text=True,
                               timeout=COMMAND_TIMEOUT)
 
-    def run_command_with_a_failing_stat(self, path: str) -> 'subprocess.CompletedProcess[str]':
-        """Run the command as run_command() does, with os.stat() failing once on the path."""
+    def run_command_with_a_failing_stat(self, path: str,
+                                        call: int) -> 'subprocess.CompletedProcess[str]':
+        """Run the command as run_command() does, the call-th os.stat() of the path failing."""
         return subprocess.run([sys.executable, '-c', STAT_FAILS_ONCE,
-                               os.path.join(self.share, path),
+                               os.path.join(self.share, path), str(call),
                                os.path.join(self.checkout, 'scripts', 'check_install.py'),
                                self.prefix, '2'], check=False, capture_output=True, text=True,
                               timeout=COMMAND_TIMEOUT)
@@ -403,9 +431,25 @@ class CheckInstallCommandTest(unittest.TestCase):
         """
         write(self.share, MESH, 'other bytes')
 
-        self.assert_reported(self.run_command_with_a_failing_stat(MESH),
+        self.assert_reported(self.run_command_with_a_failing_stat(MESH, 1),
                              [f"{MESH}: isn't a file that can be read: it can't be examined: "
                               f'{os.strerror(errno.EIO)}'])
+
+    def test_manifest_is_probed_once(self) -> None:
+        """Let a second os.stat() of the manifest fail: there is none, so the install passes."""
+        result = self.run_command_with_a_failing_stat('meshes/manifest.yaml', 2)
+
+        self.assertEqual(result.returncode, PASSED, result.stdout + result.stderr)
+
+    def test_picture_link_to_a_folder_is_reported(self) -> None:
+        """Let both copies of the page link the pictures' folder instead of the picture."""
+        target = f'../{os.path.dirname(LINKED_FILES[0])}'
+        for root in (self.checkout, self.share):
+            write(root, PAGE, PAGE_TEXT.replace(f'../{LINKED_FILES[0]}', target))
+
+        self.assert_reported(self.run_command(),
+                             [f"{PAGE}: the link's target {target} isn't an installed file "
+                              'that can be read'])
 
     def test_stale_file_behind_a_linked_folder_is_reported(self) -> None:
         """Move the part's mesh folder away with an old file in it, and link it into place."""
