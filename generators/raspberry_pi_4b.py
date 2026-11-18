@@ -408,7 +408,8 @@ def usb_c() -> List[Piece]:
 
     Inside the shell: the insulator, whose face lies USB_C_INSULATOR behind the front, the
     tongue with 12 gold contacts on each face at 0.5 mm and the metal plate in its middle,
-    which shows at the tongue's edges.
+    which shows at the tongue's edges. The tongue is one solid: thin at its tip, thicker over
+    the length of its root step, where it meets the insulator.
     """
     centre_x, front, back, width, height = USB_C
     centre_z = TOP + height / 2
@@ -422,15 +423,16 @@ def usb_c() -> List[Piece]:
     shell = stadium(width, height, front, back)
     insulator = front + USB_C_INSULATOR
     half = tongue_width / 2
+    blade = box(centre_x - half, front + tip, centre_z - thickness / 2,
+                centre_x + half, insulator, centre_z + thickness / 2)
+    root = box(centre_x - half, insulator - step, centre_z - root_thickness / 2,
+               centre_x + half, insulator, centre_z + root_thickness / 2)
     parts: List[Piece] = [
         ('nickel', shell.cut(stadium(opening_width, opening_height, front - 0.1,
                                      insulator + INSULATOR_PLATE))),
         ('black_plastic', stadium(opening_width, opening_height, insulator,
                                   insulator + INSULATOR_PLATE)),
-        ('black_plastic', box(centre_x - half, front + tip, centre_z - thickness / 2,
-                              centre_x + half, insulator, centre_z + thickness / 2)),
-        ('black_plastic', box(centre_x - half, insulator - step, centre_z - root_thickness / 2,
-                              centre_x + half, insulator, centre_z + root_thickness / 2))]
+        ('black_plastic', blade.fuse(root).clean())]
     for x0, x1 in ((centre_x - half - 0.05, centre_x - half + 0.2),
                    (centre_x + half - 0.2, centre_x + half + 0.05)):
         parts.append(('nickel', box(x0, front + 0.5, centre_z - 0.075, x1, insulator - step,

@@ -153,28 +153,28 @@ parts:
         materials: [solder_mask_green, fr4_edge, gold, nickel, steel_lid, tin, black_plastic, chip, die, thermal_paste, ceramic, substrate, inductor, usb3_blue, cream_plastic, led_red, led_green, led_yellow]
         files:
           raspberry_pi_4b/raspberry_pi_4b.stl:
-            sha256: 958f41495e0d18de65e4f9edd21cd3c6e643335724be6c0d87e68115526a3d9e
-            bytes: 1847284
+            sha256: 3f6041faf38411fe5403db9f5e286450f9ece8fa6017977f0706178b756365e1
+            bytes: 1847484
             units: metre
             up_axis: "Z"
-            triangles: 36944
+            triangles: 36948
             bounding_box_min: [-0.007569, -0.042123, -0.002800]
             bounding_box_max: [0.050921, 0.045977, 0.016800]
             license_file: raspberry_pi_4b/raspberry_pi_4b.stl.license
           raspberry_pi_4b/raspberry_pi_4b.dae:
-            sha256: 655a3bd90ddc705b5661078ab1655256c4017625f8a9ac436aaf422c122789a2
-            bytes: 2539177
+            sha256: 2f34fbb393af58607e7626572b513d115f8daf4f84fa7c36a1cdd70f20b88103
+            bytes: 2539309
             units: metre
             up_axis: "Z"
-            triangles: 36944
+            triangles: 36948
             bounding_box_min: [-0.007569, -0.042123, -0.002800]
             bounding_box_max: [0.050921, 0.045977, 0.016800]
           raspberry_pi_4b/raspberry_pi_4b.glb:
-            sha256: c782f9b285a907da983bfca0a782ac6cbf44c3f08ab229573a2e0e0c5d4b0069
-            bytes: 1484320
+            sha256: 06c86da44d03118592f5dae6bb16101ecfea338c374c2aef3a554c4e08201fae
+            bytes: 1484344
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
-            triangles: 36944
+            triangles: 36948
             bounding_box_min: [-0.007569, -0.042123, -0.002800]
             bounding_box_max: [0.050921, 0.045977, 0.016800]
             license_file: raspberry_pi_4b/raspberry_pi_4b.glb.license

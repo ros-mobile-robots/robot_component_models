@@ -153,5 +153,44 @@ class PortDepthTest(unittest.TestCase):
         self.assert_depth(solids(pi.usb_c()), start, TOWARDS_PLUS_Y, pi.USB_C_INSULATOR)
 
 
+class UsbCTongueTest(unittest.TestCase):
+    """The Raspberry Pi's USB-C tongue: a thin blade with a thicker root, as one solid."""
+
+    def plastic(self) -> List[cq.Shape]:
+        """Return the connector's black plastic shapes: the insulator's plate and the tongue."""
+        return [shape for material, shape in pi.usb_c()
+                if material == 'black_plastic' and isinstance(shape, cq.Shape)]
+
+    def test_tongue_and_its_root_are_one_solid(self) -> None:
+        """Count the plastic solids: the plate and the tongue, which share no volume."""
+        plate, tongue = self.plastic()
+
+        self.assertEqual((len(plate.Solids()), len(tongue.Solids())), (1, 1))
+        self.assertEqual(sum(solid.Volume() for solid in plate.intersect(tongue).Solids()), 0.0)
+
+    def test_tongue_keeps_its_shoulder(self) -> None:
+        """Probe above the blade in front of the root and inside the root: room, then plastic."""
+        centre_x, front, _, _, height = pi.USB_C
+        _, thickness, root_thickness, _, step = pi.USB_C_TONGUE
+        root_front = front + pi.USB_C_INSULATOR - step
+        above_the_blade = pi.TOP + height / 2 + (thickness + root_thickness) / 4
+        _, tongue = self.plastic()
+
+        self.assertFalse(tongue.isInside(cq.Vector(centre_x, root_front - 0.1, above_the_blade),
+                                         1e-7))
+        self.assertTrue(tongue.isInside(cq.Vector(centre_x, root_front + 0.1, above_the_blade),
+                                        1e-7))
+
+    def test_tongue_has_the_volume_of_blade_and_root_without_their_overlap(self) -> None:
+        """Compare the tongue's volume with the blade's plus the root's part beside it."""
+        _, front, _, _, _ = pi.USB_C
+        width, thickness, root_thickness, tip, step = pi.USB_C_TONGUE
+        blade = width * thickness * (pi.USB_C_INSULATOR - tip)
+        root_beside_the_blade = width * (root_thickness - thickness) * step
+        _, tongue = self.plastic()
+
+        self.assertAlmostEqual(tongue.Volume(), blade + root_beside_the_blade, places=6)
+
+
 if __name__ == '__main__':
     unittest.main()
