@@ -12,7 +12,8 @@ so they don't share the generators' mistakes:
 - every file is in metres, and the COLLADA and glTF files have the STL file's triangles,
   corner for corner and with the same winding,
 - every COLLADA file is valid against the COLLADA 1.4.1 schema and loads in pycollada,
-- every COLLADA file gives the normals an index of their own in its triangle lists,
+- every COLLADA file gives each corner of its triangle lists its own normal, by an index of
+  the normal's own that equals the position's index,
 - every glTF file loads in trimesh, with the manifest's sub-parts as named nodes,
 - every file carries the manifest's license: SPDX lines in the COLLADA header, in a
   <file>.license next to each STL and glTF file.
@@ -44,6 +45,7 @@ import yaml
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MESHES = os.path.join(ROOT, 'meshes')
+COLLADA_NAMESPACE = 'http://www.collada.org/2005/11/COLLADASchema'
 SCHEMA_URL = 'https://www.khronos.org/files/collada_schema_1_4_1.xsd'
 SCHEMA_SHA256 = '49266165027329388e710ade6a424116570cda6776cbf3623f7b8c78c727b0ff'
 # The COLLADA schema imports the XML namespace schema for xml:base. This stand-in declares the
@@ -298,7 +300,7 @@ def check_collada(mesh_file: MeshFile, schema: etree.XMLSchema) -> List[str]:
     problems = []
     if not schema.validate(document):
         problems.append(f'not valid COLLADA 1.4.1: {schema.error_log.last_error}')
-    namespace = {'c': 'http://www.collada.org/2005/11/COLLADASchema'}
+    namespace = {'c': COLLADA_NAMESPACE}
     if document.xpath('string(//c:asset/c:unit/@meter)', namespaces=namespace) != '1':
         problems.append('unit is not the metre')
     if document.xpath('string(//c:asset/c:up_axis)', namespaces=namespace) != 'Z_UP':
@@ -312,28 +314,76 @@ def check_collada(mesh_file: MeshFile, schema: etree.XMLSchema) -> List[str]:
     return problems
 
 
-def check_collada_normals(mesh_file: MeshFile) -> List[str]:
-    """Check that a COLLADA file's triangle lists give the normals an index of their own.
+def corner_index_problems(triangles: Any, vectors: int) -> List[str]:
+    """Return the problems of one <triangles> element's indices, for a mesh of that many vectors.
+
+    The writer gives a geometry one normal for each position. So every corner is a pair of
+    the same number: the index of its position, then the index of its normal. A pair of two
+    different numbers would give the corner the normal of another vertex.
+    """
+    name = f'<triangles material="{triangles.get("material")}">'
+    corners = 3 * int(triangles.get('count', 0))
+    indices = np.array((triangles.findtext(f'{{{COLLADA_NAMESPACE}}}p') or '').split(),
+                       dtype=np.int64)
+    if indices.size != 2 * corners:
+        return [f'{name} has {indices.size} indices, not a position and a normal index for '
+                f'each of its {corners} corners']
+    positions, normals = indices[0::2], indices[1::2]
+    problems = []
+    beyond = int(((indices < 0) | (indices >= vectors)).sum())
+    if beyond:
+        problems.append(f'{name} has {beyond} indices outside the {vectors} positions and '
+                        'normals of its mesh')
+    different = int((positions != normals).sum())
+    if different:
+        problems.append(f'{name} has {different} corners whose normal index differs from '
+                        'their position index')
+    return problems
+
+
+def collada_normal_problems(document: Any) -> List[str]:
+    """Return the problems of a parsed COLLADA file's normals.
 
     Gazebo Classic's COLLADA loader merges the vertices that share a position. It keeps the
     corners of a sharp edge apart only when the normals are an input of <triangles> with an
     offset of their own. With the normals as an input of <vertices>, it shades all the faces
-    around a sharp edge with the normal of one of them.
+    around a sharp edge with the normal of one of them. So each mesh must have:
+
+    1. <vertices> with the positions only,
+    2. as many normals as positions,
+    3. in every <triangles>, the positions at offset 0 and the normals at offset 1,
+    4. for every corner, its position's index and the same number as its normal's index.
     """
-    document = etree.parse(file_path(mesh_file))
-    namespace = {'c': 'http://www.collada.org/2005/11/COLLADASchema'}
+    namespace = {'c': COLLADA_NAMESPACE}
     problems = []
-    vertex_inputs = document.xpath('//c:mesh/c:vertices/c:input/@semantic', namespaces=namespace)
-    if set(vertex_inputs) != {'POSITION'}:
-        problems.append(f'<vertices> has the inputs {sorted(set(vertex_inputs))}, not only'
-                        ' POSITION')
-    for triangles in document.xpath('//c:mesh/c:triangles', namespaces=namespace):
-        offsets = {triangle_input.get('semantic'): triangle_input.get('offset')
-                   for triangle_input in triangles.findall('c:input', namespace)}
-        if offsets != {'VERTEX': '0', 'NORMAL': '1'}:
-            problems.append(f'<triangles material="{triangles.get("material")}"> has the inputs'
-                            f' {offsets}, not VERTEX at offset 0 and NORMAL at offset 1')
+    for mesh in document.xpath('//c:mesh', namespaces=namespace):
+        vertex_inputs = mesh.xpath('c:vertices/c:input/@semantic', namespaces=namespace)
+        if set(vertex_inputs) != {'POSITION'}:
+            problems.append(f'<vertices> has the inputs {sorted(set(vertex_inputs))}, not only'
+                            ' POSITION')
+        counts = {kind: [int(count) for count in mesh.xpath(
+            f'c:source[substring(@id, string-length(@id) - {len(kind)}) = "-{kind}"]'
+            '/c:technique_common/c:accessor/@count', namespaces=namespace)]
+            for kind in ('positions', 'normals')}
+        if len(counts['positions']) != 1 or counts['positions'] != counts['normals']:
+            problems.append(f'the mesh has {counts["positions"]} positions and '
+                            f'{counts["normals"]} normals, not one normal for each position')
+            continue
+        for triangles in mesh.xpath('c:triangles', namespaces=namespace):
+            offsets = {triangle_input.get('semantic'): triangle_input.get('offset')
+                       for triangle_input in triangles.findall('c:input', namespace)}
+            if offsets != {'VERTEX': '0', 'NORMAL': '1'}:
+                problems.append(f'<triangles material="{triangles.get("material")}"> has the '
+                                f'inputs {offsets}, not VERTEX at offset 0 and NORMAL at '
+                                'offset 1')
+                continue
+            problems += corner_index_problems(triangles, counts['positions'][0])
     return problems
+
+
+def check_collada_normals(mesh_file: MeshFile) -> List[str]:
+    """Check that a COLLADA file gives every corner its own normal, by an index of its own."""
+    return collada_normal_problems(etree.parse(file_path(mesh_file)))
 
 
 def gltf_document(path: str) -> Dict[str, Any]:
