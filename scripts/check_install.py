@@ -7,9 +7,10 @@ share/robot_component_models must hold exactly the manifest's mesh files and the
 files, the manifest, LICENSE and package.xml, for every part its provenance page, its generator
 and its frame picture, and every other Python file of the checkout's generators/, in its
 sub-folders too. Besides these, it may hold only the files that catkin, ament_cmake and colcon
-write for every package. Each of these files that is there must be a file that can be read: a
-symbolic link counts if it leads to one. Each installed mesh must have the manifest's checksum,
-and a mesh that can't be read for the checksum is a problem too. Outside
+write for every package. Each of these files that is there must be a regular file that can be
+read: a symbolic link counts if it leads to one, a folder or a named pipe doesn't. Only such
+files are opened, so a named pipe can't make the check wait. Each installed mesh must have the
+manifest's checksum, and a mesh that can't be read for the checksum is a problem too. Outside
 share/robot_component_models, the check ignores the workspace's own files.
 
 A provenance page links to its generator and to its frame picture with paths relative to the
@@ -27,6 +28,7 @@ Needs only Python 3 and PyYAML, as in the ros:noetic and ros:humble images.
 import hashlib
 import os
 import re
+import stat
 import sys
 from typing import Any
 from typing import Dict
@@ -60,12 +62,54 @@ BUILD_TOOL_FILES = {
     '1': CMAKE_CONFIG | COLCON_PACKAGE | COLCON_HOOKS_ROS1,
     '2': CMAKE_CONFIG | COLCON_PACKAGE | AMENT_FILES,
 }
+# What file_state() returns for a regular file that can be read, and for a path with nothing
+READABLE = ''
+ABSENT = "it isn't there"
+
+
+def file_state(path: str) -> str:
+    """Return READABLE, ABSENT or why the path isn't a file that can be read.
+
+    The path's symbolic links are followed. Only a regular file counts: a folder can't be read
+    as a file, and opening a named pipe would wait for a writer.
+    """
+    try:
+        status = os.stat(path)
+    except FileNotFoundError:
+        return 'a link without its target' if os.path.islink(path) else ABSENT
+    except OSError as error:
+        return f"it can't be examined: {error.strerror or error}"
+    if not stat.S_ISREG(status.st_mode):
+        return "it isn't a regular file"
+    if not os.access(path, os.R_OK):
+        return 'it has no read permission'
+    return READABLE
+
+
+def file_bytes(path: str) -> Optional[bytes]:
+    """Return the file's bytes, or None if it isn't a regular file that can be read."""
+    if file_state(path) != READABLE:
+        return None
+    try:
+        with open(path, 'rb') as stream:
+            return stream.read()
+    except OSError:
+        return None
 
 
 def installed_files(share: str) -> Set[str]:
     """Return the files under the package's share folder, relative to it."""
     return {os.path.relpath(os.path.join(folder, name), share)
             for folder, _, names in os.walk(share) for name in names}
+
+
+def occupied_paths(share: str, paths: Iterable[str]) -> Set[str]:
+    """Return the paths that have something in the share folder, of any type.
+
+    installed_files() doesn't list a folder, or a link to a folder, at a file's path. Such an
+    entry is there, but it isn't a file that can be read.
+    """
+    return {path for path in paths if file_state(os.path.join(share, path)) != ABSENT}
 
 
 def load_manifest(path: str) -> Dict[str, Any]:
@@ -120,37 +164,32 @@ def check_file_set(found: Set[str], expected: Set[str], allowed: Set[str]) -> Li
             + [f'not expected: {path}' for path in sorted(found - expected - allowed)])
 
 
-def file_bytes(path: str) -> Optional[bytes]:
-    """Return the file's bytes, or None if there is no such file or it can't be read."""
-    try:
-        with open(path, 'rb') as stream:
-            return stream.read()
-    except OSError:
-        return None
-
-
 def check_files_can_be_read(share: str, paths: Iterable[str]) -> List[str]:
-    """Check that each installed path is a file that can be read, through its links.
+    """Check that each installed path is a regular file that can be read, through its links.
 
-    A symbolic link without a target, a folder or a file without read permission has the
-    name that the file set expects, but nobody can read it.
+    A symbolic link without a target, a folder, a named pipe or a file without read
+    permission has the name that the file set expects, but nobody can read it as a file.
     """
-    return [f"{path}: isn't a file that can be read" for path in sorted(paths)
-            if not (os.path.isfile(os.path.join(share, path))
-                    and os.access(os.path.join(share, path), os.R_OK))]
+    problems = []
+    for path in sorted(paths):
+        state = file_state(os.path.join(share, path))
+        if state != READABLE:
+            problems.append(f"{path}: isn't a file that can be read: {state}")
+    return problems
 
 
-def check_checksums(share: str, checksums: Dict[str, str]) -> List[str]:
-    """Check every installed mesh file against the manifest's checksum.
+def check_checksums(share: str, checksums: Dict[str, str], readable: Set[str]) -> List[str]:
+    """Check every installed mesh against the manifest's checksum.
 
-    A file that isn't there is left to check_file_set(). A file that is there and can't be
-    read, for whatever reason, is reported with the reader's error, and the other files are
-    still checked.
+    readable holds the installed paths that file_state() found to be regular files that can
+    be read. Only these are opened. The other meshes are reported by check_file_set() and
+    check_files_can_be_read(). A mesh that can't be read now, for whatever reason, is
+    reported with the error, and the other meshes are still checked.
     """
     problems = []
     for path, expected in sorted(checksums.items()):
         full = os.path.join(share, path)
-        if not os.path.lexists(full):
+        if path not in readable:
             continue
         try:
             with open(full, 'rb') as stream:
@@ -166,10 +205,11 @@ def check_checksums(share: str, checksums: Dict[str, str]) -> List[str]:
 def read_installed_pages(share: str, pages: Set[str]) -> Dict[str, Optional[bytes]]:
     """Return {page: its bytes} of the installed pages, None for a page that can't be read.
 
-    A page that isn't installed is left out: check_file_set() reports it.
+    Only a regular file is opened. A page that isn't installed is left out: check_file_set()
+    reports it.
     """
     return {page: file_bytes(os.path.join(share, page)) for page in sorted(pages)
-            if os.path.lexists(os.path.join(share, page))}
+            if file_state(os.path.join(share, page)) != ABSENT}
 
 
 def check_pages_are_the_checkouts(installed: Dict[str, Optional[bytes]], pages: Set[str],
@@ -182,7 +222,7 @@ def check_pages_are_the_checkouts(installed: Dict[str, Optional[bytes]], pages: 
     problems = []
     for page in sorted(pages):
         source_bytes = file_bytes(os.path.join(root, page))
-        if not os.path.lexists(os.path.join(root, page)):
+        if file_state(os.path.join(root, page)) == ABSENT:
             problems.append(f"{page}: the checkout doesn't have this page of the manifest")
         elif source_bytes is None:
             problems.append(f"{page}: the checkout's page can't be read")
@@ -224,19 +264,20 @@ def main() -> int:
     prefix, ros_version = sys.argv[1:3]
     share = os.path.join(prefix, 'share', PACKAGE)
     manifest = os.path.join(share, 'meshes', 'manifest.yaml')
-    if not (os.path.isfile(manifest) and os.access(manifest, os.R_OK)):
-        print(f"{manifest}: missing, or it can't be read")
+    if file_state(manifest) != READABLE:
+        print(f'{manifest}: {file_state(manifest)}')
         return 1
     contents = load_manifest(manifest)
     checksums = manifest_checksums(contents)
-    found = installed_files(share)
     expected = set(checksums) | manifest_documents(contents) | generator_files() | OWN_FILES
-    pages = {part['provenance'] for part in contents['parts'].values()}
     allowed = BUILD_TOOL_FILES[ros_version]
+    found = installed_files(share) | occupied_paths(share, expected | allowed)
+    readable = {path for path in found if file_state(os.path.join(share, path)) == READABLE}
+    pages = {part['provenance'] for part in contents['parts'].values()}
     installed_pages = read_installed_pages(share, pages)
     problems = check_file_set(found, expected, allowed)
     problems += check_files_can_be_read(share, found & (expected | allowed))
-    problems += check_checksums(share, checksums)
+    problems += check_checksums(share, checksums, readable)
     problems += check_pages_are_the_checkouts(installed_pages, pages)
     problems += check_links_lead_to_installed_files(share, installed_pages)
     for problem in problems:
