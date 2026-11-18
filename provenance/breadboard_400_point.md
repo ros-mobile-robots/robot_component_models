@@ -6,10 +6,6 @@ A display model of a half-size solderless breadboard: 300 terminal holes (30 col
 
 Generator: [`generators/breadboard_400_point.py`](../generators/breadboard_400_point.py).
 
-## Mesh
-
-`breadboard_400_point`: one mesh with 5 materials: the white body, dark hole walls and floors (`hole`), the red and blue lines and the foam backing (`tape`). Its sub-parts are the body, the backing and the rail lines.
-
 ## Frame
 
 ![The breadboard from above and from the side, with the origin and axes of its frame, its bottom and its top](../docs/images/frames/breadboard_400_point.png)
@@ -31,6 +27,10 @@ The hole grid follows the boards that plug into it. With the Raspberry Pi deck a
 Result with the Raspberry Pi deck: in the horizontal plane, all 28 Teensy pins lie within 0.027 mm and all 10 BNO055 pins within 0.013 mm of a hole's centre. The check is 2D: the BNO055's height on the breadboard is the URDF's.
 
 With the Jetson deck, Remo's description moves the breadboard 10 mm further back but leaves `mcu_joint` and `imu_joint` where they are. The Teensy's pins then lie 2.4 to 2.7 mm and the BNO055's pins 1.9 to 2.7 mm from the nearest hole centres. The pins fit the holes again only if both boards move with the breadboard.
+
+## Mesh
+
+`breadboard_400_point`: one mesh with 5 materials: the white body, dark hole walls and floors (`hole`), the red and blue lines and the foam backing (`tape`). Its sub-parts are the body, the backing and the rail lines.
 
 ## Sources
 

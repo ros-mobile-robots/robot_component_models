@@ -142,6 +142,8 @@ The STL file takes its colour from the URDF. The visual defines the colour itsel
 
 A visual's `rpy` turns the mesh. DiffBot's and Remo's laser links have the scanner's cable at their +x, where the mesh has it at -x, so their visuals turn the mesh by π about z (see the [Frame section](provenance/rplidar_a2.md#frame)).
 
+A part with several meshes has one link for each mesh. The caster's [Frames section](provenance/swivel_caster_30mm.md#frames) gives the offsets between its three meshes: `swivel_caster_30mm_base`, `swivel_caster_30mm_wheel_support` and `swivel_caster_30mm_wheel`.
+
 Keep the collision shapes and inertias in the robot description, for example as boxes and cylinders.
 
 ### Gazebo (gz-sim): the resource path
