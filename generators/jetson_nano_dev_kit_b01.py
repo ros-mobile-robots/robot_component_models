@@ -29,6 +29,7 @@ from generators.board_parts import bent_strip
 from generators.board_parts import box
 from generators.board_parts import chamfered_rectangle
 from generators.board_parts import contact_rows
+from generators.board_parts import ContactRow
 from generators.board_parts import cylinder
 from generators.board_parts import drop_degenerate
 from generators.board_parts import fin_polygon
@@ -84,6 +85,8 @@ HDMI_OPENING = (14.0, 4.55, 1.4)  # width, height (Same Sky HD05), bottom above 
 HDMI_INSULATOR = 6.8
 HDMI_TONGUE = (10.8, 0.9, 2.0)
 HDMI_LINER = 0.25  # thickness of the metal liner round the opening (estimated)
+# Contact rows as (count, pitch, width, on the top face): 19 contacts
+HDMI_CONTACT_ROWS = ((10, 1.0, 0.5, True), (9, 1.0, 0.5, False))
 DP_OPENING = (16.1, 4.76, 12.7)  # width, height (JAE DP1), bottom above the top face
 # DisplayPort insides, JAE DP1RD20: insulator face behind the front, tongue (width, thickness
 # (scaled from the front view), tip behind the front: the insulator's 8.88 mm less the
@@ -94,6 +97,7 @@ DP_INSULATOR = 8.88
 DP_TONGUE = (12.0, 1.0, 4.08, 2.52)
 DP_TONGUE_OFFSET = 0.5
 DP_LINER = 0.2  # thickness of the metal liner round the opening (estimated)
+DP_CONTACT_ROWS = ((10, 1.0, 0.5, True), (10, 1.0, 0.5, False))  # 20 contacts
 HDMI_HOUSING_HEIGHT = 10.2  # the HDMI receptacle's black housing, the DP shell above it
 USB_STACKS = ((36.15, 49.25, -1.52, 15.9, 16.0), (53.2, 66.3, -1.52, 15.9, 16.0))  # photo
 RJ45 = (68.9, 85.0, -1.97, 19.8, 13.7)
@@ -274,14 +278,15 @@ def liner_depth(insulator: float, wall: float) -> float:
 
 
 def hdmi_inside(profile: Sequence[Point], insulator: float,
-                tongue: Tuple[float, float, float], centre: float, offset: float = 0.0) -> \
-        List[Part]:
-    """Return a receptacle's insulator, tongue and contacts (10 on top, 9 or 10 below).
+                tongue: Tuple[float, float, float], centre: float,
+                rows: Sequence[ContactRow], offset: float = 0.0) -> List[Part]:
+    """Return a receptacle's insulator, tongue and contact rows.
 
     The insulator's face lies at the insulator's depth behind the front, as in the
     receptacle's drawing: the opening is that deep, and the tongue reaches forward from that
     face. The insulator's plate fills the liner behind the face, up to the liner's back wall
-    (see liner_depth()). The tongue's middle lies offset beside the opening's middle.
+    (see liner_depth()). The tongue's middle lies offset beside the opening's middle. The rows
+    belong to the receptacle, whatever the offset is.
     """
     tongue_width, thickness, tip = tongue
     half = tongue_width / 2
@@ -290,9 +295,7 @@ def hdmi_inside(profile: Sequence[Point], insulator: float,
     parts: List[Part] = [
         ('black_plastic', front_profile(profile, face, INSULATOR_PLATE)),
         ('black_plastic', tongue_block(face, offset - half, z0, -tip, offset + half, z1, 0.15))]
-    below = 9 if offset == 0.0 else 10
-    return parts + contact_rows(((10, 1.0, 0.5, True), (below, 1.0, 0.5, False)),
-                                (half, z0, z1, tip), 3.2, offset)
+    return parts + contact_rows(rows, (half, z0, z1, tip), 3.2, offset)
 
 
 def hdmi_dp_stack() -> List[Part]:
@@ -320,7 +323,8 @@ def hdmi_dp_stack() -> List[Part]:
     seat = front_profile(frame_outer, 0.1, 1.6)
     parts += [('black_plastic', housing.cut(cut).cut(seat)), ('nickel', liner),
               ('nickel', frame)]
-    parts += hdmi_inside(profile, HDMI_INSULATOR, HDMI_TONGUE, bottom + opening_height / 2)
+    parts += hdmi_inside(profile, HDMI_INSULATOR, HDMI_TONGUE, bottom + opening_height / 2,
+                         HDMI_CONTACT_ROWS)
     shell = rounded_box(-depth, -half, HDMI_HOUSING_HEIGHT, -0.3, half, height, vertical=0.4)
     shell_frame = box(-0.3, -half, HDMI_HOUSING_HEIGHT, 0.0, half, height)
     opening_width, opening_height, bottom = DP_OPENING
@@ -335,7 +339,7 @@ def hdmi_dp_stack() -> List[Part]:
     tongue_width, thickness, tip, centre = DP_TONGUE
     parts += [('nickel', shell), ('nickel', shell_frame), ('nickel', liner)]
     parts += hdmi_inside(profile, DP_INSULATOR, (tongue_width, thickness, tip),
-                         bottom + centre, DP_TONGUE_OFFSET)
+                         bottom + centre, DP_CONTACT_ROWS, DP_TONGUE_OFFSET)
     return parts
 
 

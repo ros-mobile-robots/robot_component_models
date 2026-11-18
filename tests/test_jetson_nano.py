@@ -11,10 +11,13 @@ repository's root, with the packages of generators/requirements.txt:
   python3 -m unittest discover -s tests
 """
 from typing import List
+from typing import Sequence
+from typing import Tuple
 import unittest
 
 import cadquery as cq
 
+from generators import board_parts
 from generators import jetson_nano_dev_kit_b01 as jetson
 
 SECTION_X = -0.1  # mm behind J6's front face, in front of the tongues
@@ -26,6 +29,11 @@ KEY_FROM_THE_SIDE, KEY_ABOVE_THE_BOTTOM = 0.45, 0.35
 def volume(shape: cq.Shape) -> float:
     """Return the shape's volume in cubic millimetres, 0 for an empty shape."""
     return float(sum(solid.Volume() for solid in shape.Solids()))
+
+
+def gold_count(parts: Sequence[Tuple[str, object]]) -> int:
+    """Return how many of the parts are gold: a connector's contacts."""
+    return sum(1 for material, _ in parts if material == 'gold')
 
 
 class J6PortsTest(unittest.TestCase):
@@ -87,6 +95,34 @@ class J6PortsTest(unittest.TestCase):
 
         self.assertTrue(on_the_right)
         self.assertFalse(on_the_left)
+
+    def test_stack_has_the_contacts_of_both_receptacles(self) -> None:
+        """Count the stack's contacts: HDMI's 19 and DisplayPort's 20."""
+        self.assertEqual(gold_count(jetson.hdmi_dp_stack()), 19 + 20)
+
+    def test_contact_count_stays_when_the_tongue_moves_sideways(self) -> None:
+        """Build each receptacle's inside with its tongue centred and off the centre.
+
+        The number of contacts belongs to the receptacle: HDMI has 19, DisplayPort 20,
+        wherever the tongue lies in the opening.
+        """
+        width, height, bottom = jetson.HDMI_OPENING
+        hdmi_outline = board_parts.chamfered_rectangle(width, height, 1.3, bottom)
+        width, height, bottom = jetson.DP_OPENING
+        displayport_outline = board_parts.chamfered_rectangle(width, height, 1.0, bottom,
+                                                              'lower_left')
+        tongue_width, thickness, tip, centre = jetson.DP_TONGUE
+
+        for offset in (0.0, jetson.DP_TONGUE_OFFSET):
+            hdmi = jetson.hdmi_inside(hdmi_outline, jetson.HDMI_INSULATOR, jetson.HDMI_TONGUE,
+                                      jetson.HDMI_OPENING[2] + jetson.HDMI_OPENING[1] / 2,
+                                      jetson.HDMI_CONTACT_ROWS, offset)
+            displayport = jetson.hdmi_inside(displayport_outline, jetson.DP_INSULATOR,
+                                             (tongue_width, thickness, tip), bottom + centre,
+                                             jetson.DP_CONTACT_ROWS, offset)
+
+            self.assertEqual(gold_count(hdmi), 19)
+            self.assertEqual(gold_count(displayport), 20)
 
 
 class ModuleSeatTest(unittest.TestCase):
