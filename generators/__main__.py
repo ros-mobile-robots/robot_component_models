@@ -20,9 +20,7 @@ The chosen place is a resolved path, and the processes that build the parts get 
 generators/generation.py holds what those processes run.
 """
 import argparse
-from concurrent.futures import ProcessPoolExecutor
 import difflib
-import importlib
 import os
 import sys
 import tempfile
@@ -33,14 +31,12 @@ from typing import Sequence
 from generators import PARTS
 from generators.generation import EXTENSIONS
 from generators.generation import generate
+from generators.generation import generate_millimetre_collada
 from generators.generation import use_temporary_folder
 from generators.manifest import manifest_text
 from generators.manifest import sha256
 from generators.mesh_export import LICENSE_ID
-from generators.mesh_export import MILLIMETRE
-from generators.mesh_export import require_model_materials
 from generators.mesh_export import SPDX_LINES
-from generators.mesh_export import write_dae
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MESHES = os.path.join(ROOT, 'meshes')
@@ -49,27 +45,6 @@ MANIFEST = os.path.join(MESHES, 'manifest.yaml')
 # the folders that tempfile tries when no variable names one
 TEMPORARY_FOLDER_VARIABLES = ('TMPDIR', 'TEMP', 'TMP')
 DEFAULT_TEMPORARY_FOLDERS = ('/tmp', '/var/tmp', '/usr/tmp')
-
-
-def generate_part_millimetre_collada(name: str, out: str) -> List[str]:
-    """Write one part's COLLADA files in millimetres into out/<part>/ and return their paths."""
-    module = importlib.import_module(f'generators.{name}')
-    os.makedirs(os.path.join(out, name), exist_ok=True)
-    written = []
-    for model in module.build():
-        require_model_materials(model)
-        path = os.path.join(out, name, model.name + '.dae')
-        write_dae(model, path, f'generators/{name}.py', MILLIMETRE)
-        print(f'{path}: millimetres, {os.path.getsize(path)} bytes', flush=True)
-        written.append(path)
-    return written
-
-
-def generate_millimetre_collada(names: Sequence[str], out: str) -> List[str]:
-    """Write the parts' COLLADA files in millimetres into out/, one process per part."""
-    with ProcessPoolExecutor(max_workers=min(len(names), os.cpu_count() or 1)) as pool:
-        written = pool.map(generate_part_millimetre_collada, names, [out] * len(names))
-        return [path for paths in written for path in paths]
 
 
 def without_repeats(names: Sequence[str]) -> List[str]:
