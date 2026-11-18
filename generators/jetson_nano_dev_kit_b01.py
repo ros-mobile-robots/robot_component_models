@@ -254,14 +254,14 @@ def hdmi_inside(profile: Sequence[Point], wall: float, insulator: float,
     """Return a receptacle's insulator face, tongue and contacts (10 on top, 9 or 10 below).
 
     The insulator stands in front of the liner's back wall (wall thick, at the insulator's
-    depth), inside the liner.
+    depth), inside the liner, whose inside is the opening's outline.
     """
     tongue_width, thickness, tip = tongue
     half = tongue_width / 2
     z0, z1 = centre - thickness / 2, centre + thickness / 2
     face = -insulator + wall + 0.2
     parts: List[Part] = [
-        ('black_plastic', front_profile(profile, face, 0.2, wall)),
+        ('black_plastic', front_profile(profile, face, 0.2)),
         ('black_plastic', tongue_block(face, offset - half, z0, -tip, offset + half, z1, 0.15))]
     below = 9 if offset == 0.0 else 10
     return parts + contact_rows(((10, 1.0, 0.5, True), (below, 1.0, 0.5, False)),
@@ -285,7 +285,8 @@ def hdmi_dp_stack() -> List[Part]:
     cut, liner = opening_with_liner(profile, HDMI_INSULATOR, 0.25)
     frame_outer = chamfered_rectangle(opening_width + 0.9, opening_height + 0.9, 1.6,
                                       bottom - 0.45)
-    frame = front_profile(frame_outer, 0.0, 1.5).cut(front_profile(profile, 0.1, 1.7))
+    # The frame lies round the liner: together their front edges are the 0.45 mm metal rim
+    frame = front_profile(frame_outer, 0.0, 1.5).cut(front_profile(profile, 0.1, 1.7, -0.25))
     # The frame sits in a seat cut into the housing, so their front faces don't overlap.
     seat = front_profile(frame_outer, 0.1, 1.6)
     parts += [('black_plastic', housing.cut(cut).cut(seat)), ('nickel', liner),

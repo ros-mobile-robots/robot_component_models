@@ -153,28 +153,28 @@ parts:
         materials: [solder_mask_green, fr4_edge, gold, nickel, steel_lid, tin, black_plastic, chip, die, thermal_paste, ceramic, substrate, inductor, usb3_blue, cream_plastic, led_red, led_green, led_yellow]
         files:
           raspberry_pi_4b/raspberry_pi_4b.stl:
-            sha256: 7c06de2a912a0adebb4771ae6c7bd961736a58535baa7642bbf24449ba2e58c6
-            bytes: 1850884
+            sha256: 18b541750c6be5e7bbe1fe4e033ee94e7df1ad745001f263d0b2668dd838ff86
+            bytes: 1847284
             units: metre
             up_axis: "Z"
-            triangles: 37016
+            triangles: 36944
             bounding_box_min: [-0.007569, -0.042123, -0.002800]
             bounding_box_max: [0.050921, 0.045977, 0.016800]
             license_file: raspberry_pi_4b/raspberry_pi_4b.stl.license
           raspberry_pi_4b/raspberry_pi_4b.dae:
-            sha256: 98f9c032f3a2fca9afabe69d6f371b71c53729c9650b8fd46d6155af036012d8
-            bytes: 2543571
+            sha256: 9ab0fa131b04c7622075beeaa6c8373521e037bd4fdcea474322af00912650a4
+            bytes: 2539165
             units: metre
             up_axis: "Z"
-            triangles: 37016
+            triangles: 36944
             bounding_box_min: [-0.007569, -0.042123, -0.002800]
             bounding_box_max: [0.050921, 0.045977, 0.016800]
           raspberry_pi_4b/raspberry_pi_4b.glb:
-            sha256: 22d9e128604940a4af6583476d191d553bc968a1a545aa521d564c638f8a0b7b
-            bytes: 1486580
+            sha256: 58068fad94239c2f18caf01844fae4445513bbdf2cc32a8b240a97a38eeb8dd7
+            bytes: 1484324
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
-            triangles: 37016
+            triangles: 36944
             bounding_box_min: [-0.007569, -0.042123, -0.002800]
             bounding_box_max: [0.050921, 0.045977, 0.016800]
             license_file: raspberry_pi_4b/raspberry_pi_4b.glb.license
@@ -189,28 +189,28 @@ parts:
         materials: [solder_mask_black, fr4_edge, anodised_black, nickel, gold, tin, brass, black_plastic, chip, die, substrate, inductor, thermal_pad, usb3_blue, latch_brown, capacitor_stripe, led_green, led_yellow]
         files:
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.stl:
-            sha256: 4812776358327a33976f1eb7d42407499d084b2cd67bcf576accc6c9f018e56a
-            bytes: 1826584
+            sha256: 1436eedb4109c2f84797b5555fe6ae38a30c6d68b730c42c19d38c0e1c3509a0
+            bytes: 1823284
             units: metre
             up_axis: "Z"
-            triangles: 36530
+            triangles: 36464
             bounding_box_min: [-0.028982, -0.038847, -0.001950]
             bounding_box_max: [0.071018, 0.042223, 0.028250]
             license_file: jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.stl.license
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.dae:
-            sha256: 34676f97fd0b1389da03ddd8b3b26fa45f2d22702cfb2219d21ca8c4c5273c1e
-            bytes: 2424587
+            sha256: 5fc03690486d1fbb02b19f34d1bc18a4c2f9d708e023fc74346db5ec96428b00
+            bytes: 2420999
             units: metre
             up_axis: "Z"
-            triangles: 36530
+            triangles: 36464
             bounding_box_min: [-0.028982, -0.038847, -0.001950]
             bounding_box_max: [0.071018, 0.042223, 0.028250]
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.glb:
-            sha256: 3a9c4d52e6403b5f07c9dde945bb8e71ce09f532e39132f82d57bed601683afc
-            bytes: 1374948
+            sha256: 898c92cf24b98ab0cadd4760a6482698b3dfb03b58a6852624a30b5deb7d1cdd
+            bytes: 1372872
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
-            triangles: 36530
+            triangles: 36464
             bounding_box_min: [-0.028982, -0.038847, -0.001950]
             bounding_box_max: [0.071018, 0.042223, 0.028250]
             license_file: jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.glb.license

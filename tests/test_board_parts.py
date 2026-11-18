@@ -11,6 +11,8 @@ with the packages of generators/requirements.txt:
 from typing import List
 import unittest
 
+import cadquery as cq
+
 from generators import board_parts
 from generators import jetson_nano_dev_kit_b01 as jetson
 from generators import raspberry_pi_4b
@@ -23,12 +25,22 @@ FITTING_ROW = (10, 1.0, 0.5, True)
 # Thirteen such contacts are 12.5 mm wide: wider than the tongue
 ROW_WIDER_THAN_THE_TONGUE = (13, 1.0, 0.5, True)
 TONGUE_SHIFT = 3.0  # mm: a tongue and its contacts off the opening's centre
+# An opening 16 mm wide and 5 mm high with its bottom at z = 10
+WIDTH, HEIGHT, BOTTOM = 16.0, 5.0, 10.0
+WALL = 0.2
+DEPTH = 6.0
+SECTION_X = -0.1  # mm behind the front face
 
 
 def contact_centres(parts: List[board_parts.Part]) -> List[float]:
     """Return the y of each contact's centre, sorted."""
     boxes = [shape.BoundingBox() for _, shape in parts]
     return sorted(round((box.ymin + box.ymax) / 2, 6) for box in boxes)
+
+
+def is_solid(shapes: List[cq.Shape], y: float, z: float) -> bool:
+    """Return whether one of the shapes holds the point (y, z) just behind the front face."""
+    return any(shape.isInside(cq.Vector(SECTION_X, y, z), 1e-7) for shape in shapes)
 
 
 class ContactRowsTest(unittest.TestCase):
@@ -47,6 +59,23 @@ class ContactRowsTest(unittest.TestCase):
         """Ask for thirteen contacts on the 12 mm tongue: an error with both widths."""
         with self.assertRaisesRegex(ValueError, "12.5 mm wide: more than the tongue's 12 mm"):
             board_parts.contact_rows((ROW_WIDER_THAN_THE_TONGUE,), TONGUE, CONTACT_LENGTH)
+
+
+class OpeningTest(unittest.TestCase):
+    """An opening's outline is the room for the plug, and its liner lies round it."""
+
+    def test_liner_leaves_the_outline_clear(self) -> None:
+        """Line a plain opening: room just inside the outline, the liner's wall just outside."""
+        outline = [(-WIDTH / 2, BOTTOM), (WIDTH / 2, BOTTOM), (WIDTH / 2, BOTTOM + HEIGHT),
+                   (-WIDTH / 2, BOTTOM + HEIGHT)]
+        _, liner = board_parts.opening_with_liner(outline, DEPTH, WALL)
+        middle = BOTTOM + HEIGHT / 2
+        half_wall = WALL / 2
+
+        self.assertFalse(is_solid([liner], WIDTH / 2 - half_wall, middle))
+        self.assertTrue(is_solid([liner], WIDTH / 2 + half_wall, middle))
+        self.assertFalse(is_solid([liner], 0.0, BOTTOM + half_wall))
+        self.assertTrue(is_solid([liner], 0.0, BOTTOM - half_wall))
 
 
 class UnknownMaterialTest(unittest.TestCase):

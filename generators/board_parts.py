@@ -119,11 +119,15 @@ def front_profile(points: Sequence[Point], front_x: float, depth: float,
                   inset: float = 0.0) -> cq.Shape:
     """Return a (y, z) outline extruded from the front face x = front_x back to -x.
 
-    With an inset the outline is shrunk by that much, for the walls of a liner.
+    With a positive inset the outline is shrunk by that much. With a negative inset the outline
+    is grown by that much and keeps its sharp corners, for the walls of a liner round an
+    opening.
     """
     sketch = cq.Workplane('YZ', origin=(front_x - depth, 0, 0)).polyline(list(points)).close()
-    if inset:
+    if inset > 0:
         sketch = sketch.offset2D(-inset)
+    elif inset < 0:
+        sketch = sketch.offset2D(-inset, 'intersection')
     return sketch.extrude(depth).val()
 
 
@@ -145,11 +149,16 @@ def chamfered_rectangle(width: float, height: float, chamfer: float, bottom: flo
 
 def opening_with_liner(points: Sequence[Point], depth: float,
                        wall: float) -> Tuple[cq.Shape, cq.Shape]:
-    """Return the cut for an opening in the front face (x = 0) and a dark liner for it."""
-    opening = front_profile(points, 0.1, depth + 0.1)
-    liner = front_profile(points, 0.0, depth).cut(front_profile(points, 0.1, depth - wall + 0.1,
-                                                                wall))
-    return opening, liner
+    """Return the cut for an opening in the front face (x = 0) and the liner that sits in it.
+
+    The points are the opening's clear outline: the room that a plug has. The liner's walls
+    lie round that outline, in the housing, and its back wall ends at the depth. So the cut
+    is the outline grown by the wall, and the liner's inside is the outline itself.
+    """
+    seat = front_profile(points, 0.1, depth + 0.1, -wall)
+    liner = front_profile(points, 0.0, depth, -wall).cut(front_profile(points, 0.1,
+                                                                       depth - wall + 0.1))
+    return seat, liner
 
 
 def place(parts: Sequence[Part], yaw_degrees: float,
@@ -366,14 +375,14 @@ def rj45_jack(width: float, depth: float, height: float, led_protrusion: float =
         shield = shield.cut(box(-6.0, y0, 1.0, -3.0, y0 + 0.25, height - 3.0))
     parts: List[Part] = [('nickel', shield), ('black_plastic', liner)]
     count, pitch, contact_width, thickness = RJ45_CONTACTS
-    ceiling = bottom + 9.0 - 0.3
+    ceiling = bottom + 9.0
     path = [(-1.4, ceiling - thickness), (-2.2, ceiling - 0.9), (-8.0, ceiling - 3.4),
             (-9.0, ceiling - 3.4)]
     for k in range(count):
         parts.append(('gold', bent_strip(path, thickness, (k - (count - 1) / 2) * pitch,
                                          contact_width)))
     # The comb that guides the contacts' ends
-    parts.append(('black_plastic', box(-11.7, -5.55, ceiling - 4.0, -8.6, 5.55,
+    parts.append(('black_plastic', box(-11.7, -5.85, ceiling - 4.0, -8.6, 5.85,
                                        ceiling - 3.45)))
     parts.append(('led_green', box(-0.05, -half + 0.8, 0.8, led_protrusion, -half + 2.8, 2.0)))
     parts.append(('led_yellow', box(-0.05, half - 2.8, 0.8, led_protrusion, half - 0.8, 2.0)))
