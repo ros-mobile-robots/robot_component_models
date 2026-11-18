@@ -31,7 +31,7 @@ Every model here is the project's own work, under this repository's [license](LI
 
    The bytes of the meshes are the same as CI's only in CI's generator environment. On another system, regenerate and check in CI's image, as [Run CI's checks locally](#run-cis-checks-locally) shows.
 
-   When the part's look changed, render the README's pictures again. This command rewrites the tracked PNG files in `docs/images/`. Commit only the pictures of the parts you changed:
+   When the part's look changed, render the README's pictures again. This command rewrites the tracked PNG files in `docs/images/`. Commit the picture of each part you changed and the overview `all_parts.png`, which shows every part. Put back the pictures that differ only because another graphics driver drew them:
 
    ```bash
    .venv/bin/python scripts/render_parts.py
@@ -62,15 +62,15 @@ docker run --rm --platform linux/amd64 -v "$PWD":/src:ro \
   cd /src && /opt/venv/bin/python -m generators --check && /opt/venv/bin/python -m generators --check'
 ```
 
-To regenerate the meshes in that environment after a change to a generator, mount the repository writable. The container installs the packages as root and then runs the generators as your user, so every file that the run writes belongs to you, also when a generator fails halfway:
+To regenerate the meshes in that environment after a change to a generator, mount the repository writable. The container installs the packages as root. Then it runs the generators as the user who owns the mounted repository, as the container sees that user. With the usual Docker that is your user's number, and with rootless Docker it is the container's root, which is your user outside. Either way the files that the run writes belong to you, also when a generator fails halfway:
 
 ```bash
-docker run --rm --platform linux/amd64 -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" -v "$PWD":/src \
+docker run --rm --platform linux/amd64 -v "$PWD":/src \
   ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852 bash -c '
   apt-get update && apt-get install -y --no-install-recommends python3 python3-venv ca-certificates \
     git libgl1 libxrender1 libxext6 libsm6 libice6 libegl1 &&
   python3 -m venv /opt/venv && /opt/venv/bin/pip install -r /src/generators/requirements.txt &&
-  cd /src && setpriv --reuid "$HOST_UID" --regid "$HOST_GID" --clear-groups \
+  cd /src && setpriv --reuid "$(stat -c %u .)" --regid "$(stat -c %g .)" --clear-groups \
     env HOME=/tmp PYTHONDONTWRITEBYTECODE=1 /opt/venv/bin/python -m generators'
 ```
 

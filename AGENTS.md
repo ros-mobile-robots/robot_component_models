@@ -68,11 +68,11 @@ git status --short meshes                 # the files you meant to change, and n
 
 Then run the commands of [Check a checkout](#check-a-checkout). Meshes for a pull request have to come from CI's environment, or CI's regeneration check fails: [Run CI's checks locally](CONTRIBUTING.md#run-cis-checks-locally) shows how to regenerate in CI's image.
 
-When a part's look changed, render the README's pictures again. This command rewrites the PNG files in `docs/images/`, which are tracked. CI doesn't compare them, and another graphics driver gives slightly other pixels, so commit only the pictures of the parts you changed:
+When a part's look changed, render the README's pictures again. This command rewrites the PNG files in `docs/images/`, which are tracked: one picture per part and the overview `all_parts.png`, which the README shows first. CI doesn't compare them, and another graphics driver gives slightly other pixels. Commit the picture of each part you changed together with the overview, and put back the pictures that differ without a change to their part:
 
 ```bash
 .venv/bin/python scripts/render_parts.py
-git status --short docs/images            # put back the pictures of parts you didn't change
+git status --short docs/images            # the changed part's picture and all_parts.png, and no others
 ```
 
 ## Code
