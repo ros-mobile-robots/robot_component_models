@@ -5,16 +5,19 @@
 
 share/robot_component_models must hold exactly the manifest's mesh files and their .license
 files, the manifest, LICENSE and package.xml, for every part its provenance page, its generator
-and its frame picture, and every other Python file of the checkout's generators/. Besides
-these, it may hold only the files that catkin, ament_cmake and colcon write for every package.
-Each installed mesh must have the manifest's checksum. Outside share/robot_component_models,
-the check ignores the workspace's own files.
+and its frame picture, and every other Python file of the checkout's generators/, in its
+sub-folders too. Besides these, it may hold only the files that catkin, ament_cmake and colcon
+write for every package. Each of these files must be a file that can be read: a symbolic link
+counts if it leads to one. Each installed mesh must have the manifest's checksum. Outside
+share/robot_component_models, the check ignores the workspace's own files.
 
 A provenance page links to its generator and to its frame picture with paths relative to the
 repository. Both are installed at the same relative paths, so each installed page must be the
 checkout's page byte for byte, and every relative link of an installed page must lead to an
 installed file. A page of the manifest that the checkout doesn't have is a problem: an install
-space keeps a page that was installed before and removed from the checkout since.
+space keeps a page that was installed before and removed from the checkout since. Each
+installed page is read once. A page that can't be read is reported, and its links aren't
+checked.
 
 Usage: python3 scripts/check_install.py INSTALL_PREFIX 1|2
 Run it from a checkout of the repository: the installed pages are compared with the checkout's.
@@ -26,6 +29,7 @@ import re
 import sys
 from typing import Any
 from typing import Dict
+from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Set
@@ -95,32 +99,24 @@ def manifest_documents(manifest: Dict[str, Any]) -> Set[str]:
 
 
 def generator_files(root: str = ROOT) -> Set[str]:
-    """Return the checkout's Python files in generators/, relative to share/.
+    """Return the checkout's Python files in generators/ and its sub-folders, relative to share/.
 
-    The package installs all of them: the parts' generators, which the manifest names, and
-    the modules that they share.
+    The package installs all of them, as CMakeLists.txt's install rule does: the parts'
+    generators, which the manifest names, and the modules that they share. Like that rule, the
+    list leaves out the __pycache__ folders.
     """
-    return {f'generators/{name}' for name in os.listdir(os.path.join(root, 'generators'))
-            if name.endswith('.py')}
+    files = set()
+    for folder, folders, names in os.walk(os.path.join(root, 'generators')):
+        folders[:] = [name for name in folders if name != '__pycache__']
+        files |= {os.path.relpath(os.path.join(folder, name), root).replace(os.sep, '/')
+                  for name in names if name.endswith('.py')}
+    return files
 
 
 def check_file_set(found: Set[str], expected: Set[str], allowed: Set[str]) -> List[str]:
     """Check that the installed files are the expected ones and allowed build tool files."""
     return ([f'missing: {path}' for path in sorted(expected - found)]
             + [f'not expected: {path}' for path in sorted(found - expected - allowed)])
-
-
-def check_checksums(share: str, checksums: Dict[str, str]) -> List[str]:
-    """Check every installed mesh file against the manifest's checksum."""
-    problems = []
-    for path, expected in sorted(checksums.items()):
-        full = os.path.join(share, path)
-        if not os.path.exists(full):
-            continue
-        with open(full, 'rb') as stream:
-            if hashlib.sha256(stream.read()).hexdigest() != expected:
-                problems.append(f'checksum differs: {path}')
-    return problems
 
 
 def file_bytes(path: str) -> Optional[bytes]:
@@ -132,41 +128,78 @@ def file_bytes(path: str) -> Optional[bytes]:
         return None
 
 
-def check_pages_are_the_checkouts(share: str, pages: Set[str], root: str = ROOT) -> List[str]:
+def check_files_can_be_read(share: str, paths: Iterable[str]) -> List[str]:
+    """Check that each installed path is a file that can be read, through its links.
+
+    A symbolic link without a target, a folder or a file without read permission has the
+    name that the file set expects, but nobody can read it.
+    """
+    return [f"{path}: isn't a file that can be read" for path in sorted(paths)
+            if not (os.path.isfile(os.path.join(share, path))
+                    and os.access(os.path.join(share, path), os.R_OK))]
+
+
+def check_checksums(share: str, checksums: Dict[str, str]) -> List[str]:
+    """Check every installed mesh file against the manifest's checksum.
+
+    A file that is missing or can't be read is left to check_file_set() and
+    check_files_can_be_read().
+    """
+    problems = []
+    for path, expected in sorted(checksums.items()):
+        contents = file_bytes(os.path.join(share, path))
+        if contents is not None and hashlib.sha256(contents).hexdigest() != expected:
+            problems.append(f'checksum differs: {path}')
+    return problems
+
+
+def read_installed_pages(share: str, pages: Set[str]) -> Dict[str, Optional[bytes]]:
+    """Return {page: its bytes} of the installed pages, None for a page that can't be read.
+
+    A page that isn't installed is left out: check_file_set() reports it.
+    """
+    return {page: file_bytes(os.path.join(share, page)) for page in sorted(pages)
+            if os.path.lexists(os.path.join(share, page))}
+
+
+def check_pages_are_the_checkouts(installed: Dict[str, Optional[bytes]], pages: Set[str],
+                                  root: str = ROOT) -> List[str]:
     """Check that each installed provenance page is the checkout's page, byte for byte.
 
-    A page of the manifest that the checkout doesn't have is a problem, whether or not the
-    install space still holds it. A page that isn't installed is reported by check_file_set().
+    installed is what read_installed_pages() returned. A page of the manifest that the
+    checkout doesn't have is a problem, whether or not the install space still holds it.
     """
     problems = []
     for page in sorted(pages):
-        installed = os.path.join(share, page)
         source_bytes = file_bytes(os.path.join(root, page))
         if source_bytes is None:
             problems.append(f"{page}: the checkout doesn't have this page of the manifest")
-        elif not os.path.lexists(installed):
+        elif page not in installed:
             continue
-        elif file_bytes(installed) is None:
+        elif installed[page] is None:
             problems.append(f"{page}: the installed page can't be read")
-        elif file_bytes(installed) != source_bytes:
+        elif installed[page] != source_bytes:
             problems.append(f"{page}: differs from the checkout's page")
     return problems
 
 
-def check_links_lead_to_installed_files(share: str, pages: Set[str]) -> List[str]:
-    """Check that every relative link of the installed provenance pages has its target."""
+def check_links_lead_to_installed_files(share: str,
+                                        installed: Dict[str, Optional[bytes]]) -> List[str]:
+    """Check that every relative link of the installed provenance pages has its target.
+
+    installed is what read_installed_pages() returned. A page that can't be read has no links
+    to check: check_pages_are_the_checkouts() reports it.
+    """
     problems = []
-    for page in sorted(pages):
-        installed = os.path.join(share, page)
-        if not os.path.exists(installed):
+    for page, contents in sorted(installed.items()):
+        if contents is None:
             continue
-        with open(installed, encoding='utf-8') as stream:
-            targets = LINK_TARGET.findall(stream.read())
+        targets = LINK_TARGET.findall(contents.decode('utf-8', errors='replace'))
         for target in targets:
             path = target.split('#')[0]
             if not path or re.match(r'[a-z][a-z0-9+.-]*:', path):
                 continue
-            if not os.path.exists(os.path.join(os.path.dirname(installed), path)):
+            if not os.path.exists(os.path.join(share, os.path.dirname(page), path)):
                 problems.append(f"{page}: the link's target {target} isn't installed")
     return problems
 
@@ -179,18 +212,20 @@ def main() -> int:
     prefix, ros_version = sys.argv[1:3]
     share = os.path.join(prefix, 'share', PACKAGE)
     manifest = os.path.join(share, 'meshes', 'manifest.yaml')
-    if not os.path.exists(manifest):
-        print(f'{manifest}: missing')
+    if not (os.path.isfile(manifest) and os.access(manifest, os.R_OK)):
+        print(f"{manifest}: missing, or it can't be read")
         return 1
     contents = load_manifest(manifest)
     checksums = manifest_checksums(contents)
     found = installed_files(share)
     expected = set(checksums) | manifest_documents(contents) | generator_files() | OWN_FILES
     pages = {part['provenance'] for part in contents['parts'].values()}
+    installed_pages = read_installed_pages(share, pages)
     problems = check_file_set(found, expected, BUILD_TOOL_FILES[ros_version])
+    problems += check_files_can_be_read(share, found & expected)
     problems += check_checksums(share, checksums)
-    problems += check_pages_are_the_checkouts(share, pages)
-    problems += check_links_lead_to_installed_files(share, pages)
+    problems += check_pages_are_the_checkouts(installed_pages, pages)
+    problems += check_links_lead_to_installed_files(share, installed_pages)
     for problem in problems:
         print(problem)
     print(f'{share}: {len(found)} files, {len(checksums)} meshes from the manifest, '
