@@ -43,7 +43,7 @@ class ForkAndWheelTest(unittest.TestCase):
         cls.wheel = caster.make_wheel()['wheel'].translate((caster.AXLE_X, 0.0, caster.AXLE_Z))
 
     def distance(self, material: str) -> float:
-        """Return the smallest distance (mm) from the fork's solid of the material to the wheel."""
+        """Return how far the fork's solid of the material is from the wheel, in millimetres."""
         fork_shape = cq.Compound.makeCompound(self.fork[material].solids().vals())
         wheel_shape = cq.Compound.makeCompound(self.wheel.solids().vals())
         return float(fork_shape.distance(wheel_shape))
