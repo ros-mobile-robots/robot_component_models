@@ -189,7 +189,7 @@ parts:
         materials: [solder_mask_black, fr4_edge, anodised_black, nickel, gold, tin, brass, black_plastic, chip, die, substrate, inductor, thermal_pad, usb3_blue, latch_brown, capacitor_stripe, led_green, led_yellow]
         files:
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.stl:
-            sha256: 3f3fad70d9363aa7845861ce58b29b401fb5128c8d5e466378b82b853572fcca
+            sha256: 3f843bf4a36a159648f64ee82963c2b74d57996369fee83fbdfb8d387a136a93
             bytes: 1867284
             units: metre
             up_axis: "Z"
@@ -198,15 +198,15 @@ parts:
             bounding_box_max: [0.071018, 0.042223, 0.028250]
             license_file: jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.stl.license
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.dae:
-            sha256: e30e2825ccc76f68778ce507404291bbca9f4a4d021807628da3e3621de2fe42
-            bytes: 2472559
+            sha256: 178d367eca96917970617bc53b9a6299bc2db8e34df2ed95896d0a0f62f121a1
+            bytes: 2472443
             units: metre
             up_axis: "Z"
             triangles: 37344
             bounding_box_min: [-0.028982, -0.038847, -0.001950]
             bounding_box_max: [0.071018, 0.042223, 0.028250]
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.glb:
-            sha256: 5d1d708bb6ebd13cd3e0951b558a941988fad87a8a729c3da5e065a5096e6a79
+            sha256: 7a8dbc53e916847dd4793ad0db927a2d3b7da92c8f3b7657532a599ff35758d8
             bytes: 1399376
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"

@@ -136,6 +136,47 @@ class J6PortsTest(unittest.TestCase):
             self.assertEqual(gold_count(hdmi), 19)
             self.assertEqual(gold_count(displayport), 20)
 
+    def test_displayport_rows_are_half_a_pitch_apart_wherever_the_tongue_lies(self) -> None:
+        """Build the DisplayPort's inside with a centred and an offset tongue.
+
+        Each contact on the top face lies 0.5 mm to the right of a contact on the bottom
+        face, for someone who looks into the port: towards +y. The 20 contacts together are
+        centred on the tongue.
+        """
+        width, height, bottom = jetson.DP_OPENING
+        outline = board_parts.chamfered_rectangle(width, height, 1.0, bottom, 'lower_left')
+        tongue_width, thickness, tip, centre = jetson.DP_TONGUE
+        tongue_middle_z = bottom + centre
+
+        for offset in (0.0, jetson.DP_TONGUE_OFFSET):
+            inside = jetson.hdmi_inside(outline, jetson.DP_INSULATOR,
+                                        (tongue_width, thickness, tip), tongue_middle_z,
+                                        jetson.DP_CONTACT_ROWS, offset)
+            boxes = [shape.BoundingBox() for material, shape in inside if material == 'gold']
+            upper = sorted((box.ymin + box.ymax) / 2 for box in boxes
+                           if box.zmin > tongue_middle_z)
+            lower = sorted((box.ymin + box.ymax) / 2 for box in boxes
+                           if box.zmax < tongue_middle_z)
+
+            self.assertEqual((len(upper), len(lower)), (10, 10))
+            for above, below in zip(upper, lower):
+                self.assertAlmostEqual(above - below, 0.5)
+            self.assertAlmostEqual((sum(upper) + sum(lower)) / 20, offset)
+
+    def test_hdmi_rows_interleave(self) -> None:
+        """Compare the HDMI rows' middles: nine lower contacts between ten upper ones."""
+        _, height, bottom = jetson.HDMI_OPENING
+        tongue_middle_z = bottom + height / 2
+        boxes = [shape.BoundingBox() for material, shape in jetson.hdmi_dp_stack()
+                 if material == 'gold' and shape.BoundingBox().zmax < jetson.HDMI_HOUSING_HEIGHT]
+        upper = sorted((box.ymin + box.ymax) / 2 for box in boxes if box.zmin > tongue_middle_z)
+        lower = sorted((box.ymin + box.ymax) / 2 for box in boxes if box.zmax < tongue_middle_z)
+
+        self.assertEqual((len(upper), len(lower)), (10, 9))
+        for left, below, right in zip(upper, lower, upper[1:]):
+            self.assertAlmostEqual(below - left, 0.5)
+            self.assertAlmostEqual(right - below, 0.5)
+
 
 class ModuleSeatTest(unittest.TestCase):
     """The module in its SO-DIMM connector, on its standoffs, held by screws."""

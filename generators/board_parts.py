@@ -16,6 +16,7 @@ metal or not for glTF (PBR metallic and roughness).
 import math
 from typing import Dict
 from typing import List
+from typing import NamedTuple
 from typing import Sequence
 from typing import Tuple
 
@@ -240,9 +241,22 @@ USB3_CONTACTS = (5, 2.3, 1.0, 3.0)  # count, pitch (estimated), width, length fr
 # back from the top of the plug opening; wire size and angle estimated from photos.
 RJ45_CONTACTS = (8, 1.02, 0.4, 0.3)  # count, pitch, width, thickness
 # A small receptacle's tongue: (half width, z of the bottom face, z of the top face, distance of
-# the tip behind the front) and its contact rows: (count, pitch, contact width, on the top face).
+# the tip behind the front).
 Tongue = Tuple[float, float, float, float]
-ContactRow = Tuple[int, float, float, bool]
+
+
+class ContactRow(NamedTuple):
+    """A row of contacts on one face of a connector's tongue.
+
+    shift is how far the row's middle lies beside the tongue's middle, towards +y: to the
+    right for someone who looks into the opening.
+    """
+
+    contacts: int
+    pitch: float
+    width: float
+    on_top: bool
+    shift: float = 0.0
 
 
 def side_profile(points: Sequence[Point], y0: float, y1: float) -> cq.Shape:
@@ -266,24 +280,26 @@ def tongue_block(x0: float, y0: float, z0: float, x1: float, y1: float, z1: floa
 
 def contact_rows(rows: Sequence[ContactRow], tongue: Tongue, length: float,
                  centre_y: float = 0.0) -> List[Part]:
-    """Return gold contacts on a tongue's faces, each row centred on centre_y.
+    """Return gold contacts on a tongue's faces, for a tongue whose middle lies at centre_y.
 
-    The tongue is centred on centre_y too. Raise a ValueError if a row is wider than the
-    tongue: a contact beside the tongue would hang in the air.
+    A row's middle lies at the tongue's middle, moved by the row's shift. Raise a ValueError
+    if a row reaches beyond the tongue's edge: a contact beside the tongue would hang in the
+    air.
     """
     half, z0, z1, tip = tongue
     parts: List[Part] = []
-    for count, pitch, width, on_top in rows:
-        row_half_width = (count - 1) / 2 * pitch + width / 2
-        if row_half_width > half:
-            raise ValueError(f'{count} contacts of {width} mm at {pitch} mm are '
-                             f"{2 * row_half_width:g} mm wide: more than the tongue's "
-                             f'{2 * half:g} mm')
-        for k in range(count):
-            y = centre_y + (k - (count - 1) / 2) * pitch
-            z = (z1, z1 + 0.04) if on_top else (z0 - 0.04, z0)
-            parts.append(('gold', box(-tip - length, y - width / 2, z[0], -tip - 0.15,
-                                      y + width / 2, z[1])))
+    for row in rows:
+        reach = (row.contacts - 1) / 2 * row.pitch + row.width / 2 + abs(row.shift)
+        if reach > half:
+            raise ValueError(f'{row.contacts} contacts of {row.width} mm at {row.pitch} mm, '
+                             f'shifted by {row.shift} mm, reach {reach:g} mm from the '
+                             f"tongue's middle: more than the tongue's half width of "
+                             f'{half:g} mm')
+        for k in range(row.contacts):
+            y = centre_y + row.shift + (k - (row.contacts - 1) / 2) * row.pitch
+            z = (z1, z1 + 0.04) if row.on_top else (z0 - 0.04, z0)
+            parts.append(('gold', box(-tip - length, y - row.width / 2, z[0], -tip - 0.15,
+                                      y + row.width / 2, z[1])))
     return parts
 
 

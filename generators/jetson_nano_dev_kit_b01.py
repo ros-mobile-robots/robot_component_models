@@ -85,8 +85,9 @@ HDMI_OPENING = (14.0, 4.55, 1.4)  # width, height (Same Sky HD05), bottom above 
 HDMI_INSULATOR = 6.8
 HDMI_TONGUE = (10.8, 0.9, 2.0)
 HDMI_LINER = 0.25  # thickness of the metal liner round the opening (estimated)
-# Contact rows as (count, pitch, width, on the top face): 19 contacts
-HDMI_CONTACT_ROWS = ((10, 1.0, 0.5, True), (9, 1.0, 0.5, False))
+# 19 contacts: 10 on the tongue's top face and 9 below, each row with its middle on the
+# tongue's middle, so the two rows interleave
+HDMI_CONTACT_ROWS = (ContactRow(10, 1.0, 0.5, True), ContactRow(9, 1.0, 0.5, False))
 DP_OPENING = (16.1, 4.76, 12.7)  # width, height (JAE DP1), bottom above the top face
 # DisplayPort insides, JAE DP1RD20: insulator face behind the front, tongue (width, thickness
 # (scaled from the front view), tip behind the front: the insulator's 8.88 mm less the
@@ -97,7 +98,10 @@ DP_INSULATOR = 8.88
 DP_TONGUE = (12.0, 1.0, 4.08, 2.52)
 DP_TONGUE_OFFSET = 0.5
 DP_LINER = 0.2  # thickness of the metal liner round the opening (estimated)
-DP_CONTACT_ROWS = ((10, 1.0, 0.5, True), (10, 1.0, 0.5, False))  # 20 contacts
+# 20 contacts, 10 on each face. The upper row lies half a pitch, 0.5 mm, to the right of the
+# lower row for someone who looks into the port (the drawing's front view). The middle of
+# the two rows together is the tongue's middle (estimated).
+DP_CONTACT_ROWS = (ContactRow(10, 1.0, 0.5, True, 0.25), ContactRow(10, 1.0, 0.5, False, -0.25))
 HDMI_HOUSING_HEIGHT = 10.2  # the HDMI receptacle's black housing, the DP shell above it
 USB_STACKS = ((36.15, 49.25, -1.52, 15.9, 16.0), (53.2, 66.3, -1.52, 15.9, 16.0))  # photo
 RJ45 = (68.9, 85.0, -1.97, 19.8, 13.7)
@@ -382,7 +386,7 @@ def micro_usb() -> List[Piece]:
     opening = chamfered_rectangle(width, opening_height, chamfer, bottom)
     receptacle = small_receptacle(MICRO_USB_SHELL_WIDTH, back - front, height, opening,
                                   MICRO_USB_DEPTH, 0.4, MICRO_USB_TONGUE,
-                                  ((5, 0.65, 0.35, False),), 2.0)
+                                  (ContactRow(5, 0.65, 0.35, False),), 2.0)
     receptacle.append(('nickel', box(-2.0, -(u1 - u0) / 2, 0.0, -1.0, (u1 - u0) / 2, 0.4)))
     return list(place(receptacle, -90.0, ((u0 + u1) / 2, front, TOP)))
 

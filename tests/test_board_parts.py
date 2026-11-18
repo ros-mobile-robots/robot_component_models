@@ -22,9 +22,12 @@ from generators import raspberry_pi_4b
 TONGUE = (6.0, 1.0, 2.0, 1.0)
 CONTACT_LENGTH = 3.2
 # Ten contacts of 0.5 mm at 1 mm are 9.5 mm wide: they fit the 12 mm tongue
-FITTING_ROW = (10, 1.0, 0.5, True)
+FITTING_ROW = board_parts.ContactRow(10, 1.0, 0.5, True)
 # Thirteen such contacts are 12.5 mm wide: wider than the tongue
-ROW_WIDER_THAN_THE_TONGUE = (13, 1.0, 0.5, True)
+ROW_WIDER_THAN_THE_TONGUE = board_parts.ContactRow(13, 1.0, 0.5, True)
+# The ten contacts moved 1.5 mm beside the tongue's middle reach 6.25 mm: past the edge at 6 mm
+ROW_SHIFTED_OVER_THE_EDGE = board_parts.ContactRow(10, 1.0, 0.5, True, 1.5)
+ROW_SHIFT = 0.25  # mm: a row's middle beside the tongue's middle
 TONGUE_SHIFT = 3.0  # mm: a tongue and its contacts off the opening's centre
 # An opening 16 mm wide and 5 mm high with its bottom at z = 10 and a 1 mm chamfer
 WIDTH, HEIGHT, CHAMFER, BOTTOM = 16.0, 5.0, 1.0, 10.0
@@ -54,13 +57,29 @@ class ContactRowsTest(unittest.TestCase):
 
         centres = contact_centres(parts)
 
-        self.assertEqual(len(centres), FITTING_ROW[0])
+        self.assertEqual(len(centres), FITTING_ROW.contacts)
         self.assertAlmostEqual(sum(centres) / len(centres), TONGUE_SHIFT)
 
+    def test_contact_rows_moves_a_shifted_row_beside_the_tongues_middle(self) -> None:
+        """Shift a row by 0.25 mm on a tongue at 3 mm: the row's middle lies at 3.25 mm."""
+        shifted = FITTING_ROW._replace(shift=ROW_SHIFT)
+
+        centres = contact_centres(board_parts.contact_rows((shifted,), TONGUE, CONTACT_LENGTH,
+                                                           TONGUE_SHIFT))
+
+        self.assertEqual(len(centres), FITTING_ROW.contacts)
+        self.assertAlmostEqual(sum(centres) / len(centres), TONGUE_SHIFT + ROW_SHIFT)
+
     def test_contact_rows_raises_a_value_error_for_a_row_wider_than_the_tongue(self) -> None:
-        """Ask for thirteen contacts on the 12 mm tongue: an error with both widths."""
-        with self.assertRaisesRegex(ValueError, "12.5 mm wide: more than the tongue's 12 mm"):
+        """Ask for thirteen contacts on the 12 mm tongue: an error with reach and half width."""
+        with self.assertRaisesRegex(ValueError, "reach 6.25 mm from the tongue's middle: more "
+                                                "than the tongue's half width of 6 mm"):
             board_parts.contact_rows((ROW_WIDER_THAN_THE_TONGUE,), TONGUE, CONTACT_LENGTH)
+
+    def test_contact_rows_raises_a_value_error_for_a_row_shifted_over_the_edge(self) -> None:
+        """Shift ten fitting contacts by 1.5 mm: the outermost one leaves the tongue."""
+        with self.assertRaisesRegex(ValueError, 'shifted by 1.5 mm, reach 6.25 mm'):
+            board_parts.contact_rows((ROW_SHIFTED_OVER_THE_EDGE,), TONGUE, CONTACT_LENGTH)
 
 
 class OpeningTest(unittest.TestCase):

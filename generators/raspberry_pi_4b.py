@@ -22,6 +22,7 @@ import numpy as np
 
 from generators.board_parts import box
 from generators.board_parts import chamfered_rectangle
+from generators.board_parts import ContactRow
 from generators.board_parts import cylinder
 from generators.board_parts import drop_degenerate
 from generators.board_parts import INSULATOR_PLATE
@@ -451,7 +452,8 @@ def micro_hdmi(centre_x: float, front: float, back: float) -> List[Piece]:
     opening = chamfered_rectangle(opening_width, opening_height, 0.5, bottom)
     receptacle = small_receptacle(width, back - front, height, opening, MICRO_HDMI_DEPTH, 0.5,
                                   MICRO_HDMI_TONGUE,
-                                  ((10, 0.4, 0.2, True), (9, 0.4, 0.2, False)), 2.6)
+                                  (ContactRow(10, 0.4, 0.2, True),
+                                   ContactRow(9, 0.4, 0.2, False)), 2.6)
     return list(place(receptacle, -90.0, (centre_x, front, TOP)))
 
 
