@@ -25,6 +25,7 @@ from generators.manifest import MeshEntry
 from generators.manifest import PartEntry
 from generators.manifest import sha256
 from generators.mesh_export import LICENSE_ID
+from generators.mesh_export import require_model_materials
 from generators.mesh_export import SPDX_LINES
 from generators.mesh_export import used_materials
 from generators.mesh_export import write_dae
@@ -45,6 +46,7 @@ def generate_part(name: str, out: str) -> PartEntry:
     os.makedirs(os.path.join(out, name), exist_ok=True)
     meshes = []
     for model in module.build():
+        require_model_materials(model)
         relative = f'{name}/{model.name}'
         write_stl(model, os.path.join(out, relative + '.stl'))
         write_dae(model, os.path.join(out, relative + '.dae'), f'generators/{name}.py')

@@ -378,7 +378,7 @@ def sub_part(name: str, parts: Sequence[Part]) -> SubPart:
     """Return a named sub-part from its (material, shape) pieces."""
     pieces = [(material, to_mesh_frame(tessellate_shape(shape, TOLERANCE, ANGULAR_TOLERANCE)))
               for material, shape in parts]
-    return SubPart(name, surfaces_by_material(pieces, list(MATERIALS)))
+    return SubPart(name, surfaces_by_material(name, pieces, list(MATERIALS)))
 
 
 def build() -> List[Model]:
