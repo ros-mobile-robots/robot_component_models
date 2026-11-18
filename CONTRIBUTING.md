@@ -62,7 +62,7 @@ docker run --rm --platform linux/amd64 -v "$PWD":/src:ro \
   cd /src && /opt/venv/bin/python -m generators --check && /opt/venv/bin/python -m generators --check'
 ```
 
-To regenerate the meshes in that environment after a change to a generator, mount the repository writable. The container installs the packages as root. Then it runs the generators as the user who owns the mounted repository, as the container sees that user. With the usual Docker that is your user's number, and with rootless Docker it is the container's root, which is your user outside. In a checkout that you own, every file that the run creates or rewrites therefore belongs to you, also when a generator fails halfway:
+To regenerate the meshes in that environment after a change to a generator, mount the repository writable. The container installs the packages as root. Then it runs the generators as the user who owns the mounted repository, as the container sees that user. With the usual Docker that is your user's number, and with rootless Docker it is the container's root, which is your user outside. In a checkout that you own, the files that the run creates therefore belong to you, also when a generator stops halfway. A file that the run rewrites keeps its owner:
 
 ```bash
 docker run --rm --platform linux/amd64 -v "$PWD":/src \
