@@ -2,7 +2,7 @@
      SPDX-License-Identifier: BSD-3-Clause -->
 # Contributing to robot_component_models
 
-This package holds display models of off-the-shelf components that robots carry: their meshes, the CadQuery generators that make them, and the sources of every model. Robot assembly, joints, collision shapes and inertias belong in each robot's description package, such as [remo_description](https://github.com/ros-mobile-robots/remo_description) or `diffbot_description` in the [diffbot repository](https://github.com/ros-mobile-robots/diffbot).
+This package holds display models of off-the-shelf components that robots carry: their meshes, the CadQuery generators that make them, and the source references of every model. Robot assembly, joints, collision shapes and inertias belong in each robot's description package, such as [remo_description](https://github.com/ros-mobile-robots/remo_description) or `diffbot_description` in the [diffbot repository](https://github.com/ros-mobile-robots/diffbot).
 
 Corrections are welcome, especially measurements of the real parts: each part's provenance page lists the measurements that would improve it. Open an [issue](https://github.com/ros-mobile-robots/robot_component_models/issues) or a pull request. Ask questions in the diffbot repository's [Discussions](https://github.com/ros-mobile-robots/diffbot/discussions/categories/q-a), which cover both robots and their packages.
 
