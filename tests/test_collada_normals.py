@@ -6,27 +6,43 @@ mesh_export writes a COLLADA file's normals as an input of its triangle lists: e
 its position's index followed by its normal's index, and the two are the same number. A file
 can declare these inputs and still give a corner another vertex's normal, or read the
 positions as normals. The tests damage the indices or the inputs' sources of a file that
-mesh_export wrote, and the checker has to report each damage. Run from the repository's root,
-with the packages of generators/requirements.txt:
+mesh_export wrote, and the checker has to report each damage. The last tests run the
+checker's command on such a file, which has to report it and check every other file. Run from
+the repository's root, with the packages of generators/requirements.txt:
 
   python3 -m unittest discover -s tests
 """
+import contextlib
 import copy
+import io
 import os
 import shutil
+import sys
 import tempfile
 from typing import Any
 from typing import List
+from typing import Tuple
 import unittest
+from unittest import mock
 
 from lxml import etree
 import numpy as np
 
+from generators.manifest import file_facts
+from generators.manifest import manifest_text
+from generators.manifest import MeshEntry
+from generators.manifest import PartEntry
+from generators.mesh_export import LICENSE_ID
 from generators.mesh_export import Model
 from generators.mesh_export import phong
+from generators.mesh_export import SPDX_LINES
 from generators.mesh_export import SubPart
 from generators.mesh_export import Surface
+from generators.mesh_export import used_materials
 from generators.mesh_export import write_dae
+from generators.mesh_export import write_glb
+from generators.mesh_export import write_license_file
+from generators.mesh_export import write_stl
 from scripts import check_meshes
 
 # A tetrahedron in millimetres: four points, four faces counter-clockwise seen from outside
@@ -38,6 +54,22 @@ GEOMETRY = 'tetrahedron-body'  # the id that mesh_export gives the one sub-part'
 POSITION_INPUT = f'POSITION from #{GEOMETRY}-positions'
 VERTEX_INPUT = f'VERTEX from #{GEOMETRY}-vertices at offset 0'
 NORMAL_INPUT = f'NORMAL from #{GEOMETRY}-normals at offset 1'
+# A schema that takes any COLLADA document, so that the command's tests need no download.
+# CI's mesh checks job checks the repository's files against the real COLLADA 1.4.1 schema.
+ANY_COLLADA_DOCUMENT = b"""<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+           targetNamespace="http://www.collada.org/2005/11/COLLADASchema">
+  <xs:element name="COLLADA">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:anyAttribute processContents="skip"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
+"""
+MESH_FILES = [f'tetrahedron/tetrahedron{extension}' for extension in ('.stl', '.dae', '.glb')]
 
 
 def input_semantics(element: Any) -> List[str]:
@@ -277,6 +309,83 @@ class ColladaSourceBindingTest(unittest.TestCase):
             check_meshes.collada_normal_problems(self.document),
             [f'the mesh has {CORNERS} positions and {CORNERS - 1} normals, not one normal for '
              'each position'])
+
+
+class CheckMeshesCommandTest(unittest.TestCase):
+    """scripts/check_meshes.py's command on a meshes/ folder of one tetrahedron.
+
+    The folder holds the tetrahedron as STL, COLLADA and glTF with their license files and
+    the manifest, all written by the generators' functions. The command reads this folder
+    instead of the repository's meshes/.
+    """
+
+    def setUp(self) -> None:
+        """Write the meshes/ folder and the manifest."""
+        folder = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, folder)
+        self.meshes = os.path.join(folder, 'meshes')
+        os.makedirs(os.path.join(self.meshes, 'tetrahedron'))
+        model = tetrahedron()
+        stl, dae, glb = (os.path.join(self.meshes, path) for path in MESH_FILES)
+        write_stl(model, stl)
+        write_dae(model, dae, 'tests/test_collada_normals.py')
+        write_glb(model, glb)
+        for path in (stl, glb):
+            write_license_file(path)
+        files = [file_facts(self.meshes, path) for path in MESH_FILES]
+        mesh = MeshEntry(model.name, model.frame, [part.name for part in model.sub_parts],
+                         used_materials(model), files)
+        with open(os.path.join(self.meshes, 'manifest.yaml'), 'w', encoding='utf-8') as stream:
+            stream.write(manifest_text([PartEntry('tetrahedron', model.title, [mesh])],
+                                       SPDX_LINES, LICENSE_ID))
+        self.collada_file = dae
+
+    def run_command(self) -> Tuple[int, List[str]]:
+        """Run the command's main() on the folder and return its exit code and its lines."""
+        output = io.StringIO()
+        any_document = check_meshes.etree.XMLSchema(check_meshes.etree.fromstring(
+            ANY_COLLADA_DOCUMENT))
+        with mock.patch.object(check_meshes, 'MESHES', self.meshes), \
+                mock.patch.object(check_meshes, 'collada_schema', return_value=any_document), \
+                mock.patch.dict(check_meshes.GEOMETRY, clear=True), \
+                mock.patch.object(sys, 'argv', ['check_meshes.py']), \
+                contextlib.redirect_stdout(output):
+            code = check_meshes.main()
+        return code, output.getvalue().splitlines()
+
+    def test_written_files_pass(self) -> None:
+        """Run the command on the files as written: each file ok, no problem."""
+        code, lines = self.run_command()
+
+        self.assertEqual(code, 0, lines)
+        self.assertEqual(lines, [f'{path}: ok' for path in MESH_FILES]
+                         + ['3 files checked, 0 problems'])
+
+    def test_index_that_is_not_a_number_is_reported_and_every_file_is_checked(self) -> None:
+        """Replace the last normal index of the COLLADA file with 'x' and run the command.
+
+        pycollada can't load the file. The command reports that once, with the normals'
+        diagnostic and the changed checksum, and checks the glTF file after it.
+        """
+        with open(self.collada_file, encoding='utf-8') as stream:
+            text = stream.read()
+        last_index = text.index('</p>')
+        start = text.rindex(' ', 0, last_index) + 1
+        with open(self.collada_file, 'w', encoding='utf-8') as stream:
+            stream.write(text[:start] + 'x' + text[last_index:])
+
+        code, lines = self.run_command()
+
+        self.assertEqual(code, 1, lines)
+        self.assertEqual(len(lines), 4, lines)
+        self.assertEqual(lines[0], f'{MESH_FILES[0]}: ok')
+        self.assertTrue(lines[1].startswith(f'{MESH_FILES[1]}: '), lines[1])
+        self.assertIn('checksum differs from the manifest', lines[1])
+        self.assertIn('<triangles material="grey"> has a count or indices that aren\'t whole '
+                      'numbers', lines[1])
+        self.assertEqual(lines[1].count(f"{MESH_FILES[1]} can't be read: "), 1, lines[1])
+        self.assertEqual(lines[2], f'{MESH_FILES[2]}: ok')
+        self.assertTrue(lines[3].startswith('3 files checked, '), lines[3])
 
 
 if __name__ == '__main__':
