@@ -18,19 +18,62 @@ Every model here is the project's own work, under this repository's [license](LI
 
 ## Adding or changing a part
 
-1. Choose the part's identifier, lowercase snake_case after the product, such as `rplidar_a2` (see the README's file name rules). Write or change the generator `generators/<part>.py`. Parameters go at the top, each with its source. `build()` returns the part's meshes as `mesh_export.Model` objects, in millimetres, with named sub-parts and materials. The export writes the files in metres. Add a new part to `PARTS` in `generators/__init__.py`.
-2. Write or update `provenance/<part>.md`: sources, the Frame section, what is simplified or estimated, and which measurements would help.
-3. Regenerate and check, with the pinned Python packages (see the README):
+Adding a part takes six steps. The laser scanner `rplidar_a2`, a part with one mesh, shows each of them:
 
-   ```bash
-   .venv/bin/python -m generators
-   .venv/bin/python -m generators --check
-   .venv/bin/python scripts/check_meshes.py
-   .venv/bin/python scripts/render_parts.py
+1. **Identifier:** lowercase snake_case after the product, such as `rplidar_a2` (see the README's [file names](README.md#file-names)). The generator module, the folder in `meshes/`, the provenance page and the pictures share it.
+2. **Generator:** `generators/rplidar_a2.py`. The parameters stand at the top, in millimetres, each with its source. In this excerpt, `DS` marks a value of the datasheet:
+
+   ```python
+   BASE_DIAMETER = 75.70        # DS
+   MOUNT_HOLE_RADIUS = 29.50    # DS: 4 x M3 on R29.50, at 45 degrees to the cable axis
    ```
 
-4. Load the mesh in a robot model and look at it in RViz and Gazebo.
-5. Update the README's parts table: the picture, triangles and file sizes.
+   `build()` returns the part's meshes as `mesh_export.Model` objects, with named sub-parts and materials. The export writes the files in metres. The scanner's `build()` returns one mesh:
+
+   ```python
+   def build() -> List[Model]:
+       """Return the scanner's mesh: housing, copper-coloured trim and dark windows."""
+       solids = make_parts()
+       sub_parts = [SubPart(part, {material: tessellate_faces(solids[material], LINEAR_DEFLECTION,
+                                                              ANGULAR_DEFLECTION)})
+                    for part, material in SUB_PARTS.items()]
+       return [Model('rplidar_a2', TITLE, FRAME, MATERIALS, sub_parts)]
+   ```
+
+3. **List of parts:** the identifier in `PARTS` in [`generators/__init__.py`](generators/__init__.py). The manifest follows this order.
+4. **Provenance page:** `provenance/rplidar_a2.md` with the sources, the Frame section, what is simplified or estimated, and which measurements would help.
+5. **Pictures:** two scripts draw them.
+   - [`scripts/render_parts.py`](scripts/render_parts.py) has the part in `PARTS`, with its caption, its mesh files and the camera's azimuth and elevation in degrees, and in `OVERVIEW_ROWS`, with the part's turn about z in the overview picture. The scanner's entry in `PARTS`:
+
+     ```python
+     'rplidar_a2': PartView('Laser scanner (RPLIDAR A2 size)',
+                            [Placement('rplidar_a2/rplidar_a2.dae')], 25.0, 22.0),
+     ```
+
+   - [`scripts/render_frames.py`](scripts/render_frames.py) has a function for the part, here `scanner_figure()`, and its entry in `FIGURES`. The function returns the two views of the frame picture, and the mounting holes and the mounting plane, computed from the generator's parameters.
+6. **README:** a row in the parts table with the picture, the triangles and the file sizes.
+
+[`tests/test_registrations.py`](tests/test_registrations.py) fails in CI if a part of `PARTS` lacks its entry in one of the two scripts, its provenance page, one of its pictures or its link in the README.
+
+Then generate and check, with the pinned Python packages in a virtual environment (see the README's [Regenerating the meshes](README.md#regenerating-the-meshes)):
+
+```bash
+.venv/bin/python -m generators rplidar_a2        # write the part's meshes while you work on it
+.venv/bin/python -m generators                   # when the part is ready: all meshes and the manifest
+.venv/bin/python scripts/check_meshes.py         # read the files back, check them against the manifest
+.venv/bin/python -m unittest discover -s tests   # the unit tests
+.venv/bin/python scripts/render_parts.py         # docs/images/rplidar_a2.png and all_parts.png
+.venv/bin/python -m scripts.render_frames        # docs/images/frames/rplidar_a2.png
+git status --short                               # the part's files, the manifest and the pictures
+```
+
+Look at what the commands wrote:
+
+- `meshes/manifest.yaml` has the part under `parts:`, with each file's checksum, size, triangles and bounding box.
+- `docs/images/rplidar_a2.png` shows the part as the README's table will, and `docs/images/frames/rplidar_a2.png` its frame. Compare both with the sources.
+- Load the mesh in a robot model and look at it in RViz and Gazebo.
+
+Before you open the pull request, write the files once more in CI's generator environment, so that CI regenerates the same bytes: see [The generator environment in a container](#the-generator-environment-in-a-container).
 
 **License lines:** every new text file starts with the two SPDX lines `SPDX-FileCopyrightText: 2026 ROS Mobile Robots` and `SPDX-License-Identifier: BSD-3-Clause`, in the file's comment syntax. The generators write these lines into each COLLADA file and the manifest, and into a `<file>.license` next to each STL and glTF file.
 
@@ -40,7 +83,40 @@ Every model here is the project's own work, under this repository's [license](LI
 
 ## Run CI's checks locally
 
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs every job in a container. The same commands give the same result with docker, for example the ROS 2 package check:
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs every job in a container. The same commands give the same result with docker.
+
+### The generator environment in a container
+
+The meshes are reproducible byte for byte in the environment of CI's job "Regenerate meshes". The first command builds that environment once as a local image: CI's Ubuntu image by its digest, the system libraries that the job installs, and the pinned Python packages. The second command checks the meshes. It mounts the repository read-only, and `--check` writes its regenerated files into the container's temporary folder:
+
+```bash
+docker build -t robot-component-models-generators -f - generators <<'EOF'
+FROM ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852
+RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-venv \
+    ca-certificates git libgl1 libxrender1 libxext6 libsm6 libice6 libegl1
+COPY requirements.txt /tmp/requirements.txt
+RUN python3 -m venv /opt/venv && /opt/venv/bin/pip install -r /tmp/requirements.txt
+EOF
+docker run --rm -v "$PWD":/src:ro -w /src robot-component-models-generators \
+  /opt/venv/bin/python -m generators --check
+```
+
+The check ends with this line when the committed files are current:
+
+```text
+regeneration check: all files byte-identical
+```
+
+To write the meshes and the manifest in that environment, mount the repository writable and run the generators as your own user:
+
+```bash
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/src -w /src \
+  robot-component-models-generators /opt/venv/bin/python -m generators
+```
+
+### The ROS package check
+
+The ROS 2 job builds and installs the package and checks the installed files:
 
 ```bash
 docker run --rm -v "$PWD":/src:ro ros:humble-ros-base bash -c '
@@ -49,11 +125,13 @@ docker run --rm -v "$PWD":/src:ro ros:humble-ros-base bash -c '
   python3 /ws/src/robot_component_models/scripts/check_install.py /tmp/install 2'
 ```
 
-The code style check: flake8 with ROS 2's ament_flake8 settings and mypy, both configured in `setup.cfg`, with the versions in `scripts/requirements-lint.txt`:
+### The code style check
+
+flake8 with ROS 2's ament_flake8 settings and mypy are configured in `setup.cfg`, with the versions in `scripts/requirements-lint.txt`:
 
 ```bash
 python3 -m venv .lint && .lint/bin/pip install -r scripts/requirements-lint.txt
-.lint/bin/flake8 generators scripts && .lint/bin/mypy generators scripts
+.lint/bin/flake8 generators scripts tests && .lint/bin/mypy generators scripts tests
 ```
 
 ## Pull requests
