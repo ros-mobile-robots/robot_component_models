@@ -160,6 +160,15 @@ class InstalledPagesTest(unittest.TestCase):
                          [f"{PAGE}: the link's target {target} isn't an installed file that "
                           'can be read'])
 
+    def test_link_ending_in_a_dot_is_reported(self) -> None:
+        """Let the picture link end in '/.': a folder's name, although it normalizes to a file."""
+        target = f'../{LINKED_FILES[0]}/.'
+        self.link_page_to(target)
+
+        self.assertEqual(self.link_problems(),
+                         [f"{PAGE}: the link's target {target} isn't an installed file that "
+                          'can be read'])
+
     def test_link_out_of_the_package_is_reported(self) -> None:
         """Let the picture link lead to a file beside the share folder, outside the package."""
         write(os.path.dirname(self.share), 'other_package/manual.md', 'manual')
@@ -444,6 +453,16 @@ class CheckInstallCommandTest(unittest.TestCase):
     def test_picture_link_to_a_folder_is_reported(self) -> None:
         """Let both copies of the page link the pictures' folder instead of the picture."""
         target = f'../{os.path.dirname(LINKED_FILES[0])}'
+        for root in (self.checkout, self.share):
+            write(root, PAGE, PAGE_TEXT.replace(f'../{LINKED_FILES[0]}', target))
+
+        self.assert_reported(self.run_command(),
+                             [f"{PAGE}: the link's target {target} isn't an installed file "
+                              'that can be read'])
+
+    def test_picture_link_with_a_trailing_slash_is_reported(self) -> None:
+        """Let both copies of the page link the picture with a slash at the end."""
+        target = f'../{LINKED_FILES[0]}/'
         for root in (self.checkout, self.share):
             write(root, PAGE, PAGE_TEXT.replace(f'../{LINKED_FILES[0]}', target))
 
