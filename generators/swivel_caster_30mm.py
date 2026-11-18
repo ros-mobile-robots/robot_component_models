@@ -435,6 +435,9 @@ def make_fork() -> Dict[str, cq.Workplane]:
     """
     if FORK_INNER_HALF_WIDTH >= FORK_CUP[-1][0] - FORK_THICKNESS / 2:
         raise ValueError("the flat arms must lie inside the cup's wall")
+    if FORK_INNER_HALF_WIDTH <= WHEEL_HALF_WIDTH:
+        raise ValueError(f'the arms are {2 * FORK_INNER_HALF_WIDTH} mm apart: no room for the '
+                         f"wheel's hub, which is {2 * WHEEL_HALF_WIDTH} mm wide")
     cup = sheet(FORK_CUP, FORK_THICKNESS)
     if volume(cup.intersect(ball(BALL_CIRCLE_RADIUS))) > 0:
         raise ValueError("the balls must stay clear of the cup's ball track")
