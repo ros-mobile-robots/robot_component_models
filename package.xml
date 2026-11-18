@@ -9,7 +9,7 @@
     Display meshes (STL, COLLADA, glTF) of off-the-shelf robot components, such as a laser
     scanner, single-board computers and a caster, generated from the dimensions in datasheets,
     drawings and photos. Used by the DiffBot and Remo robot descriptions. The CadQuery generators
-    and the sources of every model are in the repository.
+    and each model's source references are in the repository.
   </description>
   <maintainer email="ros@fjp.at">ROS Mobile Robots</maintainer>
   <license>BSD-3-Clause</license>
