@@ -122,12 +122,19 @@ def caster_figure() -> FrameFigure:
     holes = [(caster.SWIVEL_AXIS_X + x_sign * caster.PLATE_HOLES[0],
               y_sign * caster.PLATE_HOLES[1], top) for x_sign in (-1, 1) for y_sign in (-1, 1)]
     axle_x = caster.SWIVEL_AXIS_X + caster.AXLE_X
+    # Where each label's line ends, on a place of its own mesh that the side view shows: the
+    # base at the plate's front end, the fork on an arm between the cup and the axle, the
+    # wheel on its white side below the axle, clear of the arm and of the axle's rivet
+    on_base = (caster.SWIVEL_AXIS_X + 8.0, 0.0, 9.0)
+    on_fork = (-9.0, 0.0, -7.0)
+    below_axle = 0.55 * caster.WHEEL_RADIUS
+    on_wheel = (axle_x - below_axle, 0.0, caster.AXLE_Z - below_axle)
     return FrameFigure(
         (TOP_VIEW, SIDE_VIEW), holes,
         [Plane(f"standoffs' tops, z = +{top:g} mm", Z_AXIS, top)],
-        [Label('swivel_caster_30mm_base', (caster.SWIVEL_AXIS_X + 8.0, 0.0, 9.0), (10, -6)),
-         Label('swivel_caster_30mm_wheel_support', (-9.0, 0.0, -7.0), (22, 4)),
-         Label('swivel_caster_30mm_wheel', (axle_x, 0.0, caster.AXLE_Z), (18, 22))])
+        [Label('swivel_caster_30mm_base', on_base, (10, -6)),
+         Label('swivel_caster_30mm_wheel_support', on_fork, (22, 4)),
+         Label('swivel_caster_30mm_wheel', on_wheel, (26, 18))])
 
 
 def scanner_figure() -> FrameFigure:
