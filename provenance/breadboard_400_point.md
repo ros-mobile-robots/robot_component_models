@@ -2,15 +2,15 @@
      SPDX-License-Identifier: BSD-3-Clause -->
 # 400-point solderless breadboard
 
-A display model of a half-size solderless breadboard: 300 terminal holes (30 columns, rows a to e and f to j on both sides of the centre channel) and four 25-hole power rails with red and blue lines, dovetail tabs and slots, on its adhesive foam backing. Remo's Teensy and IMU boards plug into it. The model was created independently, from BusBoard's public BB400 datasheet, the 0.1 in standard and the positions of the boards that plug into it. No geometry was imported, converted, traced or sampled from another 3D model, and no third-party 3D model was downloaded. No numbers, letters, "+" or "-" signs and no logos.
+A display model of a half-size solderless breadboard: 300 terminal holes (30 columns, rows a to e and f to j on both sides of the centre channel) and four 25-hole power rails with red and blue lines, dovetail tabs and slots, on its adhesive foam backing. Remo's Teensy and IMU boards plug into it. The model uses the layout of BusBoard's BB400 datasheet, the 0.1 in grid and the positions of the boards that plug into it, listed under [Sources](#sources). It shows no numbers, letters, "+" or "-" signs and no logos.
 
 Generator: [`generators/breadboard_400_point.py`](../generators/breadboard_400_point.py).
 
-## Mesh
-
-`breadboard_400_point`: one mesh with 5 materials: the white body, dark hole walls and floors (`hole`), the red and blue lines and the foam backing (`tape`). Its sub-parts are the body, the backing and the rail lines.
-
 ## Frame
+
+![The breadboard from above and from the side, with the origin and axes of its frame, its bottom and its top](../docs/images/frames/breadboard_400_point.png)
+
+The picture shows the breadboard from above and from the side. The red dot is the origin of the mesh's frame and the red arrows are its positive axes. The lower dashed line is the bottom of the foam backing, the mounting plane, at z = 0. The upper dashed line is the top, at z = 9.5 mm. The breadboard has no mounting holes: its adhesive backing holds it.
 
 The files are in metres. Positions on this page are in millimetres. The bottom of the foam backing is at z = 0 and the top at z = 9.5 mm. The centre channel runs along y at x = -0.16 mm. The hole columns lie at y = -0.335 mm + n × 2.54 mm. The dovetail tabs are on the -x and -y sides, the slots on +x and +y.
 
@@ -27,6 +27,10 @@ The hole grid follows the boards that plug into it. With the Raspberry Pi deck a
 Result with the Raspberry Pi deck: in the horizontal plane, all 28 Teensy pins lie within 0.027 mm and all 10 BNO055 pins within 0.013 mm of a hole's centre. The check is 2D: the BNO055's height on the breadboard is the URDF's.
 
 With the Jetson deck, Remo's description moves the breadboard 10 mm further back but leaves `mcu_joint` and `imu_joint` where they are. The Teensy's pins then lie 2.4 to 2.7 mm and the BNO055's pins 1.9 to 2.7 mm from the nearest hole centres. The pins fit the holes again only if both boards move with the breadboard.
+
+## Mesh
+
+`breadboard_400_point`: one mesh with 5 materials: the white body, dark hole walls and floors (`hole`), the red and blue lines and the foam backing (`tape`). Its sub-parts are the body, the backing and the rail lines.
 
 ## Sources
 

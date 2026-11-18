@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 """Generate the display model of a Jetson Nano Developer Kit B01.
 
-The model is drawn from scratch from NVIDIA's public documents: the developer kit user guide's
+The model is drawn from NVIDIA's documents: the developer kit user guide's
 top, front and rear views (connector positions and heights), the 2022 developer kit data sheet
 (100 x 79 mm carrier, 30.21 mm total height), the getting started page's B01 picture (the two
 camera connectors, the heatsink's fins and fan holes) and the module size (69.6 x 45 mm). The
-mounting holes are from a public NVIDIA forum post, the connectors' insides from the connector
-makers' public drawings, the B01's fan header, capacitors, J48 and some widths from Waveshare's
-top photo. No geometry comes from a 3D model. Sources and how each number was read in
+mounting holes are from a post in NVIDIA's developer forum, the connectors' insides from the
+connector makers' drawings, the B01's fan header, capacitors, J48 and some widths from
+Waveshare's top photo. Sources and how each number was read in
 provenance/jetson_nano_dev_kit_b01.md.
 
 Coordinates while drawing: the carrier board's frame in mm as in the user guide's top view,
@@ -175,9 +175,9 @@ M2_SLOT = (71.0, 46.6, 76.6, 67.6, 4.2)  # J18, Key E: u0, v0, u1, v1, height
 M2_STANDOFF = (44.4, 57.25)
 
 # The mesh's frame: the carrier lies in x -28.982 ... 71.018 and y -38.847 ... 40.153 with the
-# ports at +y, the 40-pin header at -x and z = 0 at the carrier's bottom face. Remo's
-# jetson_nano_joint then puts the mounting holes on the deck's standoff bores. So (u, v) maps to
-# (71.018 - u, 40.153 - v): a turn by 180 degrees about z and a shift.
+# ports at +y, the 40-pin header at -x and z = 0 at the carrier's bottom face. (u, v) maps to
+# (71.018 - u, 40.153 - v): a turn by 180 degrees about z and a shift. Remo's
+# jetson_nano_joint places this frame 7 mm above its deck link.
 BOARD_TO_MESH = (71.018, 40.153)
 
 # Materials (generators/board_parts.py): colours from NVIDIA's and CNX Software's photos.
@@ -650,7 +650,7 @@ def sub_part(name: str, pieces: Sequence[Piece]) -> SubPart:
         surface = piece if isinstance(piece, Surface) else \
             drop_degenerate(tessellate_shape(piece, TOLERANCE, ANGULAR_TOLERANCE))
         surfaces.append((material, to_mesh_frame(surface)))
-    return SubPart(name, surfaces_by_material(surfaces, list(MATERIALS)))
+    return SubPart(name, surfaces_by_material(name, surfaces, list(MATERIALS)))
 
 
 def build() -> List[Model]:
