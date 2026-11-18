@@ -360,7 +360,8 @@ def source_vector_count(mesh: Any, source_id: str) -> Tuple[Optional[int], List[
     """Return how many vectors the mesh's <source> with this id holds, and its problems.
 
     The source's accessor has to read its vectors from the source's own array, three numbers
-    each. An accessor that named another source's array would read that source's numbers.
+    each, from the array's first number on. An accessor that named another source's array
+    would read that source's numbers, and one with an offset would read past the array's end.
     The count is None if the mesh has no such source or the source has a problem.
     """
     namespace = {'c': COLLADA_NAMESPACE}
@@ -381,6 +382,9 @@ def source_vector_count(mesh: Any, source_id: str) -> Tuple[Optional[int], List[
         return None, [f"the source {source_id}'s accessor reads {vectors} vectors with a "
                       f"stride of {accessor.get('stride')} from an array of "
                       f"{array.get('count')} numbers, not three numbers for each vector"]
+    if int(accessor.get('offset', 0)) != 0:
+        return None, [f"the source {source_id}'s accessor starts at the array's number "
+                      f"{accessor.get('offset')}, not at its first number"]
     return vectors, []
 
 
@@ -401,7 +405,8 @@ def collada_normal_problems(document: Any) -> List[str]:
        normals as positions,
     2. <vertices id="G-vertices"> with one input: POSITION from #G-positions,
     3. in every <triangles>, VERTEX from #G-vertices at offset 0 and NORMAL from #G-normals
-       at offset 1, and no other input,
+       at offset 1, each once and no other input. The two may stand in either order: the
+       offsets say how the index pairs are read,
     4. for every corner, its position's index and the same number as its normal's index,
        both within the vectors of the two sources.
     """
@@ -425,7 +430,7 @@ def collada_normal_problems(document: Any) -> List[str]:
             expected = [f'VERTEX from #{name}-vertices at offset 0',
                         f'NORMAL from #{name}-normals at offset 1']
             for triangles in mesh.findall('c:triangles', namespace):
-                if input_list(triangles) != expected:
+                if sorted(input_list(triangles)) != sorted(expected):
                     problems.append(f'<triangles material="{triangles.get("material")}"> has '
                                     f'the inputs {input_list(triangles)}, not {expected}')
                 elif positions is not None and positions == normals:

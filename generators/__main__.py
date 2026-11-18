@@ -16,6 +16,7 @@ Run from the repository's root, with the packages of generators/requirements.txt
 Checking only reads meshes/. It never writes there: the regenerated files go into a temporary
 folder, or into a folder that the run creates outside meshes/. The temporary folder's place is
 chosen without a test write, so a TMPDIR inside meshes/ is refused before anything is written.
+The chosen place is a resolved path, and the processes that build the parts get it too.
 """
 import argparse
 from concurrent.futures import ProcessPoolExecutor
@@ -77,9 +78,26 @@ def generate_part(name: str, out: str) -> PartEntry:
     return PartEntry(name, module.TITLE, meshes)
 
 
-def generate(names: Sequence[str], out: str) -> List[PartEntry]:
-    """Write the parts' meshes into out/, one process per part, return them in order."""
-    with ProcessPoolExecutor(max_workers=min(len(names), os.cpu_count() or 1)) as pool:
+def use_temporary_folder(folder: Optional[str]) -> None:
+    """Make this process, and the processes that it starts, put temporary files into the folder.
+
+    tempfile takes the folder as it is, without the test write of its own search. TMPDIR
+    hands the folder to processes that are started later. None leaves tempfile's own choice.
+    """
+    if folder is not None:
+        tempfile.tempdir = folder
+        os.environ['TMPDIR'] = folder
+
+
+def generate(names: Sequence[str], out: str, temporary: Optional[str] = None) -> List[PartEntry]:
+    """Write the parts' meshes into out/, one process per part, return them in order.
+
+    Each process puts its temporary files into the temporary folder, if one is given. So a
+    process that is started fresh, without the parent's state, doesn't search for a folder of
+    its own.
+    """
+    with ProcessPoolExecutor(max_workers=min(len(names), os.cpu_count() or 1),
+                             initializer=use_temporary_folder, initargs=(temporary,)) as pool:
         return list(pool.map(generate_part, names, [out] * len(names)))
 
 
@@ -178,6 +196,10 @@ def temporary_parent() -> str:
     So this function chooses without writing: the first candidate that exists, is writable and
     lies outside meshes/. A variable that names a folder inside meshes/ is an error, because
     the caller asked for temporary files there.
+
+    Each candidate is resolved once, and the checks and the returned path use that resolved
+    path. A spelling such as link/../meshes names the folder that the system reaches through
+    the link, and not the folder that is left when '..' is cancelled against 'link'.
     Raise ValueError with the reason if no folder can be used.
     """
     named = []
@@ -189,16 +211,20 @@ def temporary_parent() -> str:
         if folder:
             named.append(folder)
     for folder in named + list(DEFAULT_TEMPORARY_FOLDERS):
-        if (os.path.isdir(folder) and os.access(folder, os.W_OK | os.X_OK)
-                and not is_inside(folder, MESHES)):
-            return os.path.abspath(folder)
+        resolved = os.path.realpath(folder)
+        if (os.path.isdir(resolved) and os.access(resolved, os.W_OK | os.X_OK)
+                and not is_inside(resolved, MESHES)):
+            return resolved
     raise ValueError('no writable folder for temporary files outside meshes/. Set TMPDIR to '
                      'one')
 
 
-def regeneration_problems(out: str) -> List[str]:
-    """Regenerate everything into out/ and return how the result differs from meshes/."""
-    parts = generate(PARTS, out)
+def regeneration_problems(out: str, temporary: str) -> List[str]:
+    """Regenerate everything into out/ and return how the result differs from meshes/.
+
+    The processes that build the parts put their temporary files into the temporary folder.
+    """
+    parts = generate(PARTS, out, temporary)
     text = manifest_text(parts, SPDX_LINES, LICENSE_ID)
     generated = sorted([facts.path for part in parts for mesh in part.meshes
                         for facts in mesh.files]
@@ -219,18 +245,19 @@ def regeneration_problems(out: str) -> List[str]:
     return problems
 
 
-def check(keep: Optional[str] = None) -> int:
+def check(temporary: str, keep: Optional[str] = None) -> int:
     """Regenerate everything outside meshes/ and compare with meshes/: 0 if equal.
 
-    With keep, the regenerated files go into that folder, which create_output_folder() has
-    made, and stay there for a closer look. Without it, they go into a temporary folder,
+    temporary is the folder for temporary files that temporary_parent() chose. With keep, the
+    regenerated files go into that folder, which create_output_folder() has made, and stay
+    there for a closer look. Without it, they go into a new folder in the temporary folder,
     which is made only then. meshes/ is only read.
     """
     if keep is not None:
-        problems = regeneration_problems(keep)
+        problems = regeneration_problems(keep, temporary)
     else:
-        with tempfile.TemporaryDirectory() as temporary:
-            problems = regeneration_problems(temporary)
+        with tempfile.TemporaryDirectory(dir=temporary) as regenerated:
+            problems = regeneration_problems(regenerated, temporary)
     for problem in problems:
         print(problem)
     print('regeneration check: ' + ('FAILED' if problems else 'all files byte-identical'))
@@ -265,18 +292,19 @@ def main() -> int:
         parser.error('--check regenerates and compares every part: leave out the part names')
     if args.check:
         try:
-            # From here on, every use of tempfile takes this folder without a test write,
-            # also in the libraries that the generators load
-            tempfile.tempdir = temporary_parent()
+            temporary = temporary_parent()
         except ValueError as problem:
             parser.error(f'--check: {problem}')
+        # From here on, every use of tempfile takes this folder without a test write, also in
+        # the libraries that the generators load
+        use_temporary_folder(temporary)
         keep = None
         if args.keep is not None:
             try:
                 keep = create_output_folder(args.keep)
             except ValueError as problem:
                 parser.error(f'--keep: {problem}')
-        return check(keep)
+        return check(temporary, keep)
     if args.millimetre_collada is not None:
         try:
             destination = create_output_folder(args.millimetre_collada)
