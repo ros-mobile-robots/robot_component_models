@@ -7,9 +7,11 @@ share/robot_component_models must hold exactly the manifest's mesh files and the
 files, the manifest, LICENSE and package.xml, for every part its provenance page, its generator
 and its frame picture, and every other Python file of the checkout's generators/, in its
 sub-folders too. Besides these, it may hold only the files that catkin, ament_cmake and colcon
-write for every package. Each of these files that is there must be a regular file that can be
-read: a symbolic link counts if it leads to one, a folder or a named pipe doesn't. Only such
-files are opened, so a named pipe can't make the check wait. Each installed mesh must have the
+write for every package. The check takes an inventory from the folders' listings, links to
+folders followed, and takes each entry's state once. A folder that can't be listed is a
+problem. Each of the files above that is there must be a regular file that can be read: a
+symbolic link counts if it leads to one, a folder or a named pipe doesn't. Only such files are
+opened, so a named pipe can't make the check wait. Each installed mesh must have the
 manifest's checksum, and a mesh that can't be read for the checksum is a problem too. Outside
 share/robot_component_models, the check ignores the workspace's own files.
 
@@ -34,6 +36,7 @@ from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import List
+from typing import NamedTuple
 from typing import Optional
 from typing import Set
 
@@ -86,10 +89,8 @@ def file_state(path: str) -> str:
     return READABLE
 
 
-def file_bytes(path: str) -> Optional[bytes]:
-    """Return the file's bytes, or None if it isn't a regular file that can be read."""
-    if file_state(path) != READABLE:
-        return None
+def read_bytes(path: str) -> Optional[bytes]:
+    """Return the file's bytes, or None if reading fails. Call it only for a regular file."""
     try:
         with open(path, 'rb') as stream:
             return stream.read()
@@ -97,19 +98,55 @@ def file_bytes(path: str) -> Optional[bytes]:
         return None
 
 
-def installed_files(share: str) -> Set[str]:
-    """Return the files under the package's share folder, relative to it."""
-    return {os.path.relpath(os.path.join(folder, name), share)
-            for folder, _, names in os.walk(share) for name in names}
+class Inventory(NamedTuple):
+    """What the listings of the share folder and its folders hold.
 
-
-def occupied_paths(share: str, paths: Iterable[str]) -> Set[str]:
-    """Return the paths that have something in the share folder, of any type.
-
-    installed_files() doesn't list a folder, or a link to a folder, at a file's path. Such an
-    entry is there, but it isn't a file that can be read.
+    states maps each listed entry's path, relative to the share folder, to its file_state(),
+    taken once. Every later decision about an entry uses that state. unlisted names the
+    folders whose entries the check can't account for, with the reason.
     """
-    return {path for path in paths if file_state(os.path.join(share, path)) != ABSENT}
+
+    states: Dict[str, str]
+    unlisted: List[str]
+
+
+def take_inventory(share: str, file_paths: Set[str]) -> Inventory:
+    """List the share folder and its folders, and take each listed entry's state once.
+
+    Only the listings put a path into the inventory. Links to folders are followed, so the
+    files behind such a link are listed too. A folder that is reached a second time, through
+    a link to it or to a folder above it, isn't listed again and is reported. A folder whose
+    path is one of file_paths, the expected and the build tools' files, is an entry too: it
+    is there, but it isn't a regular file. A folder that can't be listed is reported with the
+    reason.
+    """
+    states: Dict[str, str] = {}
+    unlisted: List[str] = []
+
+    def record(error: OSError) -> None:
+        """Record a folder that os.walk() couldn't list."""
+        unlisted.append(f"{os.path.relpath(str(error.filename), share)}: the folder can't be "
+                        f'listed: {error.strerror or error}')
+
+    listed = {os.path.realpath(share)}
+    for folder, folders, names in os.walk(share, onerror=record, followlinks=True):
+        kept = []
+        for name in folders:
+            path = os.path.join(folder, name)
+            relative = os.path.relpath(path, share)
+            if relative in file_paths:
+                states[relative] = "it isn't a regular file"
+            if os.path.realpath(path) in listed:
+                unlisted.append(f'{relative}: the folder is listed already, through another '
+                                'path')
+                continue
+            listed.add(os.path.realpath(path))
+            kept.append(name)
+        folders[:] = kept
+        for name in names:
+            states[os.path.relpath(os.path.join(folder, name), share)] = file_state(
+                os.path.join(folder, name))
+    return Inventory(states, unlisted)
 
 
 def load_manifest(path: str) -> Dict[str, Any]:
@@ -164,24 +201,21 @@ def check_file_set(found: Set[str], expected: Set[str], allowed: Set[str]) -> Li
             + [f'not expected: {path}' for path in sorted(found - expected - allowed)])
 
 
-def check_files_can_be_read(share: str, paths: Iterable[str]) -> List[str]:
-    """Check that each installed path is a regular file that can be read, through its links.
+def check_files_can_be_read(states: Dict[str, str], paths: Iterable[str]) -> List[str]:
+    """Check that each of the paths that the inventory lists is a regular file that can be read.
 
-    A symbolic link without a target, a folder, a named pipe or a file without read
-    permission has the name that the file set expects, but nobody can read it as a file.
+    states is the inventory's. A symbolic link without a target, a folder, a named pipe or a
+    file without read permission has the name that the file set expects, but nobody can read
+    it as a file. A path that the inventory doesn't list is left to check_file_set().
     """
-    problems = []
-    for path in sorted(paths):
-        state = file_state(os.path.join(share, path))
-        if state != READABLE:
-            problems.append(f"{path}: isn't a file that can be read: {state}")
-    return problems
+    return [f"{path}: isn't a file that can be read: {states[path]}" for path in sorted(paths)
+            if path in states and states[path] != READABLE]
 
 
 def check_checksums(share: str, checksums: Dict[str, str], readable: Set[str]) -> List[str]:
     """Check every installed mesh against the manifest's checksum.
 
-    readable holds the installed paths that file_state() found to be regular files that can
+    readable holds the installed paths that the inventory found to be regular files that can
     be read. Only these are opened. The other meshes are reported by check_file_set() and
     check_files_can_be_read(). A mesh that can't be read now, for whatever reason, is
     reported with the error, and the other meshes are still checked.
@@ -202,14 +236,16 @@ def check_checksums(share: str, checksums: Dict[str, str], readable: Set[str]) -
     return problems
 
 
-def read_installed_pages(share: str, pages: Set[str]) -> Dict[str, Optional[bytes]]:
+def read_installed_pages(share: str, pages: Set[str],
+                         states: Dict[str, str]) -> Dict[str, Optional[bytes]]:
     """Return {page: its bytes} of the installed pages, None for a page that can't be read.
 
-    Only a regular file is opened. A page that isn't installed is left out: check_file_set()
+    states is the inventory's. Only a page that it found to be a regular file that can be
+    read is opened. A page that the inventory doesn't list is left out: check_file_set()
     reports it.
     """
-    return {page: file_bytes(os.path.join(share, page)) for page in sorted(pages)
-            if file_state(os.path.join(share, page)) != ABSENT}
+    return {page: read_bytes(os.path.join(share, page)) if states[page] == READABLE else None
+            for page in sorted(pages) if page in states}
 
 
 def check_pages_are_the_checkouts(installed: Dict[str, Optional[bytes]], pages: Set[str],
@@ -221,8 +257,10 @@ def check_pages_are_the_checkouts(installed: Dict[str, Optional[bytes]], pages: 
     """
     problems = []
     for page in sorted(pages):
-        source_bytes = file_bytes(os.path.join(root, page))
-        if file_state(os.path.join(root, page)) == ABSENT:
+        source_state = file_state(os.path.join(root, page))
+        source_bytes = (read_bytes(os.path.join(root, page)) if source_state == READABLE
+                        else None)
+        if source_state == ABSENT:
             problems.append(f"{page}: the checkout doesn't have this page of the manifest")
         elif source_bytes is None:
             problems.append(f"{page}: the checkout's page can't be read")
@@ -264,19 +302,22 @@ def main() -> int:
     prefix, ros_version = sys.argv[1:3]
     share = os.path.join(prefix, 'share', PACKAGE)
     manifest = os.path.join(share, 'meshes', 'manifest.yaml')
-    if file_state(manifest) != READABLE:
-        print(f'{manifest}: {file_state(manifest)}')
+    manifest_state = file_state(manifest)
+    if manifest_state != READABLE:
+        print(f'{manifest}: {manifest_state}')
         return 1
     contents = load_manifest(manifest)
     checksums = manifest_checksums(contents)
     expected = set(checksums) | manifest_documents(contents) | generator_files() | OWN_FILES
     allowed = BUILD_TOOL_FILES[ros_version]
-    found = installed_files(share) | occupied_paths(share, expected | allowed)
-    readable = {path for path in found if file_state(os.path.join(share, path)) == READABLE}
+    inventory = take_inventory(share, expected | allowed)
+    found = set(inventory.states)
+    readable = {path for path, state in inventory.states.items() if state == READABLE}
     pages = {part['provenance'] for part in contents['parts'].values()}
-    installed_pages = read_installed_pages(share, pages)
-    problems = check_file_set(found, expected, allowed)
-    problems += check_files_can_be_read(share, found & (expected | allowed))
+    installed_pages = read_installed_pages(share, pages, inventory.states)
+    problems = list(inventory.unlisted)
+    problems += check_file_set(found, expected, allowed)
+    problems += check_files_can_be_read(inventory.states, expected | allowed)
     problems += check_checksums(share, checksums, readable)
     problems += check_pages_are_the_checkouts(installed_pages, pages)
     problems += check_links_lead_to_installed_files(share, installed_pages)
