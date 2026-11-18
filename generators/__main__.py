@@ -17,6 +17,7 @@ Checking only reads meshes/. It never writes there: the regenerated files go int
 folder, or into a folder that the run creates outside meshes/. The temporary folder's place is
 chosen without a test write, so a TMPDIR inside meshes/ is refused before anything is written.
 The chosen place is a resolved path, and the processes that build the parts get it too.
+generators/generation.py holds what those processes run.
 """
 import argparse
 from concurrent.futures import ProcessPoolExecutor
@@ -30,75 +31,24 @@ from typing import Optional
 from typing import Sequence
 
 from generators import PARTS
-from generators.manifest import file_facts
+from generators.generation import EXTENSIONS
+from generators.generation import generate
+from generators.generation import use_temporary_folder
 from generators.manifest import manifest_text
-from generators.manifest import MeshEntry
-from generators.manifest import PartEntry
 from generators.manifest import sha256
 from generators.mesh_export import LICENSE_ID
 from generators.mesh_export import MILLIMETRE
 from generators.mesh_export import require_model_materials
 from generators.mesh_export import SPDX_LINES
-from generators.mesh_export import used_materials
 from generators.mesh_export import write_dae
-from generators.mesh_export import write_glb
-from generators.mesh_export import write_license_file
-from generators.mesh_export import write_stl
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MESHES = os.path.join(ROOT, 'meshes')
 MANIFEST = os.path.join(MESHES, 'manifest.yaml')
-EXTENSIONS = ('.stl', '.dae', '.glb')
 # The environment variables that name a folder for temporary files, in tempfile's order, and
 # the folders that tempfile tries when no variable names one
 TEMPORARY_FOLDER_VARIABLES = ('TMPDIR', 'TEMP', 'TMP')
 DEFAULT_TEMPORARY_FOLDERS = ('/tmp', '/var/tmp', '/usr/tmp')
-BINARY_EXTENSIONS = ('.stl', '.glb')  # these get a <file>.license next to them
-
-
-def generate_part(name: str, out: str) -> PartEntry:
-    """Write one part's meshes into out/<part>/ and return their manifest entry."""
-    module = importlib.import_module(f'generators.{name}')
-    os.makedirs(os.path.join(out, name), exist_ok=True)
-    meshes = []
-    for model in module.build():
-        require_model_materials(model)
-        relative = f'{name}/{model.name}'
-        write_stl(model, os.path.join(out, relative + '.stl'))
-        write_dae(model, os.path.join(out, relative + '.dae'), f'generators/{name}.py')
-        write_glb(model, os.path.join(out, relative + '.glb'))
-        for extension in BINARY_EXTENSIONS:
-            write_license_file(os.path.join(out, relative + extension))
-        files = [file_facts(out, relative + extension) for extension in EXTENSIONS]
-        meshes.append(MeshEntry(model.name, model.frame, [part.name for part in model.sub_parts],
-                                used_materials(model), files))
-        print(f'{relative}: ' + ', '.join(f'{os.path.basename(facts.path)} {facts.triangles} '
-                                          f'triangles {facts.size} bytes' for facts in files),
-              flush=True)
-    return PartEntry(name, module.TITLE, meshes)
-
-
-def use_temporary_folder(folder: Optional[str]) -> None:
-    """Make this process, and the processes that it starts, put temporary files into the folder.
-
-    tempfile takes the folder as it is, without the test write of its own search. TMPDIR
-    hands the folder to processes that are started later. None leaves tempfile's own choice.
-    """
-    if folder is not None:
-        tempfile.tempdir = folder
-        os.environ['TMPDIR'] = folder
-
-
-def generate(names: Sequence[str], out: str, temporary: Optional[str] = None) -> List[PartEntry]:
-    """Write the parts' meshes into out/, one process per part, return them in order.
-
-    Each process puts its temporary files into the temporary folder, if one is given. So a
-    process that is started fresh, without the parent's state, doesn't search for a folder of
-    its own.
-    """
-    with ProcessPoolExecutor(max_workers=min(len(names), os.cpu_count() or 1),
-                             initializer=use_temporary_folder, initargs=(temporary,)) as pool:
-        return list(pool.map(generate_part, names, [out] * len(names)))
 
 
 def generate_part_millimetre_collada(name: str, out: str) -> List[str]:

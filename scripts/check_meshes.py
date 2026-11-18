@@ -315,6 +315,18 @@ def check_collada(mesh_file: MeshFile, schema: etree.XMLSchema) -> List[str]:
     return problems
 
 
+def whole_number(text: Optional[str]) -> Optional[int]:
+    """Return the text of a count, an offset or an index as a number, None if it isn't one.
+
+    The schema check reports such a value too. The normals' check reports it as a problem of
+    its own and goes on with the next file, instead of stopping the whole run.
+    """
+    try:
+        return int(text or '')
+    except ValueError:
+        return None
+
+
 def corner_index_problems(triangles: Any, vectors: int) -> List[str]:
     """Return the problems of one <triangles> element's indices, for a mesh of that many vectors.
 
@@ -323,9 +335,13 @@ def corner_index_problems(triangles: Any, vectors: int) -> List[str]:
     different numbers would give the corner the normal of another vertex.
     """
     name = f'<triangles material="{triangles.get("material")}">'
-    corners = 3 * int(triangles.get('count', 0))
-    indices = np.array((triangles.findtext(f'{{{COLLADA_NAMESPACE}}}p') or '').split(),
-                       dtype=np.int64)
+    count = whole_number(triangles.get('count'))
+    numbers = [whole_number(text) for text in
+               (triangles.findtext(f'{{{COLLADA_NAMESPACE}}}p') or '').split()]
+    if count is None or None in numbers:
+        return [f"{name} has a count or indices that aren't whole numbers"]
+    corners = 3 * count
+    indices = np.array(numbers, dtype=np.int64)
     if indices.size != 2 * corners:
         return [f'{name} has {indices.size} indices, not a position and a normal index for '
                 f'each of its {corners} corners']
@@ -374,15 +390,21 @@ def source_vector_count(mesh: Any, source_id: str) -> Tuple[Optional[int], List[
         return None, [f'the source {source_id} has {len(arrays)} arrays and {len(accessors)} '
                       'accessors, not one of each']
     array, accessor = arrays[0], accessors[0]
-    vectors = int(accessor.get('count', 0))
+    # An accessor without an offset starts at the array's first number
+    vectors, size = whole_number(accessor.get('count')), whole_number(array.get('count'))
+    offset = whole_number(accessor.get('offset', '0'))
+    if vectors is None or size is None or offset is None:
+        return None, [f"the source {source_id}'s accessor count {accessor.get('count')!r}, "
+                      f"accessor offset {accessor.get('offset')!r} and array count "
+                      f"{array.get('count')!r} aren't all whole numbers"]
     if accessor.get('source') != f'#{array.get("id")}' or array.get('id') is None:
         return None, [f"the source {source_id}'s accessor reads {accessor.get('source')}, not "
                       f"the source's own array #{array.get('id')}"]
-    if accessor.get('stride') != '3' or int(array.get('count', 0)) != 3 * vectors:
+    if accessor.get('stride') != '3' or size != 3 * vectors:
         return None, [f"the source {source_id}'s accessor reads {vectors} vectors with a "
                       f"stride of {accessor.get('stride')} from an array of "
                       f"{array.get('count')} numbers, not three numbers for each vector"]
-    if int(accessor.get('offset', 0)) != 0:
+    if offset != 0:
         return None, [f"the source {source_id}'s accessor starts at the array's number "
                       f"{accessor.get('offset')}, not at its first number"]
     return vectors, []
