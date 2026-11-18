@@ -7,8 +7,9 @@ share/robot_component_models must hold exactly the manifest's mesh files and the
 files, the manifest, LICENSE and package.xml, for every part its provenance page, its generator
 and its frame picture, and every other Python file of the checkout's generators/, in its
 sub-folders too. Besides these, it may hold only the files that catkin, ament_cmake and colcon
-write for every package. Each of these files must be a file that can be read: a symbolic link
-counts if it leads to one. Each installed mesh must have the manifest's checksum. Outside
+write for every package. Each of these files that is there must be a file that can be read: a
+symbolic link counts if it leads to one. Each installed mesh must have the manifest's checksum,
+and a mesh that can't be read for the checksum is a problem too. Outside
 share/robot_component_models, the check ignores the workspace's own files.
 
 A provenance page links to its generator and to its frame picture with paths relative to the
@@ -142,13 +143,22 @@ def check_files_can_be_read(share: str, paths: Iterable[str]) -> List[str]:
 def check_checksums(share: str, checksums: Dict[str, str]) -> List[str]:
     """Check every installed mesh file against the manifest's checksum.
 
-    A file that is missing or can't be read is left to check_file_set() and
-    check_files_can_be_read().
+    A file that isn't there is left to check_file_set(). A file that is there and can't be
+    read, for whatever reason, is reported with the reader's error, and the other files are
+    still checked.
     """
     problems = []
     for path, expected in sorted(checksums.items()):
-        contents = file_bytes(os.path.join(share, path))
-        if contents is not None and hashlib.sha256(contents).hexdigest() != expected:
+        full = os.path.join(share, path)
+        if not os.path.lexists(full):
+            continue
+        try:
+            with open(full, 'rb') as stream:
+                contents = stream.read()
+        except OSError as error:
+            problems.append(f"{path}: can't be read for its checksum: {error.strerror or error}")
+            continue
+        if hashlib.sha256(contents).hexdigest() != expected:
             problems.append(f'checksum differs: {path}')
     return problems
 
@@ -172,8 +182,10 @@ def check_pages_are_the_checkouts(installed: Dict[str, Optional[bytes]], pages: 
     problems = []
     for page in sorted(pages):
         source_bytes = file_bytes(os.path.join(root, page))
-        if source_bytes is None:
+        if not os.path.lexists(os.path.join(root, page)):
             problems.append(f"{page}: the checkout doesn't have this page of the manifest")
+        elif source_bytes is None:
+            problems.append(f"{page}: the checkout's page can't be read")
         elif page not in installed:
             continue
         elif installed[page] is None:
@@ -220,9 +232,10 @@ def main() -> int:
     found = installed_files(share)
     expected = set(checksums) | manifest_documents(contents) | generator_files() | OWN_FILES
     pages = {part['provenance'] for part in contents['parts'].values()}
+    allowed = BUILD_TOOL_FILES[ros_version]
     installed_pages = read_installed_pages(share, pages)
-    problems = check_file_set(found, expected, BUILD_TOOL_FILES[ros_version])
-    problems += check_files_can_be_read(share, found & expected)
+    problems = check_file_set(found, expected, allowed)
+    problems += check_files_can_be_read(share, found & (expected | allowed))
     problems += check_checksums(share, checksums)
     problems += check_pages_are_the_checkouts(installed_pages, pages)
     problems += check_links_lead_to_installed_files(share, installed_pages)
