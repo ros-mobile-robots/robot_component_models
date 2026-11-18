@@ -9,7 +9,7 @@ Changelog for package robot_component_models
   Kit B01, the Teensy 4.0 with two 14-pin headers, a 400-point breadboard and the Raspberry Pi
   Camera Module v2. Each mesh comes as STL, COLLADA and glTF (coloured), all in metres, in a
   local frame documented in the manifest and the part's provenance page
-* The CadQuery generators, the sources of every model, meshes/manifest.yaml with checksums,
+* The CadQuery generators, each model's source references, meshes/manifest.yaml with checksums,
   units, frames and bounding boxes, and checks in CI
 * A display model of a 360 degree laser scanner of the RPLIDAR A1's size (A1M8), from the
   datasheet's mechanical drawing: base, board, connectors, motor, pulley, belt, head and window

@@ -62,6 +62,21 @@ def snapshot(folder: str) -> Dict[str, str]:
     return entries
 
 
+def folder_times(folder: str) -> Dict[str, int]:
+    """Return the time of the last change of the folder and of every folder inside it.
+
+    A folder's time changes when an entry is created or removed in it. So a file that a
+    command writes into the folder and deletes again still shows here, where a snapshot of
+    the contents after the command would miss it.
+    """
+    times = {'.': os.stat(folder).st_mtime_ns}
+    for parent, folders, _ in os.walk(folder):
+        for name in folders:
+            path = os.path.join(parent, name)
+            times[os.path.relpath(path, folder)] = os.stat(path).st_mtime_ns
+    return times
+
+
 class GeneratorsCommandTest(unittest.TestCase):
     """The base of the tests: a sandbox with the camera as the only part."""
 
@@ -98,14 +113,20 @@ class GeneratorsCommandTest(unittest.TestCase):
         with open(os.path.join(self.meshes, MARKED_FILE), 'w', encoding='utf-8') as marked:
             marked.write(MARKER)
         self.reference = snapshot(self.meshes)
+        self.reference_times = folder_times(self.meshes)
 
     def run_command(self, *arguments: str) -> 'subprocess.CompletedProcess[str]':
         """Run the command in the sandbox."""
         return run_generators(self.repository, list(arguments), ENVIRONMENT)
 
     def assert_reference_unchanged(self) -> None:
-        """Fail if meshes/ differs from its state before the command, marker included."""
+        """Fail if the command changed meshes/ or wrote anything there, even for a moment.
+
+        The contents must be as before the command, marker included, and no folder of
+        meshes/ may have had an entry created or removed.
+        """
         self.assertEqual(snapshot(self.meshes), self.reference)
+        self.assertEqual(folder_times(self.meshes), self.reference_times)
 
 
 class KeepRefusalTest(GeneratorsCommandTest):
@@ -167,9 +188,24 @@ class KeepRefusalTest(GeneratorsCommandTest):
         self.assert_refused(self.run_command('--check', PART))
 
     def test_check_refuses_a_temporary_folder_inside_meshes(self) -> None:
-        """Run --check with TMPDIR set to meshes/: a usage error, nothing written there."""
+        """Run --check with TMPDIR set to meshes/: a usage error, no test file written there."""
         result = run_generators(self.repository, ['--check'],
                                 dict(ENVIRONMENT, TMPDIR=self.meshes))
+
+        self.assert_refused(result)
+
+    def test_check_refuses_a_temporary_folder_inside_meshes_also_with_keep(self) -> None:
+        """Run --check --keep NEW with TMPDIR set to meshes/: refused, nothing written."""
+        result = run_generators(self.repository,
+                                ['--check', '--keep', os.path.join(self.work, 'kept')],
+                                dict(ENVIRONMENT, TMPDIR=self.meshes))
+
+        self.assert_refused(result)
+
+    def test_check_refuses_a_temporary_folder_inside_meshes_named_by_temp(self) -> None:
+        """Run --check with TEMP set to a folder in meshes/: a usage error, nothing written."""
+        result = run_generators(self.repository, ['--check'],
+                                dict(ENVIRONMENT, TEMP=os.path.join(self.meshes, PART)))
 
         self.assert_refused(result)
 
