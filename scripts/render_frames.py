@@ -123,9 +123,11 @@ def caster_figure() -> FrameFigure:
               y_sign * caster.PLATE_HOLES[1], top) for x_sign in (-1, 1) for y_sign in (-1, 1)]
     axle_x = caster.SWIVEL_AXIS_X + caster.AXLE_X
     # Where each label's line ends, on a place of its own mesh that the side view shows: the
-    # base at the plate's front end, the fork on an arm between the cup and the axle, the
-    # wheel on its white side below the axle, clear of the arm and of the axle's rivet
-    on_base = (caster.SWIVEL_AXIS_X + 8.0, 0.0, 9.0)
+    # base at half the height of the front standoff on the viewer's side, the fork on an arm
+    # between the cup and the axle, the wheel on its white side below the axle, clear of the
+    # arm and of the axle's rivet
+    on_base = (caster.SWIVEL_AXIS_X + caster.PLATE_HOLES[0], -caster.PLATE_HOLES[1],
+               top - caster.STANDOFF_LENGTH / 2)
     on_fork = (-9.0, 0.0, -7.0)
     below_axle = 0.55 * caster.WHEEL_RADIUS
     on_wheel = (axle_x - below_axle, 0.0, caster.AXLE_Z - below_axle)
