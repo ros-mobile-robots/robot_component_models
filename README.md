@@ -92,7 +92,7 @@ A URDF refers to a file as `package://robot_component_models/meshes/<part>/<file
 | File | Use | In the URDF |
 |---|---|---|
 | `<name>.dae`, COLLADA | Coloured visuals, in ROS 1 and in ROS 2. The file brings its own colours. | Leave out the scale. Leave out material overrides, the visual's `<material>` and the link's Gazebo `<material>`, to keep the mesh's colours across viewers. |
-| `<name>.stl` | A visual in one colour. | Leave out the scale: the file is in metres. The colour comes from the visual's `<material>`. |
+| `<name>.stl` | A visual in one colour. | Leave out the scale: the file is in metres. RViz takes the colour from the visual's `<material>`, Gazebo Classic from the link's Gazebo `<material>`. |
 | `<name>.glb`, binary glTF | Web viewers. glTF defines y as up, and the file's root node turns the mesh into that scene. | Use the COLLADA file in a URDF. RViz 2 and Gazebo (gz-sim) in ROS 2 Jazzy show a part from its glTF file turned by 90° about x against its COLLADA file, and gz-sim drew the metal materials dark in the one scene that was tried ([issue #14](https://github.com/ros-mobile-robots/robot_component_models/issues/14)). RViz in ROS 1, Gazebo Classic and Gazebo Fortress don't load `.glb` files. |
 
 ### Placing a mesh
@@ -124,7 +124,7 @@ A link whose origin lies at the scanner's bottom, with the same axes, raises the
 </link>
 ```
 
-The STL file takes its colour from the URDF. The visual defines the colour itself, so the example needs no material elsewhere in the robot description:
+The STL file takes its colour from the URDF. RViz reads the visual's `<material>`. The visual defines the colour itself, so the example needs no material elsewhere in the robot description:
 
 ```xml
 <link name="scanner_mount">
@@ -138,6 +138,14 @@ The STL file takes its colour from the URDF. The visual defines the colour itsel
     </material>
   </visual>
 </link>
+```
+
+Gazebo Classic doesn't take a colour from the visual's `<material>`: converted for Gazebo Classic 11, the example's visual has no material. Gazebo Classic takes the colour of a link from a `<gazebo>` element that names the link and one of Gazebo's materials:
+
+```xml
+<gazebo reference="scanner_mount">
+  <material>Gazebo/DarkGrey</material>
+</gazebo>
 ```
 
 A visual's `rpy` turns the mesh. DiffBot's and Remo's laser links have the scanner's cable at their +x, where the mesh has it at -x, so their visuals turn the mesh by π about z (see the [Frame section](provenance/rplidar_a2.md#frame)).
