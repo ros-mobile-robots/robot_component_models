@@ -6,21 +6,11 @@ A pressed-steel swivel caster with a 30 mm plastic wheel, as on DiffBot. DiffBot
 
 Generator: [`generators/swivel_caster_30mm.py`](../generators/swivel_caster_30mm.py).
 
-## Meshes
-
-| Mesh | What | Materials |
-|---|---|---|
-| `swivel_caster_30mm_base` | The fixed part: four brass hex standoffs (M3, 5 mm across flats, 10 mm long, 0.3 mm chamfers at both ends, the M3 thread at the chassis end shown as a smooth bore), a plate 32 × 38 × 1.3 mm with four corner lugs and concave sides. The plate is pressed into a raceway: a trough that bulges 3.35 mm below it (Ø26.8 mm, seen from the side as a smooth lens), an arch over one row of 12 balls (Ø3.2 mm on a Ø15 mm circle), and a centre that carries the kingpin's flat head (Ø7.5 × 2 mm). Inside the fork's cup: the stepped race cap (Ø11.2 mm) and the kingpin's flat lower head (Ø9.2 mm). Four Phillips pan heads under the lugs | `steel` (zinc-plated, metallic), `brass` (metallic) |
-| `swivel_caster_30mm_wheel_support` | The swivelling fork, bent from one 1.2 mm sheet. Its top is a shallow cup (rim Ø24.5 mm) that opens towards the wheel, its floor pressed into the lower ball track (a raised ring inside the cup). On the axle sides the cup's wall runs on into the arms: curved at the cup, between 48° and 132° around it, flat and parallel to the wheel from 9 mm below the top. Seen along the axle each arm narrows to a rounded tip (r 4.75 mm) around the axle, with a diagonal front edge that curves into the rim. The edges are plain cut. The axle with a domed head and a washer on the -y side and a Phillips pan head on the +y side | `steel`, `axle` (metallic) |
-| `swivel_caster_30mm_wheel` | The wheel: Ø30 mm, hub 15.6 mm wide, crowned 12 mm tread with 3 mm rounds, dished sides | `wheel` (matte white plastic) |
-
-Each STL file is closed and consistently oriented: the base's balls are separate closed shells. The three meshes, placed as DiffBot's caster macro places them, don't intersect: the base and the fork are at least 0.09 mm apart. The axle has 0.1 mm clearance in the wheel's bore.
-
 ## Frames
 
 ![The caster from above and from the side, with the base's frame, the four standoffs and the three meshes' names](../docs/images/frames/swivel_caster_30mm.png)
 
-The picture shows the three meshes from above and from the side, placed as DiffBot's caster macro places them. The red dot is the origin of the frame of `swivel_caster_30mm_base` and the red arrows are its positive axes. The green rings mark the four standoffs, at (x, y) = (-13, ±15) mm and (11, ±15) mm. Their tops, the dashed line at z = +15 mm, meet the chassis. The side view names the mesh of each piece. The fork's frame lies 1 mm behind the base's frame, on the swivel axis, and the wheel's frame lies on the axle.
+The picture shows the three meshes from above and from the side, placed as DiffBot's caster macro places them. The red dot is the origin of the frame of `swivel_caster_30mm_base` and the red arrows are its positive axes. The green rings mark the four standoffs with their Ø2.5 mm bores, 3 mm deep, at (x, y) = (-13, ±15) mm and (11, ±15) mm. Their tops, the dashed line at z = +15 mm, meet the chassis. The side view names the mesh of each piece. The fork's frame lies 1 mm behind the base's frame, on the swivel axis, and the wheel's frame lies on the axle.
 
 The files are in metres, z up. Positions on this page are in millimetres.
 
@@ -34,7 +24,27 @@ DiffBot's caster macro, [`diffbot_caster_macro.urdf.xacro`](https://github.com/r
 - `rear_caster_rotation_joint` puts the swivelling `rear_caster_rotation_link` 77 mm behind `chassis_link`, 1 mm behind the base link, at the same height. The macro draws `swivel_caster_30mm_wheel_support` 20 mm below it. So the swivel axis lies at x = -1 mm in the base's frame and at x = 0 in the fork's frame.
 - `rear_caster_wheel_joint` puts `rear_caster_wheel_link` 16 mm behind and 40 mm below the rotation link, on the fork's axle at x = -16 mm, z = -20 mm. `swivel_caster_30mm_wheel` is drawn at that link's origin.
 
+A robot description with one link per mesh places the meshes like this. Each offset is the place of a mesh's origin in the frame of the mesh before it:
+
+| Mesh | Placed in the frame of | Offset (x, y, z) | Moves |
+|---|---|---|---|
+| `swivel_caster_30mm_base` | The chassis | The standoffs' tops, at z = +15 mm, touch the chassis. Four screws from above reach into the standoffs' bores | Fixed |
+| `swivel_caster_30mm_wheel_support` | `swivel_caster_30mm_base` | (-1, 0, 0) mm | Swivels about z |
+| `swivel_caster_30mm_wheel` | `swivel_caster_30mm_wheel_support` | (-16, 0, -20) mm | Rolls about y |
+
+DiffBot's caster macro reaches the same places with its joints and with the visual origins 20 mm below its base and rotation links. A robot description that copies the macro has these offsets already and doesn't add them a second time.
+
 The wheel's lowest point is 0.2 mm below DiffBot's `base_footprint`, from the URDF's numbers.
+
+## Meshes
+
+| Mesh | What | Materials |
+|---|---|---|
+| `swivel_caster_30mm_base` | The fixed part: four brass hex standoffs (M3, 5 mm across flats, 10 mm long, 0.3 mm chamfers at both ends, the M3 thread at the chassis end shown as a smooth bore), a plate 32 × 38 × 1.3 mm with four corner lugs and concave sides. The plate is pressed into a raceway: a trough that bulges 3.35 mm below it (Ø26.8 mm, seen from the side as a smooth lens), an arch over one row of 12 balls (Ø3.2 mm on a Ø15 mm circle), and a centre that carries the kingpin's flat head (Ø7.5 × 2 mm). Inside the fork's cup: the stepped race cap (Ø11.2 mm) and the kingpin's flat lower head (Ø9.2 mm). Four Phillips pan heads under the lugs | `steel` (zinc-plated, metallic), `brass` (metallic) |
+| `swivel_caster_30mm_wheel_support` | The swivelling fork, bent from one 1.2 mm sheet. Its top is a shallow cup (rim Ø24.5 mm) that opens towards the wheel, its floor pressed into the lower ball track (a raised ring inside the cup). On the axle sides the cup's wall runs on into the arms: curved at the cup, between 48° and 132° around it, flat and parallel to the wheel from 9 mm below the top. Seen along the axle each arm narrows to a rounded tip (r 4.75 mm) around the axle, with a diagonal front edge that curves into the rim. The edges are plain cut. The axle with a domed head and a washer on the -y side and a Phillips pan head on the +y side | `steel`, `axle` (metallic) |
+| `swivel_caster_30mm_wheel` | The wheel: Ø30 mm, hub 15.6 mm wide, crowned 12 mm tread with 3 mm rounds, dished sides | `wheel` (matte white plastic) |
+
+Each STL file is closed and consistently oriented: the base's balls are separate closed shells. The three meshes, placed as DiffBot's caster macro places them, don't intersect: the base and the fork are at least 0.09 mm apart. The axle has 0.1 mm clearance in the wheel's bore.
 
 ## Sources
 

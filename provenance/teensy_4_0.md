@@ -6,10 +6,6 @@ A display model of PJRC's Teensy 4.0 with two 14-pin male headers soldered into 
 
 Generator: [`generators/teensy_4_0.py`](../generators/teensy_4_0.py).
 
-## Mesh
-
-`teensy_4_0`: one mesh with 20 materials (green solder mask, FR4 edges, gold pads and pins, copper test pads, solder, black ICs with pin-1 dimples, silver leads, the USB shell, grey latch slots, beige capacitors, black resistors, the button's cream cap, pale LEDs and others). Its sub-parts are the board, the pads, the header, the processor (`mcu`), the bootloader chip, the leaded parts, the inductor block, the passives on top and on the bottom, the crystals, the USB connector, the button, the test pads and the bottom's other features. Every part's solid is closed with outward normals.
-
 ## Frame
 
 ![The Teensy from above and from the side, with the origin and axes of its frame, the board's bottom face and the header spacer's bottom](../docs/images/frames/teensy_4_0.png)
@@ -19,6 +15,10 @@ The picture shows the Teensy from above and from the side. The red dot is the or
 The files are in metres. Positions on this page are in millimetres. The board's bottom face is at z = 0, the components on +z. The long axis runs along x with the USB connector at -x: the board lies from x = -13.929 to 21.631 mm, centred at y = -0.032 mm. The row with the inner pin hole is at +y. The header's plastic spacer ends at z = -2.5 mm and the pins at z = -8.5 mm.
 
 In [Remo's description](https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/remo.urdf.xacro), `mcu_joint` attaches `mcu_link` to `chassis_link` at (-41.4, -20.6, 12.0) mm, turned by -90° about z. The board's bottom is then 12 mm above `chassis_link`, and the header spacer's bottom, 2.5 mm lower, lies on the breadboard's top at 9.5 mm. With the Raspberry Pi deck and the board's far end at x = 21.631 mm and its centre line at y = -0.032 mm, the 28 header pins lie within 0.027 mm of the centres of the breadboard model's holes, in the horizontal plane. With the Jetson deck, `breadboard_joint` lies 10 mm further back while `mcu_joint` stays, so the pins lie 2.4 to 2.7 mm from the nearest hole centres.
+
+## Mesh
+
+`teensy_4_0`: one mesh with 20 materials (green solder mask, FR4 edges, gold pads and pins, copper test pads, solder, black ICs with pin-1 dimples, silver leads, the USB shell, grey latch slots, beige capacitors, black resistors, the button's cream cap, pale LEDs and others). Its sub-parts are the board, the pads, the header, the processor (`mcu`), the bootloader chip, the leaded parts, the inductor block, the passives on top and on the bottom, the crystals, the USB connector, the button, the test pads and the bottom's other features. Every part's solid is closed with outward normals.
 
 ## Sources
 

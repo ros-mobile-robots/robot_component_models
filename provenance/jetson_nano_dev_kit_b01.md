@@ -6,10 +6,6 @@ A display model of the NVIDIA Jetson Nano Developer Kit B01: the carrier board P
 
 Generator: [`generators/jetson_nano_dev_kit_b01.py`](../generators/jetson_nano_dev_kit_b01.py).
 
-## Mesh
-
-`jetson_nano_dev_kit_b01`: one mesh with 11 materials (black carrier, green module, dark heatsink, silver shells, gold pins, blue USB 3.0 tongues, white fan header, brown latches, LEDs and others). Its sub-parts are the carrier, the DC jack, the HDMI and DisplayPort stack, the USB stacks, the Ethernet jack, micro-USB, the module, the heatsink, the carrier's other parts (headers, camera connectors, fan header, M.2 slot) and the bottom side. Every part's solid is closed with outward normals.
-
 ## Frame
 
 ![The Jetson Nano Developer Kit from above and from the port side, with the origin and axes of its frame, its four mounting holes and the carrier's bottom face](../docs/images/frames/jetson_nano_dev_kit_b01.png)
@@ -19,6 +15,10 @@ The picture shows the kit from above and from the side of its port row. The red 
 The files are in metres. Positions on this page are in millimetres. The carrier's bottom face is at z = 0. The carrier lies from x = -28.982 to 71.018 mm and from y = -38.847 to 40.153 mm. The port row is at +y and the 40-pin header at -x. While drawing, the generator uses the carrier's own coordinates: u from the left edge (DC jack side) to the right edge (40-pin header side), v from the port edge inwards. They map to (71.018 - u, 40.153 - v): a turn by 180° about z and a shift.
 
 In [Remo's description](https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/remo.urdf.xacro), `jetson_nano_joint` attaches `jetson_nano_link` to `jetson_deck_link`, 7 mm above it, without a turn. The carrier's bottom face, z = 0, then lies 7 mm above `jetson_deck_link`.
+
+## Mesh
+
+`jetson_nano_dev_kit_b01`: one mesh with 11 materials (black carrier, green module, dark heatsink, silver shells, gold pins, blue USB 3.0 tongues, white fan header, brown latches, LEDs and others). Its sub-parts are the carrier, the DC jack, the HDMI and DisplayPort stack, the USB stacks, the Ethernet jack, micro-USB, the module, the heatsink, the carrier's other parts (headers, camera connectors, fan header, M.2 slot) and the bottom side. Every part's solid is closed with outward normals.
 
 ## Sources
 

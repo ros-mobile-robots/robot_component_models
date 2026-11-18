@@ -6,10 +6,6 @@ A display model of the Raspberry Pi 4 Model B: the board with its connectors, ch
 
 Generator: [`generators/raspberry_pi_4b.py`](../generators/raspberry_pi_4b.py).
 
-## Mesh
-
-`raspberry_pi_4b`: one mesh with 13 materials (green solder mask, gold pads and pins, silver shells, black and blue USB tongues, LEDs, tan latches and others). Its sub-parts are the board, the headers, the Ethernet jack, the two USB stacks, USB-C, the two micro-HDMI receptacles, the AV jack, the camera and display connectors, the chips, the small parts and the bottom side. Every part's solid is closed with outward normals. The STL file holds all parts together, so touching parts share faces, as in any assembly.
-
 ## Frame
 
 ![The Raspberry Pi from above and from the port side, with the origin and axes of its frame, its four mounting holes and the board's underside](../docs/images/frames/raspberry_pi_4b.png)
@@ -21,6 +17,10 @@ The files are in metres. Positions on this page are in millimetres. The board's 
 The top is the USB height, 16.0 mm above a 1.6 mm board. The bottom is the GPIO solder tails, 2.0 mm below the board. The drawing ends the Ethernet and USB fronts 3.0 mm past the board's edge. The Ethernet LEDs stand 0.1 mm proud of the jack, so the model ends at y = 45.977 mm.
 
 In [Remo's description](https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/remo.urdf.xacro), `rpi_joint` attaches `rpi_link` to `rpi_deck_link`, 7 mm above it, without a turn. The board's mid-plane, z = 0, then lies 7 mm above `rpi_deck_link` and the board's underside 6.2 mm above it. A mount that seats the board's underside on its supports puts the mesh's origin 0.8 mm above the supports' tops.
+
+## Mesh
+
+`raspberry_pi_4b`: one mesh with 13 materials (green solder mask, gold pads and pins, silver shells, black and blue USB tongues, LEDs, tan latches and others). Its sub-parts are the board, the headers, the Ethernet jack, the two USB stacks, USB-C, the two micro-HDMI receptacles, the AV jack, the camera and display connectors, the chips, the small parts and the bottom side. Every part's solid is closed with outward normals. The STL file holds all parts together, so touching parts share faces, as in any assembly.
 
 ## Sources
 
