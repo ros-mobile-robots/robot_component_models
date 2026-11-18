@@ -48,6 +48,20 @@ MANIFEST = f"""parts:
 """
 PASSED, FAILED = 0, 1
 COMMAND_TIMEOUT = 60  # seconds, ten times what the command takes on CI's machine
+# Runs check_install.py with os.stat() failing once with an input/output error on one path:
+# python3 -c STAT_FAILS_ONCE PATH SCRIPT ARGUMENTS...
+STAT_FAILS_ONCE = '\n'.join([
+    'import errno, os, runpy, sys',
+    'failing, real_stat, failed = sys.argv.pop(1), os.stat, []',
+    'def stat_failing_once(path, *arguments, **keywords):',
+    '    if str(path) == failing and not failed:',
+    '        failed.append(path)',
+    '        raise OSError(errno.EIO, os.strerror(errno.EIO), path)',
+    '    return real_stat(path, *arguments, **keywords)',
+    'os.stat = stat_failing_once',
+    'sys.argv.pop(0)',
+    "runpy.run_path(sys.argv[0], run_name='__main__')",
+])
 
 
 def write(folder: str, path: str, text: str) -> None:
@@ -74,12 +88,14 @@ class InstalledPagesTest(unittest.TestCase):
 
     def page_problems(self) -> List[str]:
         """Return the problems of the installed page against the checkout's page."""
-        installed = check_install.read_installed_pages(self.share, {PAGE})
+        states = check_install.take_inventory(self.share, {PAGE}).states
+        installed = check_install.read_installed_pages(self.share, {PAGE}, states)
         return check_install.check_pages_are_the_checkouts(installed, {PAGE}, self.checkout)
 
     def link_problems(self) -> List[str]:
         """Return the problems of the installed page's links."""
-        installed = check_install.read_installed_pages(self.share, {PAGE})
+        states = check_install.take_inventory(self.share, {PAGE}).states
+        installed = check_install.read_installed_pages(self.share, {PAGE}, states)
         return check_install.check_links_lead_to_installed_files(self.share, installed)
 
     def test_same_page_and_installed_link_targets_have_no_problems(self) -> None:
@@ -170,8 +186,9 @@ class FilesCanBeReadTest(unittest.TestCase):
         write(self.share, SHARED_MODULE, 'content')
 
     def problems(self) -> List[str]:
-        """Return the problems of the shared module's installed path."""
-        return check_install.check_files_can_be_read(self.share, [SHARED_MODULE])
+        """Return the problems of the shared module's installed path, from an inventory."""
+        states = check_install.take_inventory(self.share, {SHARED_MODULE}).states
+        return check_install.check_files_can_be_read(states, [SHARED_MODULE])
 
     def replace_with_link(self, target: str) -> None:
         """Replace the installed shared module with a symbolic link to the target."""
@@ -326,6 +343,14 @@ class CheckInstallCommandTest(unittest.TestCase):
                                self.prefix, '2'], check=False, capture_output=True, text=True,
                               timeout=COMMAND_TIMEOUT)
 
+    def run_command_with_a_failing_stat(self, path: str) -> 'subprocess.CompletedProcess[str]':
+        """Run the command as run_command() does, with os.stat() failing once on the path."""
+        return subprocess.run([sys.executable, '-c', STAT_FAILS_ONCE,
+                               os.path.join(self.share, path),
+                               os.path.join(self.checkout, 'scripts', 'check_install.py'),
+                               self.prefix, '2'], check=False, capture_output=True, text=True,
+                              timeout=COMMAND_TIMEOUT)
+
     def replace_with_fifo(self, path: str) -> None:
         """Replace an installed file with a named pipe that has no writer."""
         os.remove(os.path.join(self.share, path))
@@ -369,6 +394,48 @@ class CheckInstallCommandTest(unittest.TestCase):
         self.assert_reported(self.run_command(),
                              [f"{PAGE}: isn't a file that can be read: it isn't a regular file",
                               f"{PAGE}: the installed page can't be read"])
+
+    def test_mesh_whose_state_fails_once_is_reported_and_not_read(self) -> None:
+        """Let the one os.stat() of the mesh fail, with wrong bytes in the mesh.
+
+        The inventory takes the mesh's state once. The command reports that state and doesn't
+        open the mesh, so the run can't pass with the wrong bytes unchecked.
+        """
+        write(self.share, MESH, 'other bytes')
+
+        self.assert_reported(self.run_command_with_a_failing_stat(MESH),
+                             [f"{MESH}: isn't a file that can be read: it can't be examined: "
+                              f'{os.strerror(errno.EIO)}'])
+
+    def test_stale_file_behind_a_linked_folder_is_reported(self) -> None:
+        """Move the part's mesh folder away with an old file in it, and link it into place."""
+        elsewhere = os.path.join(self.folder, 'elsewhere')
+        shutil.move(os.path.join(self.share, os.path.dirname(MESH)), elsewhere)
+        write(elsewhere, 'old-preview.stl', 'old')
+        os.symlink(elsewhere, os.path.join(self.share, os.path.dirname(MESH)))
+
+        self.assert_reported(self.run_command(),
+                             [f'not expected: {os.path.dirname(MESH)}/old-preview.stl'])
+
+    def test_folder_link_back_to_the_share_folder_is_reported_once(self) -> None:
+        """Link the share folder into the part's mesh folder: listed once, the link reported."""
+        os.symlink(self.share, os.path.join(self.share, os.path.dirname(MESH), 'loop'))
+
+        self.assert_reported(self.run_command(),
+                             [f'{os.path.dirname(MESH)}/loop: the folder is listed already, '
+                              'through another path'])
+
+    @unittest.skipIf(os.geteuid() == 0, 'root lists a folder without read permission')
+    def test_folder_that_cannot_be_listed_is_reported(self) -> None:
+        """Take the read permission from the part's mesh folder, so it can't be listed."""
+        folder = os.path.join(self.share, os.path.dirname(MESH))
+        os.chmod(folder, 0o311)
+        self.addCleanup(os.chmod, folder, 0o755)
+
+        self.assert_reported(self.run_command(),
+                             [f"{os.path.dirname(MESH)}: the folder can't be listed: "
+                              f'{os.strerror(errno.EACCES)}',
+                              f'missing: {MESH}', f'missing: {MESH}.license'])
 
     def test_mesh_that_is_a_named_pipe_is_reported_without_waiting(self) -> None:
         """Put a named pipe without a writer where the installed mesh should be."""
@@ -420,9 +487,10 @@ class CheckInstallCommandTest(unittest.TestCase):
                               'regular file'])
 
     def test_build_tool_file_as_a_link_to_a_folder_is_reported(self) -> None:
-        """Install CMake's package file as a link to a folder: reported."""
+        """Install CMake's package file as a link to an empty folder: reported."""
         os.makedirs(os.path.join(self.share, os.path.dirname(BUILD_TOOL_FILE)))
-        os.symlink(self.folder, os.path.join(self.share, BUILD_TOOL_FILE))
+        os.mkdir(os.path.join(self.folder, 'empty'))
+        os.symlink(os.path.join(self.folder, 'empty'), os.path.join(self.share, BUILD_TOOL_FILE))
 
         self.assert_reported(self.run_command(),
                              [f"{BUILD_TOOL_FILE}: isn't a file that can be read: it isn't a "
