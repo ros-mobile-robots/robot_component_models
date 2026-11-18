@@ -20,17 +20,22 @@ Every model here is the project's own work, under this repository's [license](LI
 
 1. Choose the part's identifier, lowercase snake_case after the product, such as `rplidar_a2` (see the README's file name rules). Write or change the generator `generators/<part>.py`. Parameters go at the top, each with its source. `build()` returns the part's meshes as `mesh_export.Model` objects, in millimetres, with named sub-parts and materials. The export writes the files in metres. Add a new part to `PARTS` in `generators/__init__.py`. `build()` reads as the list of the part's sub-parts, with one function per sub-part, and every dimension is a named constant in the parameter block, not a number inside a function. [AGENTS.md](AGENTS.md#code) has the code rules.
 2. Write or update `provenance/<part>.md`: sources, the Frame section, what is simplified or estimated, and which measurements would help.
-3. Regenerate and check, with the pinned Python packages (see the README). The first command rewrites every file in `meshes/` and the manifest, so run it only after a change to a generator. The other commands change no tracked file:
+3. Regenerate and check, with the pinned Python packages (see the README). The first command rewrites every file in `meshes/` and the manifest, so run it only after a change to a generator. The three checks after it change no tracked file:
 
    ```bash
    .venv/bin/python -m generators            # write every mesh and meshes/manifest.yaml
    .venv/bin/python -m generators --check    # regeneration check: all files byte-identical
    .venv/bin/python -m generators --check    # a second run gives the same line
    .venv/bin/python scripts/check_meshes.py  # … files checked, 0 problems
-   .venv/bin/python scripts/render_parts.py  # only when a part's look changed: the README's pictures
    ```
 
    The bytes of the meshes are the same as CI's only in CI's generator environment. On another system, regenerate and check in CI's image, as [Run CI's checks locally](#run-cis-checks-locally) shows.
+
+   When the part's look changed, render the README's pictures again. This command rewrites the tracked PNG files in `docs/images/`. Commit only the pictures of the parts you changed:
+
+   ```bash
+   .venv/bin/python scripts/render_parts.py
+   ```
 
 4. Load the mesh in a robot model and look at it in RViz and Gazebo.
 5. Update the README's parts table: the picture, triangles and file sizes.
@@ -46,10 +51,10 @@ Every model here is the project's own work, under this repository's [license](LI
 
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs every job in a container. The same commands give the same result with docker. Run them in the repository's root.
 
-The regeneration check, in CI's generator environment. The repository is mounted read-only, and the command prints `regeneration check: all files byte-identical` twice:
+The regeneration check, in CI's generator environment. CI's machine is an x64 one, and `--platform linux/amd64` selects that variant of the image. A computer with an ARM processor needs Docker's emulation of amd64 for these two commands, or an amd64 machine. The repository is mounted read-only, and the command prints `regeneration check: all files byte-identical` twice:
 
 ```bash
-docker run --rm -v "$PWD":/src:ro \
+docker run --rm --platform linux/amd64 -v "$PWD":/src:ro \
   ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852 bash -c '
   apt-get update && apt-get install -y --no-install-recommends python3 python3-venv ca-certificates \
     git libgl1 libxrender1 libxext6 libsm6 libice6 libegl1 &&
@@ -57,15 +62,16 @@ docker run --rm -v "$PWD":/src:ro \
   cd /src && /opt/venv/bin/python -m generators --check && /opt/venv/bin/python -m generators --check'
 ```
 
-To regenerate the meshes in that environment after a change to a generator, mount the repository writable and write the files. The last step gives the new files to the owner of the repository's folder, because the container writes them as root:
+To regenerate the meshes in that environment after a change to a generator, mount the repository writable. The container installs the packages as root and then runs the generators as your user, so every file that the run writes belongs to you, also when a generator fails halfway:
 
 ```bash
-docker run --rm -e PYTHONDONTWRITEBYTECODE=1 -v "$PWD":/src \
+docker run --rm --platform linux/amd64 -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" -v "$PWD":/src \
   ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852 bash -c '
   apt-get update && apt-get install -y --no-install-recommends python3 python3-venv ca-certificates \
     git libgl1 libxrender1 libxext6 libsm6 libice6 libegl1 &&
   python3 -m venv /opt/venv && /opt/venv/bin/pip install -r /src/generators/requirements.txt &&
-  cd /src && /opt/venv/bin/python -m generators && chown -R --reference=. meshes'
+  cd /src && setpriv --reuid "$HOST_UID" --regid "$HOST_GID" --clear-groups \
+    env HOME=/tmp PYTHONDONTWRITEBYTECODE=1 /opt/venv/bin/python -m generators'
 ```
 
 The ROS 2 package check:
@@ -86,7 +92,8 @@ python3 -m venv .lint && .lint/bin/pip install -r scripts/requirements-lint.txt
 
 ## Pull requests
 
-- **One change per pull request**, on a branch named `feat/…`, `fix/…`, `docs/…`, `chore/…`, `refactor/…` or `test/…`, with a short topic in kebab-case, such as `feat/rplidar-a1`.
+- **One topic:** one change per pull request.
+- **Branch:** `feat/…`, `fix/…`, `docs/…`, `chore/…`, `refactor/…` or `test/…`, with a short topic in kebab-case, such as `feat/rplidar-a1`.
 - **Pull requests are squash-merged.** Maintainers use the PR title as the commit's subject and the description as its message, so write the title as `Area: what changed`, 65 characters or fewer, and start the description with what changes and why.
 - Say how you tested it.
 - End the description with `Closes #N` when your pull request resolves issue N. If the issue stays open, name it without a closing keyword, for example `Part of #N`.

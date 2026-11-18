@@ -9,7 +9,7 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) first. This file adds what an agent need
 Find your change in this list. Each line says what to run or check, and links the section with the details.
 
 - **A new or changed part:**
-    1. Read [Independent creation](CONTRIBUTING.md#independent-creation) before you touch a generator. Every dimension comes from a public source, and the source is recorded in `provenance/<part>.md`.
+    1. Read [Independent creation](CONTRIBUTING.md#independent-creation) before you touch a generator. Every dimension has its source in `provenance/<part>.md`: a public specification, your own measurement with how you took it, or an estimate or a choice that the page calls one.
     2. Change the generator and regenerate the meshes ([After a change to a generator](#after-a-change-to-a-generator)).
     3. The two regeneration checks, the mesh check, flake8 and mypy pass ([Check a checkout](#check-a-checkout)).
     4. Load the mesh in a robot's model and look at the robot in RViz and Gazebo. Say in the pull request what you saw.
@@ -17,7 +17,7 @@ Find your change in this list. Each line says what to run or check, and links th
 - **New logic in a generator, the shared code or a script:** the change brings a check of its own, and a fix brings a check that fails without the fix ([Code](#code)).
 - **A branch you only want to verify:** run the checks, and never the regeneration ([Check a checkout](#check-a-checkout)).
 - **A new part, the shared code, a new check, CI or the development setup:** the documentation pull request is planned with the change ([Documentation](#documentation)).
-- **Only the guides or the README:** nothing to run, and the version stays.
+- **Only the guides or the README:** the version stays. Run every command and example that you add or change, as written.
 - **The commits and the pull request:** one topic, signed commits, and no attribution lines for AI tools ([Commits and pull requests](#commits-and-pull-requests)).
 
 ## What this is
@@ -55,7 +55,7 @@ These commands change no tracked file. Run them on your own change, and on someo
 
 - **`--check`:** regenerates every mesh into a temporary folder and compares the files and the manifest with `meshes/`. It passes twice in a row, because the files hold no time stamps or paths.
 - **`check_meshes.py`:** its first run downloads the COLLADA 1.4.1 schema from khronos.org into `.cache/collada` and verifies the file by its checksum, so that run needs network access.
-- **Where the bytes are the same as CI's:** CI regenerates in one environment, the Ubuntu 24.04 image that `.github/workflows/ci.yml` pins by its digest, with Python 3.12.3, glibc 2.39 and the graphics libraries that the workflow installs ([README, Regenerating the meshes](README.md#regenerating-the-meshes)). The pinned Python packages alone don't give that environment. On another system, `--check` can report differing files for an unchanged checkout. Run the check in CI's image then: [Run CI's checks locally](CONTRIBUTING.md#run-cis-checks-locally) has the docker command.
+- **Where the bytes are the same as CI's:** CI regenerates in one environment, the Ubuntu 24.04 image that `.github/workflows/ci.yml` pins by its digest, on an x64 (amd64) machine, with Python 3.12.3, glibc 2.39 and the graphics libraries that the workflow installs ([README, Regenerating the meshes](README.md#regenerating-the-meshes)). The pinned Python packages alone don't give that environment. On another system, `--check` can report differing files for an unchanged checkout. Run the check in CI's image then: [Run CI's checks locally](CONTRIBUTING.md#run-cis-checks-locally) has the docker command.
 
 ### After a change to a generator
 
@@ -64,10 +64,16 @@ The first command below rewrites every file in `meshes/` and the manifest. Run i
 ```bash
 .venv/bin/python -m generators            # write every mesh and meshes/manifest.yaml
 git status --short meshes                 # the files you meant to change, and no others
-.venv/bin/python scripts/render_parts.py  # only when a part's look changed: the README's pictures
 ```
 
 Then run the commands of [Check a checkout](#check-a-checkout). Meshes for a pull request have to come from CI's environment, or CI's regeneration check fails: [Run CI's checks locally](CONTRIBUTING.md#run-cis-checks-locally) shows how to regenerate in CI's image.
+
+When a part's look changed, render the README's pictures again. This command rewrites the PNG files in `docs/images/`, which are tracked. CI doesn't compare them, and another graphics driver gives slightly other pixels, so commit only the pictures of the parts you changed:
+
+```bash
+.venv/bin/python scripts/render_parts.py
+git status --short docs/images            # put back the pictures of parts you didn't change
+```
 
 ## Code
 
