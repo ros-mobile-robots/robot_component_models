@@ -115,6 +115,15 @@ class ColladaNormalsTest(unittest.TestCase):
                          [f'<triangles material="grey"> has 2 indices outside the {CORNERS} '
                           'positions and normals of its mesh'])
 
+    def test_indices_that_are_not_numbers_are_reported(self) -> None:
+        """Replace the last normal index with 'x': reported as a problem, not an error."""
+        numbers = self.indices()
+        numbers[-1] = 'x'
+
+        self.assertEqual(self.problems_with_indices(numbers),
+                         ['<triangles material="grey"> has a count or indices that aren\'t '
+                          'whole numbers'])
+
     def test_normals_as_an_input_of_the_vertices_are_reported(self) -> None:
         """Move the normals' input from the triangle list to <vertices>: reported."""
         normal_input = self.document.xpath('//c:triangles/c:input[@semantic="NORMAL"]',
@@ -216,6 +225,15 @@ class ColladaSourceBindingTest(unittest.TestCase):
         self.element(f'//c:source[@id="{GEOMETRY}-normals"]//c:accessor').set('offset', '0')
 
         self.assertEqual(check_meshes.collada_normal_problems(self.document), [])
+
+    def test_an_accessor_offset_that_is_not_a_number_is_reported(self) -> None:
+        """Give the normals' accessor the offset 'x': reported as a problem, not an error."""
+        self.element(f'//c:source[@id="{GEOMETRY}-normals"]//c:accessor').set('offset', 'x')
+
+        self.assertEqual(
+            check_meshes.collada_normal_problems(self.document),
+            [f"the source {GEOMETRY}-normals's accessor count '{CORNERS}', accessor offset "
+             f"'x' and array count '{3 * CORNERS}' aren't all whole numbers"])
 
     def test_inputs_in_the_other_order_have_no_problems(self) -> None:
         """Put the NORMAL input before the VERTEX input: the offsets still pair the indices."""
