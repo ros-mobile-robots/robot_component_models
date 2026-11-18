@@ -10,7 +10,7 @@ Generator: [`generators/rplidar_a1.py`](../generators/rplidar_a1.py).
 
 ![The laser scanner from above and from the side, with the origin and axes of its frame, its four mounting holes, the scan plane and the mounting plane](../docs/images/frames/rplidar_a1.png)
 
-The picture shows the scanner from above and from the side. The red dot is the origin of the mesh's frame, on the head's rotation axis in the scan plane, and the red arrows are its positive axes. The green rings mark the four Ø3 mm mounting holes. The upper dashed line is the scan plane. The lower dashed line is the underside of the base's four mounting bosses, the mounting plane. The motor hangs below the mounting plane.
+The picture shows the scanner from above and from the side. The red dot is the origin of the mesh's frame, on the head's rotation axis in the scan plane, and the red arrows are its positive axes. The green rings mark the four Ø3 mm mounting holes. The upper dashed line is the scan plane. The lower dashed line is the underside of the base's four mounting bosses, the mounting plane. The housing under the head, the board with its parts and the motor hang below the mounting plane. The side view names the lowest of the board's parts and the motor.
 
 The files are in metres. Positions on this page are in millimetres.
 
@@ -20,9 +20,14 @@ The files are in metres. Positions on this page are in millimetres.
 | Mounting holes at the motor's end | (x, y) = (-42, -20) and (-42, 20) mm |
 | Mounting plane, the underside of the bosses around the holes | z = -21 mm |
 | Scan plane | z = 0 |
-| Motor's bottom | z = -42 mm, on the motor's axis at x = -45.5 mm. A mount needs 21 mm of room below the mounting plane there |
+| Housing under the head | Down to z = -24.2 mm, 3.2 mm below the mounting plane, within 29.5 mm of the head's axis |
+| Board under the housing | Its underside at z = -27 mm, 6 mm below the mounting plane. The board lies from x = -28.5 to 17.2 mm and from y = -28.6 to 28.6 mm |
+| Parts under the board | Down to z = -34.5 mm, 13.5 mm below the mounting plane: the round part at (x, y) = (-23.8, 15.9) mm. The three connectors at x = -24.8 mm reach z = -31.6 mm, 10.6 mm below the mounting plane |
+| Motor's bottom | z = -42 mm, 21 mm below the mounting plane, on the motor's axis at x = -45.5 mm |
 | Base's top face | z = -15.5 mm |
 | Head's top | z = +9 mm |
+
+Only the four bosses lie in the mounting plane. A flat plate under them needs an opening for the housing, the board and the motor. A mount that carries the bosses alone, such as four standoffs, leaves that room free: 13.5 mm clear the board's parts, and 21 mm clear the motor.
 
 The origin lies on the head's rotation axis, in the scan plane: 42 mm above the motor's bottom, the middle of the datasheet's 10 mm laser working area. +z points up. +x points from the motor to the base's round end, Slamtec's 0° direction for the A1.
 

@@ -152,19 +152,27 @@ def scanner_figure() -> FrameFigure:
 
 
 def scanner_a1_figure() -> FrameFigure:
-    """Return the RPLIDAR A1's picture: its four holes, the mounting plane, the scan plane."""
+    """Return the RPLIDAR A1's picture: its four holes, the mounting plane, the scan plane.
+
+    The labels name what hangs below the mounting plane, with the lowest z of each: the
+    motor, and the tallest part on the underside of the board under the base.
+    """
     scanner = rplidar_a1
     seat = scanner.z_at(scanner.BASE_BOTTOM)
     holes = [(x, y, seat) for x, y in scanner.MOUNT_HOLES]
     motor_bottom = scanner.z_at(scanner.MOTOR_BOSS[1])
+    part_x, part_y, _, part_height = scanner.ROUND_PART
+    parts_bottom = scanner.z_at(scanner.PCB_BOTTOM - part_height)
     return FrameFigure(
         (TOP_VIEW, SIDE_VIEW), holes,
         [Plane('scan plane, z = 0', Z_AXIS, 0.0),
          Plane(f"mounting bosses' underside, z = {seat:g} mm", Z_AXIS, seat)],
         [Label('mounting boss', (scanner.MOUNT_HOLES[0][0], 0.0, seat + 0.5), (-60, 34)),
+         Label(f"board's parts, down to z = {parts_bottom:g} mm",
+               (part_x, part_y, parts_bottom + 1.0), (36, 58)),
          Label(f'motor, down to z = {motor_bottom:g} mm',
                (-scanner.MOTOR_OFFSET, 0.0, scanner.z_at(scanner.MOTOR_CAN[0]) + 6.0),
-               (40, 30))])
+               (-110, 62))])
 
 
 def raspberry_pi_figure() -> FrameFigure:
