@@ -167,11 +167,11 @@ Without the path, gz-sim spawns the robot, logs `Unable to find file with URI [m
 ### Tested so far
 
 - **ROS 1 Noetic, RViz and Gazebo Classic 11:** the COLLADA and STL files in DiffBot's and Remo's descriptions.
-- **ROS 2 Humble:** CI checks the package's build and install. The mesh loaders of RViz 2 and Gazebo Fortress read all nine COLLADA files with every corner at the file's position, and all nine STL files with the manifest's triangle counts and bounding boxes. Neither viewer drew a file in a test.
+- **ROS 2 Humble, RViz 2 and Gazebo Fortress:** CI checks the package's build and install. Both viewers drew the camera and the Teensy from their COLLADA files. Their mesh loaders read all nine COLLADA files with every corner at the file's position, and all nine STL files with the manifest's triangle counts and bounding boxes.
 - **ROS 2 Jazzy, RViz 2 and gz-sim 8:**
-    - **Drawn from the COLLADA files:** the camera and the Teensy, each on its own, and all nine parts in one scene.
+    - **Drawn from the COLLADA files:** each of the nine meshes on its own, and all nine in one scene.
+    - **Drawn from an STL file:** the camera. The other STL files haven't been drawn there in a test yet.
     - **Read by the viewers' mesh loaders:** all nine COLLADA files with every corner at the file's position, and all nine STL files with the manifest's triangle counts and bounding boxes.
-    - **Not drawn in a test yet:** the STL files.
     - **The glTF files:** drawn, with the result in the table above.
 
 ## Mesh conventions
