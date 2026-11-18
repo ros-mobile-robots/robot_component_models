@@ -123,7 +123,7 @@ docker run --rm --platform linux/amd64 -v "$PWD":/src:ro -w /src \
   /opt/venv/bin/python scripts/check_millimetre_collada.py /tmp/meshes_mm'
 ```
 
-The comparison ends with `9 millimetre files checked, 0 problems`.
+The comparison's last line gives the number of millimetre files that it checked and ends with `0 problems`.
 
 ### The ROS package check
 
