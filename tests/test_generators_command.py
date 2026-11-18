@@ -268,5 +268,54 @@ class CheckReadOnlyTest(GeneratorsCommandTest):
         self.assertEqual(snapshot(os.path.join(self.repository, second)), mesh_files)
 
 
+class TemporaryFolderSpellingTest(GeneratorsCommandTest):
+    """--check puts its temporary files where the system finds TMPDIR, links resolved.
+
+    'via' in the repository is a symbolic link to a folder outside it. So 'via/../meshes' is
+    the folder 'meshes' next to that folder, outside the repository. Cancelling '..' against
+    'via' in the spelling would give the repository's own meshes/ instead.
+    """
+
+    def setUp(self) -> None:
+        """Make the outside folders and the link, and spell TMPDIR through the link."""
+        super().setUp()
+        outside = os.path.join(self.work, 'elsewhere')
+        os.makedirs(os.path.join(outside, 'child'))
+        self.outside_meshes = os.path.join(outside, 'meshes')
+        os.mkdir(self.outside_meshes)
+        os.symlink(os.path.join(outside, 'child'), os.path.join(self.repository, 'via'))
+        self.spelled = os.path.join(self.repository, 'via', os.pardir, 'meshes')
+        self.outside_time = os.stat(self.outside_meshes).st_mtime_ns
+
+    def assert_checked_in_the_outside_folder(
+            self, result: 'subprocess.CompletedProcess[str]') -> None:
+        """Fail unless the check ran, used the outside folder and left meshes/ alone.
+
+        The marked reference file is the check's one difference: no regenerated file shows up
+        in meshes/ as a file that wasn't generated.
+        """
+        self.assertEqual(result.returncode, FAILED, result.stderr)
+        self.assertIn(f'{MARKED_FILE}: regenerated file differs', result.stdout)
+        self.assertNotIn('not generated', result.stdout)
+        self.assert_reference_unchanged()
+
+    def test_check_resolves_a_temporary_folder_spelled_through_a_link(self) -> None:
+        """Run --check with the spelled TMPDIR: its temporary folder is made outside."""
+        result = run_generators(self.repository, ['--check'],
+                                dict(ENVIRONMENT, TMPDIR=self.spelled))
+
+        self.assert_checked_in_the_outside_folder(result)
+        self.assertNotEqual(os.stat(self.outside_meshes).st_mtime_ns, self.outside_time)
+        self.assertEqual(os.listdir(self.outside_meshes), [])
+
+    def test_check_with_keep_resolves_a_temporary_folder_spelled_through_a_link(self) -> None:
+        """Run --check --keep NEW with the spelled TMPDIR: meshes/ is only read."""
+        result = run_generators(self.repository,
+                                ['--check', '--keep', os.path.join(self.work, 'kept')],
+                                dict(ENVIRONMENT, TMPDIR=self.spelled))
+
+        self.assert_checked_in_the_outside_folder(result)
+
+
 if __name__ == '__main__':
     unittest.main()
