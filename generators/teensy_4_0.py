@@ -10,6 +10,7 @@ Sources and measurements in provenance/teensy_4_0.md.
 Frame (positions in mm, the files are in metres): the board's bottom face at
 z = 0, the long axis along x with the USB connector at -x, the row with the inner pin hole at +y.
 """
+from typing import Dict
 from typing import List
 from typing import Tuple
 
@@ -17,12 +18,12 @@ import cadquery as cq
 import numpy as np
 
 from generators.mesh_export import classified_sub_part
+from generators.mesh_export import Classifier
 from generators.mesh_export import Model
 from generators.mesh_export import phong
+from generators.mesh_export import Piece
 
 TITLE = 'Teensy 4.0 with two 14-pin headers'
-
-Piece = Tuple[str, cq.Workplane]
 
 # --- Parameters (mm) ---------------------------------------------------------------------------
 NAME = 'teensy_4_0'
@@ -75,7 +76,7 @@ MATERIALS = {name: phong(rgb, (0.35, 0.35, 0.35) if name in METALS else (0.04, 0
              for name, rgb in COLOURS.items()}
 
 
-def to_xy(u, v):
+def to_xy(u: float, v: float) -> Tuple[float, float]:
     """Map board coordinates to the frame.
 
     u: distance from the USB end (mm), v: distance from the +y edge (mm).
@@ -191,31 +192,33 @@ BOTTOM_VIAS = [(2.3, 13.75), (4.0, 11.5), (5.45, 12.3), (5.6, 7.9), (4.1, 6.5), 
 
 
 # --- Geometry helpers --------------------------------------------------------------------------
-def box(x0, x1, y0, y1, z0, z1):
+def box(x0: float, x1: float, y0: float, y1: float, z0: float, z1: float) -> cq.Workplane:
     """Return an axis-aligned box from its bounds."""
     return cq.Workplane('XY').box(x1 - x0, y1 - y0, z1 - z0, centered=False) \
         .translate((x0, y0, z0))
 
 
-def board_box(u, v, su, sv, z0, z1):
+def board_box(u: float, v: float, su: float, sv: float, z0: float,
+              z1: float) -> cq.Workplane:
     """Return a box centred on board position (u, v), sizes along u and v."""
     x, y = to_xy(u, v)
     return box(x - su / 2, x + su / 2, y - sv / 2, y + sv / 2, z0, z1)
 
 
-def disc(x, y, d, z0, z1):
+def disc(x: float, y: float, d: float, z0: float, z1: float) -> cq.Workplane:
     """Return a vertical cylinder."""
     return cq.Workplane('XY').circle(d / 2).extrude(z1 - z0).translate((x, y, z0))
 
 
-def ring(x, y, d_out, d_in, z0, z1):
+def ring(x: float, y: float, d_out: float, d_in: float, z0: float,
+         z1: float) -> cq.Workplane:
     """Return an annulus (flat ring) between z0 and z1."""
     return (cq.Workplane('XY').circle(d_out / 2).circle(d_in / 2).extrude(z1 - z0)
             .translate((x, y, z0)))
 
 
 # --- The parts ---------------------------------------------------------------------------------
-def pcb():
+def pcb() -> cq.Workplane:
     """Return the board with its 34 plated holes."""
     x0, y0 = to_xy(0, BOARD_W)
     body = (cq.Workplane('XY').rect(BOARD_L, BOARD_W, centered=False).extrude(BOARD_T)
@@ -224,7 +227,7 @@ def pcb():
     return body.faces('>Z').workplane(origin=(0, 0, BOARD_T)).pushPoints(pts).hole(HOLE_D)
 
 
-def pads():
+def pads() -> List[cq.Workplane]:
     """Return the plated rings on both faces and the bottom SMT pads."""
     shapes = []
     for u, v in ALL_HOLES:
@@ -236,7 +239,7 @@ def pads():
     return shapes
 
 
-def header():
+def header() -> Tuple[List[cq.Workplane], List[cq.Workplane], List[cq.Workplane]]:
     """Return the two 14-pin headers: spacers, pins and solder joints, by material."""
     spacers, pins, solder = [], [], []
     for u, v in HEADER_PINS:
@@ -254,12 +257,12 @@ def header():
     return spacers, pins, solder
 
 
-def dimple(u, v, d, z):
+def dimple(u: float, v: float, d: float, z: float) -> cq.Workplane:
     """Return a pin-1 marker: a shallow, slightly lighter disc on top of a package."""
     return disc(*to_xy(u, v), d, z - 0.01, z + 0.005)
 
 
-def mcu():
+def mcu() -> List[Piece]:
     """Return the MCU: ball layer, substrate, mould cap and pin-1 dimple."""
     u, v, size, height, pin1 = MCU
     z = BOARD_T - 0.01
@@ -270,13 +273,14 @@ def mcu():
             ('ic_mark', dimple(*pin1, 0.5, BOARD_T + height))]
 
 
-def solder(u, v, ou, ov, bottom=False):
+def solder(u: float, v: float, ou: float, ov: float, bottom: bool = False) -> Piece:
     """Return the solder on a part's pads: a flat slab as large as the part's outline."""
     z0, z1 = (BOARD_T - 0.01, BOARD_T + SOLDER_T) if not bottom else (-SOLDER_T, 0.01)
     return ('solder', board_box(u, v, ou, ov, z0, z1))
 
 
-def two_terminal(name, mat, u, v, su, sv, h, ou, ov, bottom=False):
+def two_terminal(name: str, mat: str, u: float, v: float, su: float, sv: float, h: float,
+                 ou: float, ov: float, bottom: bool = False) -> List[Piece]:
     """Return a chip resistor, capacitor or LED: body, metal ends on its long axis, solder."""
     z0, z1 = (BOARD_T - 0.01, BOARD_T + h) if not bottom else (0.01, -h)
     lo, hi = min(z0, z1), max(z0, z1)
@@ -293,7 +297,8 @@ def two_terminal(name, mat, u, v, su, sv, h, ou, ov, bottom=False):
     return parts
 
 
-def leaded(name, u, v, su, sv, h, n_minus, n_plus, pitch, length):
+def leaded(name: str, u: float, v: float, su: float, sv: float, h: float, n_minus: int,
+           n_plus: int, pitch: float, length: float) -> List[Piece]:
     """Return a package with leads on its -v and +v edges (SOT, USON, WSON)."""
     z = BOARD_T - 0.01
     parts = [('ic', board_box(u, v, su, sv, z + 0.05, BOARD_T + h).edges('>Z').chamfer(0.05))]
@@ -307,7 +312,7 @@ def leaded(name, u, v, su, sv, h, n_minus, n_plus, pitch, length):
     return parts
 
 
-def qfn():
+def qfn() -> List[Piece]:
     """Return U2: a QFN body, the tin pads on its four edges and its pin-1 dimple."""
     u, v, size, h, per_side, pitch, pin1 = QFN
     z = BOARD_T - 0.01
@@ -321,7 +326,7 @@ def qfn():
     return parts
 
 
-def usb():
+def usb() -> List[Piece]:
     """Return the micro-USB B receptacle: shell, opening, tongue, tabs, legs and leads."""
     x0, _ = to_xy(0, 0)
     _, yc = to_xy(0, BOARD_W / 2)
@@ -348,7 +353,7 @@ def usb():
     return parts
 
 
-def button():
+def button() -> List[Piece]:
     """Return the push button: dark body, metal frame, plunger."""
     u, v = BUTTON
     bu, bv, bh = BUTTON_BODY
@@ -366,7 +371,7 @@ def button():
     return [('ic', body), ('button_frame', frame), ('button_cap', cap)] + legs
 
 
-def crystals():
+def crystals() -> List[Piece]:
     """Return Y1 (ceramic base, metal lid) and Y2 (ceramic body, metal ends), with solder."""
     z = BOARD_T - 0.01
     u, v, su, sv, h, ou, ov = CRYSTAL_24M
@@ -381,7 +386,7 @@ def crystals():
     return parts
 
 
-def test_pads():
+def test_pads() -> List[Piece]:
     """Return the copper test pads (copper ring, gold centre) on both faces."""
     parts = []
     for pads, z0, z1 in ((TEST_PADS_TOP, BOARD_T - 0.005, BOARD_T + PAD_T),
@@ -393,7 +398,7 @@ def test_pads():
     return parts
 
 
-def bottom_features():
+def bottom_features() -> List[Piece]:
     """Return the bottom's slot pads (with their dark slots) and via pads."""
     parts = []
     for u, v in BOTTOM_SLOTS:
@@ -406,7 +411,7 @@ def bottom_features():
     return parts
 
 
-def pcb_material(tri):
+def pcb_material(tri: np.ndarray) -> np.ndarray:
     """Return the material of each board triangle: mask on the faces, FR4 edges, plated holes."""
     normal = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
     normal /= np.linalg.norm(normal, axis=1, keepdims=True)
@@ -421,7 +426,7 @@ def pcb_material(tri):
 
 
 # Parts whose triangles get more than one material
-CLASSIFIERS = {'pcb': pcb_material}
+CLASSIFIERS: Dict[str, Classifier] = {'pcb': pcb_material}
 
 
 # --- Mesh --------------------------------------------------------------------------------------

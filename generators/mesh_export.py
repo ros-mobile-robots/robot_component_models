@@ -33,6 +33,8 @@ from OCP.TopAbs import TopAbs_REVERSED
 from OCP.TopLoc import TopLoc_Location
 
 Colour = Tuple[float, float, float, float]
+# A solid of a sub-part with the name of its material
+Piece = Tuple[str, cq.Workplane]
 # Splits a piece's triangle corners (m, 3, 3) into materials: an array of m material names
 Classifier = Callable[[np.ndarray], np.ndarray]
 
@@ -247,7 +249,7 @@ def surfaces_by_material(pieces: Sequence[Tuple[str, Surface]],
     return {name: merge_surfaces(groups[name]) for name in order if name in groups}
 
 
-def classified_sub_part(name: str, pieces: Sequence[Tuple[str, cq.Workplane]],
+def classified_sub_part(name: str, pieces: Sequence[Piece],
                         order: Sequence[str], linear: float, angular: float,
                         classifiers: Optional[Dict[str, Classifier]] = None) -> SubPart:
     """Return a sub-part from (material, workplane) pieces, with smooth normals per material.

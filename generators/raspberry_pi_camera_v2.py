@@ -13,14 +13,18 @@ Frame (positions in mm, the files are in metres): the board in the yz plane
 with its back face at x = -1.645, the lens looking along +x, the edge with the mounting holes
 2 mm away at -z (the ribbon connector's edge at +z, on the back).
 """
+from typing import Dict
 from typing import List
+from typing import Tuple
 
 import cadquery as cq
 import numpy as np
 
 from generators.mesh_export import classified_sub_part
+from generators.mesh_export import Classifier
 from generators.mesh_export import Model
 from generators.mesh_export import phong
+from generators.mesh_export import Piece
 
 TITLE = 'Raspberry Pi Camera Module v2'
 
@@ -102,37 +106,39 @@ MATERIALS = {name: phong(rgb, (0.35, 0.35, 0.35) if name in METALS else (0.04, 0
              for name, rgb in COLOURS.items()}
 
 
-def to_yz(a, b):
+def to_yz(a: float, b: float) -> Tuple[float, float]:
     """Map drawing coordinates (a, b) to the frame's (y, z)."""
     return Y0 + b, Z0 + a
 
 
 # --- Geometry helpers --------------------------------------------------------------------------
-def box(x0, x1, y0, y1, z0, z1):
+def box(x0: float, x1: float, y0: float, y1: float, z0: float, z1: float) -> cq.Workplane:
     """Return an axis-aligned box from its bounds."""
     return cq.Workplane('XY').box(x1 - x0, y1 - y0, z1 - z0, centered=False) \
         .translate((x0, y0, z0))
 
 
-def ab_box(a0, a1, b0, b1, x0, x1):
+def ab_box(a0: float, a1: float, b0: float, b1: float, x0: float,
+           x1: float) -> cq.Workplane:
     """Return a box between drawing coordinates a0-a1 and b0-b1, from x0 to x1."""
     (y0, z0), (y1, z1) = to_yz(a0, b0), to_yz(a1, b1)
     return box(min(x0, x1), max(x0, x1), y0, y1, z0, z1)
 
 
-def ab_centred(a, b, sa, sb, x0, x1):
+def ab_centred(a: float, b: float, sa: float, sb: float, x0: float,
+               x1: float) -> cq.Workplane:
     """Return a box centred on (a, b) with sizes sa (along z) and sb (along y)."""
     return ab_box(a - sa / 2, a + sa / 2, b - sb / 2, b + sb / 2, x0, x1)
 
 
-def x_cylinder(a, b, d, x0, x1):
+def x_cylinder(a: float, b: float, d: float, x0: float, x1: float) -> cq.Workplane:
     """Return a cylinder along x through drawing position (a, b)."""
     y, z = to_yz(a, b)
     return cq.Workplane('YZ').circle(d / 2).extrude(x1 - x0).translate((x0, y, z))
 
 
 # --- The parts ---------------------------------------------------------------------------------
-def board():
+def board() -> cq.Workplane:
     """Return the board with its four mounting holes."""
     plate = (cq.Workplane('YZ').rect(BOARD_Y, BOARD_Z, centered=False).extrude(BOARD_T)
              .edges('|X').fillet(CORNER_R).translate((X_BACK, Y0, Z0)))
@@ -141,7 +147,7 @@ def board():
     return plate
 
 
-def pads():
+def pads() -> List[Piece]:
     """Return the gold rings around the mounting holes (both faces) and the test pads."""
     parts = []
     for a, b in HOLES_AB:
@@ -154,7 +160,7 @@ def pads():
     return parts
 
 
-def camera_module():
+def camera_module() -> List[Piece]:
     """Return the camera module on the front: foam tape, body, holder, barrel and glass."""
     a, b = LENS_AB
     x = X_FRONT - 0.01
@@ -173,7 +179,7 @@ def camera_module():
     return parts
 
 
-def flex():
+def flex() -> List[Piece]:
     """Return the module's flex: its connector, the stiffener over it and the strip."""
     a0, a1, b0, b1, h = FLEX_CONN
     parts = [('connector_dark', ab_box(a0, a1, b0, b1, X_FRONT - 0.01, X_FRONT + h))]
@@ -191,7 +197,7 @@ def flex():
     return parts
 
 
-def ribbon_connector():
+def ribbon_connector() -> List[Piece]:
     """Return the 15-way ribbon connector on the back: body, latch and solder tabs."""
     a0, a1, b0, b1, h = RIBBON_BODY
     parts = [('connector_black', ab_box(a0, a1, b0, b1, X_BACK + 0.01, X_BACK - h))]
@@ -202,7 +208,7 @@ def ribbon_connector():
     return parts
 
 
-def back_parts():
+def back_parts() -> List[Piece]:
     """Return the small parts on the back, with the leads of the SOT packages."""
     parts = []
     for mat, a, b, sa, sb, h in BACK_PARTS:
@@ -225,7 +231,7 @@ def back_parts():
     return parts
 
 
-def pcb_material(tri):
+def pcb_material(tri: np.ndarray) -> np.ndarray:
     """Return the material of each board triangle: solder mask on the faces, FR4 on the edges."""
     normal = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
     normal /= np.linalg.norm(normal, axis=1, keepdims=True)
@@ -235,7 +241,7 @@ def pcb_material(tri):
 
 
 # Parts whose triangles get more than one material
-CLASSIFIERS = {'pcb': pcb_material}
+CLASSIFIERS: Dict[str, Classifier] = {'pcb': pcb_material}
 
 
 # --- Mesh --------------------------------------------------------------------------------------
