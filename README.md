@@ -168,7 +168,7 @@ Without the path, gz-sim spawns the robot, logs `Unable to find file with URI [m
 
 - **ROS 1 Noetic, RViz and Gazebo Classic 11:** the COLLADA and STL files in DiffBot's and Remo's descriptions.
 - **ROS 2 Humble:** CI checks the package's build and install.
-- **ROS 2 Jazzy, RViz 2 and gz-sim:** the glTF files, with the result in the table above. RViz 2 and gz-sim haven't rendered the COLLADA and STL files in a test yet.
+- **ROS 2 Jazzy, RViz 2 and gz-sim:** the glTF files, with the result in the table above, and the camera's STL file. RViz 2 and gz-sim haven't drawn the COLLADA files and the other STL files in a test yet.
 
 ## Mesh conventions
 
