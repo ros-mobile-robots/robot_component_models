@@ -24,6 +24,7 @@ from generators.board_parts import box
 from generators.board_parts import chamfered_rectangle
 from generators.board_parts import cylinder
 from generators.board_parts import drop_degenerate
+from generators.board_parts import INSULATOR_PLATE
 from generators.board_parts import materials
 from generators.board_parts import Part
 from generators.board_parts import pin_header
@@ -84,6 +85,7 @@ MICRO_HDMI_SIZE = (6.5, 3.0)  # width, Z
 # 0.8 and 1.3 mm below its top, 10 contacts on the top face and 9 below, 0.4 mm pitch.
 MICRO_HDMI_OPENING = (5.9, 2.3, 0.35)  # width, height, bottom above the board
 MICRO_HDMI_TONGUE = (2.3, 1.35, 1.85, 1.0)  # half width (scaled), z0, z1, tip behind front
+MICRO_HDMI_DEPTH = 5.0  # the insulator's face behind the front (estimated)
 AUDIO = (50.7, 0.0, 57.3, 12.25, 6.0)  # body x0, y0, x1, y1 (photo), Z. The barrel to -2.5
 AUDIO_BARREL = (54.0, -2.5, 6.0)  # centre x, front y, diameter
 CSI = (45.05, 0.3, 49.0, 22.7, 5.5)  # camera connector: x0, y0, x1, y1, Z
@@ -403,8 +405,9 @@ def usb_stack(spec: Tuple[float, float, float, float, float], tongue: str) -> Li
 def usb_c() -> List[Piece]:
     """Return the USB-C power receptacle, its opening towards -y.
 
-    Inside the shell: the insulator face, the tongue with 12 gold contacts on each face at
-    0.5 mm and the metal plate in its middle, which shows at the tongue's edges.
+    Inside the shell: the insulator, whose face lies USB_C_INSULATOR behind the front, the
+    tongue with 12 gold contacts on each face at 0.5 mm and the metal plate in its middle,
+    which shows at the tongue's edges.
     """
     centre_x, front, back, width, height = USB_C
     centre_z = TOP + height / 2
@@ -419,12 +422,14 @@ def usb_c() -> List[Piece]:
     insulator = front + USB_C_INSULATOR
     half = tongue_width / 2
     parts: List[Piece] = [
-        ('nickel', shell.cut(stadium(opening_width, opening_height, front - 0.1, insulator))),
-        ('black_plastic', stadium(opening_width, opening_height, insulator - 0.25, insulator)),
+        ('nickel', shell.cut(stadium(opening_width, opening_height, front - 0.1,
+                                     insulator + INSULATOR_PLATE))),
+        ('black_plastic', stadium(opening_width, opening_height, insulator,
+                                  insulator + INSULATOR_PLATE)),
         ('black_plastic', box(centre_x - half, front + tip, centre_z - thickness / 2,
-                              centre_x + half, insulator - 0.25, centre_z + thickness / 2)),
+                              centre_x + half, insulator, centre_z + thickness / 2)),
         ('black_plastic', box(centre_x - half, insulator - step, centre_z - root_thickness / 2,
-                              centre_x + half, insulator - 0.25, centre_z + root_thickness / 2))]
+                              centre_x + half, insulator, centre_z + root_thickness / 2))]
     for x0, x1 in ((centre_x - half - 0.05, centre_x - half + 0.2),
                    (centre_x + half - 0.2, centre_x + half + 0.05)):
         parts.append(('nickel', box(x0, front + 0.5, centre_z - 0.075, x1, insulator - step,
@@ -444,7 +449,7 @@ def micro_hdmi(centre_x: float, front: float, back: float) -> List[Piece]:
     width, height = MICRO_HDMI_SIZE
     opening_width, opening_height, bottom = MICRO_HDMI_OPENING
     opening = chamfered_rectangle(opening_width, opening_height, 0.5, bottom)
-    receptacle = small_receptacle(width, back - front, height, opening, 5.0, 0.5,
+    receptacle = small_receptacle(width, back - front, height, opening, MICRO_HDMI_DEPTH, 0.5,
                                   MICRO_HDMI_TONGUE,
                                   ((10, 0.4, 0.2, True), (9, 0.4, 0.2, False)), 2.6)
     return list(place(receptacle, -90.0, (centre_x, front, TOP)))

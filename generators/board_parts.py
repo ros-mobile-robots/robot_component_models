@@ -225,9 +225,14 @@ def pin_header(pins: Sequence[Point], top: float, bottom: float, pin_height: flo
 # receptacle USB1100 (see the provenance pages): the opening, the tongue and its gap to the
 # opening's top, the depth to the rear housing, the ports 8.5 mm apart, the USB 2.0 contacts'
 # positions and width, and the SuperSpeed contacts within 3 mm of the tongue's tip.
+# The back of a receptacle's opening is a plate of black plastic: an insulator's face or a
+# rear housing. Its front face lies at the depth behind the front that the receptacle's
+# drawing gives, so the opening is that deep. The plate reaches back from that face by this
+# thickness (estimated).
+INSULATOR_PLATE = 0.25
 USB_A_OPENING = (12.5, 5.12)  # width, height
 USB_A_TONGUE = (11.1, 1.84, 0.40)  # width, thickness, gap from the opening's top
-USB_A_PORT_DEPTH = 10.25  # from the front to the rear housing
+USB_A_PORT_DEPTH = 10.25  # from the front to the rear housing's face
 USB_A_PORT_BOTTOMS = (0.95, 9.45)  # above the board
 USB2_CONTACTS = ((-3.5, -1.0, 1.0, 3.5), 0.95, 0.35)  # y, width, reach below the tongue
 USB3_CONTACTS = (5, 2.3, 1.0, 3.0)  # count, pitch (estimated), width, length from the tip
@@ -304,9 +309,9 @@ def usb_a_port(bottom: float, tongue: str) -> List[Part]:
     tongue_width, thickness, gap = USB_A_TONGUE
     top = bottom + height
     underside = top - gap - thickness
-    rear = -USB_A_PORT_DEPTH + 0.3
+    rear = -USB_A_PORT_DEPTH
     parts: List[Part] = [
-        ('black_plastic', box(-USB_A_PORT_DEPTH, -width / 2, bottom, rear, width / 2, top)),
+        ('black_plastic', box(rear - INSULATOR_PLATE, -width / 2, bottom, rear, width / 2, top)),
         (tongue, tongue_block(rear, -tongue_width / 2, underside, -0.3, tongue_width / 2,
                               top - gap, 0.3))]
     ys, contact_width, reach = USB2_CONTACTS
@@ -340,8 +345,8 @@ def usb_a_stack(width: float, depth: float, height: float, tongue: str,
     opening_width, opening_height = USB_A_OPENING
     parts: List[Part] = []
     for bottom in USB_A_PORT_BOTTOMS:
-        port = box(-USB_A_PORT_DEPTH, -opening_width / 2, bottom, 0.1, opening_width / 2,
-                   bottom + opening_height)
+        port = box(-USB_A_PORT_DEPTH - INSULATOR_PLATE, -opening_width / 2, bottom, 0.1,
+                   opening_width / 2, bottom + opening_height)
         shell = shell.cut(port)
         frame = frame.cut(port)
         parts += usb_a_port(bottom, tongue)
@@ -400,20 +405,21 @@ def small_receptacle(width: float, depth: float, height: float, opening: Sequenc
                      rows: Sequence[ContactRow], contact_length: float) -> List[Part]:
     """Return a small metal receptacle (micro-HDMI, micro-USB) facing +x.
 
-    The shell's metal shows inside the opening up to the black insulator at opening_depth,
-    from which the tongue reaches forward with its gold contact rows.
+    The shell's metal shows inside the opening up to the black insulator, whose face lies
+    opening_depth behind the front. From that face the tongue reaches forward with its gold
+    contact rows.
     """
     half = width / 2
     shell = cq.Workplane('XY').box(depth, width, height, centered=False) \
         .translate((-depth, -half, 0.0))
     if round_top:
         shell = shell.edges('|X and >Z').fillet(round_top)
-    cut = front_profile(opening, 0.1, opening_depth + 0.1)
-    insulator = front_profile(opening, -opening_depth + 0.25, 0.25)
+    cut = front_profile(opening, 0.1, opening_depth + INSULATOR_PLATE + 0.1)
+    insulator = front_profile(opening, -opening_depth, INSULATOR_PLATE)
     tongue_half, z0, z1, tip = tongue
     parts: List[Part] = [('nickel', shell.val().cut(cut)), ('black_plastic', insulator),
-                         ('black_plastic', tongue_block(-opening_depth + 0.25, -tongue_half, z0,
-                                                        -tip, tongue_half, z1, 0.1))]
+                         ('black_plastic', tongue_block(-opening_depth, -tongue_half, z0, -tip,
+                                                        tongue_half, z1, 0.1))]
     return parts + contact_rows(rows, tongue, contact_length)
 
 

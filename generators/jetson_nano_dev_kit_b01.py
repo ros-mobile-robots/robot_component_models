@@ -34,6 +34,7 @@ from generators.board_parts import drop_degenerate
 from generators.board_parts import fin_polygon
 from generators.board_parts import front_profile
 from generators.board_parts import header_pin
+from generators.board_parts import INSULATOR_PLATE
 from generators.board_parts import materials
 from generators.board_parts import opening_with_liner
 from generators.board_parts import Part
@@ -82,14 +83,17 @@ HDMI_OPENING = (14.0, 4.55, 1.4)  # width, height (Same Sky HD05), bottom above 
 # thickness, tip behind the front), 10 contacts on the top face and 9 below at 1.0 mm.
 HDMI_INSULATOR = 6.8
 HDMI_TONGUE = (10.8, 0.9, 2.0)
+HDMI_LINER = 0.25  # thickness of the metal liner round the opening (estimated)
 DP_OPENING = (16.1, 4.76, 12.7)  # width, height (JAE DP1), bottom above the top face
 # DisplayPort insides, JAE DP1RD20: insulator face behind the front, tongue (width, thickness
-# (scaled from the front view), tip behind the front, its centreline above the opening's
-# bottom: 3.4 mm above the board, the opening's bottom 0.88 mm (scaled)), its centre 0.5 mm off
-# the opening's, away from the keyed lower left corner, 10 contacts on each face at 1.0 mm.
+# (scaled from the front view), tip behind the front: the insulator's 8.88 mm less the
+# tongue's 4.8 mm, its centreline above the opening's bottom: 3.4 mm above the board, the
+# opening's bottom 0.88 mm (scaled)), its centre 0.5 mm off the opening's, away from the keyed
+# lower left corner, 10 contacts on each face at 1.0 mm.
 DP_INSULATOR = 8.88
-DP_TONGUE = (12.0, 1.0, 4.1, 2.52)
+DP_TONGUE = (12.0, 1.0, 4.08, 2.52)
 DP_TONGUE_OFFSET = 0.5
+DP_LINER = 0.2  # thickness of the metal liner round the opening (estimated)
 HDMI_HOUSING_HEIGHT = 10.2  # the HDMI receptacle's black housing, the DP shell above it
 USB_STACKS = ((36.15, 49.25, -1.52, 15.9, 16.0), (53.2, 66.3, -1.52, 15.9, 16.0))  # photo
 RJ45 = (68.9, 85.0, -1.97, 19.8, 13.7)
@@ -100,6 +104,7 @@ MICRO_USB = (88.3, 95.8, -0.94, 4.6, 3.0)
 MICRO_USB_OPENING = (6.9, 1.85, 0.85, 0.55)  # width, height, chamfer, bottom above the top face
 MICRO_USB_TONGUE = (1.75, 1.62, 2.18, 0.8)  # 0.56 mm, with the 0.04 mm contacts GCT's 0.60
 MICRO_USB_SHELL_WIDTH = 7.4
+MICRO_USB_DEPTH = 3.5  # the insulator's face behind the front (GCT USB3131: 3.50 mm deep)
 POWER_LED = (96.4, 10.7, 98.0, 11.5)
 
 # Module (P3448) in the SO-DIMM connector J2, and the heatsink on it.
@@ -259,20 +264,31 @@ def dc_jack() -> List[Piece]:
     return list(place(parts, -90.0, ((u0 + u1) / 2, front, TOP)))
 
 
-def hdmi_inside(profile: Sequence[Point], wall: float, insulator: float,
+def liner_depth(insulator: float, wall: float) -> float:
+    """Return how deep a receptacle's liner reaches behind the front.
+
+    The insulator's face lies at the insulator's depth. Behind that face come the
+    insulator's plate and the liner's back wall.
+    """
+    return insulator + INSULATOR_PLATE + wall
+
+
+def hdmi_inside(profile: Sequence[Point], insulator: float,
                 tongue: Tuple[float, float, float], centre: float, offset: float = 0.0) -> \
         List[Part]:
-    """Return a receptacle's insulator face, tongue and contacts (10 on top, 9 or 10 below).
+    """Return a receptacle's insulator, tongue and contacts (10 on top, 9 or 10 below).
 
-    The insulator stands in front of the liner's back wall (wall thick, at the insulator's
-    depth), inside the liner, whose inside is the opening's outline.
+    The insulator's face lies at the insulator's depth behind the front, as in the
+    receptacle's drawing: the opening is that deep, and the tongue reaches forward from that
+    face. The insulator's plate fills the liner behind the face, up to the liner's back wall
+    (see liner_depth()). The tongue's middle lies offset beside the opening's middle.
     """
     tongue_width, thickness, tip = tongue
     half = tongue_width / 2
     z0, z1 = centre - thickness / 2, centre + thickness / 2
-    face = -insulator + wall + 0.2
+    face = -insulator
     parts: List[Part] = [
-        ('black_plastic', front_profile(profile, face, 0.2)),
+        ('black_plastic', front_profile(profile, face, INSULATOR_PLATE)),
         ('black_plastic', tongue_block(face, offset - half, z0, -tip, offset + half, z1, 0.15))]
     below = 9 if offset == 0.0 else 10
     return parts + contact_rows(((10, 1.0, 0.5, True), (below, 1.0, 0.5, False)),
@@ -293,21 +309,23 @@ def hdmi_dp_stack() -> List[Part]:
     housing = rounded_box(-depth, -half, 0.0, 0.0, half, HDMI_HOUSING_HEIGHT, vertical=0.3)
     opening_width, opening_height, bottom = HDMI_OPENING
     profile = chamfered_rectangle(opening_width, opening_height, 1.3, bottom)
-    cut, liner = opening_with_liner(profile, HDMI_INSULATOR, 0.25)
+    cut, liner = opening_with_liner(profile, liner_depth(HDMI_INSULATOR, HDMI_LINER),
+                                    HDMI_LINER)
     frame_outer = chamfered_rectangle(opening_width + 0.9, opening_height + 0.9, 1.6,
                                       bottom - 0.45)
     # The frame lies round the liner: together their front edges are the 0.45 mm metal rim
-    frame = front_profile(frame_outer, 0.0, 1.5).cut(front_profile(profile, 0.1, 1.7, -0.25))
+    frame = front_profile(frame_outer, 0.0, 1.5).cut(front_profile(profile, 0.1, 1.7,
+                                                                   -HDMI_LINER))
     # The frame sits in a seat cut into the housing, so their front faces don't overlap.
     seat = front_profile(frame_outer, 0.1, 1.6)
     parts += [('black_plastic', housing.cut(cut).cut(seat)), ('nickel', liner),
               ('nickel', frame)]
-    parts += hdmi_inside(profile, 0.25, HDMI_INSULATOR, HDMI_TONGUE, bottom + opening_height / 2)
+    parts += hdmi_inside(profile, HDMI_INSULATOR, HDMI_TONGUE, bottom + opening_height / 2)
     shell = rounded_box(-depth, -half, HDMI_HOUSING_HEIGHT, -0.3, half, height, vertical=0.4)
     shell_frame = box(-0.3, -half, HDMI_HOUSING_HEIGHT, 0.0, half, height)
     opening_width, opening_height, bottom = DP_OPENING
     profile = chamfered_rectangle(opening_width, opening_height, 1.0, bottom, 'lower_left')
-    cut, liner = opening_with_liner(profile, DP_INSULATOR, 0.2)
+    cut, liner = opening_with_liner(profile, liner_depth(DP_INSULATOR, DP_LINER), DP_LINER)
     shell = shell.cut(cut)
     shell_frame = shell_frame.cut(cut)
     for y in (-4.5, 4.5):
@@ -316,7 +334,7 @@ def hdmi_dp_stack() -> List[Part]:
         parts.append(('nickel', tab))
     tongue_width, thickness, tip, centre = DP_TONGUE
     parts += [('nickel', shell), ('nickel', shell_frame), ('nickel', liner)]
-    parts += hdmi_inside(profile, 0.2, DP_INSULATOR, (tongue_width, thickness, tip),
+    parts += hdmi_inside(profile, DP_INSULATOR, (tongue_width, thickness, tip),
                          bottom + centre, DP_TONGUE_OFFSET)
     return parts
 
@@ -346,8 +364,9 @@ def micro_usb() -> List[Piece]:
     u0, u1, front, back, height = MICRO_USB
     width, opening_height, chamfer, bottom = MICRO_USB_OPENING
     opening = chamfered_rectangle(width, opening_height, chamfer, bottom)
-    receptacle = small_receptacle(MICRO_USB_SHELL_WIDTH, back - front, height, opening, 3.5, 0.4,
-                                  MICRO_USB_TONGUE, ((5, 0.65, 0.35, False),), 2.0)
+    receptacle = small_receptacle(MICRO_USB_SHELL_WIDTH, back - front, height, opening,
+                                  MICRO_USB_DEPTH, 0.4, MICRO_USB_TONGUE,
+                                  ((5, 0.65, 0.35, False),), 2.0)
     receptacle.append(('nickel', box(-2.0, -(u1 - u0) / 2, 0.0, -1.0, (u1 - u0) / 2, 0.4)))
     return list(place(receptacle, -90.0, ((u0 + u1) / 2, front, TOP)))
 
