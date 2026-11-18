@@ -31,7 +31,7 @@ Every model here is the project's own work, under this repository's [license](LI
 
    The bytes of the meshes are the same as CI's only in CI's generator environment. On another system, regenerate and check in CI's image, as [Run CI's checks locally](#run-cis-checks-locally) shows.
 
-   When the part's look changed, render the README's pictures again. This command rewrites the tracked PNG files in `docs/images/`. Commit the picture of each part you changed and the overview `all_parts.png`, which shows every part. Put back the pictures that differ only because another graphics driver drew them:
+   When the part's look changed, render the README's pictures again. This command rewrites the tracked PNG files in `docs/images/`. Commit the picture of each part you changed and the overview `all_parts.png`, which shows every part. Put back the pictures that differ only because another graphics driver drew them. A new part gets its pictures only when `scripts/render_parts.py` knows the part: add the part to `PARTS` there for its own picture, and to `OVERVIEW_ROWS` for the overview:
 
    ```bash
    .venv/bin/python scripts/render_parts.py
@@ -62,7 +62,7 @@ docker run --rm --platform linux/amd64 -v "$PWD":/src:ro \
   cd /src && /opt/venv/bin/python -m generators --check && /opt/venv/bin/python -m generators --check'
 ```
 
-To regenerate the meshes in that environment after a change to a generator, mount the repository writable. The container installs the packages as root. Then it runs the generators as the user who owns the mounted repository, as the container sees that user. With the usual Docker that is your user's number, and with rootless Docker it is the container's root, which is your user outside. Either way the files that the run writes belong to you, also when a generator fails halfway:
+To regenerate the meshes in that environment after a change to a generator, mount the repository writable. The container installs the packages as root. Then it runs the generators as the user who owns the mounted repository, as the container sees that user. With the usual Docker that is your user's number, and with rootless Docker it is the container's root, which is your user outside. In a checkout that you own, every file that the run creates or rewrites therefore belongs to you, also when a generator fails halfway:
 
 ```bash
 docker run --rm --platform linux/amd64 -v "$PWD":/src \
