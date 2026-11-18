@@ -23,5 +23,5 @@ Changelog for package robot_component_models
 * Both boards checked against product photos, sizes and positions in the provenance pages:
   the Pi's processor lid, AV jack and flat cable connectors, the Jetson's black module, fan
   header, capacitors, J48, camera connectors and port widths after the photos
-* The CadQuery generators, the sources of every model, meshes/manifest.yaml with checksums,
+* The CadQuery generators, each model's source references, meshes/manifest.yaml with checksums,
   units, frames and bounding boxes, and checks in CI
