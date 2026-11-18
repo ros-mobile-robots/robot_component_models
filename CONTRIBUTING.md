@@ -117,7 +117,8 @@ docker run --rm --platform linux/amd64 --user "$(id -u):$(id -g)" -v "$PWD":/src
 The millimetre COLLADA files go into a new folder outside `meshes/`, here in the container's temporary folder, and the second command compares that folder with `meshes/`:
 
 ```bash
-docker run --rm -v "$PWD":/src:ro -w /src robot-component-models-generators bash -c '
+docker run --rm --platform linux/amd64 -v "$PWD":/src:ro -w /src \
+  robot-component-models-generators bash -c '
   /opt/venv/bin/python -m generators --millimetre-collada /tmp/meshes_mm &&
   /opt/venv/bin/python scripts/check_millimetre_collada.py /tmp/meshes_mm'
 ```
