@@ -2,7 +2,7 @@
      SPDX-License-Identifier: BSD-3-Clause -->
 # Swivel caster with a 30 mm wheel (DiffBot)
 
-A pressed-steel swivel caster with a 30 mm plastic wheel, as on DiffBot. DiffBot is built on the Joy-IT Robot Car Kit 2WD (robot05), and this is the kit's caster. The model was created independently, from public product photos, the robot's own URDF numbers and photos of DiffBot's caster. No geometry was imported, converted, traced or sampled from another 3D model, and no vendor or third-party 3D model was downloaded.
+A pressed-steel swivel caster with a 30 mm plastic wheel, as on DiffBot. DiffBot is built on the Joy-IT Robot Car Kit 2WD (robot05), and this is the kit's caster. The shapes follow Joy-IT's product photos and photos of DiffBot's caster. The wheel's radius and the axle's position follow DiffBot's caster joints. [Sources](#sources) lists them.
 
 Generator: [`generators/swivel_caster_30mm.py`](../generators/swivel_caster_30mm.py).
 
@@ -17,6 +17,10 @@ Generator: [`generators/swivel_caster_30mm.py`](../generators/swivel_caster_30mm
 Each STL file is closed and consistently oriented. The three meshes, placed as DiffBot's caster macro places them, only touch. The axle has 0.1 mm clearance in the wheel's bore.
 
 ## Frames
+
+![The caster from above and from the side, with the base's frame, the four standoffs and the three meshes' names](../docs/images/frames/swivel_caster_30mm.png)
+
+The picture shows the three meshes from above and from the side, placed as DiffBot's caster macro places them. The red dot is the origin of the frame of `swivel_caster_30mm_base` and the red arrows are its positive axes. The green rings mark the four standoffs, at (x, y) = (-13, ±15) mm and (11, ±15) mm. Their tops, the dashed line at z = +15 mm, meet the chassis. The side view names the mesh of each piece. The fork's frame lies 1 mm behind the base's frame, on the swivel axis, and the wheel's frame lies on the axle.
 
 The files are in metres, z up. Positions on this page are in millimetres.
 
@@ -49,7 +53,7 @@ The wheel's lowest point is 0.2 mm below DiffBot's `base_footprint`, from the UR
 - The bearing is a closed rounded ring between plate and fork, without visible balls. The race cap is a revolved profile with sharp steps.
 - The fork's arms are flat sheets without the rolled edges of the real arms. The fork's inner width, 17.2 mm, is a design choice that leaves room for the 15.6 mm wheel, the washers and the rivet heads.
 - The generator refuses parameters that leave no room for the rivet head or make the race cap wider than the gap between the fork's bends.
-- The wheel is one solid part, opaque white instead of translucent.
+- The wheel is one solid part in opaque white. The real wheel is translucent.
 
 ## Measurements that would improve the model
 
