@@ -3,10 +3,10 @@
 cmake_minimum_required(VERSION 3.10)
 project(robot_component_models)
 
-# The package installs data and its documentation, nothing that runs: the meshes with their
-# manifest and license files, the provenance page of each part, and the license. ROS 1 (Noetic)
-# builds it with catkin, ROS 2 (Humble and later) with ament_cmake. package.xml selects the
-# build tool by ROS_VERSION, which the ROS setup script sets.
+# The package installs data and its documentation: the meshes with their manifest and license
+# files, the provenance page of each part with the files that it links to, and the license.
+# ROS 1 (Noetic) builds it with catkin, ROS 2 (Humble and later) with ament_cmake. package.xml
+# selects the build tool by ROS_VERSION, which the ROS setup script sets.
 if("$ENV{ROS_VERSION}" STREQUAL "1")
   find_package(catkin REQUIRED)
   catkin_package()
@@ -24,9 +24,9 @@ install(FILES LICENSE DESTINATION ${SHARE_DESTINATION})
 
 # A provenance page links to its generator and to its frame picture with paths relative to
 # the repository: ../generators/<part>.py and ../docs/images/frames/<part>.png. Both are
-# installed at the same relative paths, as documentation, so the installed pages' links lead
-# to installed files. Each command copies its folder when the package is installed, so an
-# edited or a new file is installed without configuring again.
+# installed at the same relative paths, to be read, so the installed pages' links lead to
+# installed files. Each command copies its folder when the package is installed, so an edited
+# or a new file is installed without configuring again.
 install(DIRECTORY generators DESTINATION ${SHARE_DESTINATION}
         FILES_MATCHING PATTERN "*.py" PATTERN "__pycache__" EXCLUDE)
 install(DIRECTORY docs/images/frames DESTINATION ${SHARE_DESTINATION}/docs/images
