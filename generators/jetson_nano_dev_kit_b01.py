@@ -98,10 +98,10 @@ DP_INSULATOR = 8.88
 DP_TONGUE = (12.0, 1.0, 4.08, 2.52)
 DP_TONGUE_OFFSET = 0.5
 DP_LINER = 0.2  # thickness of the metal liner round the opening (estimated)
-# 20 contacts, 10 on each face. The upper row lies half a pitch, 0.5 mm, to the right of the
-# lower row for someone who looks into the port (the drawing's front view). The middle of
-# the two rows together is the tongue's middle (estimated).
-DP_CONTACT_ROWS = (ContactRow(10, 1.0, 0.5, True, 0.25), ContactRow(10, 1.0, 0.5, False, -0.25))
+# 20 contacts, 10 on each face. For someone who looks into the port, the lower row's middle
+# lies on the tongue's middle and the upper row half a pitch, 0.5 mm, to the right of it
+# (read off the drawing's front view, estimated).
+DP_CONTACT_ROWS = (ContactRow(10, 1.0, 0.5, True, 0.5), ContactRow(10, 1.0, 0.5, False, 0.0))
 HDMI_HOUSING_HEIGHT = 10.2  # the HDMI receptacle's black housing, the DP shell above it
 USB_STACKS = ((36.15, 49.25, -1.52, 15.9, 16.0), (53.2, 66.3, -1.52, 15.9, 16.0))  # photo
 RJ45 = (68.9, 85.0, -1.97, 19.8, 13.7)

@@ -140,8 +140,8 @@ class J6PortsTest(unittest.TestCase):
         """Build the DisplayPort's inside with a centred and an offset tongue.
 
         Each contact on the top face lies 0.5 mm to the right of a contact on the bottom
-        face, for someone who looks into the port: towards +y. The 20 contacts together are
-        centred on the tongue.
+        face, for someone who looks into the port: towards +y. The lower row is centred on
+        the tongue.
         """
         width, height, bottom = jetson.DP_OPENING
         outline = board_parts.chamfered_rectangle(width, height, 1.0, bottom, 'lower_left')
@@ -161,7 +161,7 @@ class J6PortsTest(unittest.TestCase):
             self.assertEqual((len(upper), len(lower)), (10, 10))
             for above, below in zip(upper, lower):
                 self.assertAlmostEqual(above - below, 0.5)
-            self.assertAlmostEqual((sum(upper) + sum(lower)) / 20, offset)
+            self.assertAlmostEqual(sum(lower) / 10, offset)
 
     def test_hdmi_rows_interleave(self) -> None:
         """Compare the HDMI rows' middles: nine lower contacts between ten upper ones."""
