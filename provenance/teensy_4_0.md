@@ -2,7 +2,7 @@
      SPDX-License-Identifier: BSD-3-Clause -->
 # Teensy 4.0 with two 14-pin headers
 
-A display model of PJRC's Teensy 4.0 with two 14-pin male headers soldered into its long pin rows, as the board sits on Remo's breadboard. The model was created independently, from PJRC's public dimension drawing, parts placement drawings and product photos, and from the chip makers' public package drawings. No geometry was imported, converted, traced or sampled from another 3D model, and no vendor or third-party 3D model was downloaded. No logos, no pin labels and no other printed text. PJRC's photos were measured where they are published and aren't copied into this repository.
+A display model of PJRC's Teensy 4.0 with two 14-pin male headers soldered into its long pin rows, as the board sits on Remo's breadboard. The model uses PJRC's dimension drawing, parts placement drawings and product photos, and the chip makers' package drawings, listed under [Sources](#sources). It shows no logos, no pin labels and no other printed text.
 
 Generator: [`generators/teensy_4_0.py`](../generators/teensy_4_0.py).
 
@@ -11,6 +11,10 @@ Generator: [`generators/teensy_4_0.py`](../generators/teensy_4_0.py).
 `teensy_4_0`: one mesh with 20 materials (green solder mask, FR4 edges, gold pads and pins, copper test pads, solder, black ICs with pin-1 dimples, silver leads, the USB shell, grey latch slots, beige capacitors, black resistors, the button's cream cap, pale LEDs and others). Its sub-parts are the board, the pads, the header, the processor (`mcu`), the bootloader chip, the leaded parts, the inductor block, the passives on top and on the bottom, the crystals, the USB connector, the button, the test pads and the bottom's other features. Every part's solid is closed with outward normals.
 
 ## Frame
+
+![The Teensy from above and from the side, with the origin and axes of its frame, the board's bottom face and the header spacer's bottom](../docs/images/frames/teensy_4_0.png)
+
+The picture shows the Teensy from above and from the side. The red dot is the origin of the mesh's frame and the red arrows are its positive axes. The upper dashed line is the board's bottom face, at z = 0. The lower dashed line is the bottom of the header's plastic spacer, at z = -2.5 mm, which rests on the breadboard. The Teensy has no mounting holes: its header pins hold it.
 
 The files are in metres. Positions on this page are in millimetres. The board's bottom face is at z = 0, the components on +z. The long axis runs along x with the USB connector at -x: the board lies from x = -13.929 to 21.631 mm, centred at y = -0.032 mm. The row with the inner pin hole is at +y. The header's plastic spacer ends at z = -2.5 mm and the pins at z = -8.5 mm.
 

@@ -2,7 +2,7 @@
      SPDX-License-Identifier: BSD-3-Clause -->
 # 360 degree laser scanner, RPLIDAR A2 size
 
-A 360 degree laser scanner with the outline of the Slamtec RPLIDAR A2 (A2M8): a black base, a rotating head with a copper-coloured band, and the optical window with two dark openings. DiffBot and Remo carry this scanner. The model was created independently, from the public datasheet's dimensions and a public photo. No geometry was imported, converted, traced or sampled from another 3D model, and no vendor 3D model was downloaded. No cable, no logos and no printed text: the head's badge is left out.
+A 360 degree laser scanner with the outline of the Slamtec RPLIDAR A2 (A2M8): a black base, a rotating head with a copper-coloured band, and the optical window with two dark openings. DiffBot and Remo carry this scanner. The model uses the dimensions of the datasheet's mechanical drawing and the colours of a photo of Remo, both listed under [Sources](#sources). It shows no cable, no logos and no printed text: the head's badge is left out.
 
 Generator: [`generators/rplidar_a2.py`](../generators/rplidar_a2.py).
 
@@ -11,6 +11,10 @@ Generator: [`generators/rplidar_a2.py`](../generators/rplidar_a2.py).
 `rplidar_a2`: one mesh with three sub-parts. `housing` (material `body`, black) is the base and the head. `trim` (copper-coloured) is the band and the window's bezel. `windows` (dark glass) are the two panes. The STL file is closed and consistently oriented: several closed shells that touch.
 
 ## Frame
+
+![The laser scanner from below and from the side, with the origin and axes of its frame, its four mounting holes and its bottom](../docs/images/frames/rplidar_a2.png)
+
+The picture shows the scanner from below and from the side. The red dot is the origin of the mesh's frame and the red arrows are its positive axes. The green rings mark the four M3 mounting holes in the bottom, at (x, y) = (±20.86, ±20.86) mm. The dashed line is the bottom, the mounting plane, at z = -29.85 mm.
 
 The files are in metres. Positions on this page are in millimetres.
 
