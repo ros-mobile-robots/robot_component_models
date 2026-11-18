@@ -23,6 +23,7 @@ import cadquery as cq
 
 from generators.mesh_export import Model
 from generators.mesh_export import phong
+from generators.mesh_export import require_known_materials
 from generators.mesh_export import SubPart
 from generators.mesh_export import tessellate_faces
 
@@ -423,7 +424,11 @@ def compound(shapes: Sequence[cq.Workplane]) -> cq.Shape:
 
 
 def sub_part(name: str, pieces: Pieces) -> SubPart:
-    """Return a named sub-part with one surface per material, in the materials' order."""
+    """Return a named sub-part with one surface per material, in the materials' order.
+
+    Raise a ValueError if a material of the pieces is not one of the scanner's materials.
+    """
+    require_known_materials(name, pieces, MATERIALS)
     return SubPart(name, {material: tessellate_faces(compound(pieces[material]),
                                                      LINEAR_DEFLECTION, ANGULAR_DEFLECTION)
                           for material in MATERIALS if material in pieces})
