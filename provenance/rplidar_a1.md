@@ -2,9 +2,57 @@
      SPDX-License-Identifier: BSD-3-Clause -->
 # 360 degree laser scanner, RPLIDAR A1 size
 
-A 360 degree laser scanner with the outline of the Slamtec RPLIDAR A1 (A1M8): a black base shaped like a drop, the motor below its narrow end, a flat belt from the motor's pulley to the rotating head, the head with its two openings, and the circuit board with its connectors under the base. The model was created independently, from the public datasheet's mechanical drawing and Slamtec's product pictures. No geometry was imported, converted, traced or sampled from another 3D model, and no vendor 3D model was downloaded. No logos and no printed text: the badge on the head keeps its ring, without the brand name.
+A 360 degree laser scanner with the outline of the Slamtec RPLIDAR A1 (A1M8): a black base shaped like a drop, the motor below its narrow end, a flat belt from the motor's pulley to the rotating head, the head with its two openings, and the circuit board with its connectors under the base. The model uses the dimensions of the datasheet's mechanical drawing and the look of Slamtec's product pictures, listed under [Sources](#sources). It shows no logos and no printed text: the badge on the head keeps its ring, without the brand name.
 
 Generator: [`generators/rplidar_a1.py`](../generators/rplidar_a1.py).
+
+## Frame
+
+![The laser scanner from above and from the side, with the origin and axes of its frame, its four mounting holes, the scan plane and the mounting plane](../docs/images/frames/rplidar_a1.png)
+
+The picture shows the scanner from above and from the side. The red dot is the origin of the mesh's frame, on the head's rotation axis in the scan plane, and the red arrows are its positive axes. The green rings mark the four Ø3 mm mounting holes. The upper dashed line is the scan plane. The lower dashed line is the underside of the base's four mounting bosses, the mounting plane. The motor hangs below the mounting plane.
+
+The files are in metres. Positions on this page are in millimetres.
+
+| What | Place in the mesh's frame |
+|---|---|
+| Mounting holes at the base's round end | (x, y) = (28, -28) and (28, 28) mm |
+| Mounting holes at the motor's end | (x, y) = (-42, -20) and (-42, 20) mm |
+| Mounting plane, the underside of the bosses around the holes | z = -21 mm |
+| Scan plane | z = 0 |
+| Motor's bottom | z = -42 mm, on the motor's axis at x = -45.5 mm. A mount needs 21 mm of room below the mounting plane there |
+| Base's top face | z = -15.5 mm |
+| Head's top | z = +9 mm |
+
+The origin lies on the head's rotation axis, in the scan plane: 42 mm above the motor's bottom, the middle of the datasheet's 10 mm laser working area. +z points up. +x points from the motor to the base's round end, Slamtec's 0° direction for the A1.
+
+The head turns when the scanner runs, so the window's direction in the mesh is a choice. The model draws the window's middle, between the two openings, towards -x, the motor's side. To line up a scan with the mesh, use the motor's side, which doesn't turn.
+
+### Attaching the scanner in a URDF
+
+The axes follow the RPLIDAR A2 model's: +x points to the scanner's 0° direction, away from the motor here and away from the cable on the A2. So a description attaches both scanners alike. [rplidar_ros](https://github.com/Slamtec/rplidar_ros) publishes the scan in a frame whose +x points to the scanner's 180° direction, towards the A1's motor, and DiffBot's and Remo's `rplidar_laser_link` is that frame. So the link's visual turns the mesh by π about z, as for the A2.
+
+The example attaches the scanner to a link `scanner_mount`. That link's origin lies in the mounting plane, below the head's axis, with z up and +x towards the motor. The joint raises the scan link by 21 mm, into the scan plane, and the visual turns the mesh by π about z:
+
+```xml
+<joint name="rplidar_laser_joint" type="fixed">
+  <parent link="scanner_mount"/>
+  <child link="rplidar_laser_link"/>
+  <origin xyz="0 0 0.021" rpy="0 0 0"/>
+</joint>
+<link name="rplidar_laser_link">
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 3.14159265359"/>
+    <geometry>
+      <mesh filename="package://robot_component_models/meshes/rplidar_a1/rplidar_a1.dae"/>
+    </geometry>
+  </visual>
+</link>
+```
+
+A parent frame whose +x points to the robot's front, with the motor mounted towards the robot's rear, needs a second turn: the joint's yaw is π as well, `rpy="0 0 3.14159265359"` in the joint's `<origin>`. The two turns put the mesh's -x, the motor's end, towards the robot's rear. With the motor towards the robot's front, the joint's yaw is 0, as in the example.
+
+Remo's description selects this scanner in the open pull request [ros-mobile-robots/remo_description#26](https://github.com/ros-mobile-robots/remo_description/pull/26), with the motor towards the robot's rear and a joint yaw of π.
 
 ## Mesh
 
@@ -22,16 +70,6 @@ Generator: [`generators/rplidar_a1.py`](../generators/rplidar_a1.py).
 | `window` | The dark glass at the bottom of both openings and the two lenses | `window` |
 
 The metal materials are metallic in the glTF file. Each solid is closed and consistently oriented. The sub-parts touch but don't intersect.
-
-## Frame
-
-The files are in metres. Positions on this page are in millimetres.
-
-The origin lies on the head's rotation axis, in the scan plane: 42 mm above the motor's bottom, the middle of the datasheet's 10 mm laser working area. +z points up. +x points from the motor to the base's round end, Slamtec's 0° direction for the A1. The motor's axis is at x = -45.5 mm. The bottom is at z = -42 mm, the head's top at z = +9 mm, the base's top face at z = -15.5 mm.
-
-The head turns when the scanner runs, so the window's direction in the mesh is a choice. The model draws the window's middle, between the two openings, towards -x, the motor's side.
-
-No robot description uses this mesh yet. The axes follow the RPLIDAR A2 model's: +x points to the scanner's 0° direction, away from the motor here and away from the cable on the A2. So a description attaches both scanners alike. [rplidar_ros](https://github.com/Slamtec/rplidar_ros) publishes the scan in a frame whose +x points to the scanner's 180° direction, towards the A1's motor, and DiffBot's and Remo's `rplidar_laser_link` is that frame. The `rplidar_laser_link`'s visual turns the mesh by π about z, as for the A2. A scanner mounted with its motor towards the robot's front, on a parent frame whose +x points to the front, then has a `rplidar_laser_joint` with a yaw of 0, and the window faces the robot's front. Mounted the other way round, like the A2 with its cable towards the rear, the joint's yaw is π.
 
 ## Sources
 

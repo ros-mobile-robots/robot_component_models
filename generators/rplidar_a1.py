@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 """Generate a 360 degree laser scanner of the RPLIDAR A1 type: base, motor, belt, rotating head.
 
-Modelled from the public datasheet's mechanical drawing only (RPLIDAR A1 datasheet, model A1M8,
+Modelled from the datasheet's mechanical drawing (RPLIDAR A1 datasheet, model A1M8,
 rev. 3.0, Figure 5-2 "The Mechanical Dimensions of RPLIDAR A1"): the base's outline and its four
 mounting holes, the motor, the belt with its two pulleys, the head with its two openings, and the
 board with its connectors under the base. Values that the drawing doesn't dimension are read off

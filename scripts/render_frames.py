@@ -37,6 +37,7 @@ from generators import jetson_nano_dev_kit_b01
 from generators import PARTS as GENERATED_PARTS
 from generators import raspberry_pi_4b
 from generators import raspberry_pi_camera_v2
+from generators import rplidar_a1
 from generators import rplidar_a2
 from generators import swivel_caster_30mm
 from generators import teensy_4_0
@@ -143,6 +144,22 @@ def scanner_figure() -> FrameFigure:
         [Plane(f'bottom, z = {bottom:g} mm', Z_AXIS, bottom)])
 
 
+def scanner_a1_figure() -> FrameFigure:
+    """Return the RPLIDAR A1's picture: its four holes, the mounting plane, the scan plane."""
+    scanner = rplidar_a1
+    seat = scanner.z_at(scanner.BASE_BOTTOM)
+    holes = [(x, y, seat) for x, y in scanner.MOUNT_HOLES]
+    motor_bottom = scanner.z_at(scanner.MOTOR_BOSS[1])
+    return FrameFigure(
+        (TOP_VIEW, SIDE_VIEW), holes,
+        [Plane('scan plane, z = 0', Z_AXIS, 0.0),
+         Plane(f"mounting bosses' underside, z = {seat:g} mm", Z_AXIS, seat)],
+        [Label('mounting boss', (scanner.MOUNT_HOLES[0][0], 0.0, seat + 0.5), (-60, 34)),
+         Label(f'motor, down to z = {motor_bottom:g} mm',
+               (-scanner.MOTOR_OFFSET, 0.0, scanner.z_at(scanner.MOTOR_CAN[0]) + 6.0),
+               (40, 30))])
+
+
 def raspberry_pi_figure() -> FrameFigure:
     """Return the Raspberry Pi's picture: the four holes, the board's faces."""
     board = raspberry_pi_4b
@@ -198,6 +215,7 @@ def camera_figure() -> FrameFigure:
 FIGURES: Dict[str, Callable[[], FrameFigure]] = {
     'swivel_caster_30mm': caster_figure,
     'rplidar_a2': scanner_figure,
+    'rplidar_a1': scanner_a1_figure,
     'raspberry_pi_4b': raspberry_pi_figure,
     'jetson_nano_dev_kit_b01': jetson_figure,
     'teensy_4_0': teensy_figure,
