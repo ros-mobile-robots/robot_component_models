@@ -4,16 +4,17 @@
 """Check the installed package: the manifest's files, the provenance pages and the license.
 
 share/robot_component_models must hold exactly the manifest's mesh files and their .license
-files, the manifest, LICENSE and package.xml, and for every part its provenance page, its
-generator and its frame picture. Besides these, it may hold only the generators' other Python
-files and the files that catkin, ament_cmake and colcon write for every package. Each installed
-mesh must have the manifest's checksum. Outside share/robot_component_models, the check ignores
-the workspace's own files.
+files, the manifest, LICENSE and package.xml, for every part its provenance page, its generator
+and its frame picture, and every other Python file of the checkout's generators/. Besides
+these, it may hold only the files that catkin, ament_cmake and colcon write for every package.
+Each installed mesh must have the manifest's checksum. Outside share/robot_component_models,
+the check ignores the workspace's own files.
 
 A provenance page links to its generator and to its frame picture with paths relative to the
 repository. Both are installed at the same relative paths, so each installed page must be the
 checkout's page byte for byte, and every relative link of an installed page must lead to an
-installed file.
+installed file. A page of the manifest that the checkout doesn't have is a problem: an install
+space keeps a page that was installed before and removed from the checkout since.
 
 Usage: python3 scripts/check_install.py INSTALL_PREFIX 1|2
 Run it from a checkout of the repository: the installed pages are compared with the checkout's.
@@ -26,6 +27,7 @@ import sys
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Set
 
 import yaml
@@ -92,13 +94,13 @@ def manifest_documents(manifest: Dict[str, Any]) -> Set[str]:
     return license_files | pages | generators | pictures
 
 
-def shared_generator_files() -> Set[str]:
+def generator_files(root: str = ROOT) -> Set[str]:
     """Return the checkout's Python files in generators/, relative to share/.
 
     The package installs all of them: the parts' generators, which the manifest names, and
     the modules that they share.
     """
-    return {f'generators/{name}' for name in os.listdir(os.path.join(ROOT, 'generators'))
+    return {f'generators/{name}' for name in os.listdir(os.path.join(root, 'generators'))
             if name.endswith('.py')}
 
 
@@ -121,16 +123,33 @@ def check_checksums(share: str, checksums: Dict[str, str]) -> List[str]:
     return problems
 
 
-def check_pages_are_the_checkouts(share: str, pages: Set[str]) -> List[str]:
-    """Check that each installed provenance page is the checkout's page, byte for byte."""
+def file_bytes(path: str) -> Optional[bytes]:
+    """Return the file's bytes, or None if there is no such file or it can't be read."""
+    try:
+        with open(path, 'rb') as stream:
+            return stream.read()
+    except OSError:
+        return None
+
+
+def check_pages_are_the_checkouts(share: str, pages: Set[str], root: str = ROOT) -> List[str]:
+    """Check that each installed provenance page is the checkout's page, byte for byte.
+
+    A page of the manifest that the checkout doesn't have is a problem, whether or not the
+    install space still holds it. A page that isn't installed is reported by check_file_set().
+    """
     problems = []
     for page in sorted(pages):
-        installed, source = os.path.join(share, page), os.path.join(ROOT, page)
-        if not os.path.exists(installed) or not os.path.exists(source):
+        installed = os.path.join(share, page)
+        source_bytes = file_bytes(os.path.join(root, page))
+        if source_bytes is None:
+            problems.append(f"{page}: the checkout doesn't have this page of the manifest")
+        elif not os.path.lexists(installed):
             continue
-        with open(installed, 'rb') as installed_page, open(source, 'rb') as source_page:
-            if installed_page.read() != source_page.read():
-                problems.append(f"{page}: differs from the checkout's page")
+        elif file_bytes(installed) is None:
+            problems.append(f"{page}: the installed page can't be read")
+        elif file_bytes(installed) != source_bytes:
+            problems.append(f"{page}: differs from the checkout's page")
     return problems
 
 
@@ -166,10 +185,9 @@ def main() -> int:
     contents = load_manifest(manifest)
     checksums = manifest_checksums(contents)
     found = installed_files(share)
-    expected = set(checksums) | manifest_documents(contents) | OWN_FILES
+    expected = set(checksums) | manifest_documents(contents) | generator_files() | OWN_FILES
     pages = {part['provenance'] for part in contents['parts'].values()}
-    problems = check_file_set(found, expected,
-                              BUILD_TOOL_FILES[ros_version] | shared_generator_files())
+    problems = check_file_set(found, expected, BUILD_TOOL_FILES[ros_version])
     problems += check_checksums(share, checksums)
     problems += check_pages_are_the_checkouts(share, pages)
     problems += check_links_lead_to_installed_files(share, pages)
