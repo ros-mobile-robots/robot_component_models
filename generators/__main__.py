@@ -11,7 +11,8 @@ Run from the repository's root, with the packages of generators/requirements.txt
                                               and keep the regenerated files there
 
 Checking only reads meshes/. It never writes there: the regenerated files go into a temporary
-folder, or into a folder that the run creates outside meshes/.
+folder, or into a folder that the run creates outside meshes/. The temporary folder's place is
+chosen without a test write, so a TMPDIR inside meshes/ is refused before anything is written.
 """
 import argparse
 from concurrent.futures import ProcessPoolExecutor
@@ -43,6 +44,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MESHES = os.path.join(ROOT, 'meshes')
 MANIFEST = os.path.join(MESHES, 'manifest.yaml')
 EXTENSIONS = ('.stl', '.dae', '.glb')
+# The environment variables that name a folder for temporary files, in tempfile's order, and
+# the folders that tempfile tries when no variable names one
+TEMPORARY_FOLDER_VARIABLES = ('TMPDIR', 'TEMP', 'TMP')
+DEFAULT_TEMPORARY_FOLDERS = ('/tmp', '/var/tmp', '/usr/tmp')
 BINARY_EXTENSIONS = ('.stl', '.glb')  # these get a <file>.license next to them
 
 
@@ -139,24 +144,43 @@ def create_output_folder(folder: str) -> str:
     return destination
 
 
-def check(keep: Optional[str] = None) -> int:
-    """Regenerate everything outside meshes/ and compare with meshes/: 0 if equal.
+def temporary_parent() -> str:
+    """Return a folder outside meshes/ for the check's temporary files.
 
-    The regenerated files go into a temporary folder. With keep, they go into that folder,
-    which create_output_folder() has made, and stay there for a closer look. meshes/ is only
-    read.
+    tempfile finds its folder by writing a test file into each candidate: the folders that the
+    environment names, then the system's. A candidate inside meshes/ would get that test file.
+    So this function chooses without writing: the first candidate that exists, is writable and
+    lies outside meshes/. A variable that names a folder inside meshes/ is an error, because
+    the caller asked for temporary files there.
+    Raise ValueError with the reason if no folder can be used.
     """
-    with tempfile.TemporaryDirectory() as temporary:
-        out = keep if keep is not None else temporary
-        parts = generate(PARTS, out)
-        text = manifest_text(parts, SPDX_LINES, LICENSE_ID)
-        generated = sorted([facts.path for part in parts for mesh in part.meshes
-                            for facts in mesh.files]
-                           + [facts.license_file for part in parts for mesh in part.meshes
-                              for facts in mesh.files if facts.license_file])
-        problems = [f'{path}: regenerated file differs from meshes/{path}'
-                    for path in generated if os.path.exists(os.path.join(MESHES, path))
-                    and sha256(os.path.join(out, path)) != sha256(os.path.join(MESHES, path))]
+    named = []
+    for variable in TEMPORARY_FOLDER_VARIABLES:
+        folder = os.environ.get(variable)
+        if folder and is_inside(folder, MESHES):
+            raise ValueError(f'{variable} names {folder}, which lies inside meshes/. Set '
+                             f'{variable} to a folder outside meshes/')
+        if folder:
+            named.append(folder)
+    for folder in named + list(DEFAULT_TEMPORARY_FOLDERS):
+        if (os.path.isdir(folder) and os.access(folder, os.W_OK | os.X_OK)
+                and not is_inside(folder, MESHES)):
+            return os.path.abspath(folder)
+    raise ValueError('no writable folder for temporary files outside meshes/. Set TMPDIR to '
+                     'one')
+
+
+def regeneration_problems(out: str) -> List[str]:
+    """Regenerate everything into out/ and return how the result differs from meshes/."""
+    parts = generate(PARTS, out)
+    text = manifest_text(parts, SPDX_LINES, LICENSE_ID)
+    generated = sorted([facts.path for part in parts for mesh in part.meshes
+                        for facts in mesh.files]
+                       + [facts.license_file for part in parts for mesh in part.meshes
+                          for facts in mesh.files if facts.license_file])
+    problems = [f'{path}: regenerated file differs from meshes/{path}'
+                for path in generated if os.path.exists(os.path.join(MESHES, path))
+                and sha256(os.path.join(out, path)) != sha256(os.path.join(MESHES, path))]
     problems += [f'{path}: not generated' for path in committed_files() if path not in generated]
     problems += [f'{path}: missing in meshes/' for path in generated
                  if not os.path.exists(os.path.join(MESHES, path))]
@@ -166,6 +190,21 @@ def check(keep: Optional[str] = None) -> int:
         problems.append('meshes/manifest.yaml differs from the regenerated manifest:')
         problems += [line.rstrip('\n') for line in difflib.unified_diff(
             committed.splitlines(True), text.splitlines(True), 'committed', 'regenerated', n=0)]
+    return problems
+
+
+def check(keep: Optional[str] = None) -> int:
+    """Regenerate everything outside meshes/ and compare with meshes/: 0 if equal.
+
+    With keep, the regenerated files go into that folder, which create_output_folder() has
+    made, and stay there for a closer look. Without it, they go into a temporary folder,
+    which is made only then. meshes/ is only read.
+    """
+    if keep is not None:
+        problems = regeneration_problems(keep)
+    else:
+        with tempfile.TemporaryDirectory() as temporary:
+            problems = regeneration_problems(temporary)
     for problem in problems:
         print(problem)
     print('regeneration check: ' + ('FAILED' if problems else 'all files byte-identical'))
@@ -194,15 +233,18 @@ def main() -> int:
     if args.check and args.parts:
         parser.error('--check regenerates and compares every part: leave out the part names')
     if args.check:
+        try:
+            # From here on, every use of tempfile takes this folder without a test write,
+            # also in the libraries that the generators load
+            tempfile.tempdir = temporary_parent()
+        except ValueError as problem:
+            parser.error(f'--check: {problem}')
         keep = None
         if args.keep is not None:
             try:
                 keep = create_output_folder(args.keep)
             except ValueError as problem:
                 parser.error(f'--keep: {problem}')
-        elif is_inside(tempfile.gettempdir(), MESHES):
-            parser.error(f'--check: the folder for temporary files, {tempfile.gettempdir()}, '
-                         'lies inside meshes/. Set TMPDIR to a folder outside meshes/')
         return check(keep)
     parts = generate(without_repeats(args.parts) or PARTS, MESHES)
     if not args.parts:
