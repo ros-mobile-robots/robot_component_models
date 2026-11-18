@@ -11,14 +11,18 @@ the packages of generators/requirements.txt:
 
   python3 -m unittest discover -s tests
 """
+import builtins
+import errno
 import hashlib
 import os
 import shutil
 import subprocess
 import sys
 import tempfile
+from typing import Any
 from typing import List
 import unittest
+from unittest import mock
 
 from scripts import check_install
 
@@ -29,6 +33,7 @@ PAGE_TEXT = ('# Part\n\n![The part](../docs/images/frames/part.png)\n\n'
 LINKED_FILES = ('docs/images/frames/part.png', 'generators/part.py')
 SHARED_MODULE = 'generators/mesh_export.py'
 MESH, MESH_TEXT = 'meshes/part/part.stl', 'mesh'
+BUILD_TOOL_FILE = 'cmake/robot_component_modelsConfig.cmake'  # optional, written by catkin
 OWN_FILES = {'LICENSE': 'license', 'package.xml': '<package/>'}
 MANIFEST = f"""parts:
   part:
@@ -190,6 +195,45 @@ class FilesCanBeReadTest(unittest.TestCase):
         self.assertEqual(self.problems(), [f"{SHARED_MODULE}: isn't a file that can be read"])
 
 
+class ChecksumsTest(unittest.TestCase):
+    """check_checksums() reports a mesh that can't be read and goes on with the next one."""
+
+    def setUp(self) -> None:
+        """Make an install space with two meshes, the second with another checksum."""
+        self.share = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.share)
+        self.meshes = ('meshes/a/a.stl', 'meshes/b/b.stl')
+        for path in self.meshes:
+            write(self.share, path, MESH_TEXT)
+        self.checksums = {self.meshes[0]: hashlib.sha256(MESH_TEXT.encode()).hexdigest(),
+                          self.meshes[1]: 'another checksum'}
+
+    def test_mesh_with_a_read_error_is_reported_and_the_next_one_checked(self) -> None:
+        """Let reading the first mesh fail with an input/output error, as a disk can."""
+        failing = os.path.join(self.share, self.meshes[0])
+        real_open = builtins.open
+
+        def open_with_a_read_error(path: Any, *arguments: Any, **keywords: Any) -> Any:
+            """Open a file as open() does, except the first mesh."""
+            if path == failing:
+                raise OSError(errno.EIO, os.strerror(errno.EIO), path)
+            return real_open(path, *arguments, **keywords)
+
+        with mock.patch('builtins.open', open_with_a_read_error):
+            problems = check_install.check_checksums(self.share, self.checksums)
+
+        self.assertEqual(problems, [f"{self.meshes[0]}: can't be read for its checksum: "
+                                    f'{os.strerror(errno.EIO)}',
+                                    f'checksum differs: {self.meshes[1]}'])
+
+    def test_mesh_that_is_not_there_is_left_to_the_file_set_check(self) -> None:
+        """Remove the first mesh: only the second one's checksum is reported."""
+        os.remove(os.path.join(self.share, self.meshes[0]))
+
+        self.assertEqual(check_install.check_checksums(self.share, self.checksums),
+                         [f'checksum differs: {self.meshes[1]}'])
+
+
 class CheckInstallCommandTest(unittest.TestCase):
     """The command itself, run on a small checkout and its install space.
 
@@ -270,6 +314,19 @@ class CheckInstallCommandTest(unittest.TestCase):
 
         self.assert_reported(self.run_command(),
                              [f"{SHARED_MODULE}: isn't a file that can be read"])
+
+    def test_build_tool_file_as_a_link_without_its_target_is_reported(self) -> None:
+        """Install CMake's package file as a link to a file that doesn't exist: reported.
+
+        The build tools' files are optional, but one that is there has to be readable:
+        find_package() reads it.
+        """
+        os.makedirs(os.path.join(self.share, os.path.dirname(BUILD_TOOL_FILE)))
+        os.symlink(os.path.join(self.folder, 'nowhere.cmake'),
+                   os.path.join(self.share, BUILD_TOOL_FILE))
+
+        self.assert_reported(self.run_command(),
+                             [f"{BUILD_TOOL_FILE}: isn't a file that can be read"])
 
     def test_shared_module_as_a_link_to_the_checkouts_file_passes(self) -> None:
         """Replace the installed shared module with a link to the checkout's module."""

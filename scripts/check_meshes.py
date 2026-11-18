@@ -35,6 +35,7 @@ from typing import List
 from typing import NamedTuple
 from typing import Optional
 from typing import Tuple
+from typing import Union
 import urllib.request
 
 import collada
@@ -138,15 +139,38 @@ def glb_corners(path: str) -> np.ndarray:
 
 
 READERS = {'.stl': stl_corners, '.dae': dae_corners, '.glb': glb_corners}
-GEOMETRY: Dict[str, Geometry] = {}
+
+
+class UnreadableFile(Exception):
+    """A mesh file that its reader stopped on. Its problem is reported once per checked file."""
+
+
+def error_text(error: Exception) -> str:
+    """Return an error as its type and message, the type once: pycollada's messages have it."""
+    name = type(error).__name__
+    return str(error) if str(error).startswith(name) else f'{name}: {error}'
+
+
+GEOMETRY: Dict[str, Union[Geometry, UnreadableFile]] = {}
 
 
 def geometry(mesh_file: MeshFile) -> Geometry:
-    """Return the file's geometry, read once."""
+    """Return the file's geometry, read once.
+
+    Raise UnreadableFile if the reader stopped with an error: a damaged file can make
+    trimesh or pycollada raise any error. The error is kept, so the file is read only once.
+    """
     if mesh_file.path not in GEOMETRY:
         reader = READERS[os.path.splitext(mesh_file.path)[1]]
-        GEOMETRY[mesh_file.path] = Geometry(reader(file_path(mesh_file)))
-    return GEOMETRY[mesh_file.path]
+        try:
+            GEOMETRY[mesh_file.path] = Geometry(reader(file_path(mesh_file)))
+        except Exception as error:  # any reader error is a problem of the file
+            GEOMETRY[mesh_file.path] = UnreadableFile(
+                f"{mesh_file.path} can't be read: {error_text(error)}")
+    found = GEOMETRY[mesh_file.path]
+    if isinstance(found, UnreadableFile):
+        raise found
+    return found
 
 
 # ---------------------------------------------------------------------------------------------
@@ -510,8 +534,10 @@ def check_license(mesh_file: MeshFile) -> List[str]:
     return [] if found == expected else [f'{mesh_file.entry["license_file"]}: {found}']
 
 
-FILE_CHECKS: List[Check] = [check_checksum, check_triangle_count, check_bounding_box,
-                            check_units, check_same_triangles, check_closed, check_license]
+# The checks of every file: first those that read its bytes, then those that need its geometry
+FILE_CHECKS: List[Check] = [check_checksum, check_license]
+GEOMETRY_CHECKS: List[Check] = [check_triangle_count, check_bounding_box, check_units,
+                                check_same_triangles, check_closed]
 
 
 # ---------------------------------------------------------------------------------------------
@@ -555,6 +581,44 @@ def check_folder_contents(files: List[MeshFile]) -> List[str]:
             + [f'meshes/{path}: missing' for path in sorted(expected - found)])
 
 
+def file_checks(mesh_file: MeshFile, schema: etree.XMLSchema) -> List[Check]:
+    """Return the checks of one file, in their order.
+
+    The checks of the file's bytes and its structure come first, the checks that load its
+    geometry last. So a file that a reader can't load still gets its schema's and its
+    normals' diagnostics.
+    """
+    def check_collada_against_schema(mesh_file: MeshFile) -> List[str]:
+        """Check a COLLADA file against the schema, its unit, up axis and materials."""
+        return check_collada(mesh_file, schema)
+
+    structure: List[Check] = []
+    if mesh_file.path.endswith('.dae'):
+        structure = [check_collada_against_schema, check_collada_normals]
+    if mesh_file.path.endswith('.glb'):
+        structure = [check_gltf]
+    return FILE_CHECKS + structure + GEOMETRY_CHECKS
+
+
+def run_checks(mesh_file: MeshFile, checks: List[Check]) -> List[str]:
+    """Run the checks of one file and return its problems.
+
+    A check that stops with an error adds the error as a problem, and the other checks still
+    run. A file that its reader can't load is reported once, by the first check that needs
+    the geometry.
+    """
+    problems: List[str] = []
+    for check in checks:
+        try:
+            problems += check(mesh_file)
+        except UnreadableFile as error:
+            if str(error) not in problems:
+                problems.append(str(error))
+        except Exception as error:  # a damaged file can make a check raise anything
+            problems.append(f'{check.__name__} stopped: {error_text(error)}')
+    return problems
+
+
 def main() -> int:
     """Run every check and print the results."""
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -564,12 +628,7 @@ def main() -> int:
     schema = collada_schema(args.schema_dir)
     problems = check_folder_contents(files)
     for mesh_file in files:
-        found = [problem for check in FILE_CHECKS for problem in check(mesh_file)]
-        if mesh_file.path.endswith('.dae'):
-            found += check_collada(mesh_file, schema)
-            found += check_collada_normals(mesh_file)
-        if mesh_file.path.endswith('.glb'):
-            found += check_gltf(mesh_file)
+        found = run_checks(mesh_file, file_checks(mesh_file, schema))
         print(f'{mesh_file.path}: ' + ('; '.join(found) if found else 'ok'))
         problems += [f'{mesh_file.path}: {problem}' for problem in found]
     print(f'{len(files)} files checked, {len(problems)} problems')
