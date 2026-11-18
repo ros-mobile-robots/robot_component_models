@@ -87,18 +87,18 @@ Before you open the pull request, write the files once more in CI's generator en
 
 ### The generator environment in a container
 
-The meshes are reproducible byte for byte in the environment of CI's job "Regenerate meshes". The first command builds that environment once as a local image: CI's Ubuntu image by its digest, the system libraries that the job installs, and the pinned Python packages. The second command checks the meshes. It mounts the repository read-only, and `--check` writes its regenerated files into the container's temporary folder:
+The meshes are reproducible byte for byte in the environment of CI's job "Regenerate meshes". The first command builds that environment once as a local image: CI's Ubuntu image by its digest, the system libraries that the job installs, and the pinned Python packages. The second command checks the meshes. It mounts the repository read-only, and `--check` writes its regenerated files into the container's temporary folder. CI's machine is an x64 one, and `--platform linux/amd64` selects that variant of the image. A computer with an ARM processor needs Docker's emulation of amd64 for these commands:
 
 ```bash
-docker build -t robot-component-models-generators -f - generators <<'EOF'
+docker build --platform linux/amd64 -t robot-component-models-generators -f - generators <<'EOF'
 FROM ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852
 RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-venv \
     ca-certificates git libgl1 libxrender1 libxext6 libsm6 libice6 libegl1
 COPY requirements.txt /tmp/requirements.txt
 RUN python3 -m venv /opt/venv && /opt/venv/bin/pip install -r /tmp/requirements.txt
 EOF
-docker run --rm -v "$PWD":/src:ro -w /src robot-component-models-generators \
-  /opt/venv/bin/python -m generators --check
+docker run --rm --platform linux/amd64 -v "$PWD":/src:ro -w /src \
+  robot-component-models-generators /opt/venv/bin/python -m generators --check
 ```
 
 The check ends with this line when the committed files are current:
@@ -110,7 +110,7 @@ regeneration check: all files byte-identical
 To write the meshes and the manifest in that environment, mount the repository writable and run the generators as your own user:
 
 ```bash
-docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/src -w /src \
+docker run --rm --platform linux/amd64 --user "$(id -u):$(id -g)" -v "$PWD":/src -w /src \
   robot-component-models-generators /opt/venv/bin/python -m generators
 ```
 
