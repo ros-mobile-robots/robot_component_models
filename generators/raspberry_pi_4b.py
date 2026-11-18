@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 """Generate the display model of a Raspberry Pi 4 Model B.
 
-The model is drawn from scratch from Raspberry Pi's public mechanical drawing of the Pi 4 Model B
+The model is drawn from Raspberry Pi's mechanical drawing of the Pi 4 Model B
 (raspberry-pi-4-mechanical-drawing.pdf and .dxf: board outline, holes, part outlines and part
-heights "Z"). No geometry comes from another 3D model. Sources in provenance/raspberry_pi_4b.md.
+heights "Z"). Sources in provenance/raspberry_pi_4b.md.
 
 Coordinates while drawing: the drawing's frame in mm, x along the 85 mm edge (USB and Ethernet at
 x = 85), y along the 56 mm edge (GPIO header at y = 56), z up with the board's mid-plane at z = 0.
@@ -300,10 +300,9 @@ SMALL_PARTS_BOTTOM = """
 """
 
 # The mesh's frame: the board lies in x -7.569 ... 48.431 and y -42.123 ... 42.877, the USB and
-# Ethernet end at +y, the GPIO header along -x, z = 0 in the board's mid-plane. Remo's rpi_joint
-# then puts the mounting holes on the deck's standoff bores and the mid-plane on their tops.
-# So (x, y) of the drawing maps to (48.431 - y, x - 42.123): a turn by +90 degrees about z and
-# a shift.
+# Ethernet end at +y, the GPIO header along -x, z = 0 in the board's mid-plane. (x, y) of the
+# drawing maps to (48.431 - y, x - 42.123): a turn by +90 degrees about z and a shift. Remo's
+# rpi_joint places this frame 7 mm above its deck link (provenance/raspberry_pi_4b.md, "Frame").
 BOARD_TO_MESH = (48.431, -42.123)
 
 # Colours (red, green, blue, alpha) of the COLLADA materials.

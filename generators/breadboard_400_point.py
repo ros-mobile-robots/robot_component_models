@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 """Generate the display model of a 400-point solderless breadboard (half size).
 
-The model is built with CadQuery from public facts only: BusBoard's BB400 datasheet (layout of
+The model is built with CadQuery from BusBoard's BB400 datasheet (layout of
 the 300-point terminal area and the four 25-point power rails, 0.1 in hole pitch, 8.5 mm body),
 the 0.1 in grid of the boards that plug into it on Remo (PJRC's Teensy 4.0 drawing, Adafruit's
 BNO055 breakout layout) and their positions in remo_description's URDF. No logos, no printed

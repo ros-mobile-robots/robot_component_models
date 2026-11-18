@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 """Generate the display model of the Raspberry Pi Camera Module v2.
 
-The model is built with CadQuery from public facts only: Raspberry Pi's mechanical drawing of
+The model is built with CadQuery from Raspberry Pi's mechanical drawing of
 the Camera Module v2.1 (board 25 x 23.862 mm, four 2.2 mm holes, 2 mm corner radius, the 8.5 x
 8.5 mm camera module, its flex connector and the 15-way ribbon connector, 20.8 x 5.5 mm) and
 the documented size of about 25 x 24 x 9 mm. Heights that the drawing doesn't give are

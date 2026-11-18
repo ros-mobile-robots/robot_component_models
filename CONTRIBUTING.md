@@ -6,14 +6,14 @@ This package holds display models of off-the-shelf components that robots carry:
 
 Corrections are welcome, especially measurements of the real parts: each part's provenance page lists the measurements that would improve it. Open an [issue](https://github.com/ros-mobile-robots/robot_component_models/issues) or a pull request. Ask questions in the diffbot repository's [Discussions](https://github.com/ros-mobile-robots/diffbot/discussions/categories/q-a), which cover both robots and their packages.
 
-## Independent creation
+## Modelling a part from its sources
 
-Every model here is the project's own work, under this repository's [license](LICENSE). To keep it that way:
+Every model here is the project's own work, under this repository's [license](LICENSE). A model is made like this:
 
-- Model each part from scratch, from public facts about the physical product: datasheets, mechanical drawings, product photos, standards such as the 0.1 in pin pitch, and your own measurements and photos.
-- Record every source in the part's page in `provenance/`: the document, its page or figure, and the values taken from it. Link public documents and photos. Don't copy them into the repository.
-- Never import, convert, trace, sample or otherwise derive geometry from an existing third-party 3D model, and don't download vendor or third-party 3D models for the work.
-- Document each mesh's origin, axes, units and consuming joints in its Frame section. If an existing model must be inspected so that a mesh fits a robot's frame, limit the inspection to the placement information needed: its bounding box, origin and axis directions, or the positions of attachment features such as mounting holes. Keep the source's identity, the measurements and comparisons in the pull request's review.
+- Model each part from facts about the physical product: the dimensions in datasheets and mechanical drawings, the look in product photos, standards such as the 0.1 in pin pitch, and your own measurements and photos of the part.
+- Record every source in the part's page in `provenance/`: the document, its page or figure, and the values taken from it. Link documents and photos where they are published. Say how a measured value was measured, and mark a value that is estimated or chosen.
+- Put each dimension into the generator's parameter block, with its source, and build the shapes from these parameters with CadQuery.
+- Document each mesh's origin, axes, units and consuming joints in the page's Frame section, with the joint poses from the robots' published descriptions.
 - No logos, brand names or printed text on the models. Generic shapes of connectors and chips are fine.
 
 ## Adding or changing a part

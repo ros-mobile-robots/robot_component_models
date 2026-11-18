@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 """Generate the display model of a Teensy 4.0 with two 14-pin headers, as on Remo's breadboard.
 
-The model is built with CadQuery from public facts only: PJRC's Teensy 4.0 dimension drawing,
+The model is built with CadQuery from PJRC's Teensy 4.0 dimension drawing,
 parts placement and product photos, NXP's package drawing of the i.MX RT1062 (10 x 10 x 1.3 mm
 MAPBGA) and Winbond's W25Q16JV datasheet (USON 2 x 3 x 0.6 mm). No logos, no printed text.
 Sources and measurements in provenance/teensy_4_0.md.

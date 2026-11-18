@@ -2,7 +2,7 @@
      SPDX-License-Identifier: BSD-3-Clause -->
 # 360 degree laser scanner, RPLIDAR A2 size
 
-A 360 degree laser scanner with the outline of the Slamtec RPLIDAR A2 (A2M8): a black base, a rotating head with a copper-coloured band, and the optical window with two dark openings. DiffBot and Remo carry this scanner. The model was created independently, from the public datasheet's dimensions and a public photo. No geometry was imported, converted, traced or sampled from another 3D model, and no vendor 3D model was downloaded. No cable, no logos and no printed text: the head's badge is left out.
+A 360 degree laser scanner with the outline of the Slamtec RPLIDAR A2 (A2M8): a black base, a rotating head with a copper-coloured band, and the optical window with two dark openings. DiffBot and Remo carry this scanner. The model uses the dimensions of the datasheet's mechanical drawing and the colours of a photo of Remo, both listed under [Sources](#sources). It shows no cable, no logos and no printed text: the head's badge is left out.
 
 Generator: [`generators/rplidar_a2.py`](../generators/rplidar_a2.py).
 

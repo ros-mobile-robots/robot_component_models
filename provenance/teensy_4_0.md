@@ -2,7 +2,7 @@
      SPDX-License-Identifier: BSD-3-Clause -->
 # Teensy 4.0 with two 14-pin headers
 
-A display model of PJRC's Teensy 4.0 with two 14-pin male headers soldered into its long pin rows, as the board sits on Remo's breadboard. The model was created independently, from PJRC's public dimension drawing, parts placement drawings and product photos, and from the chip makers' public package drawings. No geometry was imported, converted, traced or sampled from another 3D model, and no vendor or third-party 3D model was downloaded. No logos, no pin labels and no other printed text. PJRC's photos were measured where they are published and aren't copied into this repository.
+A display model of PJRC's Teensy 4.0 with two 14-pin male headers soldered into its long pin rows, as the board sits on Remo's breadboard. The model uses PJRC's dimension drawing, parts placement drawings and product photos, and the chip makers' package drawings, listed under [Sources](#sources). It shows no logos, no pin labels and no other printed text.
 
 Generator: [`generators/teensy_4_0.py`](../generators/teensy_4_0.py).
 
