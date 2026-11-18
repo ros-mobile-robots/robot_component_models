@@ -12,6 +12,10 @@ Generator: [`generators/rplidar_a2.py`](../generators/rplidar_a2.py).
 
 ## Frame
 
+![The laser scanner from below and from the side, with the origin and axes of its frame, its four mounting holes and its bottom](../docs/images/frames/rplidar_a2.png)
+
+The picture shows the scanner from below and from the side. The red dot is the origin of the mesh's frame and the red arrows are its positive axes. The green rings mark the four M3 mounting holes in the bottom, at (x, y) = (±20.86, ±20.86) mm. The dashed line is the bottom, the mounting plane, at z = -29.85 mm.
+
 The files are in metres. Positions on this page are in millimetres.
 
 The origin lies on the scanner's rotation axis, 29.85 mm above its bottom. +z points to the top, +x towards the optical window, and the cable exit is at -x. The bottom is at z = -29.85 mm, the top at z = +10.95 mm. The optical window's centre is at z = +0.95 mm, in the middle of the 6 mm laser band, so the origin lies in the laser band.

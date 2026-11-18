@@ -12,6 +12,10 @@ Generator: [`generators/jetson_nano_dev_kit_b01.py`](../generators/jetson_nano_d
 
 ## Frame
 
+![The Jetson Nano Developer Kit from above and from the port side, with the origin and axes of its frame, its four mounting holes and the carrier's bottom face](../docs/images/frames/jetson_nano_dev_kit_b01.png)
+
+The picture shows the kit from above and from the side of its port row. The red dot is the origin of the mesh's frame and the red arrows are its positive axes. The green rings mark the four Ø2.75 mm mounting holes, at (x, y) = (-18.982, -34.847), (-18.982, 23.153), (67.018, -34.847) and (67.018, 23.153) mm. The dashed line is the carrier's bottom face, the mounting plane, at z = 0.
+
 The files are in metres. Positions on this page are in millimetres. The carrier's bottom face is at z = 0. The carrier lies from x = -28.982 to 71.018 mm and from y = -38.847 to 40.153 mm. The port row is at +y and the 40-pin header at -x. While drawing, the generator uses the carrier's own coordinates: u from the left edge (DC jack side) to the right edge (40-pin header side), v from the port edge inwards. They map to (71.018 - u, 40.153 - v): a turn by 180° about z and a shift.
 
 In [Remo's description](https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/remo.urdf.xacro), `jetson_nano_joint` attaches `jetson_nano_link` to `jetson_deck_link`, 7 mm above it, without a turn. The carrier's bottom face, z = 0, then lies 7 mm above `jetson_deck_link`.

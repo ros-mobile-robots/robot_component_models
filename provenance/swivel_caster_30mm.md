@@ -18,6 +18,10 @@ Each STL file is closed and consistently oriented. The three meshes, placed as D
 
 ## Frames
 
+![The caster from above and from the side, with the base's frame, the four standoffs and the three meshes' names](../docs/images/frames/swivel_caster_30mm.png)
+
+The picture shows the three meshes from above and from the side, placed as DiffBot's caster macro places them. The red dot is the origin of the frame of `swivel_caster_30mm_base` and the red arrows are its positive axes. The green rings mark the four standoffs, at (x, y) = (-13, ±15) mm and (11, ±15) mm. Their tops, the dashed line at z = +15 mm, meet the chassis. The side view names the mesh of each piece. The fork's frame lies 1 mm behind the base's frame, on the swivel axis, and the wheel's frame lies on the axle.
+
 The files are in metres, z up. Positions on this page are in millimetres.
 
 - `swivel_caster_30mm_base`: z = 0 is the swivel bearing's lower face. The standoffs end at z = +15 mm, at the chassis. The swivel axis is at x = -1 mm, y = 0, because DiffBot's hub joint is 1 mm behind its base joint (`dx` -0.077 and -0.076 m in `caster_wheel.yaml`).
