@@ -246,14 +246,21 @@ def tongue_block(x0: float, y0: float, z0: float, x1: float, y1: float, z1: floa
 
 def contact_rows(rows: Sequence[ContactRow], tongue: Tongue, length: float,
                  centre_y: float = 0.0) -> List[Part]:
-    """Return gold contacts on a tongue's faces, each row centred on centre_y."""
+    """Return gold contacts on a tongue's faces, each row centred on centre_y.
+
+    The tongue is centred on centre_y too. Raise a ValueError if a row is wider than the
+    tongue: a contact beside the tongue would hang in the air.
+    """
     half, z0, z1, tip = tongue
     parts: List[Part] = []
     for count, pitch, width, on_top in rows:
+        row_half_width = (count - 1) / 2 * pitch + width / 2
+        if row_half_width > half:
+            raise ValueError(f'{count} contacts of {width} mm at {pitch} mm are '
+                             f"{2 * row_half_width:g} mm wide: more than the tongue's "
+                             f'{2 * half:g} mm')
         for k in range(count):
             y = centre_y + (k - (count - 1) / 2) * pitch
-            if abs(y) + width / 2 > half:
-                continue
             z = (z1, z1 + 0.04) if on_top else (z0 - 0.04, z0)
             parts.append(('gold', box(-tip - length, y - width / 2, z[0], -tip - 0.15,
                                       y + width / 2, z[1])))
