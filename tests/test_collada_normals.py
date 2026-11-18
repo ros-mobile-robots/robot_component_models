@@ -196,6 +196,21 @@ class ColladaSourceBindingTest(unittest.TestCase):
             [f"the source {GEOMETRY}-normals's accessor reads #{GEOMETRY}-positions-array, "
              f"not the source's own array #{GEOMETRY}-normals-array"])
 
+    def test_a_normals_accessor_that_starts_behind_the_first_number_is_reported(self) -> None:
+        """Give the normals' accessor an offset of 3: its last vector lies past the array."""
+        self.element(f'//c:source[@id="{GEOMETRY}-normals"]//c:accessor').set('offset', '3')
+
+        self.assertEqual(
+            check_meshes.collada_normal_problems(self.document),
+            [f"the source {GEOMETRY}-normals's accessor starts at the array's number 3, not at "
+             'its first number'])
+
+    def test_an_accessor_with_an_offset_of_zero_has_no_problems(self) -> None:
+        """Write the offset that the accessor has by default, 0: no problem."""
+        self.element(f'//c:source[@id="{GEOMETRY}-normals"]//c:accessor').set('offset', '0')
+
+        self.assertEqual(check_meshes.collada_normal_problems(self.document), [])
+
     def test_a_missing_normals_source_is_reported(self) -> None:
         """Rename the normals' source: the mesh has no source with the expected id."""
         self.element(f'//c:source[@id="{GEOMETRY}-normals"]').set('id', 'other-normals')

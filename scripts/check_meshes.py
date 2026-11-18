@@ -360,7 +360,8 @@ def source_vector_count(mesh: Any, source_id: str) -> Tuple[Optional[int], List[
     """Return how many vectors the mesh's <source> with this id holds, and its problems.
 
     The source's accessor has to read its vectors from the source's own array, three numbers
-    each. An accessor that named another source's array would read that source's numbers.
+    each, from the array's first number on. An accessor that named another source's array
+    would read that source's numbers, and one with an offset would read past the array's end.
     The count is None if the mesh has no such source or the source has a problem.
     """
     namespace = {'c': COLLADA_NAMESPACE}
@@ -381,6 +382,9 @@ def source_vector_count(mesh: Any, source_id: str) -> Tuple[Optional[int], List[
         return None, [f"the source {source_id}'s accessor reads {vectors} vectors with a "
                       f"stride of {accessor.get('stride')} from an array of "
                       f"{array.get('count')} numbers, not three numbers for each vector"]
+    if int(accessor.get('offset', 0)) != 0:
+        return None, [f"the source {source_id}'s accessor starts at the array's number "
+                      f"{accessor.get('offset')}, not at its first number"]
     return vectors, []
 
 
