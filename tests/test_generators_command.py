@@ -174,6 +174,19 @@ class KeepRefusalTest(GeneratorsCommandTest):
         self.assert_refused(result)
 
 
+class WritePartsTest(GeneratorsCommandTest):
+    """Without --check, the command writes the named parts into meshes/."""
+
+    def test_a_part_named_twice_is_written_once(self) -> None:
+        """Run PART PART: the part's line is printed once, and the marked file is rewritten."""
+        result = self.run_command(PART, PART)
+
+        self.assertEqual(result.returncode, PASSED, result.stderr)
+        self.assertEqual(result.stdout.count(f'{PART}/{PART}: '), 1)
+        with open(os.path.join(self.meshes, MARKED_FILE), encoding='utf-8') as written:
+            self.assertIn(SPDX_LINE, written.read())
+
+
 class CheckReadOnlyTest(GeneratorsCommandTest):
     """--check reports a changed reference file and leaves it as it is."""
 

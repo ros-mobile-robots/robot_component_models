@@ -74,6 +74,15 @@ def generate(names: Sequence[str], out: str) -> List[PartEntry]:
         return list(pool.map(generate_part, names, [out] * len(names)))
 
 
+def without_repeats(names: Sequence[str]) -> List[str]:
+    """Return the names in their order, each once.
+
+    A part that is named twice would otherwise be written by two processes at the same time,
+    into the same files.
+    """
+    return list(dict.fromkeys(names))
+
+
 def committed_files() -> List[str]:
     """Return the mesh files in meshes/, relative to it."""
     found = []
@@ -195,7 +204,7 @@ def main() -> int:
             parser.error(f'--check: the folder for temporary files, {tempfile.gettempdir()}, '
                          'lies inside meshes/. Set TMPDIR to a folder outside meshes/')
         return check(keep)
-    parts = generate(args.parts or PARTS, MESHES)
+    parts = generate(without_repeats(args.parts) or PARTS, MESHES)
     if not args.parts:
         with open(MANIFEST, 'w', encoding='utf-8', newline='\n') as manifest:
             manifest.write(manifest_text(parts, SPDX_LINES, LICENSE_ID))
