@@ -31,7 +31,7 @@ Each mesh comes in three files in `meshes/<part>/`, all in metres:
 
 ## Adding the package to a workspace
 
-The package installs only data: `meshes/` with the manifest, `provenance/` with the sources of each part, and `LICENSE`. It builds with catkin under ROS 1 and with ament_cmake under ROS 2. CadQuery isn't needed to build or use it. The installed provenance pages link to their generators and pictures in this repository, at the tag of the installed version.
+The package installs data and its documentation: `meshes/` with the manifest, `provenance/` with each part's page, `LICENSE`, and what the pages link to, which are the generators' Python files in `generators/` and the frame pictures in `docs/images/frames/`. So every link of an installed page that points into the repository leads to an installed file. The generators are installed to be read. The package builds with catkin under ROS 1 and with ament_cmake under ROS 2, and CadQuery isn't needed to build or use it.
 
 1. Declare the dependency in the `package.xml` of the package that uses the meshes:
 
@@ -223,7 +223,7 @@ The models are written with CadQuery because its models are plain Python driven 
 
 1. **Regeneration**: regenerates all parts twice in the generator environment, each time into a new folder, and fails if any file differs from the manifest's checksum. The check only reads `meshes/`.
 2. **Mesh checks**: every STL is closed and consistently oriented. Triangle counts, units and bounding boxes match the manifest. Each COLLADA and glTF file holds the triangles of its STL file, with the same winding. The COLLADA files are valid against the COLLADA 1.4.1 schema and load in pycollada. The glTF files load in trimesh and pass the Khronos glTF Validator. The job also runs the unit tests in [`tests/`](tests/): the generators' command line, the grouping of a model's pieces by material, the comparison of the three formats, and that every part is registered for its pictures, its provenance page and the README.
-3. **ROS packages**: builds and installs the package in the `ros:noetic` and `ros:humble` containers and checks that the installed `share/robot_component_models` holds exactly the manifest's files, their license files, the manifest, the provenance pages, `LICENSE`, `package.xml` and the build tools' own files, and that the installed provenance pages link to this repository at the installed version's tag. The ROS 1 build is checked with `catkin_make_isolated` and with colcon.
+3. **ROS packages**: builds and installs the package in the `ros:noetic` and `ros:humble` containers and checks that the installed `share/robot_component_models` holds exactly the manifest's files, their license files, the manifest, each part's provenance page, generator and frame picture, the generators' other Python files, `LICENSE`, `package.xml` and the build tools' own files. Each installed provenance page is the repository's page, and each of its relative links leads to an installed file. The ROS 1 build is checked with `catkin_make_isolated` and with colcon.
 4. **Code style**: flake8 with ROS 2's ament_flake8 settings and mypy, which requires type hints on every function, on the generators, scripts and tests.
 
 ## Related work
