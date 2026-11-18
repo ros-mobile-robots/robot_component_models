@@ -5,11 +5,16 @@
 Run from the repository's root, with the packages of generators/requirements.txt:
 
   python3 -m generators                       write all meshes and the manifest
-  python3 -m generators --check               regenerate into a temporary folder, compare
   python3 -m generators swivel_caster_30mm    write one part's meshes, not the manifest
+  python3 -m generators --check               regenerate into a temporary folder, compare
+  python3 -m generators --check --keep DIR    regenerate into the new folder DIR, compare,
+                                              and keep the regenerated files there
   python3 -m generators --millimetre-collada DIR
                                               write only the COLLADA files, in millimetres,
                                               into the new folder DIR (meshes/ stays in metres)
+
+Checking only reads meshes/. It never writes there: the regenerated files go into a temporary
+folder, or into a folder that the run creates outside meshes/.
 """
 import argparse
 from concurrent.futures import ProcessPoolExecutor
@@ -19,6 +24,7 @@ import os
 import sys
 import tempfile
 from typing import List
+from typing import Optional
 from typing import Sequence
 
 from generators import PARTS
@@ -29,6 +35,7 @@ from generators.manifest import PartEntry
 from generators.manifest import sha256
 from generators.mesh_export import LICENSE_ID
 from generators.mesh_export import MILLIMETRE
+from generators.mesh_export import require_model_materials
 from generators.mesh_export import SPDX_LINES
 from generators.mesh_export import used_materials
 from generators.mesh_export import write_dae
@@ -49,6 +56,7 @@ def generate_part(name: str, out: str) -> PartEntry:
     os.makedirs(os.path.join(out, name), exist_ok=True)
     meshes = []
     for model in module.build():
+        require_model_materials(model)
         relative = f'{name}/{model.name}'
         write_stl(model, os.path.join(out, relative + '.stl'))
         write_dae(model, os.path.join(out, relative + '.dae'), f'generators/{name}.py')
@@ -76,6 +84,7 @@ def generate_part_millimetre_collada(name: str, out: str) -> List[str]:
     os.makedirs(os.path.join(out, name), exist_ok=True)
     written = []
     for model in module.build():
+        require_model_materials(model)
         path = os.path.join(out, name, model.name + '.dae')
         write_dae(model, path, f'generators/{name}.py', MILLIMETRE)
         print(f'{path}: millimetres, {os.path.getsize(path)} bytes', flush=True)
@@ -90,13 +99,31 @@ def generate_millimetre_collada(names: Sequence[str], out: str) -> List[str]:
         return [path for paths in written for path in paths]
 
 
+def without_repeats(names: Sequence[str]) -> List[str]:
+    """Return the names in their order, each once.
+
+    A part that is named twice would otherwise be written by two processes at the same time,
+    into the same files.
+    """
+    return list(dict.fromkeys(names))
+
+
+def committed_files() -> List[str]:
+    """Return the mesh files in meshes/, relative to it."""
+    found = []
+    for folder, _, files in os.walk(MESHES):
+        found += [os.path.relpath(os.path.join(folder, f), MESHES) for f in files
+                  if f.endswith(EXTENSIONS + ('.license',))]
+    return sorted(found)
+
+
 def is_inside(path: str, folder: str) -> bool:
     """Return whether the path is the folder or lies inside it, symbolic links resolved."""
     path, folder = os.path.realpath(path), os.path.realpath(folder)
     return path == folder or path.startswith(folder + os.sep)
 
 
-def millimetre_destination(folder: str) -> str:
+def new_folder_path(folder: str) -> str:
     """Return the one path that stands for DIR: its parent resolved, its last name as given.
 
     The path has no '.', no '..' and no symbolic link in its parent, so it names the same
@@ -112,23 +139,24 @@ def millimetre_destination(folder: str) -> str:
     return os.path.join(os.path.realpath(parent), name)
 
 
-def create_millimetre_folder(folder: str) -> str:
-    """Create the new folder for the millimetre files and return its path.
+def create_output_folder(folder: str) -> str:
+    """Create the new folder DIR for regenerated files and return its path.
 
-    The folder must lie outside meshes/ and must not exist yet. A folder that this run creates
-    holds no file and no link to one. So the millimetre files can't replace an existing file:
+    --check --keep and --millimetre-collada write into such a folder. The folder must lie
+    outside meshes/ and must not exist yet. A folder that this run creates holds no file and
+    no link to one. So the regenerated files can't replace an existing file:
     not a file in meshes/, not a copy of one somewhere else, and not through a symbolic or a
     hard link that an existing folder could hold. os.mkdir() creates the folder and fails if
     anything has its name already, also a symbolic link without a target.
     Raise ValueError with the reason if the folder can't be created.
     """
-    destination = millimetre_destination(folder)
+    destination = new_folder_path(folder)
     if is_inside(destination, MESHES):
-        raise ValueError('DIR must lie outside meshes/, whose files stay in metres')
+        raise ValueError('DIR must lie outside meshes/')
     if os.path.lexists(destination):
-        raise ValueError(f'{destination} exists already. The option writes only into a folder '
-                         'that it creates, so that it never changes an existing file. Remove '
-                         'the folder or name another one')
+        raise ValueError(f'{destination} exists already. The files go only into a folder that '
+                         'this run creates, so that they never replace an existing file. '
+                         'Remove the folder or name another one')
     try:
         os.makedirs(os.path.dirname(destination), exist_ok=True)
         os.mkdir(destination)
@@ -137,22 +165,15 @@ def create_millimetre_folder(folder: str) -> str:
     return destination
 
 
-def committed_files() -> List[str]:
-    """Return the mesh files in meshes/, relative to it."""
-    found = []
-    for folder, _, files in os.walk(MESHES):
-        found += [os.path.relpath(os.path.join(folder, f), MESHES) for f in files
-                  if f.endswith(EXTENSIONS + ('.license',))]
-    return sorted(found)
+def check(keep: Optional[str] = None) -> int:
+    """Regenerate everything outside meshes/ and compare with meshes/: 0 if equal.
 
-
-def check(keep: str = '') -> int:
-    """Regenerate everything into a temporary folder and compare with meshes/: 0 if equal.
-
-    With keep, the regenerated files go into that folder and stay there, for a closer look.
+    The regenerated files go into a temporary folder. With keep, they go into that folder,
+    which create_output_folder() has made, and stay there for a closer look. meshes/ is only
+    read.
     """
     with tempfile.TemporaryDirectory() as temporary:
-        out = keep or temporary
+        out = keep if keep is not None else temporary
         parts = generate(PARTS, out)
         text = manifest_text(parts, SPDX_LINES, LICENSE_ID)
         generated = sorted([facts.path for part in parts for mesh in part.meshes
@@ -186,28 +207,43 @@ def main() -> int:
                         + ', '.join(PARTS))
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument('--check', action='store_true',
-                      help='regenerate into a temporary folder and compare with meshes/')
-    parser.add_argument('--keep', default='', metavar='DIR',
-                        help='with --check: regenerate into DIR and keep the files')
+                      help='regenerate every part outside meshes/ and compare with meshes/, '
+                      'which is only read')
     mode.add_argument('--millimetre-collada', metavar='DIR',
                       help='write only the COLLADA files, in millimetres and with that unit '
                       'declared, into the new folder DIR, as DIR/<part>/<name>.dae. DIR must '
                       'not exist yet and must lie outside meshes/, whose files stay in metres')
+    parser.add_argument('--keep', metavar='DIR',
+                        help='with --check: regenerate into the new folder DIR and keep the '
+                        'files. DIR must not exist yet and must lie outside meshes/')
     args = parser.parse_args()
     unknown = [name for name in args.parts if name not in PARTS]
     if unknown:
         parser.error(f'unknown parts: {", ".join(unknown)}')
+    if args.keep is not None and not args.check:
+        parser.error('--keep DIR needs --check: it keeps the files that the check regenerates')
+    if args.check and args.parts:
+        parser.error('--check regenerates and compares every part: leave out the part names')
     if args.check:
-        return check(args.keep)
+        keep = None
+        if args.keep is not None:
+            try:
+                keep = create_output_folder(args.keep)
+            except ValueError as problem:
+                parser.error(f'--keep: {problem}')
+        elif is_inside(tempfile.gettempdir(), MESHES):
+            parser.error(f'--check: the folder for temporary files, {tempfile.gettempdir()}, '
+                         'lies inside meshes/. Set TMPDIR to a folder outside meshes/')
+        return check(keep)
     if args.millimetre_collada is not None:
         try:
-            destination = create_millimetre_folder(args.millimetre_collada)
+            destination = create_output_folder(args.millimetre_collada)
         except ValueError as problem:
             parser.error(f'--millimetre-collada: {problem}')
-        written = generate_millimetre_collada(args.parts or PARTS, destination)
+        written = generate_millimetre_collada(without_repeats(args.parts) or PARTS, destination)
         print(f'COLLADA files written in millimetres: {len(written)}')
         return 0
-    parts = generate(args.parts or PARTS, MESHES)
+    parts = generate(without_repeats(args.parts) or PARTS, MESHES)
     if not args.parts:
         with open(MANIFEST, 'w', encoding='utf-8', newline='\n') as manifest:
             manifest.write(manifest_text(parts, SPDX_LINES, LICENSE_ID))

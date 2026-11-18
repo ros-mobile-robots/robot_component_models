@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 """Generate the display model of a 400-point solderless breadboard (half size).
 
-The model is built with CadQuery from public facts only: BusBoard's BB400 datasheet (layout of
+The model is built with CadQuery from BusBoard's BB400 datasheet (layout of
 the 300-point terminal area and the four 25-point power rails, 0.1 in hole pitch, 8.5 mm body),
 the 0.1 in grid of the boards that plug into it on Remo (PJRC's Teensy 4.0 drawing, Adafruit's
 BNO055 breakout layout) and their positions in remo_description's URDF. No logos, no printed
@@ -11,14 +11,18 @@ numbers or letters. Sources in provenance/breadboard_400_point.md.
 Frame (positions in mm, the files are in metres): the bottom at z = 0, the
 centre channel along y, the dovetail tabs on the -x and -y sides.
 """
+from typing import Dict
 from typing import List
+from typing import Tuple
 
 import cadquery as cq
 import numpy as np
 
 from generators.mesh_export import classified_sub_part
+from generators.mesh_export import Classifier
 from generators.mesh_export import Model
 from generators.mesh_export import phong
+from generators.mesh_export import Piece
 
 TITLE = '400-point solderless breadboard'
 
@@ -71,19 +75,19 @@ TOP_Z = TAPE_H + BODY_H
 CENTRE_Y = COLUMN_Y0 + PITCH * (FIRST_COLUMN + (COLUMNS - 1) / 2)
 
 
-def column_ys():
+def column_ys() -> List[float]:
     """Return the y of the 30 terminal columns."""
     return [COLUMN_Y0 + PITCH * (FIRST_COLUMN + n) for n in range(COLUMNS)]
 
 
-def rail_ys():
+def rail_ys() -> List[float]:
     """Return the y of the 25 holes of a power rail, centred between the columns."""
     first = -(RAIL_GROUP_STEP * (RAIL_GROUPS - 1) + RAIL_GROUP_HOLES - 1) / 2
     return [CENTRE_Y + PITCH * (first + RAIL_GROUP_STEP * g + h)
             for g in range(RAIL_GROUPS) for h in range(RAIL_GROUP_HOLES)]
 
 
-def hole_centres():
+def hole_centres() -> List[Tuple[float, float]]:
     """Return the (x, y) of all 400 holes."""
     pts = [(CHANNEL_X + s * off, y) for s in (-1, 1) for off in ROW_OFFSETS
            for y in column_ys()]
@@ -92,20 +96,20 @@ def hole_centres():
 
 
 # --- Geometry helpers --------------------------------------------------------------------------
-def box(x0, x1, y0, y1, z0, z1):
+def box(x0: float, x1: float, y0: float, y1: float, z0: float, z1: float) -> cq.Workplane:
     """Return an axis-aligned box from its bounds."""
     return cq.Workplane('XY').box(x1 - x0, y1 - y0, z1 - z0, centered=False) \
         .translate((x0, y0, z0))
 
 
-def dovetail(neck, tip, depth, z0, z1):
+def dovetail(neck: float, tip: float, depth: float, z0: float, z1: float) -> cq.Workplane:
     """Return a dovetail prism: neck on the y = 0 line, widening to the tip at y = -depth."""
     pts = [(-neck / 2, 0.0), (neck / 2, 0.0), (tip / 2, -depth), (-tip / 2, -depth)]
     return cq.Workplane('XY').polyline(pts).close().extrude(z1 - z0).translate((0, 0, z0))
 
 
 # --- The parts ---------------------------------------------------------------------------------
-def body():
+def body() -> cq.Workplane:
     """Return the white body with holes, channel, seams, tabs and slots."""
     x0, x1 = CHANNEL_X - WIDTH / 2, CHANNEL_X + WIDTH / 2
     y0, y1 = CENTRE_Y - LENGTH / 2, CENTRE_Y + LENGTH / 2
@@ -138,14 +142,14 @@ def body():
     return solid.cut(holes)
 
 
-def tape():
+def tape() -> cq.Workplane:
     """Return the adhesive foam backing under the body."""
     return box(CHANNEL_X - WIDTH / 2 + TAPE_INSET, CHANNEL_X + WIDTH / 2 - TAPE_INSET,
                CENTRE_Y - LENGTH / 2 + TAPE_INSET, CENTRE_Y + LENGTH / 2 - TAPE_INSET,
                0.0, TAPE_H + 0.01)
 
 
-def stripes():
+def stripes() -> List[Piece]:
     """Return the red and blue lines along the power rails, by colour."""
     out = []
     for colour, offsets in STRIPE_OFFSETS.items():
@@ -157,7 +161,7 @@ def stripes():
     return out
 
 
-def body_material(tri):
+def body_material(tri: np.ndarray) -> np.ndarray:
     """Return the material of each body triangle: white, the holes' walls and floors dark."""
     normal = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
     normal /= np.linalg.norm(normal, axis=1, keepdims=True)
@@ -175,7 +179,7 @@ def body_material(tri):
 
 
 # Parts whose triangles get more than one material
-CLASSIFIERS = {'white': body_material}
+CLASSIFIERS: Dict[str, Classifier] = {'white': body_material}
 
 
 # --- Mesh --------------------------------------------------------------------------------------

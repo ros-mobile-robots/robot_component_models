@@ -60,6 +60,8 @@ jobs:
         run: python3 -m venv /opt/venv && /opt/venv/bin/pip install -r generators/requirements.txt
       - name: Check the files against the manifest, the COLLADA schema and the readers
         run: /opt/venv/bin/python scripts/check_meshes.py
+      - name: Unit tests of the generators' shared code and of the checks
+        run: /opt/venv/bin/python -m unittest discover -s tests -v
 
   gltf:
     name: glTF validator
@@ -129,6 +131,6 @@ jobs:
       - name: Install flake8 and mypy
         run: python3 -m venv /opt/lint && /opt/lint/bin/pip install -r scripts/requirements-lint.txt
       - name: flake8 with the ament_flake8 settings
-        run: /opt/lint/bin/flake8 generators scripts
+        run: /opt/lint/bin/flake8 generators scripts tests
       - name: mypy
-        run: /opt/lint/bin/mypy generators scripts
+        run: /opt/lint/bin/mypy generators scripts tests

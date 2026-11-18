@@ -2,7 +2,7 @@
      SPDX-License-Identifier: BSD-3-Clause -->
 # Jetson Nano Developer Kit B01
 
-A display model of the NVIDIA Jetson Nano Developer Kit B01: the carrier board P3449-B01 with the module P3448 and its heatsink. Remo carries one. The model was created independently, from NVIDIA's public documents and pictures and a public forum post. No geometry was imported, converted, traced or sampled from another 3D model. NVIDIA's own 3D model of the kit is behind a developer login and wasn't downloaded or looked at. No logos and no printed text.
+A display model of the NVIDIA Jetson Nano Developer Kit B01: the carrier board P3449-B01 with the module P3448 and its heatsink. Remo carries one. The model uses the carrier board's dimensions, mounting-hole layout and connector positions listed under [Sources](#sources). It shows no logos and no printed text.
 
 Generator: [`generators/jetson_nano_dev_kit_b01.py`](../generators/jetson_nano_dev_kit_b01.py).
 
@@ -12,9 +12,13 @@ Generator: [`generators/jetson_nano_dev_kit_b01.py`](../generators/jetson_nano_d
 
 ## Frame
 
+![The Jetson Nano Developer Kit from above and from the port side, with the origin and axes of its frame, its four mounting holes and the carrier's bottom face](../docs/images/frames/jetson_nano_dev_kit_b01.png)
+
+The picture shows the kit from above and from the side of its port row. The red dot is the origin of the mesh's frame and the red arrows are its positive axes. The green rings mark the four Ø2.75 mm mounting holes, at (x, y) = (-18.982, -34.847), (-18.982, 23.153), (67.018, -34.847) and (67.018, 23.153) mm. The dashed line is the carrier's bottom face, the mounting plane, at z = 0.
+
 The files are in metres. Positions on this page are in millimetres. The carrier's bottom face is at z = 0. The carrier lies from x = -28.982 to 71.018 mm and from y = -38.847 to 40.153 mm. The port row is at +y and the 40-pin header at -x. While drawing, the generator uses the carrier's own coordinates: u from the left edge (DC jack side) to the right edge (40-pin header side), v from the port edge inwards. They map to (71.018 - u, 40.153 - v): a turn by 180° about z and a shift.
 
-In [Remo's description](https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/remo.urdf.xacro), `jetson_nano_joint` attaches `jetson_nano_link` to `jetson_deck_link`, 7 mm above it, without a turn. The printed Jetson deck's standoffs end 7.1 mm above the deck, so the carrier's bottom overlaps them by 0.1 mm. The centres of the four standoff bores lie within 0.051 mm of the carrier's mounting holes.
+In [Remo's description](https://github.com/ros-mobile-robots/remo_description/blob/main/urdf/remo.urdf.xacro), `jetson_nano_joint` attaches `jetson_nano_link` to `jetson_deck_link`, 7 mm above it, without a turn. The carrier's bottom face, z = 0, then lies 7 mm above `jetson_deck_link`.
 
 ## Sources
 
@@ -22,7 +26,7 @@ In [Remo's description](https://github.com/ros-mobile-robots/remo_description/bl
 2. **NVIDIA Jetson Nano Developer Kit data sheet** (2022), as hosted by Farnell: <https://www.farnell.com/datasheets/3799946.pdf>. "Mechanical 100mm x 79mm x 30.21mm (height includes carrier board, module, and thermal solution.)", two 15-pin MIPI CSI-2 camera connectors, 4 USB 3.0 Type-A, 1 USB 2.0 Micro-B, 40-pin header, 4-pin fan header, 4-pin PoE header.
 3. **NVIDIA, "Get Started With Jetson Nano Developer Kit"**: <https://developer.nvidia.com/embedded/learn/get-started-jetson-nano-devkit>. Its B01 picture shows the connector order and colours, and the heatsink's fins along the port edge with two flat-topped fins that carry the fan holes. Its microSD picture shows the microSD slot under the module's back edge and the green module board.
 4. **NVIDIA Jetson Nano product page**: <https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-nano/product-development/>. Module 69.6 × 45 mm, 260-pin SO-DIMM.
-5. **Mounting holes**: NVIDIA developer forum, "Jetson Nano Dev kit mounting holes?" (2023): <https://forums.developer.nvidia.com/t/jetson-nano-dev-kit-mounting-holes/239242>. The dimensioned board layout posted there: holes Ø2.75 mm at (0, 0), (86, 0), (0, 58) and (86, 58), the board from (-4, -17) to (96, 62), so 100 × 79 mm, the ports along the -17 edge. Only these numbers were used.
+5. **Mounting holes**: NVIDIA developer forum, "Jetson Nano Dev kit mounting holes?" (2023): <https://forums.developer.nvidia.com/t/jetson-nano-dev-kit-mounting-holes/239242>. The dimensioned board layout posted there: holes Ø2.75 mm at (0, 0), (86, 0), (0, 58) and (86, 58), the board from (-4, -17) to (96, 62), so 100 × 79 mm, the ports along the -17 edge.
 6. **B01 changes**: CNX Software, "NVIDIA Jetson Nano Developer Kit-B01 Gets an Extra Camera Connector", 17 Jan 2020: <https://www.cnx-software.com/2020/01/17/nvidia-jetson-nano-developer-kit-b01-gets-an-extra-camera-connector/>. Its B01 photo gives the two camera connectors along the left edge, the moved J48 jumper and the removed serial and button headers.
 7. **Fan holes**: Noctua's FAQ, <https://www.noctua.at/cn/support/faqs/which-is-the-best-fan-for-the-nvidia-jetson-nano>. 40 mm fans fit the heatsink's holes, which are Ø2.5 mm and not threaded. A 40 mm fan's holes are 32 mm apart.
 
@@ -44,7 +48,7 @@ Board coordinates: u from the left edge (DC jack side), v from the port edge inw
 - **Module**: a plain 69.6 × 45 × 1.0 mm green board from z 9.2 to 10.2 mm, with its microSD slot under the back edge. The rear view reads 9.0 to 10.0 mm at ±0.3 mm per pixel. 0.2 mm higher leaves room for a 1.4 mm microSD socket underneath. The module's parts under the heatsink and its gold fingers aren't modelled.
 - **Camera connectors**: two plain 15-pin flat cable connectors (20.8 × 5.5 × 2.5 mm) with a dark latch. Their position along the edge is read from a photo, ±2 mm.
 - **J48** is a 2-pin header without a jumper cap, centred at u 13.0, v 20.5 mm, from the photo, ±3 mm. The B01's 12-pin button header J50 isn't modelled: its position isn't in the sources.
-- **Connector insides**: standard opening sizes, simplified tongues and contacts. The carrier's small surface parts aren't modelled: none are in the public drawings.
+- **Connector insides**: standard opening sizes, simplified tongues and contacts. The carrier's small surface parts aren't modelled: the sources' drawings don't show them.
 - **Bottom**: the 40-pin, PoE and J48 tails and approximate solder joints under the port connectors.
 - **No M.2 card, fan or camera cables**: the kit as shipped.
 

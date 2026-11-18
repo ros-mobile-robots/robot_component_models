@@ -9,9 +9,11 @@ so they don't share the generators' mistakes:
 - meshes/ holds exactly the manifest's files, each with the manifest's checksum and size,
 - every STL is closed and consistently oriented, without collapsed triangles,
 - triangle counts and bounding boxes match the manifest, in each file's units,
-- every file is in metres, and the COLLADA and glTF files have the STL's geometry,
+- every file is in metres, and the COLLADA and glTF files have the STL file's triangles,
+  corner for corner and with the same winding,
 - every COLLADA file is valid against the COLLADA 1.4.1 schema and loads in pycollada,
-- every COLLADA file gives the normals an index of their own in its triangle lists,
+- every COLLADA file gives each corner of its triangle lists its own normal, by an index of
+  the normal's own that equals the position's index,
 - every glTF file loads in trimesh, with the manifest's sub-parts as named nodes,
 - every file carries the manifest's license: SPDX lines in the COLLADA header, in a
   <file>.license next to each STL and glTF file.
@@ -31,16 +33,19 @@ from typing import Callable
 from typing import Dict
 from typing import List
 from typing import NamedTuple
+from typing import Tuple
 import urllib.request
 
 import collada
 from lxml import etree
 import numpy as np
+from scipy.spatial import cKDTree
 import trimesh
 import yaml
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MESHES = os.path.join(ROOT, 'meshes')
+COLLADA_NAMESPACE = 'http://www.collada.org/2005/11/COLLADASchema'
 SCHEMA_URL = 'https://www.khronos.org/files/collada_schema_1_4_1.xsd'
 SCHEMA_SHA256 = '49266165027329388e710ade6a424116570cda6776cbf3623f7b8c78c727b0ff'
 # The COLLADA schema imports the XML namespace schema for xml:base. This stand-in declares the
@@ -59,6 +64,12 @@ COPYRIGHT_LINE = 'SPDX-FileCopyrightText: 2026 ROS Mobile Robots'
 # Bounding boxes in the manifest are rounded to 0.001 mm or 0.000001 m. The float32 vertices
 # of the glTF files and the 7 digits of the COLLADA files add less than that.
 BOX_TOLERANCE = {'metre': 0.0000011}
+# The three files of a mesh are written from the same triangles. For a coordinate below 1 m,
+# the seven significant digits of a COLLADA file round by at most 0.00000005 m and the float32
+# numbers of an STL or glTF file by at most 0.00000003 m. A corner then lies within
+# 0.00000014 m of its vertex in the STL file. A corner of a COLLADA or glTF file is the
+# nearest STL vertex within this distance, 0.2 micrometres
+VERTEX_TOLERANCE = 0.0000002
 
 
 class MeshFile(NamedTuple):
@@ -173,21 +184,85 @@ def check_bounding_box(mesh_file: MeshFile) -> List[str]:
 
 
 def check_units(mesh_file: MeshFile) -> List[str]:
-    """Check that the files are in metres, the COLLADA and glTF files with the STL's geometry."""
+    """Check that an STL file is in metres: a robot component is between 5 mm and 0.5 m long.
+
+    The COLLADA and glTF files are compared with the STL file, see check_same_triangles().
+    """
+    if not mesh_file.path.endswith('.stl'):
+        return []
+    size = np.ptp(geometry(mesh_file).corners.reshape(-1, 3), axis=0).max()
+    return [] if 0.005 < size < 0.5 else [f'largest size {size:.6f}: not metres?']
+
+
+def turned_to_smallest_first(triangles: np.ndarray) -> np.ndarray:
+    """Return triangles (m, 3) of vertex numbers, each turned so that its smallest comes first.
+
+    Turning keeps a triangle's winding: (a, b, c), (b, c, a) and (c, a, b) are the same face.
+    (a, c, b) is that face seen from the other side.
+    """
+    first = triangles.argmin(axis=1)
+    rows = np.arange(len(triangles))
+    return np.stack([triangles[rows, (first + k) % 3] for k in range(3)], axis=1)
+
+
+def triangle_counts(triangles: np.ndarray) -> Dict[Tuple[int, int, int], int]:
+    """Return how often each triangle (a, b, c) of vertex numbers occurs."""
+    unique, counts = np.unique(triangles, axis=0, return_counts=True)
+    return {(int(a), int(b), int(c)): int(count) for (a, b, c), count in zip(unique, counts)}
+
+
+def triangle_differences(reference: np.ndarray, corners: np.ndarray,
+                         tolerance: float) -> List[str]:
+    """Return how the triangles (m, 3, 3) of a file differ from the reference file's.
+
+    The two files may list the triangles in another order and may start each triangle at
+    another corner. They must have the same triangles with the same winding, because a viewer
+    that draws only the front of a face hides a triangle with the opposite winding.
+
+    1. Number the reference's vertices, and give each corner of the file the number of the
+       nearest reference vertex within the tolerance.
+    2. Turn each triangle so that its smallest number comes first.
+    3. Compare how often each triangle occurs in the two files. A triangle of the file whose
+       corners are a reference triangle in the opposite order has the opposite winding.
+    """
+    vertices, numbers = np.unique(reference.reshape(-1, 3), axis=0, return_inverse=True)
+    distances, nearest = cKDTree(vertices).query(corners.reshape(-1, 3),
+                                                 distance_upper_bound=tolerance)
+    away = int(np.isinf(distances).sum())
+    if away:
+        return [f'{away} corners lie more than {tolerance:g} from every vertex of the STL file']
+    expected = triangle_counts(turned_to_smallest_first(numbers.reshape(-1, 3)))
+    found = triangle_counts(turned_to_smallest_first(nearest.reshape(-1, 3)))
+    missing = {triangle: count - found.get(triangle, 0) for triangle, count in expected.items()
+               if count > found.get(triangle, 0)}
+    extra = {triangle: count - expected.get(triangle, 0) for triangle, count in found.items()
+             if count > expected.get(triangle, 0)}
+    opposite = sum(min(count, missing.get((a, c, b), 0)) for (a, b, c), count in extra.items())
+    problems = []
+    if opposite:
+        problems.append(f"{opposite} triangles have the opposite winding of the STL file's")
+    if sum(missing.values()) > opposite:
+        problems.append(f'{sum(missing.values()) - opposite} triangles of the STL file are '
+                        'missing')
+    if sum(extra.values()) > opposite:
+        problems.append(f'{sum(extra.values()) - opposite} triangles are not in the STL file')
+    return problems
+
+
+def check_same_triangles(mesh_file: MeshFile) -> List[str]:
+    """Check that a COLLADA or glTF file has the STL file's triangles, with the same winding.
+
+    The readers apply each file's scene: the COLLADA nodes, and the glTF root node's turn from
+    Z up to Y up, which glb_corners() turns back. So the corners are compared in the mesh's
+    frame, in metres.
+    """
     extension = os.path.splitext(mesh_file.path)[1]
     if extension == '.stl':
-        size = np.ptp(geometry(mesh_file).corners.reshape(-1, 3), axis=0).max()
-        return [] if 0.005 < size < 0.5 else [f'largest size {size:.6f}: not metres?']
+        return []
     stl_path = mesh_file.path[:-len(extension)] + '.stl'
     stl = mesh_file._replace(path=stl_path, entry=mesh_file.mesh['files'][stl_path])
-    ours = geometry(mesh_file).corners.reshape(-1, 3)
-    reference = geometry(stl).corners.reshape(-1, 3)
-    problems = []
-    for name, ours_value, reference_value in (('min', ours.min(0), reference.min(0)),
-                                              ('max', ours.max(0), reference.max(0))):
-        if np.abs(ours_value - reference_value).max() > 1e-6:
-            problems.append(f"bounding box {name} differs from the STL's")
-    return problems
+    return triangle_differences(geometry(stl).corners, geometry(mesh_file).corners,
+                                VERTEX_TOLERANCE)
 
 
 def check_closed(mesh_file: MeshFile) -> List[str]:
@@ -225,7 +300,7 @@ def check_collada(mesh_file: MeshFile, schema: etree.XMLSchema) -> List[str]:
     problems = []
     if not schema.validate(document):
         problems.append(f'not valid COLLADA 1.4.1: {schema.error_log.last_error}')
-    namespace = {'c': 'http://www.collada.org/2005/11/COLLADASchema'}
+    namespace = {'c': COLLADA_NAMESPACE}
     if document.xpath('string(//c:asset/c:unit/@meter)', namespaces=namespace) != '1':
         problems.append('unit is not the metre')
     if document.xpath('string(//c:asset/c:up_axis)', namespaces=namespace) != 'Z_UP':
@@ -239,28 +314,76 @@ def check_collada(mesh_file: MeshFile, schema: etree.XMLSchema) -> List[str]:
     return problems
 
 
-def check_collada_normals(mesh_file: MeshFile) -> List[str]:
-    """Check that a COLLADA file's triangle lists give the normals an index of their own.
+def corner_index_problems(triangles: Any, vectors: int) -> List[str]:
+    """Return the problems of one <triangles> element's indices, for a mesh of that many vectors.
+
+    The writer gives a geometry one normal for each position. So every corner is a pair of
+    the same number: the index of its position, then the index of its normal. A pair of two
+    different numbers would give the corner the normal of another vertex.
+    """
+    name = f'<triangles material="{triangles.get("material")}">'
+    corners = 3 * int(triangles.get('count', 0))
+    indices = np.array((triangles.findtext(f'{{{COLLADA_NAMESPACE}}}p') or '').split(),
+                       dtype=np.int64)
+    if indices.size != 2 * corners:
+        return [f'{name} has {indices.size} indices, not a position and a normal index for '
+                f'each of its {corners} corners']
+    positions, normals = indices[0::2], indices[1::2]
+    problems = []
+    beyond = int(((indices < 0) | (indices >= vectors)).sum())
+    if beyond:
+        problems.append(f'{name} has {beyond} indices outside the {vectors} positions and '
+                        'normals of its mesh')
+    different = int((positions != normals).sum())
+    if different:
+        problems.append(f'{name} has {different} corners whose normal index differs from '
+                        'their position index')
+    return problems
+
+
+def collada_normal_problems(document: Any) -> List[str]:
+    """Return the problems of a parsed COLLADA file's normals.
 
     Gazebo Classic's COLLADA loader merges the vertices that share a position. It keeps the
     corners of a sharp edge apart only when the normals are an input of <triangles> with an
     offset of their own. With the normals as an input of <vertices>, it shades all the faces
-    around a sharp edge with the normal of one of them.
+    around a sharp edge with the normal of one of them. So each mesh must have:
+
+    1. <vertices> with the positions only,
+    2. as many normals as positions,
+    3. in every <triangles>, the positions at offset 0 and the normals at offset 1,
+    4. for every corner, its position's index and the same number as its normal's index.
     """
-    document = etree.parse(file_path(mesh_file))
-    namespace = {'c': 'http://www.collada.org/2005/11/COLLADASchema'}
+    namespace = {'c': COLLADA_NAMESPACE}
     problems = []
-    vertex_inputs = document.xpath('//c:mesh/c:vertices/c:input/@semantic', namespaces=namespace)
-    if set(vertex_inputs) != {'POSITION'}:
-        problems.append(f'<vertices> has the inputs {sorted(set(vertex_inputs))}, not only'
-                        ' POSITION')
-    for triangles in document.xpath('//c:mesh/c:triangles', namespaces=namespace):
-        offsets = {triangle_input.get('semantic'): triangle_input.get('offset')
-                   for triangle_input in triangles.findall('c:input', namespace)}
-        if offsets != {'VERTEX': '0', 'NORMAL': '1'}:
-            problems.append(f'<triangles material="{triangles.get("material")}"> has the inputs'
-                            f' {offsets}, not VERTEX at offset 0 and NORMAL at offset 1')
+    for mesh in document.xpath('//c:mesh', namespaces=namespace):
+        vertex_inputs = mesh.xpath('c:vertices/c:input/@semantic', namespaces=namespace)
+        if set(vertex_inputs) != {'POSITION'}:
+            problems.append(f'<vertices> has the inputs {sorted(set(vertex_inputs))}, not only'
+                            ' POSITION')
+        counts = {kind: [int(count) for count in mesh.xpath(
+            f'c:source[substring(@id, string-length(@id) - {len(kind)}) = "-{kind}"]'
+            '/c:technique_common/c:accessor/@count', namespaces=namespace)]
+            for kind in ('positions', 'normals')}
+        if len(counts['positions']) != 1 or counts['positions'] != counts['normals']:
+            problems.append(f'the mesh has {counts["positions"]} positions and '
+                            f'{counts["normals"]} normals, not one normal for each position')
+            continue
+        for triangles in mesh.xpath('c:triangles', namespaces=namespace):
+            offsets = {triangle_input.get('semantic'): triangle_input.get('offset')
+                       for triangle_input in triangles.findall('c:input', namespace)}
+            if offsets != {'VERTEX': '0', 'NORMAL': '1'}:
+                problems.append(f'<triangles material="{triangles.get("material")}"> has the '
+                                f'inputs {offsets}, not VERTEX at offset 0 and NORMAL at '
+                                'offset 1')
+                continue
+            problems += corner_index_problems(triangles, counts['positions'][0])
     return problems
+
+
+def check_collada_normals(mesh_file: MeshFile) -> List[str]:
+    """Check that a COLLADA file gives every corner its own normal, by an index of its own."""
+    return collada_normal_problems(etree.parse(file_path(mesh_file)))
 
 
 def gltf_document(path: str) -> Dict[str, Any]:
@@ -309,7 +432,7 @@ def check_license(mesh_file: MeshFile) -> List[str]:
 
 
 FILE_CHECKS: List[Check] = [check_checksum, check_triangle_count, check_bounding_box,
-                            check_units, check_closed, check_license]
+                            check_units, check_same_triangles, check_closed, check_license]
 
 
 # ---------------------------------------------------------------------------------------------
