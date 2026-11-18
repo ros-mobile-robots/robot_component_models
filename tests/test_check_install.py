@@ -47,6 +47,7 @@ MANIFEST = f"""parts:
             license_file: part/part.stl.license
 """
 PASSED, FAILED = 0, 1
+COMMAND_TIMEOUT = 60  # seconds, ten times what the command takes on CI's machine
 
 
 def write(folder: str, path: str, text: str) -> None:
@@ -192,7 +193,33 @@ class FilesCanBeReadTest(unittest.TestCase):
         """Replace the module with a link to a file that doesn't exist: reported."""
         self.replace_with_link(os.path.join(self.share, 'nowhere.py'))
 
-        self.assertEqual(self.problems(), [f"{SHARED_MODULE}: isn't a file that can be read"])
+        self.assertEqual(self.problems(), [f"{SHARED_MODULE}: isn't a file that can be read: "
+                                           'a link without its target'])
+
+    def test_folder_is_reported(self) -> None:
+        """Replace the module with a folder: it isn't a regular file."""
+        os.remove(os.path.join(self.share, SHARED_MODULE))
+        os.mkdir(os.path.join(self.share, SHARED_MODULE))
+
+        self.assertEqual(self.problems(), [f"{SHARED_MODULE}: isn't a file that can be read: "
+                                           "it isn't a regular file"])
+
+    def test_path_that_cannot_be_examined_is_reported(self) -> None:
+        """Let os.stat() fail on the module with an input/output error."""
+        failing = os.path.join(self.share, SHARED_MODULE)
+        real_stat = os.stat
+
+        def stat_with_an_error(path: Any, *arguments: Any, **keywords: Any) -> Any:
+            """Examine a path as os.stat() does, except the module."""
+            if path == failing:
+                raise OSError(errno.EIO, os.strerror(errno.EIO), path)
+            return real_stat(path, *arguments, **keywords)
+
+        with mock.patch('os.stat', stat_with_an_error):
+            problems = self.problems()
+
+        self.assertEqual(problems, [f"{SHARED_MODULE}: isn't a file that can be read: it can't "
+                                    f'be examined: {os.strerror(errno.EIO)}'])
 
 
 class ChecksumsTest(unittest.TestCase):
@@ -220,18 +247,45 @@ class ChecksumsTest(unittest.TestCase):
             return real_open(path, *arguments, **keywords)
 
         with mock.patch('builtins.open', open_with_a_read_error):
-            problems = check_install.check_checksums(self.share, self.checksums)
+            problems = check_install.check_checksums(self.share, self.checksums,
+                                                     set(self.meshes))
 
         self.assertEqual(problems, [f"{self.meshes[0]}: can't be read for its checksum: "
                                     f'{os.strerror(errno.EIO)}',
                                     f'checksum differs: {self.meshes[1]}'])
 
-    def test_mesh_that_is_not_there_is_left_to_the_file_set_check(self) -> None:
-        """Remove the first mesh: only the second one's checksum is reported."""
+    def test_mesh_that_is_not_readable_is_left_to_the_other_checks(self) -> None:
+        """Leave the first mesh out of the readable files: only the second one is reported."""
+        self.assertEqual(check_install.check_checksums(self.share, self.checksums,
+                                                       {self.meshes[1]}),
+                         [f'checksum differs: {self.meshes[1]}'])
+
+    def test_mesh_removed_after_the_inventory_is_reported(self) -> None:
+        """Remove the first mesh after it was found readable: its checksum isn't skipped."""
         os.remove(os.path.join(self.share, self.meshes[0]))
 
-        self.assertEqual(check_install.check_checksums(self.share, self.checksums),
-                         [f'checksum differs: {self.meshes[1]}'])
+        self.assertEqual(check_install.check_checksums(self.share, self.checksums,
+                                                       set(self.meshes)),
+                         [f"{self.meshes[0]}: can't be read for its checksum: "
+                          f'{os.strerror(errno.ENOENT)}',
+                          f'checksum differs: {self.meshes[1]}'])
+
+    def test_mesh_whose_link_status_fails_is_still_compared(self) -> None:
+        """Let os.lstat() fail on the second mesh: its checksum is still compared."""
+        failing = os.path.join(self.share, self.meshes[1])
+        real_lstat = os.lstat
+
+        def lstat_with_an_error(path: Any, *arguments: Any, **keywords: Any) -> Any:
+            """Examine a link as os.lstat() does, except the second mesh."""
+            if path == failing:
+                raise OSError(errno.EIO, os.strerror(errno.EIO), path)
+            return real_lstat(path, *arguments, **keywords)
+
+        with mock.patch('os.lstat', lstat_with_an_error):
+            problems = check_install.check_checksums(self.share, self.checksums,
+                                                     set(self.meshes))
+
+        self.assertEqual(problems, [f'checksum differs: {self.meshes[1]}'])
 
 
 class CheckInstallCommandTest(unittest.TestCase):
@@ -262,10 +316,20 @@ class CheckInstallCommandTest(unittest.TestCase):
             write(self.share, path, text)
 
     def run_command(self) -> 'subprocess.CompletedProcess[str]':
-        """Run the checkout's check_install.py on the install prefix, for ROS 2."""
+        """Run the checkout's check_install.py on the install prefix, for ROS 2.
+
+        The run gets COMMAND_TIMEOUT seconds: a check that waits on a named pipe fails the
+        test instead of stopping the whole run.
+        """
         return subprocess.run([sys.executable, os.path.join(self.checkout, 'scripts',
                                                             'check_install.py'),
-                               self.prefix, '2'], check=False, capture_output=True, text=True)
+                               self.prefix, '2'], check=False, capture_output=True, text=True,
+                              timeout=COMMAND_TIMEOUT)
+
+    def replace_with_fifo(self, path: str) -> None:
+        """Replace an installed file with a named pipe that has no writer."""
+        os.remove(os.path.join(self.share, path))
+        os.mkfifo(os.path.join(self.share, path))
 
     def assert_reported(self, result: 'subprocess.CompletedProcess[str]',
                         problems: List[str]) -> None:
@@ -286,16 +350,32 @@ class CheckInstallCommandTest(unittest.TestCase):
     def test_page_that_is_a_folder_is_reported_with_the_other_problems(self) -> None:
         """Put a folder where the installed page should be, and remove the frame picture.
 
-        The command reports the page as missing and as unreadable, the picture as missing,
-        and ends with its summary.
+        The command reports the picture as missing, the page as a folder and as a page
+        that can't be read, and ends with its summary.
         """
         os.remove(os.path.join(self.share, PAGE))
         os.mkdir(os.path.join(self.share, PAGE))
         os.remove(os.path.join(self.share, LINKED_FILES[0]))
 
         self.assert_reported(self.run_command(),
-                             [f'missing: {LINKED_FILES[0]}', f'missing: {PAGE}',
+                             [f'missing: {LINKED_FILES[0]}',
+                              f"{PAGE}: isn't a file that can be read: it isn't a regular file",
                               f"{PAGE}: the installed page can't be read"])
+
+    def test_page_that_is_a_named_pipe_is_reported_without_waiting(self) -> None:
+        """Put a named pipe without a writer where the installed page should be."""
+        self.replace_with_fifo(PAGE)
+
+        self.assert_reported(self.run_command(),
+                             [f"{PAGE}: isn't a file that can be read: it isn't a regular file",
+                              f"{PAGE}: the installed page can't be read"])
+
+    def test_mesh_that_is_a_named_pipe_is_reported_without_waiting(self) -> None:
+        """Put a named pipe without a writer where the installed mesh should be."""
+        self.replace_with_fifo(MESH)
+
+        self.assert_reported(self.run_command(),
+                             [f"{MESH}: isn't a file that can be read: it isn't a regular file"])
 
     @unittest.skipIf(os.geteuid() == 0, 'root reads a file without read permission')
     def test_page_without_read_permission_is_reported(self) -> None:
@@ -303,7 +383,8 @@ class CheckInstallCommandTest(unittest.TestCase):
         os.chmod(os.path.join(self.share, PAGE), 0)
 
         self.assert_reported(self.run_command(),
-                             [f"{PAGE}: isn't a file that can be read",
+                             [f"{PAGE}: isn't a file that can be read: it has no read "
+                              'permission',
                               f"{PAGE}: the installed page can't be read"])
 
     def test_shared_module_as_a_link_without_its_target_is_reported(self) -> None:
@@ -313,7 +394,8 @@ class CheckInstallCommandTest(unittest.TestCase):
                    os.path.join(self.share, SHARED_MODULE))
 
         self.assert_reported(self.run_command(),
-                             [f"{SHARED_MODULE}: isn't a file that can be read"])
+                             [f"{SHARED_MODULE}: isn't a file that can be read: a link "
+                              'without its target'])
 
     def test_build_tool_file_as_a_link_without_its_target_is_reported(self) -> None:
         """Install CMake's package file as a link to a file that doesn't exist: reported.
@@ -326,7 +408,25 @@ class CheckInstallCommandTest(unittest.TestCase):
                    os.path.join(self.share, BUILD_TOOL_FILE))
 
         self.assert_reported(self.run_command(),
-                             [f"{BUILD_TOOL_FILE}: isn't a file that can be read"])
+                             [f"{BUILD_TOOL_FILE}: isn't a file that can be read: a link "
+                              'without its target'])
+
+    def test_build_tool_file_that_is_a_folder_is_reported(self) -> None:
+        """Put a folder where CMake's package file would be: reported."""
+        os.makedirs(os.path.join(self.share, BUILD_TOOL_FILE))
+
+        self.assert_reported(self.run_command(),
+                             [f"{BUILD_TOOL_FILE}: isn't a file that can be read: it isn't a "
+                              'regular file'])
+
+    def test_build_tool_file_as_a_link_to_a_folder_is_reported(self) -> None:
+        """Install CMake's package file as a link to a folder: reported."""
+        os.makedirs(os.path.join(self.share, os.path.dirname(BUILD_TOOL_FILE)))
+        os.symlink(self.folder, os.path.join(self.share, BUILD_TOOL_FILE))
+
+        self.assert_reported(self.run_command(),
+                             [f"{BUILD_TOOL_FILE}: isn't a file that can be read: it isn't a "
+                              'regular file'])
 
     def test_shared_module_as_a_link_to_the_checkouts_file_passes(self) -> None:
         """Replace the installed shared module with a link to the checkout's module."""
