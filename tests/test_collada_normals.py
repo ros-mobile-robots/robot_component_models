@@ -4,9 +4,10 @@
 
 mesh_export writes a COLLADA file's normals as an input of its triangle lists: every corner is
 its position's index followed by its normal's index, and the two are the same number. A file
-can declare these inputs and still give a corner another vertex's normal. The tests damage the
-indices of a file that mesh_export wrote, and the checker has to report each damage. Run from
-the repository's root, with the packages of generators/requirements.txt:
+can declare these inputs and still give a corner another vertex's normal, or read the
+positions as normals. The tests damage the indices or the inputs' sources of a file that
+mesh_export wrote, and the checker has to report each damage. Run from the repository's root,
+with the packages of generators/requirements.txt:
 
   python3 -m unittest discover -s tests
 """
@@ -32,6 +33,10 @@ POINTS = np.array([[0.0, 0.0, 0.0], [10.0, 0.0, 0.0], [0.0, 10.0, 0.0], [0.0, 0.
 FACES = np.array([[0, 2, 1], [0, 1, 3], [1, 2, 3], [0, 3, 2]])
 CORNERS = 3 * len(FACES)  # every corner is a vertex of its own, with its face's normal
 NAMESPACE = {'c': check_meshes.COLLADA_NAMESPACE}
+GEOMETRY = 'tetrahedron-body'  # the id that mesh_export gives the one sub-part's geometry
+POSITION_INPUT = f'POSITION from #{GEOMETRY}-positions'
+VERTEX_INPUT = f'VERTEX from #{GEOMETRY}-vertices at offset 0'
+NORMAL_INPUT = f'NORMAL from #{GEOMETRY}-normals at offset 1'
 
 
 def tetrahedron() -> Model:
@@ -115,9 +120,102 @@ class ColladaNormalsTest(unittest.TestCase):
 
         problems = check_meshes.collada_normal_problems(self.document)
 
-        self.assertEqual(problems[0], "<vertices> has the inputs ['NORMAL', 'POSITION'], not "
-                                      'only POSITION')
-        self.assertEqual(len(problems), 2)
+        self.assertEqual(problems, [
+            f'<vertices id="{GEOMETRY}-vertices"> has the inputs '
+            f"{[POSITION_INPUT, f'NORMAL from #{GEOMETRY}-normals']}, not {[POSITION_INPUT]} "
+            f'with the id {GEOMETRY}-vertices',
+            f'<triangles material="grey"> has the inputs {[VERTEX_INPUT]}, not '
+            f'{[VERTEX_INPUT, NORMAL_INPUT]}'])
+
+
+class ColladaSourceBindingTest(unittest.TestCase):
+    """collada_normal_problems() follows every input to the source that it names.
+
+    In each test the arrays of positions and normals and every index pair stay as mesh_export
+    wrote them. Only one reference changes, so a check of the inputs' semantics, offsets and
+    indices alone would accept the file.
+    """
+
+    def setUp(self) -> None:
+        """Write the tetrahedron's COLLADA file and parse it."""
+        folder = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, folder)
+        path = os.path.join(folder, 'tetrahedron.dae')
+        write_dae(tetrahedron(), path, 'tests/test_collada_normals.py')
+        self.document = etree.parse(path)
+
+    def element(self, path: str) -> Any:
+        """Return the file's one element at the XPath."""
+        elements = self.document.xpath(path, namespaces=NAMESPACE)
+        self.assertEqual(len(elements), 1)
+        return elements[0]
+
+    def test_geometry_has_the_expected_id(self) -> None:
+        """Read the geometry's id: the name that the tests' expected inputs are built from."""
+        self.assertEqual(self.element('//c:geometry').get('id'), GEOMETRY)
+
+    def test_normals_read_from_the_positions_are_reported(self) -> None:
+        """Bind the triangle list's NORMAL input to the positions' source: reported."""
+        self.element('//c:triangles/c:input[@semantic="NORMAL"]').set(
+            'source', f'#{GEOMETRY}-positions')
+
+        self.assertEqual(
+            check_meshes.collada_normal_problems(self.document),
+            [f'<triangles material="grey"> has the inputs '
+             f"{[VERTEX_INPUT, f'NORMAL from #{GEOMETRY}-positions at offset 1']}, not "
+             f'{[VERTEX_INPUT, NORMAL_INPUT]}'])
+
+    def test_positions_read_from_the_normals_are_reported(self) -> None:
+        """Bind the POSITION input of <vertices> to the normals' source: reported."""
+        self.element('//c:vertices/c:input').set('source', f'#{GEOMETRY}-normals')
+
+        self.assertEqual(
+            check_meshes.collada_normal_problems(self.document),
+            [f'<vertices id="{GEOMETRY}-vertices"> has the inputs '
+             f"{[f'POSITION from #{GEOMETRY}-normals']}, not {[POSITION_INPUT]} with the id "
+             f'{GEOMETRY}-vertices'])
+
+    def test_corners_read_from_a_source_instead_of_the_vertices_are_reported(self) -> None:
+        """Bind the triangle list's VERTEX input to the positions' source: reported."""
+        self.element('//c:triangles/c:input[@semantic="VERTEX"]').set(
+            'source', f'#{GEOMETRY}-positions')
+
+        self.assertEqual(
+            check_meshes.collada_normal_problems(self.document),
+            [f'<triangles material="grey"> has the inputs '
+             f"{[f'VERTEX from #{GEOMETRY}-positions at offset 0', NORMAL_INPUT]}, not "
+             f'{[VERTEX_INPUT, NORMAL_INPUT]}'])
+
+    def test_a_normals_accessor_that_reads_the_positions_array_is_reported(self) -> None:
+        """Let the normals' accessor read the positions' array: reported."""
+        self.element(f'//c:source[@id="{GEOMETRY}-normals"]//c:accessor').set(
+            'source', f'#{GEOMETRY}-positions-array')
+
+        self.assertEqual(
+            check_meshes.collada_normal_problems(self.document),
+            [f"the source {GEOMETRY}-normals's accessor reads #{GEOMETRY}-positions-array, "
+             f"not the source's own array #{GEOMETRY}-normals-array"])
+
+    def test_a_missing_normals_source_is_reported(self) -> None:
+        """Rename the normals' source: the mesh has no source with the expected id."""
+        self.element(f'//c:source[@id="{GEOMETRY}-normals"]').set('id', 'other-normals')
+
+        self.assertEqual(
+            check_meshes.collada_normal_problems(self.document),
+            [f'the mesh has 0 sources with the id {GEOMETRY}-normals, not one'])
+
+    def test_fewer_normals_than_positions_are_reported(self) -> None:
+        """Take the last normal out of its source: not one normal for each position."""
+        array = self.element(f'//c:source[@id="{GEOMETRY}-normals"]/c:float_array')
+        array.text = ' '.join(array.text.split()[:-3])
+        array.set('count', str(3 * (CORNERS - 1)))
+        self.element(f'//c:source[@id="{GEOMETRY}-normals"]//c:accessor').set(
+            'count', str(CORNERS - 1))
+
+        self.assertEqual(
+            check_meshes.collada_normal_problems(self.document),
+            [f'the mesh has {CORNERS} positions and {CORNERS - 1} normals, not one normal for '
+             'each position'])
 
 
 if __name__ == '__main__':

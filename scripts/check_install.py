@@ -4,16 +4,16 @@
 """Check the installed package: the manifest's files, the provenance pages and the license.
 
 share/robot_component_models must hold exactly the manifest's mesh files and their .license
-files, the manifest, a provenance page per part, LICENSE and package.xml. Besides these, it may
-hold only the files that catkin, ament_cmake and colcon write for every package. Each installed
+files, the manifest, LICENSE and package.xml, and for every part its provenance page, its
+generator and its frame picture. Besides these, it may hold only the generators' other Python
+files and the files that catkin, ament_cmake and colcon write for every package. Each installed
 mesh must have the manifest's checksum. Outside share/robot_component_models, the check ignores
 the workspace's own files.
 
-A provenance page in the repository links to its generator and pictures with paths relative to
-the repository. The installed package holds neither, so CMakeLists.txt gives each installed
-page links to the repository on GitHub, at the tag of the installed version. Each installed
-page must be the repository's page with exactly these links replaced, and must have no link
-left that leads out of the installed provenance folder.
+A provenance page links to its generator and to its frame picture with paths relative to the
+repository. Both are installed at the same relative paths, so each installed page must be the
+checkout's page byte for byte, and every relative link of an installed page must lead to an
+installed file.
 
 Usage: python3 scripts/check_install.py INSTALL_PREFIX 1|2
 Run it from a checkout of the repository: the installed pages are compared with the checkout's.
@@ -32,10 +32,10 @@ import yaml
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PACKAGE = 'robot_component_models'
-REPOSITORY_URL = 'https://github.com/ros-mobile-robots/robot_component_models'
-# A Markdown link or picture whose target leads out of the page's folder: ](../
-LINK_OUT_OF_FOLDER = '](../'
-PICTURES = 'docs/images/'
+FRAME_PICTURES = 'docs/images/frames'
+# A Markdown link or picture: ](target). Targets with a scheme, such as https:, lead out of
+# the package and aren't checked here
+LINK_TARGET = re.compile(r'\]\(([^)\s]+)\)')
 OWN_FILES = {'LICENSE', 'meshes/manifest.yaml', 'package.xml'}
 CMAKE_CONFIG = {'cmake/robot_component_modelsConfig.cmake',
                 'cmake/robot_component_modelsConfig-version.cmake'}
@@ -77,12 +77,29 @@ def manifest_checksums(manifest: Dict[str, Any]) -> Dict[str, str]:
 
 
 def manifest_documents(manifest: Dict[str, Any]) -> Set[str]:
-    """Return the license files and provenance pages the manifest names, relative to share/."""
+    """Return the documents of the manifest's parts, relative to share/.
+
+    These are the meshes' license files and, for every part, its provenance page, its
+    generator and its frame picture.
+    """
     license_files = {f'meshes/{entry["license_file"]}'
                      for part in manifest['parts'].values()
                      for mesh in part['meshes'].values()
                      for entry in mesh['files'].values() if 'license_file' in entry}
-    return license_files | {part['provenance'] for part in manifest['parts'].values()}
+    pages = {part['provenance'] for part in manifest['parts'].values()}
+    generators = {part['generator'] for part in manifest['parts'].values()}
+    pictures = {f'{FRAME_PICTURES}/{name}.png' for name in manifest['parts']}
+    return license_files | pages | generators | pictures
+
+
+def shared_generator_files() -> Set[str]:
+    """Return the checkout's Python files in generators/, relative to share/.
+
+    The package installs all of them: the parts' generators, which the manifest names, and
+    the modules that they share.
+    """
+    return {f'generators/{name}' for name in os.listdir(os.path.join(ROOT, 'generators'))
+            if name.endswith('.py')}
 
 
 def check_file_set(found: Set[str], expected: Set[str], allowed: Set[str]) -> List[str]:
@@ -104,44 +121,34 @@ def check_checksums(share: str, checksums: Dict[str, str]) -> List[str]:
     return problems
 
 
-def installed_version(share: str) -> str:
-    """Return the version in the installed package.xml."""
-    with open(os.path.join(share, 'package.xml'), encoding='utf-8') as stream:
-        found = re.search(r'<version>([^<]+)</version>', stream.read())
-    return found.group(1) if found else ''
-
-
-def with_repository_links(page: str, version: str) -> str:
-    """Return a provenance page's text with its links into the repository as GitHub links.
-
-    A picture in docs/images/ becomes a link to the file itself at the version's tag, every
-    other path that leaves the provenance folder a link to the file's page at that tag. These
-    are the replacements of CMakeLists.txt, in the same order.
-    """
-    pictures = f'{LINK_OUT_OF_FOLDER}{PICTURES}'
-    page = page.replace(pictures, f']({REPOSITORY_URL}/raw/{version}/{PICTURES}')
-    return page.replace(LINK_OUT_OF_FOLDER, f']({REPOSITORY_URL}/blob/{version}/')
-
-
-def check_provenance_links(share: str, pages: Set[str]) -> List[str]:
-    """Check that each installed provenance page is the repository's page with GitHub links."""
-    version = installed_version(share)
-    if not version:
-        return ['package.xml: no <version> element']
+def check_pages_are_the_checkouts(share: str, pages: Set[str]) -> List[str]:
+    """Check that each installed provenance page is the checkout's page, byte for byte."""
     problems = []
     for page in sorted(pages):
-        installed_path, source_path = os.path.join(share, page), os.path.join(ROOT, page)
-        if not os.path.exists(installed_path) or not os.path.exists(source_path):
+        installed, source = os.path.join(share, page), os.path.join(ROOT, page)
+        if not os.path.exists(installed) or not os.path.exists(source):
             continue
-        with open(installed_path, encoding='utf-8') as stream:
-            installed = stream.read()
-        with open(source_path, encoding='utf-8') as stream:
-            expected = with_repository_links(stream.read(), version)
-        if LINK_OUT_OF_FOLDER in installed:
-            problems.append(f'{page}: a link leads out of the installed provenance folder')
-        if installed != expected:
-            problems.append(f"{page}: differs from the repository's page with its links at "
-                            f'{REPOSITORY_URL}/blob/{version}/')
+        with open(installed, 'rb') as installed_page, open(source, 'rb') as source_page:
+            if installed_page.read() != source_page.read():
+                problems.append(f"{page}: differs from the checkout's page")
+    return problems
+
+
+def check_links_lead_to_installed_files(share: str, pages: Set[str]) -> List[str]:
+    """Check that every relative link of the installed provenance pages has its target."""
+    problems = []
+    for page in sorted(pages):
+        installed = os.path.join(share, page)
+        if not os.path.exists(installed):
+            continue
+        with open(installed, encoding='utf-8') as stream:
+            targets = LINK_TARGET.findall(stream.read())
+        for target in targets:
+            path = target.split('#')[0]
+            if not path or re.match(r'[a-z][a-z0-9+.-]*:', path):
+                continue
+            if not os.path.exists(os.path.join(os.path.dirname(installed), path)):
+                problems.append(f"{page}: the link's target {target} isn't installed")
     return problems
 
 
@@ -160,10 +167,12 @@ def main() -> int:
     checksums = manifest_checksums(contents)
     found = installed_files(share)
     expected = set(checksums) | manifest_documents(contents) | OWN_FILES
-    problems = check_file_set(found, expected, BUILD_TOOL_FILES[ros_version])
+    pages = {part['provenance'] for part in contents['parts'].values()}
+    problems = check_file_set(found, expected,
+                              BUILD_TOOL_FILES[ros_version] | shared_generator_files())
     problems += check_checksums(share, checksums)
-    problems += check_provenance_links(share, {part['provenance']
-                                               for part in contents['parts'].values()})
+    problems += check_pages_are_the_checkouts(share, pages)
+    problems += check_links_lead_to_installed_files(share, pages)
     for problem in problems:
         print(problem)
     print(f'{share}: {len(found)} files, {len(checksums)} meshes from the manifest, '

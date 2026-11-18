@@ -33,6 +33,7 @@ from typing import Callable
 from typing import Dict
 from typing import List
 from typing import NamedTuple
+from typing import Optional
 from typing import Tuple
 import urllib.request
 
@@ -341,43 +342,94 @@ def corner_index_problems(triangles: Any, vectors: int) -> List[str]:
     return problems
 
 
+def input_list(element: Any) -> List[str]:
+    """Return the inputs of a <vertices> or <triangles> element as the file binds them.
+
+    Each input reads as its semantic, the source it takes its vectors from and, in a triangle
+    list, its offset in a corner's indices: 'NORMAL from #box-normals at offset 1'.
+    """
+    inputs = []
+    for bound in element.findall(f'{{{COLLADA_NAMESPACE}}}input'):
+        offset = bound.get('offset')
+        inputs.append(f'{bound.get("semantic")} from {bound.get("source")}'
+                      + ('' if offset is None else f' at offset {offset}'))
+    return inputs
+
+
+def source_vector_count(mesh: Any, source_id: str) -> Tuple[Optional[int], List[str]]:
+    """Return how many vectors the mesh's <source> with this id holds, and its problems.
+
+    The source's accessor has to read its vectors from the source's own array, three numbers
+    each. An accessor that named another source's array would read that source's numbers.
+    The count is None if the mesh has no such source or the source has a problem.
+    """
+    namespace = {'c': COLLADA_NAMESPACE}
+    sources = mesh.xpath(f'c:source[@id="{source_id}"]', namespaces=namespace)
+    if len(sources) != 1:
+        return None, [f'the mesh has {len(sources)} sources with the id {source_id}, not one']
+    arrays = sources[0].findall('c:float_array', namespace)
+    accessors = sources[0].findall('c:technique_common/c:accessor', namespace)
+    if len(arrays) != 1 or len(accessors) != 1:
+        return None, [f'the source {source_id} has {len(arrays)} arrays and {len(accessors)} '
+                      'accessors, not one of each']
+    array, accessor = arrays[0], accessors[0]
+    vectors = int(accessor.get('count', 0))
+    if accessor.get('source') != f'#{array.get("id")}' or array.get('id') is None:
+        return None, [f"the source {source_id}'s accessor reads {accessor.get('source')}, not "
+                      f"the source's own array #{array.get('id')}"]
+    if accessor.get('stride') != '3' or int(array.get('count', 0)) != 3 * vectors:
+        return None, [f"the source {source_id}'s accessor reads {vectors} vectors with a "
+                      f"stride of {accessor.get('stride')} from an array of "
+                      f"{array.get('count')} numbers, not three numbers for each vector"]
+    return vectors, []
+
+
 def collada_normal_problems(document: Any) -> List[str]:
     """Return the problems of a parsed COLLADA file's normals.
 
     Gazebo Classic's COLLADA loader merges the vertices that share a position. It keeps the
     corners of a sharp edge apart only when the normals are an input of <triangles> with an
     offset of their own. With the normals as an input of <vertices>, it shades all the faces
-    around a sharp edge with the normal of one of them. So each mesh must have:
+    around a sharp edge with the normal of one of them.
 
-    1. <vertices> with the positions only,
-    2. as many normals as positions,
-    3. in every <triangles>, the positions at offset 0 and the normals at offset 1,
-    4. for every corner, its position's index and the same number as its normal's index.
+    An input names the source that it takes its vectors from. A file can declare a NORMAL
+    input at the right offset and bind it to the positions' source: a viewer then reads the
+    positions as normals. So the check follows every reference. A geometry with the id G must
+    have, in its mesh:
+
+    1. the sources G-positions and G-normals, each read from its own array, with as many
+       normals as positions,
+    2. <vertices id="G-vertices"> with one input: POSITION from #G-positions,
+    3. in every <triangles>, VERTEX from #G-vertices at offset 0 and NORMAL from #G-normals
+       at offset 1, and no other input,
+    4. for every corner, its position's index and the same number as its normal's index,
+       both within the vectors of the two sources.
     """
     namespace = {'c': COLLADA_NAMESPACE}
     problems = []
-    for mesh in document.xpath('//c:mesh', namespaces=namespace):
-        vertex_inputs = mesh.xpath('c:vertices/c:input/@semantic', namespaces=namespace)
-        if set(vertex_inputs) != {'POSITION'}:
-            problems.append(f'<vertices> has the inputs {sorted(set(vertex_inputs))}, not only'
-                            ' POSITION')
-        counts = {kind: [int(count) for count in mesh.xpath(
-            f'c:source[substring(@id, string-length(@id) - {len(kind)}) = "-{kind}"]'
-            '/c:technique_common/c:accessor/@count', namespaces=namespace)]
-            for kind in ('positions', 'normals')}
-        if len(counts['positions']) != 1 or counts['positions'] != counts['normals']:
-            problems.append(f'the mesh has {counts["positions"]} positions and '
-                            f'{counts["normals"]} normals, not one normal for each position')
-            continue
-        for triangles in mesh.xpath('c:triangles', namespaces=namespace):
-            offsets = {triangle_input.get('semantic'): triangle_input.get('offset')
-                       for triangle_input in triangles.findall('c:input', namespace)}
-            if offsets != {'VERTEX': '0', 'NORMAL': '1'}:
-                problems.append(f'<triangles material="{triangles.get("material")}"> has the '
-                                f'inputs {offsets}, not VERTEX at offset 0 and NORMAL at '
-                                'offset 1')
-                continue
-            problems += corner_index_problems(triangles, counts['positions'][0])
+    for geometry in document.xpath('//c:geometry', namespaces=namespace):
+        name = geometry.get('id')
+        for mesh in geometry.findall('c:mesh', namespace):
+            positions, position_problems = source_vector_count(mesh, f'{name}-positions')
+            normals, normal_problems = source_vector_count(mesh, f'{name}-normals')
+            problems += position_problems + normal_problems
+            if positions is not None and normals is not None and positions != normals:
+                problems.append(f'the mesh has {positions} positions and {normals} normals, '
+                                'not one normal for each position')
+            expected = [f'POSITION from #{name}-positions']
+            for vertices in mesh.findall('c:vertices', namespace):
+                if vertices.get('id') != f'{name}-vertices' or input_list(vertices) != expected:
+                    problems.append(f'<vertices id="{vertices.get("id")}"> has the inputs '
+                                    f'{input_list(vertices)}, not {expected} with the id '
+                                    f'{name}-vertices')
+            expected = [f'VERTEX from #{name}-vertices at offset 0',
+                        f'NORMAL from #{name}-normals at offset 1']
+            for triangles in mesh.findall('c:triangles', namespace):
+                if input_list(triangles) != expected:
+                    problems.append(f'<triangles material="{triangles.get("material")}"> has '
+                                    f'the inputs {input_list(triangles)}, not {expected}')
+                elif positions is not None and positions == normals:
+                    problems += corner_index_problems(triangles, positions)
     return problems
 
 
