@@ -405,7 +405,8 @@ def collada_normal_problems(document: Any) -> List[str]:
        normals as positions,
     2. <vertices id="G-vertices"> with one input: POSITION from #G-positions,
     3. in every <triangles>, VERTEX from #G-vertices at offset 0 and NORMAL from #G-normals
-       at offset 1, and no other input,
+       at offset 1, each once and no other input. The two may stand in either order: the
+       offsets say how the index pairs are read,
     4. for every corner, its position's index and the same number as its normal's index,
        both within the vectors of the two sources.
     """
@@ -429,7 +430,7 @@ def collada_normal_problems(document: Any) -> List[str]:
             expected = [f'VERTEX from #{name}-vertices at offset 0',
                         f'NORMAL from #{name}-normals at offset 1']
             for triangles in mesh.findall('c:triangles', namespace):
-                if input_list(triangles) != expected:
+                if sorted(input_list(triangles)) != sorted(expected):
                     problems.append(f'<triangles material="{triangles.get("material")}"> has '
                                     f'the inputs {input_list(triangles)}, not {expected}')
                 elif positions is not None and positions == normals:

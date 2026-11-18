@@ -11,6 +11,7 @@ with the packages of generators/requirements.txt:
 
   python3 -m unittest discover -s tests
 """
+import copy
 import os
 import shutil
 import tempfile
@@ -37,6 +38,11 @@ GEOMETRY = 'tetrahedron-body'  # the id that mesh_export gives the one sub-part'
 POSITION_INPUT = f'POSITION from #{GEOMETRY}-positions'
 VERTEX_INPUT = f'VERTEX from #{GEOMETRY}-vertices at offset 0'
 NORMAL_INPUT = f'NORMAL from #{GEOMETRY}-normals at offset 1'
+
+
+def input_semantics(element: Any) -> List[str]:
+    """Return the semantics of an element's inputs, in the file's order."""
+    return [bound.get('semantic') for bound in element.findall('c:input', NAMESPACE)]
 
 
 def tetrahedron() -> Model:
@@ -210,6 +216,28 @@ class ColladaSourceBindingTest(unittest.TestCase):
         self.element(f'//c:source[@id="{GEOMETRY}-normals"]//c:accessor').set('offset', '0')
 
         self.assertEqual(check_meshes.collada_normal_problems(self.document), [])
+
+    def test_inputs_in_the_other_order_have_no_problems(self) -> None:
+        """Put the NORMAL input before the VERTEX input: the offsets still pair the indices."""
+        triangles = self.element('//c:triangles')
+        vertex_input = self.element('//c:triangles/c:input[@semantic="VERTEX"]')
+        normal_input = self.element('//c:triangles/c:input[@semantic="NORMAL"]')
+        triangles.remove(normal_input)
+        vertex_input.addprevious(normal_input)
+
+        self.assertEqual(input_semantics(triangles), ['NORMAL', 'VERTEX'])
+        self.assertEqual(check_meshes.collada_normal_problems(self.document), [])
+
+    def test_a_second_normal_input_is_reported(self) -> None:
+        """Copy the NORMAL input: a triangle list has each of its two inputs once."""
+        normal_input = self.element('//c:triangles/c:input[@semantic="NORMAL"]')
+        normal_input.addnext(copy.deepcopy(normal_input))
+
+        self.assertEqual(
+            check_meshes.collada_normal_problems(self.document),
+            [f'<triangles material="grey"> has the inputs '
+             f'{[VERTEX_INPUT, NORMAL_INPUT, NORMAL_INPUT]}, not '
+             f'{[VERTEX_INPUT, NORMAL_INPUT]}'])
 
     def test_a_missing_normals_source_is_reported(self) -> None:
         """Rename the normals' source: the mesh has no source with the expected id."""
