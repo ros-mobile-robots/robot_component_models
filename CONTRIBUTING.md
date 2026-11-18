@@ -20,18 +20,21 @@ Every model here is the project's own work, under this repository's [license](LI
 
 1. Choose the part's identifier, lowercase snake_case after the product, such as `rplidar_a2` (see the README's file name rules). Write or change the generator `generators/<part>.py`. Parameters go at the top, each with its source. `build()` returns the part's meshes as `mesh_export.Model` objects, in millimetres, with named sub-parts and materials. The export writes the files in metres. Add a new part to `PARTS` in `generators/__init__.py`. `build()` reads as the list of the part's sub-parts, with one function per sub-part, and every dimension is a named constant in the parameter block, not a number inside a function. [AGENTS.md](AGENTS.md#code) has the code rules.
 2. Write or update `provenance/<part>.md`: sources, the Frame section, what is simplified or estimated, and which measurements would help.
-3. Regenerate and check, with the pinned Python packages (see the README):
+3. Regenerate and check, with the pinned Python packages (see the README). The first command rewrites every file in `meshes/` and the manifest, so run it only after a change to a generator. The other commands change no tracked file:
 
    ```bash
-   .venv/bin/python -m generators
-   .venv/bin/python -m generators --check
-   .venv/bin/python scripts/check_meshes.py
-   .venv/bin/python scripts/render_parts.py
+   .venv/bin/python -m generators            # write every mesh and meshes/manifest.yaml
+   .venv/bin/python -m generators --check    # regeneration check: all files byte-identical
+   .venv/bin/python -m generators --check    # a second run gives the same line
+   .venv/bin/python scripts/check_meshes.py  # … files checked, 0 problems
+   .venv/bin/python scripts/render_parts.py  # only when a part's look changed: the README's pictures
    ```
+
+   The bytes of the meshes are the same as CI's only in CI's generator environment. On another system, regenerate and check in CI's image, as [Run CI's checks locally](#run-cis-checks-locally) shows.
 
 4. Load the mesh in a robot model and look at it in RViz and Gazebo.
 5. Update the README's parts table: the picture, triangles and file sizes.
-6. Update the documentation site: a new part, a change to the generators' shared code and a new check come with a page or an update on ros-mobile-robots.com, as a pull request in [ros-mobile-robots.github.io](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io) that you plan with the change and link under `## Related`. [AGENTS.md](AGENTS.md#documentation) says what the page holds.
+6. Update the documentation site: a new part, a change to the generators' shared code, a new check, a CI change and a change to the development setup come with a page or an update on ros-mobile-robots.com, as a pull request in [ros-mobile-robots.github.io](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io) that you plan with the change and link under `## Related`. If you can't open that pull request, say under `## Related` what the page needs, and a maintainer takes the page over before your change is merged. [AGENTS.md](AGENTS.md#documentation) says what the page holds.
 
 **License lines:** every new text file starts with the two SPDX lines `SPDX-FileCopyrightText: 2026 ROS Mobile Robots` and `SPDX-License-Identifier: BSD-3-Clause`, in the file's comment syntax. The generators write these lines into each COLLADA file and the manifest, and into a `<file>.license` next to each STL and glTF file.
 
@@ -41,7 +44,31 @@ Every model here is the project's own work, under this repository's [license](LI
 
 ## Run CI's checks locally
 
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs every job in a container. The same commands give the same result with docker, for example the ROS 2 package check:
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs every job in a container. The same commands give the same result with docker. Run them in the repository's root.
+
+The regeneration check, in CI's generator environment. The repository is mounted read-only, and the command prints `regeneration check: all files byte-identical` twice:
+
+```bash
+docker run --rm -v "$PWD":/src:ro \
+  ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852 bash -c '
+  apt-get update && apt-get install -y --no-install-recommends python3 python3-venv ca-certificates \
+    git libgl1 libxrender1 libxext6 libsm6 libice6 libegl1 &&
+  python3 -m venv /opt/venv && /opt/venv/bin/pip install -r /src/generators/requirements.txt &&
+  cd /src && /opt/venv/bin/python -m generators --check && /opt/venv/bin/python -m generators --check'
+```
+
+To regenerate the meshes in that environment after a change to a generator, mount the repository writable and write the files. The last step gives the new files to the owner of the repository's folder, because the container writes them as root:
+
+```bash
+docker run --rm -e PYTHONDONTWRITEBYTECODE=1 -v "$PWD":/src \
+  ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852 bash -c '
+  apt-get update && apt-get install -y --no-install-recommends python3 python3-venv ca-certificates \
+    git libgl1 libxrender1 libxext6 libsm6 libice6 libegl1 &&
+  python3 -m venv /opt/venv && /opt/venv/bin/pip install -r /src/generators/requirements.txt &&
+  cd /src && /opt/venv/bin/python -m generators && chown -R --reference=. meshes'
+```
+
+The ROS 2 package check:
 
 ```bash
 docker run --rm -v "$PWD":/src:ro ros:humble-ros-base bash -c '
@@ -59,11 +86,13 @@ python3 -m venv .lint && .lint/bin/pip install -r scripts/requirements-lint.txt
 
 ## Pull requests
 
-- **One change per pull request**, on a branch named `feat/…`, `fix/…`, `docs/…` or `chore/…`.
+- **One change per pull request**, on a branch named `feat/…`, `fix/…`, `docs/…`, `chore/…`, `refactor/…` or `test/…`, with a short topic in kebab-case, such as `feat/rplidar-a1`.
 - **Pull requests are squash-merged.** Maintainers use the PR title as the commit's subject and the description as its message, so write the title as `Area: what changed`, 65 characters or fewer, and start the description with what changes and why.
-- Say how you tested it, and link the issue with `Closes #N`.
+- Say how you tested it.
+- End the description with `Closes #N` when your pull request resolves issue N. If the issue stays open, name it without a closing keyword, for example `Part of #N`.
+- Sign your commits with GPG: `git commit -S`.
 - If a robot's model has to change with yours, open the matching pull request in the robot's repository and link the two.
-- **Fixes:** a fix of a generator or a check comes with a check that fails without it, in `scripts/check_meshes.py` or a script of its own that CI runs.
+- **Checks:** new logic in a generator or a script comes with a check of a property that a reader can see, such as a dimension or a frame's position. Its expected value comes from the part's source, not from the generated files. A fix of a generator or a check comes with a check that fails without it. Both live where CI runs them: in the generator, in `scripts/check_meshes.py` or in a script of its own that CI runs.
 
 ## AI-assisted contributions
 

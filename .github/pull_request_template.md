@@ -16,7 +16,7 @@
 
 ## Related
 
-<!-- A matching pull request in a robot's repository, or "None". -->
+<!-- A matching pull request in a robot's repository. The documentation pull request (ros-mobile-robots/ros-mobile-robots.github.io#N) for a new part, a change to the shared code, a new check, CI or the development setup, or what the page needs if you can't open one. "None" if neither applies. -->
 
 <!-- Remove the next line if there's no issue. -->
 Closes #
