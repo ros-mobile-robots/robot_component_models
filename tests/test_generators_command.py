@@ -21,6 +21,7 @@ import sys
 import tempfile
 from typing import Dict
 from typing import List
+from typing import Optional
 import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -32,13 +33,27 @@ MARKER = 'changed by a test\n'
 SPDX_LINE = 'SPDX-License-Identifier: BSD-3-Clause'
 PASSED, FAILED, USAGE_ERROR = 0, 1, 2
 ENVIRONMENT = dict(os.environ, PYTHONDONTWRITEBYTECODE='1')
+# `python3 -m generators` with its part processes started by the method that the first argument
+# names: runpy runs the package's __main__.py as `-m` does, after the start method is set
+START_METHOD_ENTRY = '\n'.join([
+    'import multiprocessing, runpy, sys',
+    'multiprocessing.set_start_method(sys.argv.pop(1))',
+    "sys.argv[0] = 'generators'",
+    "runpy.run_module('generators', run_name='__main__', alter_sys=True)",
+])
 
 
-def run_generators(repository: str, arguments: List[str],
-                   environment: Dict[str, str]) -> 'subprocess.CompletedProcess[str]':
-    """Run `python3 -m generators` with the arguments in the repository's copy."""
-    return subprocess.run([sys.executable, '-m', 'generators'] + arguments, cwd=repository,
-                          check=False, capture_output=True, text=True, env=environment)
+def run_generators(repository: str, arguments: List[str], environment: Dict[str, str],
+                   start_method: Optional[str] = None) -> 'subprocess.CompletedProcess[str]':
+    """Run `python3 -m generators` with the arguments in the repository's copy.
+
+    With a start method, such as 'spawn', multiprocessing starts the part processes with it.
+    Without one, it uses the platform's default.
+    """
+    command = ([sys.executable, '-c', START_METHOD_ENTRY, start_method] if start_method
+               else [sys.executable, '-m', 'generators'])
+    return subprocess.run(command + arguments, cwd=repository, check=False,
+                          capture_output=True, text=True, env=environment)
 
 
 def snapshot(folder: str) -> Dict[str, str]:
@@ -273,8 +288,11 @@ class TemporaryFolderSpellingTest(GeneratorsCommandTest):
 
     'via' in the repository is a symbolic link to a folder outside it. So 'via/../meshes' is
     the folder 'meshes' next to that folder, outside the repository. Cancelling '..' against
-    'via' in the spelling would give the repository's own meshes/ instead.
+    'via' in the spelling would give the repository's own meshes/ instead. The part processes
+    start with the platform's default method here, and with other methods in the subclasses.
     """
+
+    start_method: Optional[str] = None
 
     def setUp(self) -> None:
         """Make the outside folders and the link, and spell TMPDIR through the link."""
@@ -299,10 +317,14 @@ class TemporaryFolderSpellingTest(GeneratorsCommandTest):
         self.assertNotIn('not generated', result.stdout)
         self.assert_reference_unchanged()
 
+    def run_check(self, *arguments: str) -> 'subprocess.CompletedProcess[str]':
+        """Run --check with the arguments and the spelled TMPDIR, by the class's start method."""
+        return run_generators(self.repository, ['--check', *arguments],
+                              dict(ENVIRONMENT, TMPDIR=self.spelled), self.start_method)
+
     def test_check_resolves_a_temporary_folder_spelled_through_a_link(self) -> None:
         """Run --check with the spelled TMPDIR: its temporary folder is made outside."""
-        result = run_generators(self.repository, ['--check'],
-                                dict(ENVIRONMENT, TMPDIR=self.spelled))
+        result = self.run_check()
 
         self.assert_checked_in_the_outside_folder(result)
         self.assertNotEqual(os.stat(self.outside_meshes).st_mtime_ns, self.outside_time)
@@ -310,11 +332,29 @@ class TemporaryFolderSpellingTest(GeneratorsCommandTest):
 
     def test_check_with_keep_resolves_a_temporary_folder_spelled_through_a_link(self) -> None:
         """Run --check --keep NEW with the spelled TMPDIR: meshes/ is only read."""
-        result = run_generators(self.repository,
-                                ['--check', '--keep', os.path.join(self.work, 'kept')],
-                                dict(ENVIRONMENT, TMPDIR=self.spelled))
+        result = self.run_check('--keep', os.path.join(self.work, 'kept'))
 
         self.assert_checked_in_the_outside_folder(result)
+
+
+class SpawnedPartProcessesTest(TemporaryFolderSpellingTest):
+    """The same checks, with part processes that the 'spawn' method starts.
+
+    A spawned process starts fresh: it has none of the parent's state, such as tempfile's
+    folder, and it imports each function that it runs by its module's name. It doesn't run the
+    package's __main__.py, so a function defined there can't be found.
+    """
+
+    start_method = 'spawn'
+
+
+class ForkserverPartProcessesTest(TemporaryFolderSpellingTest):
+    """The same checks, with part processes that the 'forkserver' method starts.
+
+    A fork server is a fresh process too, and Python 3.14 makes it the default on Linux.
+    """
+
+    start_method = 'forkserver'
 
 
 if __name__ == '__main__':
