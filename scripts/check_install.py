@@ -17,11 +17,11 @@ share/robot_component_models, the check ignores the workspace's own files.
 
 A provenance page links to its generator and to its frame picture with paths relative to the
 repository. Both are installed at the same relative paths, so each installed page must be the
-checkout's page byte for byte, and every relative link of an installed page must lead to an
-installed file. A page of the manifest that the checkout doesn't have is a problem: an install
-space keeps a page that was installed before and removed from the checkout since. Each
-installed page is read once. A page that can't be read is reported, and its links aren't
-checked.
+checkout's page byte for byte, and every relative link of an installed page must lead to a
+file of the inventory, in this package, that can be read. A page of the manifest that the
+checkout doesn't have is a problem: an install space keeps a page that was installed before
+and removed from the checkout since. Each installed page is read once. A page that can't be
+read is reported, and its links aren't checked.
 
 Usage: python3 scripts/check_install.py INSTALL_PREFIX 1|2
 Run it from a checkout of the repository: the installed pages are compared with the checkout's.
@@ -29,6 +29,7 @@ Needs only Python 3 and PyYAML, as in the ros:noetic and ros:humble images.
 """
 import hashlib
 import os
+import posixpath
 import re
 import stat
 import sys
@@ -110,7 +111,8 @@ class Inventory(NamedTuple):
     unlisted: List[str]
 
 
-def take_inventory(share: str, file_paths: Set[str]) -> Inventory:
+def take_inventory(share: str, file_paths: Set[str],
+                   known: Optional[Dict[str, str]] = None) -> Inventory:
     """List the share folder and its folders, and take each listed entry's state once.
 
     Only the listings put a path into the inventory. Links to folders are followed, so the
@@ -118,8 +120,10 @@ def take_inventory(share: str, file_paths: Set[str]) -> Inventory:
     a link to it or to a folder above it, isn't listed again and is reported. A folder whose
     path is one of file_paths, the expected and the build tools' files, is an entry too: it
     is there, but it isn't a regular file. A folder that can't be listed is reported with the
-    reason.
+    reason. known holds states that the caller has taken already, such as the manifest's: a
+    listed entry with such a state keeps it and isn't probed again.
     """
+    known = known or {}
     states: Dict[str, str] = {}
     unlisted: List[str] = []
 
@@ -136,16 +140,18 @@ def take_inventory(share: str, file_paths: Set[str]) -> Inventory:
             relative = os.path.relpath(path, share)
             if relative in file_paths:
                 states[relative] = "it isn't a regular file"
-            if os.path.realpath(path) in listed:
+            real = os.path.realpath(path)
+            if real in listed:
                 unlisted.append(f'{relative}: the folder is listed already, through another '
                                 'path')
                 continue
-            listed.add(os.path.realpath(path))
+            listed.add(real)
             kept.append(name)
         folders[:] = kept
         for name in names:
-            states[os.path.relpath(os.path.join(folder, name), share)] = file_state(
-                os.path.join(folder, name))
+            relative = os.path.relpath(os.path.join(folder, name), share)
+            states[relative] = (known[relative] if relative in known
+                                else file_state(os.path.join(folder, name)))
     return Inventory(states, unlisted)
 
 
@@ -273,12 +279,15 @@ def check_pages_are_the_checkouts(installed: Dict[str, Optional[bytes]], pages: 
     return problems
 
 
-def check_links_lead_to_installed_files(share: str,
-                                        installed: Dict[str, Optional[bytes]]) -> List[str]:
-    """Check that every relative link of the installed provenance pages has its target.
+def check_links_lead_to_installed_files(installed: Dict[str, Optional[bytes]],
+                                        readable: Set[str]) -> List[str]:
+    """Check that every relative link of the installed provenance pages leads to a file.
 
-    installed is what read_installed_pages() returned. A page that can't be read has no links
-    to check: check_pages_are_the_checkouts() reports it.
+    installed is what read_installed_pages() returned, readable the inventory's paths of
+    regular files that can be read, relative to the share folder. A link's target is taken
+    relative to its page's folder in the package and has to be one of these files: not a
+    folder, not a file that is missing or can't be read, and nothing outside the package. A
+    page that can't be read has no links to check: check_pages_are_the_checkouts() reports it.
     """
     problems = []
     for page, contents in sorted(installed.items()):
@@ -289,8 +298,9 @@ def check_links_lead_to_installed_files(share: str,
             path = target.split('#')[0]
             if not path or re.match(r'[a-z][a-z0-9+.-]*:', path):
                 continue
-            if not os.path.exists(os.path.join(share, os.path.dirname(page), path)):
-                problems.append(f"{page}: the link's target {target} isn't installed")
+            if posixpath.normpath(posixpath.join(posixpath.dirname(page), path)) not in readable:
+                problems.append(f"{page}: the link's target {target} isn't an installed file "
+                                'that can be read')
     return problems
 
 
@@ -310,7 +320,8 @@ def main() -> int:
     checksums = manifest_checksums(contents)
     expected = set(checksums) | manifest_documents(contents) | generator_files() | OWN_FILES
     allowed = BUILD_TOOL_FILES[ros_version]
-    inventory = take_inventory(share, expected | allowed)
+    inventory = take_inventory(share, expected | allowed,
+                               {os.path.relpath(manifest, share): manifest_state})
     found = set(inventory.states)
     readable = {path for path, state in inventory.states.items() if state == READABLE}
     pages = {part['provenance'] for part in contents['parts'].values()}
@@ -320,7 +331,7 @@ def main() -> int:
     problems += check_files_can_be_read(inventory.states, expected | allowed)
     problems += check_checksums(share, checksums, readable)
     problems += check_pages_are_the_checkouts(installed_pages, pages)
-    problems += check_links_lead_to_installed_files(share, installed_pages)
+    problems += check_links_lead_to_installed_files(installed_pages, readable)
     for problem in problems:
         print(problem)
     print(f'{share}: {len(found)} files, {len(checksums)} meshes from the manifest, '
