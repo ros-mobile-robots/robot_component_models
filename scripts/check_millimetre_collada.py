@@ -9,7 +9,7 @@ load the same mesh from the file in DIR and from the file in meshes/. The checks
 files with lxml, not with the generators' code:
 
 - DIR holds one file for each COLLADA file in meshes/, at the same relative path, and nothing
-  else,
+  else. With --parts, this holds for the COLLADA files of the named parts,
 - every file in DIR declares <unit name="millimeter" meter="0.001"/>, and its file in meshes/
   declares the metre,
 - every position in DIR and in meshes/ is a finite number, and every position in DIR is 1000
@@ -17,7 +17,10 @@ files with lxml, not with the generators' code:
   the generators write,
 - apart from the <unit> element and the positions, the two files have the same text.
 
-Usage: python3 scripts/check_millimetre_collada.py DIR
+Usage: python3 scripts/check_millimetre_collada.py DIR [--parts PART ...]
+Without --parts, DIR has to hold every part's files, as after
+`python3 -m generators --millimetre-collada DIR`. After a run for some parts,
+`python3 -m generators PART ... --millimetre-collada DIR`, name the same parts with --parts.
 Exit code 0 if every check passes.
 """
 import argparse
@@ -30,6 +33,7 @@ from typing import Callable
 from typing import Dict
 from typing import List
 from typing import NamedTuple
+from typing import Sequence
 
 from lxml import etree
 import numpy as np
@@ -58,10 +62,16 @@ class FilePair(NamedTuple):
 Check = Callable[[FilePair], List[str]]
 
 
-def collada_files() -> List[str]:
-    """Return the COLLADA files in meshes/, relative to it."""
-    return sorted(os.path.relpath(path, MESHES)
-                  for path in glob.glob(os.path.join(MESHES, '*', '*.dae')))
+def parts_with_collada_files() -> List[str]:
+    """Return the parts in meshes/: the names of the folders that hold a COLLADA file."""
+    return sorted({os.path.basename(os.path.dirname(path))
+                   for path in glob.glob(os.path.join(MESHES, '*', '*.dae'))})
+
+
+def collada_files(parts: Sequence[str]) -> List[str]:
+    """Return the COLLADA files of the parts in meshes/, relative to it."""
+    return sorted(os.path.relpath(path, MESHES) for part in parts
+                  for path in glob.glob(os.path.join(MESHES, part, '*.dae')))
 
 
 def declared_unit(document: Any) -> Dict[str, str]:
@@ -98,12 +108,12 @@ def text_without_unit_and_positions(document: Any) -> bytes:
 # ---------------------------------------------------------------------------------------------
 # Checks
 # ---------------------------------------------------------------------------------------------
-def check_folder_contents(folder: str) -> List[str]:
-    """Check that the folder holds exactly one file for each COLLADA file in meshes/."""
-    expected = set(collada_files())
+def check_folder_contents(folder: str, parts: Sequence[str]) -> List[str]:
+    """Check that the folder holds exactly one file for each COLLADA file of the parts."""
+    expected = set(collada_files(parts))
     found = {os.path.relpath(os.path.join(parent, name), folder)
              for parent, _, names in os.walk(folder) for name in names}
-    return ([f'{path}: no COLLADA file of meshes/ has this path'
+    return ([f'{path}: no COLLADA file of the checked parts in meshes/ has this path'
              for path in sorted(found - expected)]
             + [f'{path}: missing' for path in sorted(expected - found)])
 
@@ -172,12 +182,21 @@ def main() -> int:
     parser.add_argument('folder', metavar='DIR',
                         help='the folder that `python3 -m generators --millimetre-collada DIR` '
                         'wrote')
+    parser.add_argument('--parts', nargs='+', metavar='PART', default=[],
+                        help='the parts whose files DIR holds, after a run of the option for '
+                        'these parts (default: every part in meshes/)')
     args = parser.parse_args()
-    problems = check_folder_contents(args.folder)
+    known = parts_with_collada_files()
+    unknown = sorted(set(args.parts) - set(known))
+    if unknown:
+        parser.error(f'unknown parts: {", ".join(unknown)}. meshes/ holds: {", ".join(known)}')
+    # Each part once, in the order given: a part that is named twice is checked once
+    parts = list(dict.fromkeys(args.parts)) or known
+    problems = check_folder_contents(args.folder, parts)
     for problem in problems:
         print(problem)
     checked = 0
-    for path in collada_files():
+    for path in collada_files(parts):
         if not os.path.exists(os.path.join(args.folder, path)):
             continue
         pair = FilePair(path, etree.parse(os.path.join(MESHES, path)),

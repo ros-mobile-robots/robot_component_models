@@ -16,7 +16,7 @@ option has to refuse, and with one that it has to accept:
 - each existing folder and link once more, spelled <parent>/missing/../<name>/. with a folder
   `missing` that doesn't exist: the same place under another spelling,
 - a new folder, also in that spelling, which must then hold the part's millimetre file and
-  nothing else.
+  nothing else, also when the part is named twice on the command line.
 
 A refusal must end with exit code 2, a usage error, and must leave every file as it was. Each
 case runs on a copy of generators/ and meshes/ of its own, in a temporary folder. So a failing
@@ -43,6 +43,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PART = 'raspberry_pi_camera_v2'
 PART_FILE = os.path.join(PART, PART + '.dae')
 MILLIMETRE_UNIT = '<unit name="millimeter" meter="0.001"/>'
+# The option's last line after it wrote the cases' part, which has one mesh
+WRITTEN_ONE_FILE = 'COLLADA files written in millimetres: 1'
 USAGE_ERROR = 2
 
 
@@ -64,10 +66,14 @@ def meshes(sandbox: Sandbox) -> str:
     return os.path.join(sandbox.repository, 'meshes')
 
 
-def run_option(sandbox: Sandbox, folder: str) -> 'subprocess.CompletedProcess[str]':
-    """Run the generators with --millimetre-collada for the cases' part, in the sandbox."""
-    return subprocess.run([sys.executable, '-m', 'generators', PART,
-                           '--millimetre-collada', folder],
+def run_option(sandbox: Sandbox, folder: str,
+               times_named: int = 1) -> 'subprocess.CompletedProcess[str]':
+    """Run the generators with --millimetre-collada for the cases' part, in the sandbox.
+
+    The part stands on the command line as often as times_named says.
+    """
+    return subprocess.run([sys.executable, '-m', 'generators'] + [PART] * times_named
+                          + ['--millimetre-collada', folder],
                           cwd=sandbox.repository, check=False, capture_output=True, text=True,
                           env=dict(os.environ, PYTHONDONTWRITEBYTECODE='1'))
 
@@ -230,16 +236,20 @@ def check_refusal(case: Case, sandbox: Sandbox) -> List[str]:
     return problems
 
 
-def check_new_folder(spelling: Callable[[str], str], sandbox: Sandbox) -> List[str]:
+def check_new_folder(spelling: Callable[[str], str], times_named: int,
+                     sandbox: Sandbox) -> List[str]:
     """Check that the option creates the new folder and writes only the millimetre file.
 
-    The folder is passed to the option in the given spelling.
+    The folder is passed to the option in the given spelling, and the part is named as often
+    as times_named says. The option has to write and report the part's file once.
     """
     folder = os.path.join(sandbox.work, NEW_FOLDER)
     released = snapshot(sandbox)
-    result = run_option(sandbox, spelling(folder))
+    result = run_option(sandbox, spelling(folder), times_named)
     if result.returncode != 0:
         return [f'exit code {result.returncode}, expected 0: {result.stderr.strip()[-300:]}']
+    if WRITTEN_ONE_FILE not in result.stdout.splitlines():
+        return [f'the run did not report "{WRITTEN_ONE_FILE}": {result.stdout.strip()[-300:]}']
     after = snapshot(sandbox)
     created = sorted(os.path.relpath(path, sandbox.work) for path in set(after) - set(released))
     if created != sorted(NEW_ENTRIES):
@@ -271,9 +281,11 @@ def main() -> int:
     checks: List[Tuple[str, Check]] = [(f'refuses {case.__name__}',
                                         functools.partial(check_refusal, case))
                                        for case in REFUSED]
-    checks.append(('writes into a new folder', functools.partial(check_new_folder, str)))
+    checks.append(('writes into a new folder', functools.partial(check_new_folder, str, 1)))
     checks.append(('writes into a new folder through a missing folder',
-                   functools.partial(check_new_folder, through_a_missing_folder)))
+                   functools.partial(check_new_folder, through_a_missing_folder, 1)))
+    checks.append(('writes a part that is named twice once',
+                   functools.partial(check_new_folder, str, 2)))
     failed = 0
     for name, check in checks:
         with tempfile.TemporaryDirectory() as temporary:
