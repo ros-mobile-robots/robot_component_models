@@ -222,6 +222,10 @@ The models are written with CadQuery because its models are plain Python driven 
 
 ### Millimetre COLLADA files for close-ups in Gazebo Classic
 
+![A mounting hole of the camera as Gazebo Classic reads it: deformed from the released file in metres, round from the millimetre file](docs/images/millimetre_collada_camera_hole.png)
+
+The picture shows one of the camera's Ø2.2 mm mounting holes with its gold ring, as Gazebo Classic 11's COLLADA loader reads it from the released file in metres and from the millimetre file.
+
 The released files in `meshes/` are in metres. For close-up pictures in Gazebo Classic, the generators write the COLLADA files once more, in millimetres, into a new folder that you name:
 
 ```bash
@@ -246,7 +250,17 @@ This creates the folder `build/meshes_mm` and writes `build/meshes_mm/<part>/<na
 
 **What ignores the unit.** A program that ignores the `<unit>` element reads a millimetre file 1000 times too large. One such program is [geometric_shapes](https://github.com/moveit/geometric_shapes), which MoveIt uses to load collision meshes (measured with version 2.3.4 on ROS 2 Jazzy). Use the released files in such a program.
 
-The millimetre files aren't part of the installed package. A robot description that shows them refers to the folder they were written into.
+**How a robot description uses them.** The millimetre files aren't part of the installed package. So the folder has to be in a ROS package on the machine that runs the viewer. For example, write the files into a description package of your own, as `my_robot_description/meshes_mm`, let that package install the folder, and refer to a file by that package's name:
+
+```xml
+<visual>
+  <geometry>
+    <mesh filename="package://my_robot_description/meshes_mm/raspberry_pi_camera_v2/raspberry_pi_camera_v2.dae"/>
+  </geometry>
+</visual>
+```
+
+Leave out the scale, as for the released file: with the file's unit, the mesh has its real size. Gazebo Classic 11 and RViz in ROS 1 Noetic, and gz-sim 8 and RViz 2 in ROS 2 Jazzy, showed the camera and the Teensy at their real size this way, from a test package that held the millimetre files. DiffBot's and Remo's descriptions get a launch argument for such a folder in [ros-mobile-robots/diffbot#189](https://github.com/ros-mobile-robots/diffbot/issues/189) and [ros-mobile-robots/remo_description#27](https://github.com/ros-mobile-robots/remo_description/issues/27).
 
 ## Checks
 
