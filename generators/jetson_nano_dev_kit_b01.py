@@ -116,6 +116,7 @@ MODULE = (13.3, 32.4, 82.9, 77.4)  # u0, v0, u1, v1: 69.6 x 45
 MODULE_Z = (9.2, 10.2)
 MODULE_STANDOFFS = ((16.3, 75.4), (79.9, 75.4))
 MODULE_PAD = 5.6  # gold pads round the standoff holes on the module's top (photo)
+PAD_THICKNESS = 0.03  # how far a gold pad stands out of its board's face
 # Under the carrier (Waveshare's bottom photo): the standoffs' screws in holes with copper pads,
 # and the twelve unpopulated holes of the button header J50, pin 1 at u 49.71.
 CARRIER_SCREW_HOLE = 2.6
@@ -213,36 +214,47 @@ Piece = Union[Part, Tuple[str, Surface]]
 # ---------------------------------------------------------------------------------------------
 # Parts
 # ---------------------------------------------------------------------------------------------
-def board_surface(u0: float, v0: float, u1: float, v1: float, z0: float, z1: float,
-                  radius: float, holes: Sequence[Tuple[float, float, float]]) -> Surface:
-    """Return a board's tessellated surface: a rounded rectangle with holes (u, v, diameter)."""
-    plate = cq.Workplane('XY', origin=((u0 + u1) / 2, (v0 + v1) / 2, z0)) \
-        .rect(u1 - u0, v1 - v0).extrude(z1 - z0).edges('|Z').fillet(radius).val()
+def carrier_plated_holes() -> List[Tuple[float, float, float]]:
+    """Return the carrier's plated holes (u, v, diameter): the standoffs' screws and J50."""
+    return [(u, v, CARRIER_SCREW_HOLE) for u, v in MODULE_STANDOFFS] \
+        + [(u, v, J50_HOLE) for u, v in J50_PINS]
+
+
+def carrier_plate() -> cq.Shape:
+    """Return the carrier's bare board: a rounded rectangle with its holes."""
+    plate = cq.Workplane('XY', origin=(BOARD_U / 2, BOARD_V / 2, 0.0)) \
+        .rect(BOARD_U, BOARD_V).extrude(BOARD_THICKNESS).edges('|Z').fillet(CORNER_RADIUS).val()
+    holes = [(u, v, HOLE_DIAMETER) for u, v in HOLES] + carrier_plated_holes()
     for u, v, diameter in holes:
-        plate = plate.cut(cylinder(diameter / 2, (u, v, z0 - 1), (0, 0, 1), z1 - z0 + 2))
-    return tessellate_shape(plate, TOLERANCE, ANGULAR_TOLERANCE)
+        plate = plate.cut(cylinder(diameter / 2, (u, v, -1.0), (0, 0, 1), BOARD_THICKNESS + 2))
+    return plate
+
+
+def carrier_pads() -> List[Piece]:
+    """Return the gold pads on the carrier's faces, each PAD_THICKNESS high.
+
+    The holes of the module's standoff screws have pads on the bottom face, the twelve
+    unpopulated holes of the button header J50 pads on both faces.
+    """
+    pads: List[Piece] = [('gold', ring((u, v), CARRIER_SCREW_PAD, CARRIER_SCREW_HOLE,
+                                       -PAD_THICKNESS, 0.0)) for u, v in MODULE_STANDOFFS]
+    for u, v in J50_PINS:
+        for z0 in (-PAD_THICKNESS, BOARD_THICKNESS):
+            pads.append(('gold', ring((u, v), J50_PAD, J50_HOLE, z0, z0 + PAD_THICKNESS)))
+    return pads
 
 
 def carrier() -> List[Piece]:
     """Return the carrier board: black solder mask, FR-4 edges, holes and pads.
 
-    The mounting holes are bare. The holes of the module's standoff screws have copper pads
-    on the bottom face, the twelve unpopulated holes of the button header J50 pads on both.
+    The mounting holes are bare. The holes of the module's standoff screws and of the button
+    header J50 are plated and have pads.
     """
-    plated = [(u, v, CARRIER_SCREW_HOLE) for u, v in MODULE_STANDOFFS] \
-        + [(u, v, J50_HOLE) for u, v in J50_PINS]
-    holes = [(u, v, HOLE_DIAMETER) for u, v in HOLES] + plated
-    surface = board_surface(0.0, 0.0, BOARD_U, BOARD_V, 0.0, BOARD_THICKNESS, CORNER_RADIUS,
-                            holes)
+    surface = tessellate_shape(carrier_plate(), TOLERANCE, ANGULAR_TOLERANCE)
     parts: List[Piece] = list(split_board(surface, 'solder_mask_black',
-                                          [(u, v) for u, v, _ in plated],
+                                          [(u, v) for u, v, _ in carrier_plated_holes()],
                                           CARRIER_SCREW_HOLE / 2 + 0.1))
-    for u, v in MODULE_STANDOFFS:
-        parts.append(('gold', ring((u, v), CARRIER_SCREW_PAD, CARRIER_SCREW_HOLE, -0.03, 0.0)))
-    for u, v in J50_PINS:
-        for z0 in (-0.03, BOARD_THICKNESS):
-            parts.append(('gold', ring((u, v), J50_PAD, J50_HOLE, z0, z0 + 0.03)))
-    return parts
+    return parts + carrier_pads()
 
 
 def dc_jack() -> List[Piece]:
@@ -423,6 +435,12 @@ def module_plate() -> cq.Shape:
     return plate
 
 
+def module_pads() -> List[Piece]:
+    """Return the gold pads round the standoff holes on the module's top, PAD_THICKNESS high."""
+    return [('gold', ring((u, v), MODULE_PAD, MODULE_STANDOFF_HOLE, MODULE_Z[1],
+                          MODULE_Z[1] + PAD_THICKNESS)) for u, v in MODULE_STANDOFFS]
+
+
 def module_board() -> List[Piece]:
     """Return the module's board: black solder mask, FR-4 edges, gold fingers on both faces.
 
@@ -434,9 +452,7 @@ def module_board() -> List[Piece]:
     parts: List[Piece] = list(split_board(tessellate_shape(module_plate(), TOLERANCE,
                                                            ANGULAR_TOLERANCE),
                                           'solder_mask_black'))
-    parts += [('gold', ring((u, v), MODULE_PAD, MODULE_STANDOFF_HOLE, MODULE_Z[1],
-                            MODULE_Z[1] + 0.03))
-              for u, v in MODULE_STANDOFFS]
+    parts += module_pads()
     reach, finger_width = MODULE_FINGERS
     # Two banks beside the key notch, 130 fingers a face in all, the first 1.0 mm from the key.
     left = MODULE_FINGER_BANKS[0]
@@ -506,13 +522,19 @@ def cross_head(u: float, v: float, z: float, diameter: float, height: float,
 
 
 def carrier_screws() -> List[Piece]:
-    """Return the screws that hold the module's standoffs, from below the carrier."""
+    """Return the screws that hold the module's standoffs, from below the carrier.
+
+    Each head sits on the gold pad round its hole: its flat face lies on the pad's face,
+    PAD_THICKNESS below the carrier's underside.
+    """
     diameter, height = CARRIER_SCREW_HEAD
     screws: List[Piece] = []
     shank_diameter, reach = STANDOFF_SCREW_SHANK
+    seat = -PAD_THICKNESS
     for u, v in MODULE_STANDOFFS:
-        shank = cylinder(shank_diameter / 2, (u, v, -0.01), (0, 0, 1), TOP + reach)
-        screws.append(('nickel', cross_head(u, v, 0.0, diameter, height, False).fuse(shank)
+        shank = cylinder(shank_diameter / 2, (u, v, seat - 0.01), (0, 0, 1),
+                         TOP + reach - seat)
+        screws.append(('nickel', cross_head(u, v, seat, diameter, height, False).fuse(shank)
                        .clean()))
     return screws
 
@@ -521,12 +543,15 @@ def module_mounting() -> Dict[str, List[Piece]]:
     """Return the module's brass standoffs and the cross-head screws from above the module.
 
     Each standoff has a blind bore at both ends: the lower one takes the carrier screw's
-    shank, the upper one the shank of the screw that holds the module.
+    shank, the upper one the shank of the screw that holds the module. Each of these screws'
+    heads sits on the gold pad round the module's hole: its flat face lies on the pad's face,
+    PAD_THICKNESS above the module's top.
     """
     standoffs: List[Piece] = []
     screws: List[Piece] = []
     shank_diameter, reach = STANDOFF_SCREW_SHANK
     bore_diameter, bore_depth = STANDOFF_BORE
+    seat = MODULE_Z[1] + PAD_THICKNESS
     for u, v in MODULE_STANDOFFS:
         standoff = cq.Workplane('XY').polygon(6, 5.0).extrude(MODULE_Z[0] - TOP) \
             .translate((u, v, TOP)).val()
@@ -535,13 +560,11 @@ def module_mounting() -> Dict[str, List[Piece]]:
                                              bore_depth + 0.1))
         standoffs.append(('brass', standoff))
         head = cq.Workplane('XY').circle(2.2).extrude(1.3).faces('>Z').edges().fillet(0.5) \
-            .translate((u, v, MODULE_Z[1])).val()
-        head = head.cut(box(u - 1.2, v - 0.25, MODULE_Z[1] + 0.8, u + 1.2, v + 0.25,
-                            MODULE_Z[1] + 1.5))
-        head = head.cut(box(u - 0.25, v - 1.2, MODULE_Z[1] + 0.8, u + 0.25, v + 1.2,
-                            MODULE_Z[1] + 1.5))
+            .translate((u, v, seat)).val()
+        head = head.cut(box(u - 1.2, v - 0.25, seat + 0.8, u + 1.2, v + 0.25, seat + 1.5))
+        head = head.cut(box(u - 0.25, v - 1.2, seat + 0.8, u + 0.25, v + 1.2, seat + 1.5))
         shank = cylinder(shank_diameter / 2, (u, v, MODULE_Z[0] - reach), (0, 0, 1),
-                         MODULE_Z[1] - MODULE_Z[0] + reach + 0.01)
+                         seat - MODULE_Z[0] + reach + 0.01)
         screws.append(('nickel', head.fuse(shank).clean()))
     return {'module_standoffs': standoffs, 'module_screws': screws}
 

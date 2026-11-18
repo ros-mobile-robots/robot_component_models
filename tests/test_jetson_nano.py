@@ -5,8 +5,9 @@
 The HDMI and DisplayPort stack J6 is checked in its own frame, just behind its front face:
 the opening faces +x and z is up, so someone who looks into a port has -y on the left. The
 module, its connector, its standoffs and their screws are checked where the model places
-them: a part that sits in another must not share any volume with it. Run from the
-repository's root, with the packages of generators/requirements.txt:
+them: a part that sits in or on another must not share any volume with it, and that includes
+the gold pads on the boards' faces. tests/test_port_depths.py measures how deep the ports
+are. Run from the repository's root, with the packages of generators/requirements.txt:
 
   python3 -m unittest discover -s tests
 """
@@ -26,9 +27,20 @@ STEP = 0.05       # mm: how far inside or outside an opening's edge a point is p
 KEY_FROM_THE_SIDE, KEY_ABOVE_THE_BOTTOM = 0.45, 0.35
 
 
+# A screw's head rests on a ring between its shank and its rim. This radius lies on that
+# ring for the screws of both ends of a standoff, and inside the gold pads round their holes
+ON_THE_HEADS_SEAT = 1.7
+BESIDE_A_FACE = 0.01  # mm above or below a face: a point just inside one of two stacked parts
+
+
 def volume(shape: cq.Shape) -> float:
     """Return the shape's volume in cubic millimetres, 0 for an empty shape."""
     return float(sum(solid.Volume() for solid in shape.Solids()))
+
+
+def solids(pieces: Sequence[Tuple[str, object]]) -> List[cq.Shape]:
+    """Return the CAD shapes of a list of pieces."""
+    return [shape for _, shape in pieces if isinstance(shape, cq.Shape)]
 
 
 def gold_count(parts: Sequence[Tuple[str, object]]) -> int:
@@ -174,15 +186,48 @@ class ModuleSeatTest(unittest.TestCase):
         for end in lower_ends:
             self.assertAlmostEqual(end, jetson.TOP + reach - 0.01, places=3)
 
-    def test_module_board_and_its_screws_share_no_volume(self) -> None:
-        """Intersect the module's board with the screws through its holes: nothing."""
-        plate = jetson.module_plate()
+    def test_module_screws_share_no_volume_with_the_module_and_its_pads(self) -> None:
+        """Intersect the screws from above with the module's board and its gold pads: nothing."""
+        module = [jetson.module_plate()] + solids(jetson.module_pads())
 
-        shared = [volume(shape.intersect(plate))
-                  for _, shape in jetson.module_mounting()['module_screws']
-                  if isinstance(shape, cq.Shape)]
+        shared = [volume(screw.intersect(part))
+                  for screw in solids(jetson.module_mounting()['module_screws'])
+                  for part in module]
 
-        self.assertEqual(shared, [0.0, 0.0])
+        self.assertEqual(shared, [0.0] * len(shared))
+        self.assertEqual(len(shared), 2 * 3)
+
+    def test_carrier_screws_share_no_volume_with_the_carrier_and_its_pads(self) -> None:
+        """Intersect the screws from below with the carrier's board and its gold pads: nothing."""
+        carrier = [jetson.carrier_plate()] + solids(jetson.carrier_pads())
+
+        shared = [volume(screw.intersect(part)) for screw in solids(jetson.carrier_screws())
+                  for part in carrier]
+
+        self.assertEqual(shared, [0.0] * len(shared))
+        self.assertEqual(len(shared), 2 * (1 + 2 + 2 * len(jetson.J50_PINS)))
+
+    def test_module_screws_heads_sit_on_the_gold_pads(self) -> None:
+        """Probe above and below each pad's top face: the head above, the pad below."""
+        pad_top = jetson.MODULE_Z[1] + jetson.PAD_THICKNESS
+        screws = solids(jetson.module_mounting()['module_screws'])
+        pads = solids(jetson.module_pads())
+
+        for (u, v), screw, pad in zip(jetson.MODULE_STANDOFFS, screws, pads):
+            on_the_seat = cq.Vector(u + ON_THE_HEADS_SEAT, v, pad_top)
+            self.assertTrue(screw.isInside(on_the_seat + cq.Vector(0, 0, BESIDE_A_FACE), 1e-7))
+            self.assertTrue(pad.isInside(on_the_seat - cq.Vector(0, 0, BESIDE_A_FACE), 1e-7))
+
+    def test_carrier_screws_heads_sit_on_the_gold_pads(self) -> None:
+        """Probe below and above each pad's bottom face: the head below, the pad above."""
+        pad_bottom = -jetson.PAD_THICKNESS
+        screws = solids(jetson.carrier_screws())
+        pads = solids(jetson.carrier_pads())[:len(jetson.MODULE_STANDOFFS)]
+
+        for (u, v), screw, pad in zip(jetson.MODULE_STANDOFFS, screws, pads):
+            on_the_seat = cq.Vector(u + ON_THE_HEADS_SEAT, v, pad_bottom)
+            self.assertTrue(screw.isInside(on_the_seat - cq.Vector(0, 0, BESIDE_A_FACE), 1e-7))
+            self.assertTrue(pad.isInside(on_the_seat + cq.Vector(0, 0, BESIDE_A_FACE), 1e-7))
 
 
 if __name__ == '__main__':
