@@ -167,9 +167,9 @@ Without the path, gz-sim spawns the robot, logs `Unable to find file with URI [m
 
 ### Tested so far
 
-- **ROS 1 Noetic, RViz and Gazebo Classic 11:** the COLLADA and STL files in DiffBot's and Remo's descriptions.
+- **ROS 1 Noetic, RViz and Gazebo Classic 11:** the COLLADA and STL files in DiffBot's and Remo's descriptions. The robots' drive wheels there are their own meshes, so the 65 mm wheel's files haven't been drawn in these scenes yet.
 - **ROS 2 Humble:** CI checks the package's build and install.
-- **ROS 2 Jazzy, RViz 2 and gz-sim:** the camera's STL file, and glTF files with the same shapes and with sRGB values as base colours. The 90° turn and the dark metals in the table above come from that test. VTK's glTF importer drew a few examples with linear base colours. RViz 2 and gz-sim haven't drawn the glTF files with linear base colours, the COLLADA files and the other STL files in a test yet.
+- **ROS 2 Jazzy, RViz 2 and gz-sim:** the camera's STL file, and the glTF files of an earlier version of nine meshes, with sRGB values as base colours: the caster's three, the laser scanner of the A2's size, the two boards, the Teensy, the breadboard and the camera. The 90° turn and the dark metals in the table above come from that test. VTK's glTF importer drew a few examples with linear base colours. RViz 2 and gz-sim haven't drawn the glTF files with linear base colours, the COLLADA files, the other STL files and the other parts' files in a test yet.
 
 ## Mesh conventions
 
