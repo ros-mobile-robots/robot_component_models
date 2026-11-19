@@ -6,9 +6,10 @@ Changelog for package robot_component_models
 ------------------
 * The first release: display models of DiffBot's swivel caster (three meshes), a 360 degree
   laser scanner of the RPLIDAR A2's size, the Raspberry Pi 4 Model B, the Jetson Nano Developer
-  Kit B01, the Teensy 4.0 with two 14-pin headers, a 400-point breadboard and the Raspberry Pi
-  Camera Module v2. Each mesh comes as STL, COLLADA and glTF (coloured), all in metres, in a
-  local frame documented in the manifest and the part's provenance page
+  Kit B01, the Teensy 4.0 with two 14-pin headers, a 400-point breadboard, the Raspberry Pi
+  Camera Module v2 and the 65 mm wheel for TT gear motors. Each mesh comes as STL, COLLADA and
+  glTF (coloured), all in metres, in a local frame documented in the manifest and the part's
+  provenance page
 * The Raspberry Pi 4 Model B and the Jetson Nano Developer Kit B01 in detail: metal and
   solder mask materials with highlights, FR-4 board edges, connector shells with frames and
   spring fingers, pointed header pins, small parts with end caps, and the Jetson's heatsink
