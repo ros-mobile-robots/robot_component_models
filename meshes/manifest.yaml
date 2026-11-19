@@ -342,8 +342,8 @@ parts:
             bounding_box_max: [0.033299, 0.033298, 0.015420]
             license_file: tt_motor_wheel_65mm/tt_motor_wheel_65mm.stl.license
           tt_motor_wheel_65mm/tt_motor_wheel_65mm.dae:
-            sha256: d8963d7175efc8dd5d833ad580b470a9b7d783e37c6552b761da9df02f4d2a81
-            bytes: 5362322
+            sha256: 7dc1c587e428c204cbcf4ad55418747b1c2cff6fbc4669b486475a50ecdb3bb2
+            bytes: 7019047
             units: metre
             up_axis: "Z"
             triangles: 97550
