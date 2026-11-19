@@ -11,7 +11,7 @@ Find your change in this list. Each line says what to run or check, and links th
 - **A new or changed part:**
     1. Read [Modelling a part from its sources](CONTRIBUTING.md#modelling-a-part-from-its-sources) before you touch a generator. Every dimension has its source in `provenance/<part>.md`: a public specification, your own measurement with how you took it, or an estimate or a choice that the page calls one.
     2. Change the generator and regenerate the meshes ([After a change to a generator](#after-a-change-to-a-generator)).
-    3. The two regeneration checks, the mesh check, flake8 and mypy pass ([Check a checkout](#check-a-checkout)).
+    3. The two regeneration checks, the mesh check, the unit tests, flake8 and mypy pass ([Check a checkout](#check-a-checkout)).
     4. Load the mesh in a robot's model and look at the robot in RViz and Gazebo. Say in the pull request what you saw.
     5. The part's provenance page, the README's parts table, the version and the changelog are up to date ([Things that are easy to get wrong](#things-that-are-easy-to-get-wrong)).
 - **New logic in a generator, the shared code or a script:** the change brings a check of its own, and a fix brings a check that fails without the fix ([Code](#code)).
@@ -46,11 +46,12 @@ python3 -m venv .lint && .lint/bin/pip install -r scripts/requirements-lint.txt
 These commands change no tracked file. Run them on your own change, and on someone else's branch that you only want to verify:
 
 ```bash
-.venv/bin/python -m generators --check    # regeneration check: all files byte-identical
-.venv/bin/python -m generators --check    # a second run gives the same line
-.venv/bin/python scripts/check_meshes.py  # … files checked, 0 problems
-.lint/bin/flake8 generators scripts       # prints nothing
-.lint/bin/mypy generators scripts         # Success: no issues found in … source files
+.venv/bin/python -m generators --check           # regeneration check: all files byte-identical
+.venv/bin/python -m generators --check           # a second run gives the same line
+.venv/bin/python scripts/check_meshes.py         # … files checked, 0 problems
+.venv/bin/python -m unittest discover -s tests   # OK
+.lint/bin/flake8 generators scripts tests        # prints nothing
+.lint/bin/mypy generators scripts tests          # Success: no issues found in … source files
 ```
 
 - **`--check`:** regenerates every mesh into a temporary folder and compares the files and the manifest with `meshes/`. It passes twice in a row, because the files hold no time stamps or paths.
@@ -84,7 +85,7 @@ git status --short docs/images            # the changed part's picture and all_p
 - **Shared shapes:** a shape or a helper that several generators use with the same meaning belongs in a shared module, not in a copy per generator. Look for a helper in the generators, in CadQuery and in the pinned packages before you write one.
 - **Names:** written out, `body_height`, not `BODY_H`. One word for one thing in all generators.
 - **Type hints and docstrings:** type hints on every function you add or change. PEP 257 docstrings: a function's first line is a command. A generator's module docstring names the sources its dimensions come from.
-- **What the style check covers:** CI's job "Code style" runs flake8 with the ament_flake8 settings and mypy for Python 3.8, with the tools pinned in `scripts/requirements-lint.txt` and the settings in `setup.cfg`. mypy checks the type hints that a function has. It doesn't report a function without hints, because `setup.cfg` doesn't set `disallow_untyped_defs` yet. So complete hints are checked in review, not by CI. `breadboard_400_point.py`, `raspberry_pi_camera_v2.py` and `teensy_4_0.py` have older functions without hints. They keep their form until they change: a one-line fix adds hints to the function it touches, not to the file.
+- **What the style check covers:** CI's job "Code style" runs flake8 with the ament_flake8 settings and mypy for Python 3.8 on the generators, scripts and tests, with the tools pinned in `scripts/requirements-lint.txt` and the settings in `setup.cfg`. `setup.cfg` sets `disallow_untyped_defs`, so mypy reports every function without type hints.
 - **Comments:** they say why, or where a value comes from. A source that a comment cites is listed on the part's provenance page.
 - **Checks for new logic:** a new shape, a new step of the export or a new function of a script comes with a check of a property that a reader can see: a dimension, the position of a frame or a count. The expected value comes from the part's source or from the generator's parameter block, never from the generated files. A wrong mesh that is regenerated with its manifest agrees with its manifest. Put the check where CI runs it: as a `check_…()` function that the generator calls, which the job "Regenerate meshes" runs with every regeneration, or in `scripts/check_meshes.py`, which the job "Mesh checks" runs.
 - **Fixes:** a fix of a generator or a check comes with a check that fails without it.
