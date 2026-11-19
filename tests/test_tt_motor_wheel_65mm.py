@@ -31,9 +31,11 @@ SURFACE = 0.01    # mm: how close to a surface a point counts as on it
 # The notches' bottoms that the notch's round of 2.5 mm gives: r 6.03 mm (Ø12.06)
 NOTCH_BOTTOM_MODEL = 6.03
 NOTCH_BOTTOM_TOLERANCE = 0.005
-# A bulge's quarter ellipse: it starts 19.1 mm before the tube's end, 1.6 mm before the bulges
-# meet the tube, and spans 2.66 mm across the axle, from the tops (r 7.635) to the tube (r 4.975)
+# A bulge's quarter ellipse: it starts 19.1 mm before the tube's end and meets the tube 17.5 mm
+# before it (measured: where the bulges meet the tube), so it is 1.6 mm long along the axle. It
+# spans 2.66 mm across the axle, from the tops (r 7.635) to the tube (r 4.975)
 ELLIPSE_START_BEFORE_THE_TUBES_END = 19.1
+ELLIPSE_END_BEFORE_THE_TUBES_END = 17.5
 ELLIPSE_ACROSS = 2.66
 
 # A bulge's round of the radius that a width of 3.47 mm 1.0 mm below the top gives: with it, a
@@ -164,6 +166,19 @@ class BulgeAndNotchRoundsTest(unittest.TestCase):
         self.assertAlmostEqual(bottom, NOTCH_BOTTOM_MODEL, delta=NOTCH_BOTTOM_TOLERANCE)
         self.assertGreater(bottom, wheel.HUB_TUBE_D / 2)
 
+    def test_collar_has_its_notch_wall_on_r_6_03(self) -> None:
+        """Probe a notch's middle in the solid, at the plate and along its straight wall."""
+        bulges = wheel.collar().val()
+        angle = math.radians(36.0)
+        top_end = wheel.bulge_end()[0]
+        inner, outer = (NOTCH_BOTTOM_MODEL - NOTCH_BOTTOM_TOLERANCE,
+                        NOTCH_BOTTOM_MODEL + NOTCH_BOTTOM_TOLERANCE)
+        for z in (wheel.CUP_BACK_Z + 0.1, (wheel.CUP_BACK_Z + top_end) / 2, top_end + 0.5):
+            self.assertTrue(bulges.isInside(cq.Vector(inner * math.cos(angle),
+                                                      inner * math.sin(angle), z)))
+            self.assertFalse(bulges.isInside(cq.Vector(outer * math.cos(angle),
+                                                       outer * math.sin(angle), z)))
+
 
 def side_view(steps: int = 2000) -> Iterator[float]:
     """Yield z from the level top's end to where the bulges meet the tube, in even steps."""
@@ -264,18 +279,17 @@ class BulgeEndTest(unittest.TestCase):
                 self.assertLess(min(face.distance(point) for face in faces), TOLERANCE)
 
     def test_bulges_meet_the_tube_at_an_edge(self) -> None:
-        """Join the bulges to the hub: beside a fin and in a notch the faces meet at 90 deg."""
+        """Join the bulges to the hub: 17.5 mm before the tube's end the faces meet at 90 deg."""
         joined = wheel.hub().union(wheel.collar()).val()
-        tube, end = wheel.HUB_TUBE_D / 2, wheel.HUB_COLLAR_END_Z
+        tube, end = wheel.HUB_TUBE_D / 2, wheel.HUB_TUBE_END_Z - ELLIPSE_END_BEFORE_THE_TUBES_END
         for degrees in (9.0, 36.0):
             angle = math.radians(degrees)
             point = cq.Vector(tube * math.cos(angle), tube * math.sin(angle), end)
             faces = [face for face in joined.Faces()
                      if face.distance(cq.Vertex.makeVertex(*point.toTuple())) < SURFACE]
+            self.assertEqual({face.geomType() for face in faces}, {'CYLINDER', 'REVOLUTION'})
             normals = [face.normalAt(point) for face in faces]
             spread = max(math.degrees(a.getAngle(b)) for a in normals for b in normals)
-
-            self.assertEqual({face.geomType() for face in faces}, {'CYLINDER', 'REVOLUTION'})
             self.assertAlmostEqual(spread, 90.0, delta=EDGE_TOLERANCE)
 
     def test_bulge_end_raises_a_value_error_for_an_ellipse_past_the_plate(self) -> None:

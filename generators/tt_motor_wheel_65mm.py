@@ -143,7 +143,7 @@ BOSS_CHAMFER = 0.3           # choice
 # meets the spokes' face. BOWL_EDGE_ROUND then widens the opening at the face to 18.22
 BOWL_EDGE_D = 17.9
 # The wall runs straight down from the edge and turns into the flat floor with a quarter
-# ellipse (measured: the shape). p21 reads 17.62 inside jaws at about the boss's top, p20 14.07
+# ellipse (measured: the shape). p21 reads 17.62 inside jaws near the spokes' face, p20 14.07
 # with the jaws deeper in the bowl
 BOWL_FLOOR_D = 13.8          # p41 img.: where the wall's round starts on the floor, r 6.9
 BOWL_ROUND_ALONG_FLOOR = 1.7  # estimated: the round's semi-axis along the floor
@@ -199,10 +199,11 @@ SPOKE_MARK_BOTTOM = 0.3      # choice: the radius of the dimple's rounded bottom
 # form a smooth wave: a round on each bulge and a round the other way in each notch. The wave
 # leaves the plate straight along the axle, with a sharp edge in a notch (measured: no round
 # there). Seen from the side, a bulge's top runs level from the plate and turns down to the hub
-# tube along a quarter ellipse, which meets the tube with an edge, so no flat ring is left
-# around the tube (measured: the shape). The end is the same all round the tube: a notch's wall
-# runs straight until the ellipse falls below it, and from there the ellipse takes it down to
-# the tube
+# tube, and no flat ring is left around the tube (measured: the shape). The model turns it down
+# along a quarter ellipse (choice, HUB_BULGE_ROUND_ALONG_AXLE), which runs square to the axle at
+# its end and so meets the tube with an edge. The end is the same all round the tube: a notch's
+# wall runs straight until the ellipse falls below it, and from there the ellipse takes it down
+# to the tube
 HUB_COLLAR_D = 15.27         # p15: across the bulges; taken as the circle around their tops
 HUB_PLATEAU = 0.1            # estimated: the plate beside a bulge, out to the cup's rounded edge
 # derived: the cup's back round along the plate, 2.585
