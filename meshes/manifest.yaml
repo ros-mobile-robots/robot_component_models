@@ -350,8 +350,8 @@ parts:
             bounding_box_min: [-0.033299, -0.033298, -0.013000]
             bounding_box_max: [0.033299, 0.033298, 0.015420]
           tt_motor_wheel_65mm/tt_motor_wheel_65mm.glb:
-            sha256: c9661e9f08cb479d0f6a40fd4140fb7f46470db50f0ad8fd5dad272a941ce0c7
-            bytes: 2194180
+            sha256: 29148d072cb3f893afbff5f0fe9e398b372e1a1fd519dd54f78f167f84b577fe
+            bytes: 2194204
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
             triangles: 97550
