@@ -2,21 +2,15 @@
      SPDX-License-Identifier: BSD-3-Clause -->
 # Swivel caster with a 30 mm wheel (DiffBot)
 
-A pressed-steel swivel caster with a 30 mm plastic wheel, as on DiffBot. DiffBot is built on the Joy-IT Robot Car Kit 2WD (robot05), and this is the kit's caster. The model was created independently, from public product photos, the robot's own URDF numbers and photos of DiffBot's caster. No geometry was imported, converted, traced or sampled from another 3D model, and no vendor or third-party 3D model was downloaded.
+A pressed-steel swivel caster with a 30 mm plastic wheel, as on DiffBot. DiffBot is built on the Joy-IT Robot Car Kit 2WD (robot05), and this is the kit's caster. The shapes follow Joy-IT's product photos and photos of DiffBot's caster. The wheel's radius and the axle's position follow DiffBot's caster joints. [Sources](#sources) lists them.
 
 Generator: [`generators/swivel_caster_30mm.py`](../generators/swivel_caster_30mm.py).
 
-## Meshes
-
-| Mesh | What | Materials |
-|---|---|---|
-| `swivel_caster_30mm_base` | The fixed part: four brass hex standoffs (M3, 5 mm across flats, 10 mm long), a plate 32 × 38 × 1.5 mm with four corner lugs and concave sides, a pressed raceway dome on top (Ø26 mm) with a domed rivet head, a rounded bearing ring between plate and fork, the stepped race cap under the fork (Ø14.8 mm) with a large flat rivet head (Ø10 mm), four Phillips pan heads under the lugs | `steel` (zinc-plated), `brass` |
-| `swivel_caster_30mm_wheel_support` | The swivelling fork, bent from one 1.5 mm sheet: a round top plate (r 13 mm) with tight bends into two arms with a concave front edge, and a pressed boss around the axle on each arm. The axle rivet with domed heads and washers on both sides | `steel`, `axle` |
-| `swivel_caster_30mm_wheel` | The wheel: Ø30 mm, hub 15.6 mm wide, crowned 12 mm tread with 3 mm rounds, dished sides | `wheel` (white) |
-
-Each STL file is closed and consistently oriented. The three meshes, placed as DiffBot's caster macro places them, only touch. The axle has 0.1 mm clearance in the wheel's bore.
-
 ## Frames
+
+![The caster from above and from the side, with the base's frame, the four standoffs and the three meshes' names](../docs/images/frames/swivel_caster_30mm.png)
+
+The picture shows the three meshes from above and from the side, placed as DiffBot's caster macro places them. The red dot is the origin of the frame of `swivel_caster_30mm_base` and the red arrows are its positive axes. The green rings mark the four standoffs, at (x, y) = (-13, ±15) mm and (11, ±15) mm. Their tops, the dashed line at z = +15 mm, meet the chassis. The side view names the mesh of each piece. The fork's frame lies 1 mm behind the base's frame, on the swivel axis, and the wheel's frame lies on the axle.
 
 The files are in metres, z up. Positions on this page are in millimetres.
 
@@ -30,7 +24,27 @@ DiffBot's caster macro, [`diffbot_caster_macro.urdf.xacro`](https://github.com/r
 - `rear_caster_rotation_joint` puts the swivelling `rear_caster_rotation_link` 77 mm behind `chassis_link`, 1 mm behind the base link, at the same height. The macro draws `swivel_caster_30mm_wheel_support` 20 mm below it. So the swivel axis lies at x = -1 mm in the base's frame and at x = 0 in the fork's frame.
 - `rear_caster_wheel_joint` puts `rear_caster_wheel_link` 16 mm behind and 40 mm below the rotation link, on the fork's axle at x = -16 mm, z = -20 mm. `swivel_caster_30mm_wheel` is drawn at that link's origin.
 
+A robot description with one link per mesh places the meshes like this. Each offset is the place of a mesh's origin in the frame of the mesh before it:
+
+| Mesh | Placed in the frame of | Offset (x, y, z) | Moves |
+|---|---|---|---|
+| `swivel_caster_30mm_base` | The chassis | The standoffs' tops, at z = +15 mm, touch the chassis | Fixed |
+| `swivel_caster_30mm_wheel_support` | `swivel_caster_30mm_base` | (-1, 0, 0) mm | Swivels about z |
+| `swivel_caster_30mm_wheel` | `swivel_caster_30mm_wheel_support` | (-16, 0, -20) mm | Rolls about y |
+
+DiffBot's caster macro reaches the same places with its joints and with the visual origins 20 mm below its base and rotation links. A robot description that copies the macro has these offsets already and doesn't add them a second time.
+
 The wheel's lowest point is 0.2 mm below DiffBot's `base_footprint`, from the URDF's numbers.
+
+## Meshes
+
+| Mesh | What | Materials |
+|---|---|---|
+| `swivel_caster_30mm_base` | The fixed part: four brass hex standoffs (M3, 5 mm across flats, 10 mm long), a plate 32 × 38 × 1.5 mm with four corner lugs and concave sides, a pressed raceway dome on top (Ø26 mm) with a domed rivet head, a rounded bearing ring between plate and fork, the stepped race cap under the fork (Ø14.8 mm) with a large flat rivet head (Ø10 mm), four Phillips pan heads under the lugs | `steel` (zinc-plated), `brass` |
+| `swivel_caster_30mm_wheel_support` | The swivelling fork, bent from one 1.5 mm sheet: a round top plate (r 13 mm) with tight bends into two arms with a concave front edge, and a pressed boss around the axle on each arm. The axle rivet with domed heads and washers on both sides | `steel`, `axle` |
+| `swivel_caster_30mm_wheel` | The wheel: Ø30 mm, hub 15.6 mm wide, crowned 12 mm tread with 3 mm rounds, dished sides | `wheel` (white) |
+
+Each STL file is closed and consistently oriented. The three meshes, placed as DiffBot's caster macro places them, only touch. The axle has 0.1 mm clearance in the wheel's bore.
 
 ## Sources
 
@@ -49,7 +63,7 @@ The wheel's lowest point is 0.2 mm below DiffBot's `base_footprint`, from the UR
 - The bearing is a closed rounded ring between plate and fork, without visible balls. The race cap is a revolved profile with sharp steps.
 - The fork's arms are flat sheets without the rolled edges of the real arms. The fork's inner width, 17.2 mm, is a design choice that leaves room for the 15.6 mm wheel, the washers and the rivet heads.
 - The generator refuses parameters that leave no room for the rivet head or make the race cap wider than the gap between the fork's bends.
-- The wheel is one solid part, opaque white instead of translucent.
+- The wheel is one solid part in opaque white. The real wheel is translucent.
 
 ## Measurements that would improve the model
 

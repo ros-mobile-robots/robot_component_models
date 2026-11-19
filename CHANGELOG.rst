@@ -10,5 +10,5 @@ Changelog for package robot_component_models
   Camera Module v2 and the 65 mm wheel for TT gear motors. Each mesh comes as STL, COLLADA and
   glTF (coloured), all in metres, in a local frame documented in the manifest and the part's
   provenance page
-* The CadQuery generators, the sources of every model, meshes/manifest.yaml with checksums,
+* The CadQuery generators, each model's source references, meshes/manifest.yaml with checksums,
   units, frames and bounding boxes, and checks in CI

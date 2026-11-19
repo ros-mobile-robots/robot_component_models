@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 """Generate a 360 degree laser scanner of the RPLIDAR A2 type: base, rotating head, window.
 
-Modelled from the public datasheet dimensions only (RPLIDAR A2M8 datasheet rev. 2.5, Figure 5-1
+Modelled from the datasheet's dimensions (RPLIDAR A2M8 datasheet rev. 2.5, Figure 5-1
 "Mechanical Dimensions"): base diameter and height, head diameter, overall height, the optical
 window's centre height and outline, the four M3 mounting holes and the locating hole. The
 proportions of the window bezel and the head's rounded top edge are read from the same drawing,
