@@ -8,11 +8,11 @@
 
 ## Sources
 
-<!-- For a new or changed model: the public sources of the new values, also in the part's provenance page. Say how measured values were measured. -->
+<!-- For a new or changed model: the sources of the new values, also in the part's provenance page. Say how measured values were measured. -->
 
 ## How it was tested
 
-<!-- python3 -m generators --check, scripts/check_meshes.py, and how you checked the model in a robot (RViz, Gazebo). -->
+<!-- python3 -m generators --check, scripts/check_meshes.py, python3 -m unittest discover -s tests, and how you checked the model in a robot (RViz, Gazebo). -->
 
 ## Related
 

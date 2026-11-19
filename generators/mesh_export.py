@@ -18,6 +18,7 @@ import math
 import struct
 from typing import Callable
 from typing import Dict
+from typing import Iterable
 from typing import List
 from typing import NamedTuple
 from typing import Optional
@@ -33,6 +34,8 @@ from OCP.TopAbs import TopAbs_REVERSED
 from OCP.TopLoc import TopLoc_Location
 
 Colour = Tuple[float, float, float, float]
+# A solid of a sub-part with the name of its material
+Piece = Tuple[str, cq.Workplane]
 # Splits a piece's triangle corners (m, 3, 3) into materials: an array of m material names
 Classifier = Callable[[np.ndarray], np.ndarray]
 
@@ -238,29 +241,55 @@ def merge_surfaces(surfaces: Sequence[Surface]) -> Surface:
                    np.vstack([s.triangles + o for s, o in zip(surfaces, offsets)]))
 
 
-def surfaces_by_material(pieces: Sequence[Tuple[str, Surface]],
+def require_known_materials(sub_part: str, materials: Iterable[str],
+                            known: Iterable[str]) -> None:
+    """Raise a ValueError if a material of the sub-part is not one of the known names.
+
+    The exporter writes a sub-part's surfaces material by material, in the order of the
+    model's material names. A name outside these, such as a misspelled one, has no place in
+    that order, so its triangles would be missing from the files. The error names the
+    sub-part and the unknown names.
+    """
+    known_names = list(known)
+    unknown = sorted(set(materials) - set(known_names))
+    if unknown:
+        raise ValueError(f"sub-part '{sub_part}': unknown material names {unknown}, "
+                         f"the model's materials are {known_names}")
+
+
+def surfaces_by_material(sub_part: str, pieces: Sequence[Tuple[str, Surface]],
                          order: Sequence[str]) -> Dict[str, Surface]:
-    """Return one surface per material from (material, surface) pieces, in the given order."""
+    """Return the sub-part's surfaces, one per material, in the given order of the materials.
+
+    The pieces are (material, surface) pairs. Raise a ValueError if a piece's material is not
+    in the order.
+    """
+    require_known_materials(sub_part, (material for material, _ in pieces), order)
     groups: Dict[str, List[Surface]] = {}
     for material, surface in pieces:
         groups.setdefault(material, []).append(surface)
     return {name: merge_surfaces(groups[name]) for name in order if name in groups}
 
 
-def classified_sub_part(name: str, pieces: Sequence[Tuple[str, cq.Workplane]],
+def classified_sub_part(name: str, pieces: Sequence[Piece],
                         order: Sequence[str], linear: float, angular: float,
                         classifiers: Optional[Dict[str, Classifier]] = None) -> SubPart:
     """Return a sub-part from (material, workplane) pieces, with smooth normals per material.
 
     The pieces are tessellated with an absolute deflection. A classifier splits a piece's
-    triangles into several materials, for example a board's solder mask and its edges.
+    triangles into several materials, for example a board's solder mask and its edges. Raise a
+    ValueError if a piece's material, a classifier's key or a material that a classifier
+    returns is not in the order.
     """
+    require_known_materials(name, [material for material, _ in pieces], order)
+    require_known_materials(name, classifiers or {}, order)
     corners: Dict[str, List[np.ndarray]] = {}
     for material, workplane in pieces:
         triangles = tessellate_absolute(workplane, linear, angular)
         classify = (classifiers or {}).get(material)
         materials = classify(triangles) if classify else np.full(len(triangles), material,
                                                                  dtype=object)
+        require_known_materials(name, materials.tolist(), order)
         for known in order:
             selected = triangles[materials == known]
             if len(selected):
@@ -298,6 +327,12 @@ def surfaces_in_order(model: Model) -> List[Tuple[str, str, Surface]]:
     return [(part.name, material, compact_surface(surface))
             for part in model.sub_parts for material, surface in part.surfaces.items()
             if len(surface.triangles)]
+
+
+def require_model_materials(model: Model) -> None:
+    """Raise a ValueError if a sub-part of the model has a surface of an unknown material."""
+    for part in model.sub_parts:
+        require_known_materials(part.name, part.surfaces, model.materials)
 
 
 def used_materials(model: Model) -> List[str]:
@@ -483,11 +518,24 @@ class GlbBuffer:
         return len(self.accessors) - 1
 
 
+def srgb_to_linear(value: float) -> float:
+    """Return the linear value of an sRGB colour component, both from 0 to 1."""
+    if value <= 0.04045:
+        return value / 12.92
+    return ((value + 0.055) / 1.055) ** 2.4
+
+
 def gltf_material(name: str, material: Material) -> Dict[str, object]:
-    """Return a glTF PBR material: the diffuse colour, metal or not, roughness from shininess."""
+    """Return a glTF PBR material: the diffuse colour, metal or not, roughness from shininess.
+
+    The diffuse colour is an sRGB value, as COLLADA viewers show it. glTF defines the base
+    colour factor as linear, so the red, green and blue components are converted. Alpha stays.
+    """
+    red, green, blue, alpha = material.diffuse
+    base_colour = [round(srgb_to_linear(c), 6) for c in (red, green, blue)] + [float(alpha)]
     roughness = round(math.sqrt(2.0 / (material.shininess + 2.0)), 3)
     return {'name': name,
-            'pbrMetallicRoughness': {'baseColorFactor': [float(c) for c in material.diffuse],
+            'pbrMetallicRoughness': {'baseColorFactor': base_colour,
                                      'metallicFactor': 1.0 if material.metallic else 0.0,
                                      'roughnessFactor': roughness}}
 

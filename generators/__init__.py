@@ -16,4 +16,5 @@ PARTS = (
     'teensy_4_0',
     'breadboard_400_point',
     'raspberry_pi_camera_v2',
+    'tt_motor_wheel_65mm',
 )
