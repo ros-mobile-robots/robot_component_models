@@ -9,7 +9,7 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) first. This file adds what an agent need
 Find your change in this list. Each line says what to run or check, and links the section with the details.
 
 - **A new or changed part:**
-    1. Read [Independent creation](CONTRIBUTING.md#independent-creation) before you touch a generator. Every dimension has its source in `provenance/<part>.md`: a public specification, your own measurement with how you took it, or an estimate or a choice that the page calls one.
+    1. Read [Modelling a part from its sources](CONTRIBUTING.md#modelling-a-part-from-its-sources) before you touch a generator. Every dimension has its source in `provenance/<part>.md`: a public specification, your own measurement with how you took it, or an estimate or a choice that the page calls one.
     2. Change the generator and regenerate the meshes ([After a change to a generator](#after-a-change-to-a-generator)).
     3. The two regeneration checks, the mesh check, flake8 and mypy pass ([Check a checkout](#check-a-checkout)).
     4. Load the mesh in a robot's model and look at the robot in RViz and Gazebo. Say in the pull request what you saw.
@@ -66,7 +66,7 @@ The first command below rewrites every file in `meshes/` and the manifest. Run i
 git status --short meshes                 # the files you meant to change, and no others
 ```
 
-Then run the commands of [Check a checkout](#check-a-checkout). Meshes for a pull request have to come from CI's environment, or CI's regeneration check fails: [Run CI's checks locally](CONTRIBUTING.md#run-cis-checks-locally) shows how to regenerate in CI's image.
+Then run the commands of [Check a checkout](#check-a-checkout). Meshes for a pull request have to come from CI's environment, or CI's regeneration check fails: [The generator environment in a container](CONTRIBUTING.md#the-generator-environment-in-a-container) shows how to regenerate in CI's image.
 
 When a part's look changed, render the README's pictures again. This command rewrites the PNG files in `docs/images/`, which are tracked: one picture per part and the overview `all_parts.png`, which the README shows first. CI doesn't compare them, and another graphics driver gives slightly other pixels. Commit the picture of each part you changed together with the overview, and put back the pictures that differ without a change to their part. A new part gets its pictures from two entries in `scripts/render_parts.py`: add the part to `PARTS` for its own picture, and to a row of `OVERVIEW_ROWS` for the overview:
 
@@ -121,7 +121,7 @@ head_height = SCREW_HEAD.height
 
 - **Units:** generators work in millimetres, and the files are written in metres.
 - **A mesh's frame is a contract:** a change that moves a mesh's origin, turns its axes, changes its units or moves an attachment point gets a new file name. The old file stays.
-- **Independent creation:** read that section of CONTRIBUTING.md before you touch a generator.
+- **Sources:** read "Modelling a part from its sources" in CONTRIBUTING.md before you touch a generator.
 - **Versions:** raise the version in `package.xml` and add a section to `CHANGELOG.rst`. A pull request that only changes the guides or the README keeps the version. Don't create tags.
 
 ## Commits and pull requests
