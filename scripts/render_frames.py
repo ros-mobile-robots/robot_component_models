@@ -21,6 +21,7 @@ import os
 import sys
 from typing import Callable
 from typing import Dict
+from typing import List
 from typing import NamedTuple
 from typing import Sequence
 from typing import Tuple
@@ -40,12 +41,16 @@ from generators import raspberry_pi_camera_v2
 from generators import rplidar_a2
 from generators import swivel_caster_30mm
 from generators import teensy_4_0
+from generators import tt_motor_wheel_65mm
 from scripts.render_parts import actor
 from scripts.render_parts import background
 from scripts.render_parts import PARTS as RENDERED_PARTS
+from scripts.render_parts import PartView
 from scripts.render_parts import placed_surfaces
 from scripts.render_parts import small_png
 from scripts.render_parts import Surface
+from scripts.render_parts import turn_x
+from scripts.render_parts import turn_z
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 M_PER_MM = 0.001
@@ -204,6 +209,20 @@ def camera_figure() -> FrameFigure:
         [Label('lens, looking along +x', (5.0, lens_y, lens_z), (-150, -34))])
 
 
+def wheel_figure() -> FrameFigure:
+    """Return the wheel's picture: no holes, the axle along z, the outer face, the tube's end."""
+    wheel = tt_motor_wheel_65mm
+    outer, tube_end = wheel.TYRE_OUTER_FACE_Z, wheel.HUB_TUBE_END_Z
+    # the label's line ends on the hub tube's end, at the top of the tube's chamfer
+    on_tube_end = (0.0, wheel.HUB_TUBE_D / 2 - wheel.HUB_TUBE_CHAMFER, tube_end)
+    return FrameFigure(
+        (View('From the outer face, +z away from the viewer', (-1.0, 0.0, 0.0), Y_AXIS),
+         View('From the side, +x away from the viewer', Z_AXIS, Y_AXIS)),
+        [],
+        [Plane(f'outer face, z = {outer:g} mm', Z_AXIS, outer)],
+        [Label(f"tube's end, z = +{tube_end:g} mm", on_tube_end, (14, -60))])
+
+
 FIGURES: Dict[str, Callable[[], FrameFigure]] = {
     'swivel_caster_30mm': caster_figure,
     'rplidar_a2': scanner_figure,
@@ -212,6 +231,7 @@ FIGURES: Dict[str, Callable[[], FrameFigure]] = {
     'teensy_4_0': teensy_figure,
     'breadboard_400_point': breadboard_figure,
     'raspberry_pi_camera_v2': camera_figure,
+    'tt_motor_wheel_65mm': wheel_figure,
 }
 
 
@@ -390,10 +410,26 @@ def draw_labels(draw: ImageDraw.ImageDraw, shown: Projection, labels: Sequence[L
         text_with_halo(draw, (text_x, text_y), label.text, TEXT_COLOUR, 16)
 
 
+def surfaces_in_frame(view: PartView) -> List[Surface]:
+    """Return a part's surfaces in the frame of its first mesh.
+
+    The placements put a part's other meshes into its first mesh's frame (the caster's fork and
+    wheel). A placement can also turn the first mesh for the README's picture (the wheel stands
+    on its tread there). That turn is taken back here, so that the axes drawn are the mesh's own.
+    """
+    first = view.placements[0]
+    surfaces = []
+    for surface in placed_surfaces(view):
+        corners = turn_x(turn_z(surface.corners - np.array(first.offset), -first.yaw), -first.roll)
+        normals = turn_x(turn_z(surface.normals, -first.yaw), -first.roll)
+        surfaces.append(surface._replace(corners=corners, normals=normals))
+    return surfaces
+
+
 def render_figure(name: str) -> Image.Image:
     """Return a part's frame picture: its two views with the frame drawn on them."""
     figure = FIGURES[name]()
-    surfaces = placed_surfaces(RENDERED_PARTS[name])
+    surfaces = surfaces_in_frame(RENDERED_PARTS[name])
     size = (2 * PANEL_SIZE[0] + 3 * GAP, PANEL_SIZE[1] + TITLE_HEIGHT + 2 * GAP)
     picture = Image.new('RGB', size, (255, 255, 255))
     titles = ImageDraw.Draw(picture)

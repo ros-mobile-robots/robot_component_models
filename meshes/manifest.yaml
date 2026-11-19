@@ -322,3 +322,39 @@ parts:
             bounding_box_min: [-0.004145, -0.012160, -0.012283]
             bounding_box_max: [0.004575, 0.012840, 0.011579]
             license_file: raspberry_pi_camera_v2/raspberry_pi_camera_v2.glb.license
+  tt_motor_wheel_65mm:
+    title: "Wheel 65 mm for TT gear motors (DiffBot, Remo)"
+    generator: generators/tt_motor_wheel_65mm.py
+    provenance: provenance/tt_motor_wheel_65mm.md
+    meshes:
+      tt_motor_wheel_65mm:
+        frame: "The axle along z at x = y = 0, the wheel's outer face (the rim's outer flange face, flush with the tyre's sidewall at its widest) at z = -13 mm, the rim's motor-side flange face at z = +12.00 mm and the hub tube's end at z = +15.42 mm."
+        sub_parts: [rim, tyre]
+        materials: [rim, tyre]
+        files:
+          tt_motor_wheel_65mm/tt_motor_wheel_65mm.stl:
+            sha256: 6c69fcae3d99f97ef69a7d74717df4b8ab4129a9fb0422cf44e2da42ab40dbda
+            bytes: 4877584
+            units: metre
+            up_axis: "Z"
+            triangles: 97550
+            bounding_box_min: [-0.033299, -0.033298, -0.013000]
+            bounding_box_max: [0.033299, 0.033298, 0.015420]
+            license_file: tt_motor_wheel_65mm/tt_motor_wheel_65mm.stl.license
+          tt_motor_wheel_65mm/tt_motor_wheel_65mm.dae:
+            sha256: d8963d7175efc8dd5d833ad580b470a9b7d783e37c6552b761da9df02f4d2a81
+            bytes: 5362322
+            units: metre
+            up_axis: "Z"
+            triangles: 97550
+            bounding_box_min: [-0.033299, -0.033298, -0.013000]
+            bounding_box_max: [0.033299, 0.033298, 0.015420]
+          tt_motor_wheel_65mm/tt_motor_wheel_65mm.glb:
+            sha256: 29148d072cb3f893afbff5f0fe9e398b372e1a1fd519dd54f78f167f84b577fe
+            bytes: 2194204
+            units: metre
+            up_axis: "Y (the root node turns the Z-up vertex data)"
+            triangles: 97550
+            bounding_box_min: [-0.033299, -0.033298, -0.013000]
+            bounding_box_max: [0.033299, 0.033298, 0.015420]
+            license_file: tt_motor_wheel_65mm/tt_motor_wheel_65mm.glb.license
