@@ -26,6 +26,11 @@ from generators import tt_motor_wheel_65mm as wheel
 
 TOLERANCE = 1e-9  # mm, for values that the tests derive with other formulas
 SURFACE = 0.01    # mm: how close to a surface a point counts as on it
+# The notches' bottoms as read on a photo of the hub's motor side: r 5.2 to 5.5 mm, and the
+# middle that the model takes, with the notch round rounded to 0.35 mm
+NOTCH_BOTTOM_READ = (5.2, 5.5)
+NOTCH_BOTTOM_MODEL = 5.35
+NOTCH_BOTTOM_TOLERANCE = 0.005
 
 # A bulge's round of the radius that a width of 3.47 mm 1.0 mm below the top gives: with it, a
 # notch's round of 1.4 mm touches the bulges' rounds where they face the axle
@@ -124,6 +129,14 @@ class BulgeAndNotchRoundsTest(unittest.TestCase):
                           'HUB_NOTCH_ROUND': NOTCH_ROUND_ON_THE_TUBE}):
             with self.assertRaisesRegex(ValueError, "off the hub tube's surface"):
                 wheel.collar_rounds()
+
+    def test_notch_bottom_lies_in_the_photos_reading_off_the_tube(self) -> None:
+        """Take the notches' bottoms: the middle of r 5.2 to 5.5, outside the hub tube."""
+        bottom = wheel.notch_bottom()
+
+        self.assertAlmostEqual(bottom, NOTCH_BOTTOM_MODEL, delta=NOTCH_BOTTOM_TOLERANCE)
+        self.assertTrue(NOTCH_BOTTOM_READ[0] < bottom < NOTCH_BOTTOM_READ[1])
+        self.assertGreater(bottom, wheel.HUB_TUBE_D / 2)
 
 
 def side_view(steps: int = 2000) -> Iterator[float]:

@@ -46,6 +46,8 @@ TITLE = 'Wheel 65 mm for TT gear motors (DiffBot, Remo)'
 #   p41 img.  face-on photo 41, 25.7 px/mm from its own 51.25 reading
 #   tip photo a close photo across the outer face: the spokes' tips and the lip
 #   video     video frames of DiffBot's wheel
+#   hub photo a photo of the hub's motor side along the axle, read with a camera fitted to the
+#             rim's outline in it
 #   measured  caliper measurement of the real wheel, without a photo
 #   estimated not measured with calipers: a value estimated on the real wheel
 #   derived   follows from other values in this file
@@ -213,7 +215,9 @@ HUB_BULGE_WIDTH = 3.47       # p18, p19: across a bulge; where on it follows (bu
 # estimated: the round over a bulge, seen along the axle. It is HUB_BULGE_WIDTH wide 0.553 below
 # the bulge's top
 HUB_BULGE_RADIUS = 3.0
-HUB_NOTCH_ROUND = 2.5        # estimated: the round in a notch; the notches' bottoms follow
+# hub photo: the round in a notch, for the notches' bottoms on r 5.35, the middle of the r 5.2
+# to 5.5 read there. They stay 0.37 mm off the hub tube
+HUB_NOTCH_ROUND = 0.35
 HUB_COLLAR_START = 17.5      # measured: where the bulges meet the hub tube, before its end
 HUB_BULGE_ROUND = 1.6        # choice (sketch): the round from a bulge's level top down to the tube
 # choice: the foot round, from the bulge's round into the tube, runs on this far inside the tube,
