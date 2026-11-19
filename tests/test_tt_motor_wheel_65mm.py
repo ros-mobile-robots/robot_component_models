@@ -3,10 +3,11 @@
 """Tests of the wheel's hub: the bulges, the notches, the bowl's pins and the checks around them.
 
 generators/tt_motor_wheel_65mm.py builds the bulges at the hub tube's foot from two rounds seen
-along the axle, one on each bulge and one in each notch. It refuses values that give no such
-shape, and make_rim() refuses a rim whose union lost part of a bulge, which OCCT can do without
-an error. The tests change the generator's values with mock and look at what the functions
-return or refuse. Run from the repository's root, with the packages of
+along the axle, one on each bulge and one in each notch, and from a bulge's side view, which
+runs down into the tube without a flat ring. It refuses values that give no such shape, and
+make_rim() refuses a rim whose union lost part of a bulge, which OCCT can do without an error.
+The tests change the generator's values with mock and look at what the functions return or
+refuse. Run from the repository's root, with the packages of
 generators/requirements.txt:
 
   python3 -m unittest discover -s tests
@@ -15,12 +16,16 @@ import math
 from typing import Any
 from typing import ContextManager
 from typing import Dict
+from typing import Iterator
 import unittest
 from unittest import mock
+
+import cadquery as cq
 
 from generators import tt_motor_wheel_65mm as wheel
 
 TOLERANCE = 1e-9  # mm, for values that the tests derive with other formulas
+SURFACE = 0.01    # mm: how close to a surface a point counts as on it
 
 # A bulge's round of the radius that a width of 3.47 mm 1.0 mm below the top gives: with it, a
 # notch's round of 1.4 mm touches the bulges' rounds where they face the axle
@@ -40,15 +45,11 @@ PINS_ON_THE_ROUND = 6.42
 PINS_ON_THE_BOSS = 5.74
 # fin() asks the edge's inner corner to lie at least two rounds' radii inside the outer corner,
 # measured along the radius. The inner corner moves out as the round grows, so at the model's
-# other values the largest round that passes is about 4.080 mm
-FIN_ROUND_PAST_THE_SPACING_RULE = 4.1
-# The values with which OCCT's union lost part of a bulge and still returned a valid solid:
-# the notches' bottoms 0.05 mm inside the hub tube, a small circle of the bulges' tops
-UNION_LOSES_A_BULGE = {
-    'HUB_COLLAR_D': 14.0, 'HUB_PLATEAU': 0.05, 'HUB_BULGE_RADIUS': SMALL_BULGE_RADIUS,
-    'HUB_NOTCH_ROUND': 2.3998, 'HUB_BULGE_ROUND': 1.6, 'CUP_BACK_ROUND_ALONG_SIDE': 4.5,
-    'FIN_BARREL_CORNER_R': 18.6, 'FIN_ROUND': 3.0, 'HUB_PIN_R': 6.4,
-}
+# other values the largest round that passes is about 4.105 mm
+FIN_ROUND_PAST_THE_SPACING_RULE = 4.2
+# A box that takes the top off one bulge, from the plate to its round, as a union could lose it
+BULGE_TOP_LOST = ((wheel.HUB_COLLAR_D / 2 - 0.5, -1.0, wheel.CUP_BACK_Z),
+                  (wheel.HUB_COLLAR_D / 2 + 0.5, 1.0, wheel.HUB_COLLAR_END_Z))
 
 
 def with_values(values: Dict[str, float]) -> ContextManager[Any]:
@@ -124,17 +125,69 @@ class BulgeAndNotchRoundsTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "off the hub tube's surface"):
                 wheel.collar_rounds()
 
-    def test_bulge_top_end_lies_one_side_round_before_the_bulges_end(self) -> None:
-        """Take where a bulge's level top ends: HUB_BULGE_ROUND before the bulges' end plane."""
-        self.assertAlmostEqual(wheel.bulge_top_end(),
-                               wheel.HUB_COLLAR_END_Z - wheel.HUB_BULGE_ROUND, delta=TOLERANCE)
 
-    def test_bulge_top_end_raises_a_value_error_for_a_side_round_below_the_notches(self) -> None:
-        """Make the side round end below the notches' bottoms: an error."""
-        lowest = wheel.HUB_COLLAR_D / 2 - wheel.notch_bottom()
-        with with_values({'HUB_BULGE_ROUND': lowest + 0.01}):
-            with self.assertRaisesRegex(ValueError, "and the notches' bottoms"):
-                wheel.bulge_top_end()
+def side_view(steps: int = 2000) -> Iterator[float]:
+    """Yield z from the level top's end to the foot round's end, in even steps."""
+    top_end, _, foot_end = wheel.bulge_end()
+    for k in range(steps + 1):
+        yield top_end + (foot_end - top_end) * k / steps
+
+
+class BulgeEndTest(unittest.TestCase):
+    """A bulge's side view runs from its level top down into the hub tube, without a flat ring."""
+
+    def test_bulge_profile_meets_the_tube_where_the_bulges_meet_it(self) -> None:
+        """Take the side view at HUB_COLLAR_END_Z: the tube's radius, 17.5 mm before its end."""
+        self.assertAlmostEqual(wheel.bulge_profile(wheel.HUB_COLLAR_END_Z), wheel.HUB_TUBE_D / 2,
+                               delta=TOLERANCE)
+
+    def test_bulge_profile_falls_steadily_from_the_top_to_inside_the_tube(self) -> None:
+        """Step along the side view: it never rises and never jumps, so it has no step."""
+        places = list(side_view())
+        radii = [wheel.bulge_profile(z) for z in places]
+        largest_step = max(abs(z - w) for z, w in zip(places, places[1:]))
+
+        self.assertAlmostEqual(radii[0], wheel.HUB_COLLAR_D / 2, delta=TOLERANCE)
+        self.assertAlmostEqual(radii[-1], wheel.HUB_TUBE_D / 2 - wheel.HUB_FOOT_INSIDE,
+                               delta=TOLERANCE)
+        self.assertTrue(all(b <= a + TOLERANCE for a, b in zip(radii, radii[1:])))
+        # a round of radius R falls fastest where it runs square to the axle: by about
+        # sqrt(2 R dz) in a step dz. A flat ring would be a fall of about 1 mm in one step
+        steepest = max(a - b for a, b in zip(radii, radii[1:]))
+        self.assertLess(steepest, 2 * math.sqrt(2 * wheel.HUB_BULGE_ROUND * largest_step))
+
+    def test_collar_radius_is_the_same_all_round_where_the_side_view_is_below_the_notches(
+            self) -> None:
+        """Take a place between the notches' bottoms and the tube: every angle has one radius."""
+        between = (wheel.notch_bottom() + wheel.HUB_TUBE_D / 2) / 2
+        z = next(z for z in side_view() if wheel.bulge_profile(z) < between)
+
+        radii = {round(wheel.collar_radius(math.radians(a), z), 9) for a in range(0, 360, 3)}
+
+        self.assertEqual(len(radii), 1)
+
+    def test_collar_has_no_flat_ring_at_its_end(self) -> None:
+        """Look at the bulges' faces across the axle: none reaches out of the tube."""
+        tube = wheel.HUB_TUBE_D / 2
+        outside = []
+        for face in wheel.collar().faces().vals():
+            if face.geomType() != 'PLANE' or abs(face.normalAt().z) < 1 - TOLERANCE:
+                continue
+            if face.Center().z < wheel.CUP_BACK_Z:
+                continue                                  # the bottom, inside the cup's back
+            reach = max(math.hypot(point.x, point.y) for edge in face.Edges()
+                        for point in (edge.positionAt(t / 20) for t in range(21)))
+            if reach > tube + SURFACE:
+                outside.append((round(face.Center().z, 3), round(reach, 3)))
+
+        self.assertEqual(outside, [])
+
+    def test_bulge_end_raises_a_value_error_for_a_round_with_no_room_for_the_foot(self) -> None:
+        """Make the bulge's round reach down to the tube: no room is left for the foot round."""
+        room = wheel.HUB_COLLAR_D / 2 - wheel.HUB_TUBE_D / 2
+        with with_values({'HUB_BULGE_ROUND': room}):
+            with self.assertRaisesRegex(ValueError, 'between its level top and the hub tube'):
+                wheel.bulge_end()
 
 
 class PinsTest(unittest.TestCase):
@@ -176,11 +229,30 @@ class HubAndFinTest(unittest.TestCase):
 
 
 class RimUnionTest(unittest.TestCase):
-    """make_rim() checks that the union of the rim's solids kept the bulges."""
+    """collar_kept() tells a rim that kept the bulges from one that lost part of a bulge."""
 
-    def test_make_rim_raises_a_value_error_when_the_union_loses_part_of_a_bulge(self) -> None:
-        """Build with the values whose union lost part of a bulge: an error, not a rim."""
-        with with_values(UNION_LOSES_A_BULGE):
+    bulges: cq.Workplane
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Build the bulges once."""
+        cls.bulges = wheel.collar()
+
+    def test_collar_kept_is_true_for_a_rim_with_the_whole_bulges(self) -> None:
+        """Give the bulges themselves as the rim: every point inside them is kept."""
+        self.assertTrue(wheel.collar_kept(self.bulges, self.bulges))
+
+    def test_collar_kept_is_false_for_a_rim_that_lost_a_bulges_top(self) -> None:
+        """Cut one bulge's top away, as a union could: some point inside it is missing."""
+        corner, far = BULGE_TOP_LOST
+        size = (far[0] - corner[0], far[1] - corner[1], far[2] - corner[2])
+        cutter = cq.Workplane('XY').box(*size, centered=False).translate(corner)
+
+        self.assertFalse(wheel.collar_kept(self.bulges.cut(cutter), self.bulges))
+
+    def test_make_rim_raises_a_value_error_when_collar_kept_finds_a_loss(self) -> None:
+        """Let collar_kept() report a loss: make_rim() stops before the bore is cut."""
+        with mock.patch.object(wheel, 'collar_kept', return_value=False):
             with self.assertRaisesRegex(ValueError, "the rim's union must keep the bulges"):
                 wheel.make_rim()
 
