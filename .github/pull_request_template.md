@@ -18,5 +18,4 @@
 
 <!-- A matching pull request in a robot's repository. The documentation pull request (ros-mobile-robots/ros-mobile-robots.github.io#N) for a new part, a change to the shared code, a new check, CI or the development setup, or what the page needs if you can't open one. "None" if neither applies. -->
 
-<!-- Remove the next line if there's no issue. -->
-Closes #
+<!-- An issue: "Closes #N" when this pull request resolves issue N, "Part of #N" when the issue stays open. Leave it out if there's no issue. -->

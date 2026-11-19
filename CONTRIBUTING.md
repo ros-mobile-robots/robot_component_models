@@ -40,7 +40,7 @@ Adding a part takes six steps. The laser scanner `rplidar_a2`, a part with one m
        return [Model('rplidar_a2', TITLE, FRAME, MATERIALS, sub_parts)]
    ```
 
-   `build()` reads as the list of the part's sub-parts, with one function per sub-part, and every dimension is a named constant in the parameter block, not a number inside a function. [AGENTS.md](AGENTS.md#code) has the code rules.
+   For new or changed code, `build()` reads as the list of the part's sub-parts, with one function per sub-part, and every dimension is a named constant in the parameter block, not a number inside a function. The wheel's `build()` in [`generators/tt_motor_wheel_65mm.py`](generators/tt_motor_wheel_65mm.py) is an example: it calls `make_rim()` and `make_tyre()`. [AGENTS.md](AGENTS.md#code) has the code rules.
 
 3. **List of parts:** the identifier in `PARTS` in [`generators/__init__.py`](generators/__init__.py). The manifest follows this order.
 4. **Provenance page:** `provenance/rplidar_a2.md` with the sources, the Frame section, what is simplified or estimated, and which measurements would help.
@@ -62,10 +62,10 @@ Then generate and check, with the pinned Python packages in a virtual environmen
 ```bash
 .venv/bin/python -m generators rplidar_a2        # write the part's meshes while you work on it
 .venv/bin/python -m generators                   # when the part is ready: all meshes and the manifest
-.venv/bin/python scripts/check_meshes.py         # read the files back, check them against the manifest
-.venv/bin/python -m unittest discover -s tests   # the unit tests
 .venv/bin/python scripts/render_parts.py         # docs/images/rplidar_a2.png and all_parts.png
 .venv/bin/python -m scripts.render_frames        # docs/images/frames/rplidar_a2.png
+.venv/bin/python scripts/check_meshes.py         # read the files back, check them against the manifest
+.venv/bin/python -m unittest discover -s tests   # the unit tests, with the registrations' test
 git status --short                               # the part's files, the manifest and the pictures
 ```
 
@@ -147,7 +147,7 @@ python3 -m venv .lint && .lint/bin/pip install -r scripts/requirements-lint.txt
 - End the description with `Closes #N` when your pull request resolves issue N. If the issue stays open, name it without a closing keyword, for example `Part of #N`.
 - Sign your commits with GPG: `git commit -S`.
 - If a robot's model has to change with yours, open the matching pull request in the robot's repository and link the two.
-- **Checks:** new logic in a generator or a script comes with a check of a property that a reader can see, such as a dimension or a frame's position. Its expected value comes from the part's source, not from the generated files. A fix of a generator or a check comes with a check that fails without it. Both live where CI runs them: in the generator, in `scripts/check_meshes.py` or in a script of its own that CI runs.
+- **Checks:** new logic in a generator or a script comes with a check of a property that a reader can see, such as a dimension or a frame's position. Its expected value comes from the part's source, not from the generated files. A fix of a generator or a check comes with a check that fails without it. Both live where CI runs them: in the generator, in `scripts/check_meshes.py`, in a unit test in `tests/`, which the job "Mesh checks" runs, or in a script of its own that CI runs.
 
 ## AI-assisted contributions
 

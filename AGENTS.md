@@ -67,14 +67,15 @@ The first command below rewrites every file in `meshes/` and the manifest. Run i
 git status --short meshes                 # the files you meant to change, and no others
 ```
 
-Then run the commands of [Check a checkout](#check-a-checkout). Meshes for a pull request have to come from CI's environment, or CI's regeneration check fails: [The generator environment in a container](CONTRIBUTING.md#the-generator-environment-in-a-container) shows how to regenerate in CI's image.
-
-When a part's look changed, render the README's pictures again. This command rewrites the PNG files in `docs/images/`, which are tracked: one picture per part and the overview `all_parts.png`, which the README shows first. CI doesn't compare them, and another graphics driver gives slightly other pixels. Commit the picture of each part you changed together with the overview, and put back the pictures that differ without a change to their part. A new part gets its pictures from two entries in `scripts/render_parts.py`: add the part to `PARTS` for its own picture, and to a row of `OVERVIEW_ROWS` for the overview:
+When a part's look changed, render the README's pictures again. These commands rewrite the PNG files in `docs/images/`, which are tracked: one picture per part, the overview `all_parts.png`, which the README shows first, and one frame picture per part in `docs/images/frames/`. CI doesn't compare their pixels, and another graphics driver gives slightly other pixels. Commit the pictures of each part you changed together with the overview, and put back the pictures that differ without a change to their part. A new part gets its pictures from three entries: in `scripts/render_parts.py`, the part in `PARTS` for its own picture and in a row of `OVERVIEW_ROWS` for the overview, and in `scripts/render_frames.py`, a function for the frame picture and its entry in `FIGURES`. CI's unit tests (`tests/test_registrations.py`) fail for a new part without these entries and pictures, so render them before you run the checks:
 
 ```bash
-.venv/bin/python scripts/render_parts.py
-git status --short docs/images            # the changed part's picture and all_parts.png, and no others
+.venv/bin/python scripts/render_parts.py          # docs/images/<part>.png and all_parts.png
+.venv/bin/python -m scripts.render_frames         # docs/images/frames/<part>.png
+git status --short docs/images                    # the changed part's pictures and all_parts.png, and no others
 ```
+
+Then run the commands of [Check a checkout](#check-a-checkout). Meshes for a pull request have to come from CI's environment, or CI's regeneration check fails: [The generator environment in a container](CONTRIBUTING.md#the-generator-environment-in-a-container) shows how to regenerate in CI's image.
 
 ## Code
 
@@ -87,7 +88,7 @@ git status --short docs/images            # the changed part's picture and all_p
 - **Type hints and docstrings:** type hints on every function you add or change. PEP 257 docstrings: a function's first line is a command. A generator's module docstring names the sources its dimensions come from.
 - **What the style check covers:** CI's job "Code style" runs flake8 with the ament_flake8 settings and mypy for Python 3.8 on the generators, scripts and tests, with the tools pinned in `scripts/requirements-lint.txt` and the settings in `setup.cfg`. `setup.cfg` sets `disallow_untyped_defs`, so mypy reports every function without type hints.
 - **Comments:** they say why, or where a value comes from. A source that a comment cites is listed on the part's provenance page.
-- **Checks for new logic:** a new shape, a new step of the export or a new function of a script comes with a check of a property that a reader can see: a dimension, the position of a frame or a count. The expected value comes from the part's source or from the generator's parameter block, never from the generated files. A wrong mesh that is regenerated with its manifest agrees with its manifest. Put the check where CI runs it: as a `check_…()` function that the generator calls, which the job "Regenerate meshes" runs with every regeneration, or in `scripts/check_meshes.py`, which the job "Mesh checks" runs.
+- **Checks for new logic:** a new shape, a new step of the export or a new function of a script comes with a check of a property that a reader can see: a dimension, the position of a frame or a count. The expected value comes from the part's source or from the generator's parameter block, never from the generated files. A wrong mesh that is regenerated with its manifest agrees with its manifest. Put the check where CI runs it: as a `check_…()` function that the generator calls, which the job "Regenerate meshes" runs with every regeneration, in `scripts/check_meshes.py`, or as a unit test in `tests/test_<topic>.py`, which the job "Mesh checks" runs with `python -m unittest discover -s tests`. A unit test suits a known input and its expected result, such as `tests/test_gltf_colours.py` with an sRGB colour and its linear value, and a broken input that a check has to report.
 - **Fixes:** a fix of a generator or a check comes with a check that fails without it.
 
 The first two lines below leave the reader to remember which number is the height. The type under them names it:
