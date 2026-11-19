@@ -2,20 +2,21 @@
 # SPDX-License-Identifier: BSD-3-Clause
 """Generate the 65 mm wheel for TT gear motors: yellow five-spoke rim, black block-tread tyre.
 
-Modelled from caliper measurements of the real wheel (tyre taken off the rim), photos and video
-frames of DiffBot's and Remo's wheels, shop photos and product listings. The rim is a barrel with
-a flange at each end, four grooves and three ridges between them, and axial ribs across the
-two middle grooves. The outer flange's face is flat with a fine groove. Inside, a lip stands
-inward behind the outer face. Behind the lip the barrel's inside widens towards the motor
-side. Five flat tapered spokes run outwards from the hub's face. They pass in front of the
-lip, and each spoke's end comes down onto the lip in a round. Each spoke has a round dimple
-with a rounded rim. Behind each spoke stands a fin, tall at the barrel and low at the hub. A
-bowl is recessed into the spokes' central face, with the centre boss and four small pins in
-it. On the motor side the cup's back is flat with a rounded edge. Five bulges stand on it
-around the hub tube's foot, one where each fin starts. The tyre is a hollow section like a
-car tyre's: its beads sit inside the rim in the grooves next to the flanges, its sidewalls
-rise over the flanges and are widest halfway up, and its wall is about equally thick
-everywhere. Sources in provenance/tt_motor_wheel_65mm.md.
+Modelled from caliper measurements and estimates on the real wheel (tyre taken off the rim),
+photos and video frames of DiffBot's and Remo's wheels, shop photos and product listings. The
+rim is a barrel with a flange at each end, four grooves and three ridges between them, and axial
+ribs across the two middle grooves. The outer flange's face is flat with a fine groove. Inside,
+a lip stands inward behind the outer face. Behind the lip the barrel's inside widens towards the
+motor side. Five flat tapered spokes run outwards from the hub's face. They pass in front of the
+lip, and each spoke's end comes down onto the lip in a round. Each spoke has a round dimple with
+a rounded rim. Behind each spoke stands a fin, tall at the barrel and low at the hub. A bowl is
+recessed into the spokes' central face, with the centre boss and four small pins in it. On the
+motor side the cup's back is flat with a rounded edge. Five bulges stand on it around the hub
+tube's foot, one where each fin starts. They and the notches between them leave the plate
+straight along the axle, with a sharp edge in each notch. The tyre is a hollow section like a
+car tyre's: its beads sit inside the rim in the grooves next to the flanges, its sidewalls rise
+over the flanges and are widest halfway up, and its wall is about equally thick everywhere.
+Sources in provenance/tt_motor_wheel_65mm.md.
 
 Frame (positions in mm, the files are in metres): the axle along z. The wheel's outer face is
 at z = -13 mm: the rim's outer flange face, flush with the tyre's sidewall at its widest. The rim's
@@ -23,8 +24,10 @@ motor-side flange face is at +12.00 mm and the hub tube's end at +15.42 mm.
 """
 import math
 from typing import List
+from typing import Optional
 from typing import Sequence
 from typing import Tuple
+from typing import Union
 
 import cadquery as cq
 from OCP.BRepBuilderAPI import BRepBuilderAPI_NurbsConvert
@@ -44,6 +47,7 @@ TITLE = 'Wheel 65 mm for TT gear motors (DiffBot, Remo)'
 #   tip photo a close photo across the outer face: the spokes' tips and the lip
 #   video     video frames of DiffBot's wheel
 #   measured  caliper measurement of the real wheel, without a photo
+#   estimated not measured with calipers: a value estimated on the real wheel
 #   derived   follows from other values in this file
 #   choice    not measured: an estimate that looks like the photos. "fits the part" marks a
 #             choice that was held against the real wheel and found right, without a reading
@@ -136,9 +140,12 @@ LIP_INNER_D = 40.8           # measured. The lip stands 2.01 inward at its front
 BOSS_D = 9.69                # p23
 BOSS_CHAMFER = 0.3           # choice
 BOWL_EDGE_D = 17.9           # p41 img.: the bowl's edge in the spokes' face
-BOWL_D = 17.62               # p21: inside jaws in the bowl at about the boss's top
-# Below that the wall rounds into the floor: p20 reads 14.07 with the jaws deeper in the bowl
-BOWL_FLOOR_D = 13.8          # p41 img.: the wall's foot at r 6.9
+# The wall runs straight down from the edge and turns into the flat floor with a quarter
+# ellipse (measured: the shape). p21 reads 17.62 inside jaws at about the boss's top, p20 14.07
+# with the jaws deeper in the bowl
+BOWL_FLOOR_D = 13.8          # p41 img.: where the wall's round starts on the floor, r 6.9
+BOWL_ROUND_ALONG_FLOOR = 1.7  # estimated: the round's semi-axis along the floor
+BOWL_ROUND_ALONG_WALL = 4.5   # estimated: the round's semi-axis along the wall
 BOWL_DEPTH = 5.0             # measured: the floor behind the spokes' face
 BOSS_TOP_DEPTH = 3.0         # measured: the boss's top behind the spokes' face
 BOWL_FLOOR = 1.2             # choice: the floor's thickness, to the cup's back on the motor side
@@ -147,9 +154,12 @@ BOWL_EDGE_ROUND = 0.2        # choice
 BOSS_FILLET = 0.3            # choice: where the boss meets the floor
 CUP_D = 20.64                # p24: the bowl's outside behind the face, between the spokes
 HUB_PINS = 4                 # p41 img.: four small pins on the bowl's floor, 90 deg apart
-HUB_PIN_R = 6.4              # p41 img.: at the foot of the bowl's wall
+# estimated: the pins' centres from the axle. Their feet end where the bowl's round starts on
+# the floor, 6.3 + 0.6 = 6.9
+HUB_PIN_R = 6.3
 HUB_PIN_D = 1.2              # measured
 HUB_PIN_HEIGHT = 1.45        # measured: above the bowl's floor, the tops below the boss's top
+HUB_PIN_INTO_FLOOR = 0.01    # choice: the pins reach this far into the floor: the solids overlap
 HUB_PIN_ANGLE = 0.0          # p41 img.: one pin in line with a spoke
 WEB_R = 11.2                 # p41 img.: windows start at r 11.4 between the spokes; cup 10.32
 
@@ -181,24 +191,30 @@ SPOKE_MARK_ROUND = 0.3       # choice: the round of the dimple's rim
 SPOKE_MARK_BOTTOM = 0.3      # choice: the radius of the dimple's rounded bottom
 
 # Motor side
-# The cup's back is flat (the plate), and its outer edge is rounded. Around the hub tube's foot
-# five bulges stand on the plate, one where each fin starts, with a notch between each two
-# (measured: the shapes). Seen along the axle, the bulges and the notches form a smooth wave: a
-# round on each bulge and a round the other way in each notch. Seen from the side, a bulge's
-# top runs level from its edge on the plate to where its fin's edge ends. There it turns with
-# a round into a steep straight end, which meets the hub tube. In a notch the plate runs in
-# to the tube, which stands on it with a small round
+# The cup's back is flat (the plate), and its outer edge is rounded with a quarter ellipse.
+# Around the hub tube's foot five bulges stand on the plate, one where each fin starts, with a
+# notch between each two (measured: the shapes). Seen along the axle, the bulges and the notches
+# form a smooth wave: a round on each bulge and a round the other way in each notch. The wave
+# leaves the plate straight along the axle, with a sharp edge in a notch (measured: no round
+# there), and ends on a plane across the axle, where the bulges meet the hub tube. A bulge
+# turns with a round from its level top into that plane
 HUB_COLLAR_D = 15.27         # p15: across the bulges; taken as the circle around their tops
-HUB_PLATEAU = 1.0            # measured: the plate beside a bulge, out to the cup's rounded edge
-CUP_BACK_ROUND = CUP_D / 2 - HUB_COLLAR_D / 2 - HUB_PLATEAU  # the cup's back edge: follows, 1.685
-HUB_BULGE_WIDTH = 3.47       # p18, p19: across a bulge, HUB_BULGE_WIDTH_BELOW below its top
-HUB_BULGE_WIDTH_BELOW = 1.0  # choice (sketch): where on a bulge that width is taken
-HUB_NOTCH_D = 11.0           # choice (photo, sketch): across the notches' bottoms on the plate
-HUB_NOTCH_FOOT = 15.0        # choice: the tube's foot round meets the plate at this angle (deg)
+HUB_PLATEAU = 0.1            # estimated: the plate beside a bulge, out to the cup's rounded edge
+# derived: the cup's back round along the plate, 2.585
+CUP_BACK_ROUND_ALONG_PLATE = CUP_D / 2 - HUB_COLLAR_D / 2 - HUB_PLATEAU
+# estimated: the round along the cup's outside. 4.5 is the most hub() builds: there the round
+# starts at the spokes' back, 4.5 before the plate
+CUP_BACK_ROUND_ALONG_SIDE = 4.5
+HUB_BULGE_WIDTH = 3.47       # p18, p19: across a bulge; where on it follows (bulge_width_depth())
+# estimated: the round over a bulge, seen along the axle. It is HUB_BULGE_WIDTH wide 0.553 below
+# the bulge's top
+HUB_BULGE_RADIUS = 3.0
+HUB_NOTCH_ROUND = 2.5        # estimated: the round in a notch; the notches' bottoms follow
 HUB_COLLAR_START = 17.5      # measured: where the bulges meet the hub tube, before its end
-HUB_BULGE_ROUND = 1.6        # choice (sketch): the round between a bulge's top and its end
-HUB_COLLAR_INSIDE = 0.05     # choice: the bulges' end runs on this far inside the hub tube
-HUB_NOTCH_SINK = 0.3         # choice: between two bulges their surface sinks this far in
+# choice (sketch): the round between a bulge's end and its top. It must end above the notches'
+# bottoms (bulge_top_end()), so its limit depends on the notch's round: with the bulge's round of
+# 3.0 and the notch's round of 2.5 the bottoms lie on r 6.028, and the limit is 1.607
+HUB_BULGE_ROUND = 1.6
 HUB_TUBE_D = 9.95            # p29, p30: 9.97 and 9.92
 HUB_TUBE_CHAMFER = 0.5       # choice
 BORE_D = 5.44                # p14: the round side; p12, p13 tube wall 2.10 and 2.34
@@ -211,8 +227,10 @@ BORE_FLATS = 3.66            # listings (X2 Robotics, VXB); not measured
 FIN_THICKNESS = 1.51         # p31
 FIN_BARREL_END = 12.0        # measured: the edge meets the barrel, before the motor-side face
 FIN_HUB_END = 19.3           # measured: the edge meets the hub, before the hub tube's end
-FIN_BARREL_CORNER_R = 18.6   # choice (sketch): where the edge turns near the barrel, from the axle
-FIN_ROUND = 3.0              # choice: the radius of the two rounds
+FIN_BARREL_CORNER_R = 16.6   # estimated: where the edge turns near the barrel, from the axle
+# estimated: the radius of the edge's two rounds. The edge turns by about 25 deg at each, so a
+# round leaves the sharp corner by only about 0.02 of its radius
+FIN_ROUND = 3.5
 
 # Derived positions
 RIM_FACE_Z = TYRE_OUTER_FACE_Z + TYRE_BULGE   # F: the outer flange face, -13.0
@@ -716,18 +734,20 @@ def fin() -> cq.Workplane:
     if not (landing < inner[0] < outer[0] - 2 * FIN_ROUND and outer[0] < BARREL_LIP_D / 2
             and CUP_BACK_Z < low < HUB_COLLAR_END_Z and low < high < RIM_INNER_FACE_Z):
         raise ValueError("the fin's edge must run from the barrel down to its bulge at the hub")
-    # inside the cup: a quarter circle 0.3 mm inside the cup's rounded back edge
-    centre = (CUP_D / 2 - CUP_BACK_ROUND, CUP_BACK_Z - CUP_BACK_ROUND)
-    radius = CUP_BACK_ROUND - 0.3
-    k = radius / math.sqrt(2)
-    return trace_path((centre[0] + radius, back), [
+    # inside the cup: a quarter ellipse with semi-axes 0.3 mm shorter than the cup's rounded
+    # back edge's, so it stays inside that edge
+    centre = (CUP_D / 2 - CUP_BACK_ROUND_ALONG_PLATE, CUP_BACK_Z - CUP_BACK_ROUND_ALONG_SIDE)
+    along_plate, along_side = CUP_BACK_ROUND_ALONG_PLATE - 0.3, CUP_BACK_ROUND_ALONG_SIDE - 0.3
+    if not (along_plate > 0 and along_side > 0):
+        raise ValueError("the fin's end must fit inside the cup's rounded back edge")
+    return trace_path((centre[0] + along_plate, back), [
         ('line', (in_lip, back)), ('line', (in_lip, lip)), ('line', (wall, lip)),
         ('line', (wall, high)),
         *fillet_corner(outer, FIN_ROUND, (1.0, 0.0), along),
         *fillet_corner(inner, FIN_ROUND, (-along[0], -along[1]), (-1.0, 0.0)),
-        ('line', (tube, low)), ('line', (tube, centre[1] + radius)),
-        ('line', (centre[0], centre[1] + radius)),
-        ('arc', (centre[0] + k, centre[1] + k), (centre[0] + radius, centre[1]))],
+        ('line', (tube, low)), ('line', (tube, centre[1] + along_side)),
+        ('line', (centre[0], centre[1] + along_side)),
+        ellipse(centre, along_plate, along_side, 90, 0)],
         FIN_THICKNESS / 2).extrude(FIN_THICKNESS)
 
 
@@ -735,22 +755,66 @@ def collar_rounds() -> Tuple[float, float, float, float]:
     """Return the two rounds of the bulges' outline on the plate, seen along the axle.
 
     The result is the distance from the axle to the centre of a bulge's round, that round's
-    radius, and the same two values of a notch's round. A bulge's round has its centre on the
-    bulge's centre line and passes through the bulge's top. HUB_BULGE_WIDTH_BELOW below the
-    top it is HUB_BULGE_WIDTH wide. A notch's round has its centre on the notch's centre line,
-    outside the bulges. Its bottom lies on the circle of HUB_NOTCH_D, and it touches the two
-    bulges' rounds beside it.
+    radius, and the same two values of a notch's round. A bulge's round, of HUB_BULGE_RADIUS,
+    has its centre on the bulge's centre line and passes through the bulge's top. It is
+    HUB_BULGE_WIDTH wide bulge_width_depth() below the top. A notch's round, of
+    HUB_NOTCH_ROUND, has its centre on the notch's centre line, outside the bulges, and touches
+    the two bulges' rounds beside it. Its bottom (its centre's distance less its radius)
+    follows. Each round is drawn as a distance from the axle at each angle (collar_outline()),
+    so the two must touch where both face away from the axle: there the outline goes on round
+    the axle without folding back. The measured width's two ends must lie on the bulge's round,
+    between its top and the touch point: past it the notch's round takes over, and the bulge
+    would be wider there than measured.
     """
-    top, half, bottom = HUB_COLLAR_D / 2, HUB_BULGE_WIDTH / 2, HUB_NOTCH_D / 2
-    bulge_r = (HUB_BULGE_WIDTH_BELOW ** 2 + half ** 2) / (2 * HUB_BULGE_WIDTH_BELOW)
-    bulge_centre = top - bulge_r
-    toward = bulge_centre * math.cos(math.pi / SPOKES)   # the bulge's centre, on the notch's line
-    if not (HUB_TUBE_D / 2 < bottom < top - HUB_BULGE_WIDTH_BELOW and bottom - toward < bulge_r
-            and 0 < CUP_BACK_ROUND < CUP_D / 2 - top):
-        raise ValueError("the notches' bottoms must lie between the tube and the bulges' rounds")
-    notch_r = ((bottom ** 2 + bulge_centre ** 2 - 2 * bottom * toward - bulge_r ** 2)
-               / (2 * (bulge_r - bottom + toward)))
-    return bulge_centre, bulge_r, bottom + notch_r, notch_r
+    bulge_width_depth()                              # a whole circle holds the measured width
+    bulge_r = HUB_BULGE_RADIUS
+    bulge_centre = HUB_COLLAR_D / 2 - bulge_r
+    pitch = math.pi / SPOKES
+    # the notch round's centre lies HUB_NOTCH_ROUND + bulge_r from each bulge's centre
+    reach = (bulge_r + HUB_NOTCH_ROUND) ** 2 - (bulge_centre * math.sin(pitch)) ** 2
+    if not (0 < HUB_NOTCH_ROUND and 0 < bulge_centre and 0 < reach):
+        raise ValueError("a notch's round must touch the rounds of the two bulges beside it")
+    notch_centre = bulge_centre * math.cos(pitch) + math.sqrt(reach)
+    # where the rounds touch: bulge_r from the bulge's centre toward the notch's. The axle must
+    # lie on the bulge's side of their common tangent there, by 0.01 mm at least, so that the
+    # distances per angle at the join keep clear of the rounding
+    along, across = unit(notch_centre * math.cos(pitch) - bulge_centre,
+                         notch_centre * math.sin(pitch))
+    touch = (bulge_centre + bulge_r * along, bulge_r * across)
+    if not 0.01 < along * touch[0] + across * touch[1]:
+        raise ValueError("a notch's round must touch the bulges' rounds where they face away"
+                         ' from the axle')
+    # the measured width's end, seen from the bulge round's centre, up to the touch point
+    width_end = math.atan2(HUB_BULGE_WIDTH / 2, bulge_r - bulge_width_depth())
+    if not width_end <= math.atan2(across, along):
+        raise ValueError("a bulge's measured width must lie on its round, before the notches'"
+                         ' rounds take over')
+    bottom = notch_centre - HUB_NOTCH_ROUND
+    # a notch's wall near the hub tube's surface leaves two faces nearly on one another: with the
+    # bottom 0.017 mm inside the tube OCCT's union lost a whole bulge (and called the solid valid)
+    if not (BORE_D / 2 < bottom and abs(bottom - HUB_TUBE_D / 2) > 0.05):
+        raise ValueError("the notches' bottoms must lie outside the bore and off the hub tube's"
+                         ' surface')
+    return bulge_centre, bulge_r, notch_centre, HUB_NOTCH_ROUND
+
+
+def bulge_width_depth() -> float:
+    """Return how far below a bulge's top its round is HUB_BULGE_WIDTH wide, seen along the axle.
+
+    The round's centre lies HUB_BULGE_RADIUS below the top, so a chord of half the width w / 2
+    lies d below the top where r^2 = (w / 2)^2 + (r - d)^2: d = r - sqrt(r^2 - (w / 2)^2). A round
+    narrower than the width has no such chord.
+    """
+    half = HUB_BULGE_WIDTH / 2
+    if not half <= HUB_BULGE_RADIUS:
+        raise ValueError("a bulge's round must be at least as wide as the bulge's measured width")
+    return HUB_BULGE_RADIUS - math.sqrt(HUB_BULGE_RADIUS ** 2 - half ** 2)
+
+
+def notch_bottom() -> float:
+    """Return the distance from the axle to a notch's bottom on the plate."""
+    _, _, notch_centre, notch_r = collar_rounds()
+    return notch_centre - notch_r
 
 
 def bulge_round_end() -> float:
@@ -781,83 +845,49 @@ def collar_outline(angle: float) -> float:
             - math.sqrt(notch_r ** 2 - (notch_centre * math.sin(from_notch)) ** 2))
 
 
-def bulge_end_lean() -> float:
-    """Return the angle (rad) by which a bulge's straight end leans off a plane across the axle.
+def bulge_top_end() -> float:
+    """Return where a bulge's level top ends (z), toward the motor side.
 
-    On its centre line a bulge's top runs level, on the circle of HUB_COLLAR_D, from the
-    plate to FIN_HUB_END_Z. There a round of HUB_BULGE_ROUND turns it toward the axle. The
-    straight end leaves that round without a corner and meets the hub tube's surface at
-    HUB_COLLAR_END_Z, so its angle follows from the round's radius.
+    Seen from the side, a bulge leaves the hub tube along a plane across the axle at
+    HUB_COLLAR_END_Z and turns with a round of HUB_BULGE_ROUND into its level top, which runs
+    on the circle of HUB_COLLAR_D to the plate. So the top ends HUB_BULGE_ROUND before
+    HUB_COLLAR_END_Z. The round ends outside the hub tube and the notches' bottoms.
     """
-    along = HUB_COLLAR_END_Z - FIN_HUB_END_Z                # from the top's end to the tube
-    toward = HUB_COLLAR_D / 2 - HUB_BULGE_ROUND - HUB_TUBE_D / 2  # the round's centre, off it
-    if not (CUP_BACK_Z < FIN_HUB_END_Z and HUB_COLLAR_END_Z < HUB_TUBE_END_Z - HUB_TUBE_CHAMFER
-            and 0 < HUB_BULGE_ROUND < along and toward > 0):
-        raise ValueError("a bulge's round must fit between its level top and the hub tube")
-    return math.acos(HUB_BULGE_ROUND / math.hypot(along, toward)) - math.atan2(toward, along)
+    top_end = HUB_COLLAR_END_Z - HUB_BULGE_ROUND
+    lowest = max(HUB_TUBE_D / 2, notch_bottom())
+    if not (CUP_BACK_Z < top_end and HUB_COLLAR_END_Z < HUB_TUBE_END_Z - HUB_TUBE_CHAMFER
+            and 0 < HUB_BULGE_ROUND < HUB_COLLAR_D / 2 - lowest):
+        raise ValueError("a bulge's round must fit between its level top and the hub tube"
+                         " and the notches' bottoms")
+    return top_end
 
 
 def bulge_top(z: float) -> float:
     """Return a bulge's distance from the axle on its centre line at z.
 
-    The level top goes on below the plate. The straight end goes on inside the hub tube, to
-    HUB_COLLAR_INSIDE inside the tube's surface, so that the bulge's surface crosses the
-    tube's surface instead of touching it.
+    The level top goes on below the plate. Past HUB_COLLAR_END_Z, where the bulge ends, the
+    round's last value stands: the bulges' surface ends there (collar_heights()).
     """
-    lean = bulge_end_lean()
-    past = z - FIN_HUB_END_Z                                        # past the level top's end
+    top_end = bulge_top_end()
+    past = min(z - top_end, HUB_BULGE_ROUND)                     # past the level top's end
     if past <= 0:
         return HUB_COLLAR_D / 2
-    if past <= HUB_BULGE_ROUND * math.cos(lean):
-        return HUB_COLLAR_D / 2 - HUB_BULGE_ROUND + math.sqrt(HUB_BULGE_ROUND ** 2 - past ** 2)
-    return HUB_TUBE_D / 2 + max((HUB_COLLAR_END_Z - z) / math.tan(lean), -HUB_COLLAR_INSIDE)
-
-
-def notch_foot_round() -> Tuple[float, float]:
-    """Return the round at the hub tube's foot in a notch: its radius, its length along the axle.
-
-    The round is concave. It leaves the plate at the notch's bottom (HUB_NOTCH_D) at the angle
-    HUB_NOTCH_FOOT, so that its surface crosses the plate's plane, and ends on the circle
-    HUB_COLLAR_INSIDE inside the hub tube in the tube's direction.
-    """
-    leave = math.radians(HUB_NOTCH_FOOT)
-    radius = ((HUB_NOTCH_D / 2 - HUB_TUBE_D / 2 + HUB_COLLAR_INSIDE) / (1 - math.sin(leave)))
-    return radius, radius * math.cos(leave)
-
-
-def notch_foot(z: float) -> float:
-    """Return the distance from the axle to the bulges' surface in a notch's middle at z.
-
-    From the plate up it is the tube's foot round. Above the round the surface lies inside
-    the hub tube and sinks HUB_NOTCH_SINK deeper within twice that length, so that between
-    two bulges the tube's own surface shows in a strip. Below the plate the round goes on as
-    a straight line in its direction at the plate.
-    """
-    radius, length = notch_foot_round()
-    leave = math.radians(HUB_NOTCH_FOOT)
-    above = z - CUP_BACK_Z
-    if above <= 0:
-        return HUB_NOTCH_D / 2 - above / math.tan(leave)
-    if above >= length:
-        sunk = min((above - length) / (2 * HUB_NOTCH_SINK), 1.0)
-        return HUB_TUBE_D / 2 - HUB_COLLAR_INSIDE - HUB_NOTCH_SINK * sunk ** 2 * (3 - 2 * sunk)
-    centre = HUB_NOTCH_D / 2 + radius * math.sin(leave)
-    return centre - math.sqrt(radius ** 2 - (length - above) ** 2)
+    return HUB_COLLAR_D / 2 - HUB_BULGE_ROUND + math.sqrt(HUB_BULGE_ROUND ** 2 - past ** 2)
 
 
 def collar_radius(angle: float, z: float) -> float:
     """Return the distance from the axle to the bulges' surface at z.
 
     angle (rad) is measured about the axle from a bulge's centre line. On that line the
-    surface is the bulge's top and end (bulge_top()), in a notch's middle the tube's foot
-    round and, above it, a line inside the tube (notch_foot()). Between the two it lies as the
-    outline on the plate lies between its top and its bottom. So each bulge leaves the tube's
-    surface along an arch.
+    surface is the bulge's top and its round (bulge_top()). In a notch's middle it is the
+    notch's bottom at every z: the notch's wall runs straight along the axle from the plate to
+    the bulges' end, with sharp edges at both. Between the two it lies as the outline on the
+    plate lies between its top and its bottom. So below the bulges' rounds the outline on the
+    plate runs on unchanged.
     """
-    bottom = HUB_NOTCH_D / 2
+    bottom = notch_bottom()
     weight = (collar_outline(angle) - bottom) / (HUB_COLLAR_D / 2 - bottom)
-    foot = notch_foot(z)
-    return foot + weight * (bulge_top(z) - foot)
+    return bottom + weight * (bulge_top(z) - bottom)
 
 
 def collar_reach(beside: float, z: float) -> float:
@@ -890,30 +920,20 @@ def collar_section(z: float) -> cq.Wire:
 
 
 def collar_heights() -> List[float]:
-    """Return the places (z) of the bulges' outlines, from inside the cup's back to the tube.
+    """Return the places (z) of the bulges' outlines, from inside the cup's back to their end.
 
-    They lie at even steps along the tube's foot round, and about 0.1 mm apart along a
-    bulge's level top, its round and its straight end, so that the surface through them
-    doesn't swing between them. The first lies 0.2 mm inside the cup's back, the last where
-    the bulge's end stops inside the hub tube.
+    They lie about 0.1 mm apart along a bulge's level top and along its round, so that the
+    surface through them doesn't swing between them. The first lies 0.2 mm inside the cup's
+    back, the last at HUB_COLLAR_END_Z, where the bulges end: the loft's end there is their
+    straight end, across the axle.
     """
-    foot_r, foot_length = notch_foot_round()
-    leave, lean = math.radians(HUB_NOTCH_FOOT), bulge_end_lean()
-    top_end = FIN_HUB_END_Z - CUP_BACK_Z                  # the level top's end, above the plate
-    round_end = top_end + HUB_BULGE_ROUND * math.cos(lean)
-    inside = HUB_COLLAR_END_Z - CUP_BACK_Z + HUB_COLLAR_INSIDE * math.tan(lean)
-    if not foot_length < top_end:
-        raise ValueError("a bulge's level top must reach past the tube's foot round")
-    foot = [foot_length - foot_r * math.cos(leave + (math.pi / 2 - leave) * k / 10)
-            for k in range(1, 11)]
-    steps = math.ceil((top_end - foot_length) / 0.1)
-    top = [foot_length + (top_end - foot_length) * k / steps for k in range(1, steps + 1)]
-    turn = math.pi / 2 - lean
-    steps = math.ceil(HUB_BULGE_ROUND * turn / 0.1)
-    turned = [top_end + HUB_BULGE_ROUND * math.sin(turn * k / steps) for k in range(1, steps + 1)]
-    steps = math.ceil((inside - round_end) / math.sin(lean) / 0.1)
-    end = [round_end + (inside - round_end) * k / steps for k in range(1, steps + 1)]
-    above = [-0.2, -0.15, -0.1, -0.05, 0.0] + foot + top + turned + end
+    top_end = bulge_top_end() - CUP_BACK_Z           # the level top's end, above the plate
+    steps = math.ceil(top_end / 0.1)
+    top = [top_end * k / steps for k in range(1, steps + 1)]
+    steps = math.ceil(HUB_BULGE_ROUND * math.pi / 2 / 0.1)
+    turned = [top_end + HUB_BULGE_ROUND * math.sin(math.pi / 2 * k / steps)
+              for k in range(1, steps)] + [HUB_COLLAR_END_Z - CUP_BACK_Z]
+    above = [-0.2, -0.15, -0.1, -0.05, 0.0] + top + turned
     if len(above) == 63:
         # OCCT 7.9's loft swings by tenths of a millimetre between its first outlines when it gets
         # exactly 63 of them. With one more it doesn't (tried: 52 to 65 outlines)
@@ -922,10 +942,11 @@ def collar_heights() -> List[float]:
 
 
 def collar() -> cq.Workplane:
-    """Return the five bulges at the hub tube's foot, with the tube's foot round in the notches.
+    """Return the five bulges at the hub tube's foot.
 
     They are one smooth surface through the outlines (collar_section()) at the places of
-    collar_heights(). Toward the axle the body is solid, so it reaches into the hub tube.
+    collar_heights(). Toward the axle the body is solid, so it reaches into the hub tube. The
+    loft's end at HUB_COLLAR_END_Z is flat: the bulges' straight end, across the axle.
     """
     outlines = [collar_section(z) for z in collar_heights()]
     return cq.Workplane('XY').newObject([cq.Solid.makeLoft(outlines)])
@@ -1046,37 +1067,140 @@ def ribs() -> cq.Workplane:
 def hub() -> cq.Workplane:
     """Return the hub: the bowl in the spokes' face with the boss in it, the cup and the tube.
 
-    The bowl's edge lies in the spokes' face with a small round. Its wall runs almost straight
-    down to the depth of the boss's top, then rounds into the flat floor. The boss stands on
-    the floor, its top below the face. Behind the face the bowl's outside (CUP_D) runs back to
-    the cup's back, whose edge is rounded. The cup's flat back carries the tube, and the
-    bulges (collar()) at the tube's foot.
+    The bowl's edge lies in the spokes' face with a small round. Its wall runs straight down and
+    touches a quarter ellipse, BOWL_ROUND_ALONG_WALL along the wall and BOWL_ROUND_ALONG_FLOOR
+    along the floor, which turns it into the flat floor at BOWL_FLOOR_D (bowl_wall_leave()). The
+    boss stands on the floor, its
+    top below the face. Behind the face the bowl's outside (CUP_D) runs back to the cup's back,
+    whose edge is rounded with a quarter ellipse, CUP_BACK_ROUND_ALONG_SIDE along the cup's
+    outside and CUP_BACK_ROUND_ALONG_PLATE along the plate. The cup's flat back carries the
+    tube, and the bulges (collar()) at the tube's foot.
     """
     face = SPOKE_FACE_Z
-    boss, edge, bowl, floor_r = BOSS_D / 2, BOWL_EDGE_D / 2, BOWL_D / 2, BOWL_FLOOR_D / 2
+    boss, edge, floor_r = BOSS_D / 2, BOWL_EDGE_D / 2, BOWL_FLOOR_D / 2
     boss_top, floor_z = BOSS_TOP_Z, BOWL_FLOOR_Z
     cup, tube = CUP_D / 2, HUB_TUBE_D / 2
-    if not boss + BOSS_FILLET < floor_r < bowl <= edge < cup:
+    along_floor, along_wall = BOWL_ROUND_ALONG_FLOOR, BOWL_ROUND_ALONG_WALL
+    along_plate, along_side = CUP_BACK_ROUND_ALONG_PLATE, CUP_BACK_ROUND_ALONG_SIDE
+    if not (0 < along_floor and 0 < along_wall
+            and boss + BOSS_FILLET < floor_r < floor_r + along_floor <= edge < cup):
         raise ValueError('the bowl needs boss < floor < wall <= edge < cup')
+    leave = bowl_wall_leave()
+    centre = (floor_r, floor_z - along_wall)
+    round_end = (centre[0] + along_floor * math.cos(leave),
+                 centre[1] + along_wall * math.sin(leave))
+    if not face + BOWL_EDGE_ROUND < round_end[1]:
+        raise ValueError("the bowl's round must end below its edge in the spokes' face")
     if not face < boss_top < floor_z < CUP_BACK_Z:
         raise ValueError("the boss's top must lie between the face and the floor")
     if not boss_top < BORE_END_Z < CUP_BACK_Z:
         raise ValueError('the bore must end inside the boss, behind its top')
-    if not (SPOKE_PLATE_BACK_Z <= CUP_BACK_Z - CUP_BACK_ROUND and floor_r < cup - CUP_BACK_ROUND
-            and HUB_COLLAR_D / 2 < cup - CUP_BACK_ROUND):
+    if not (0 < along_plate and 0 < along_side
+            and SPOKE_PLATE_BACK_Z <= CUP_BACK_Z - along_side and floor_r < cup - along_plate
+            and HUB_COLLAR_D / 2 < cup - along_plate):
         raise ValueError("the cup's rounded back edge and the bulges need room behind the spokes")
-    wall = unit(edge - bowl, face - boss_top)            # up the wall's straight part
+    wall = unit(edge - round_end[0], face - round_end[1])    # up the wall's straight part
     return revolve_path((0, boss_top), [
         ('line', (boss - BOSS_CHAMFER, boss_top)), ('line', (boss, boss_top + BOSS_CHAMFER)),
         *round_corner((boss, floor_z), BOSS_FILLET, (0, -1), (1, 0)),
         ('line', (floor_r, floor_z)),
-        ellipse((floor_r, boss_top), bowl - floor_r, floor_z - boss_top, 90, 0,
+        ellipse(centre, along_floor, along_wall, 90, math.degrees(leave),
                 directions=((1.0, 0.0), wall)),
         *fillet_corner((edge, face), BOWL_EDGE_ROUND, (-wall[0], -wall[1]), (1.0, 0.0)),
-        ('line', (cup, face)),
-        *round_corner((cup, CUP_BACK_Z), CUP_BACK_ROUND, (0, -1), (-1, 0)),
+        ('line', (cup, face)), ('line', (cup, CUP_BACK_Z - along_side)),
+        ellipse((cup - along_plate, CUP_BACK_Z - along_side), along_plate, along_side, 0, 90,
+                directions=((0.0, 1.0), (-1.0, 0.0))),
         ('line', (tube, CUP_BACK_Z)), ('line', (tube, HUB_TUBE_END_Z - HUB_TUBE_CHAMFER)),
         ('line', (tube - HUB_TUBE_CHAMFER, HUB_TUBE_END_Z)), ('line', (0, HUB_TUBE_END_Z))])
+
+
+def bowl_wall_leave() -> float:
+    """Return the angle (rad) of the bowl's quarter ellipse where its straight wall leaves it.
+
+    The wall runs from the round to the bowl's edge in the spokes' face (BOWL_EDGE_D) and
+    touches the round there, so the round turns into the wall without a corner. The angle is
+    measured at the ellipse's centre, from the direction away from the axle (0: the wall stands
+    parallel to the axle) toward the floor (90 deg: the round's start on the floor).
+    """
+    along_floor, along_wall = BOWL_ROUND_ALONG_FLOOR, BOWL_ROUND_ALONG_WALL
+    across = BOWL_EDGE_D / 2 - BOWL_FLOOR_D / 2     # from the ellipse's centre out to the edge
+    along = SPOKE_FACE_Z - (BOWL_FLOOR_Z - along_wall)
+    size = math.hypot(along_wall * across, along_floor * along)
+    leave = -1.0
+    if along_floor * along_wall < size:
+        leave = (math.atan2(along_floor * along, along_wall * across)
+                 + math.acos(along_floor * along_wall / size))
+    # a wall parallel to the axle leaves at 0, up to the rounding of the sums above
+    if not -1e-9 < leave < math.pi / 2:
+        raise ValueError("the bowl's wall must run straight from its round up to the bowl's edge")
+    return max(leave, 0.0)
+
+
+def pins_on_floor() -> bool:
+    """Return whether the pins' feet lie on the bowl's floor, between the boss and the round.
+
+    A foot may reach a little onto the floor's round, as long as the round rises less there
+    than the HUB_PIN_INTO_FLOOR that the pins reach into the floor.
+    """
+    inner, outer = HUB_PIN_R - HUB_PIN_D / 2, HUB_PIN_R + HUB_PIN_D / 2
+    onto_round = outer - BOWL_FLOOR_D / 2
+    if not BOSS_D / 2 + BOSS_FILLET < inner:
+        return False
+    if onto_round <= 0:
+        return True
+    if not onto_round < BOWL_ROUND_ALONG_FLOOR:
+        return False
+    rise = BOWL_ROUND_ALONG_WALL * (1 - math.sqrt(1 - (onto_round / BOWL_ROUND_ALONG_FLOOR) ** 2))
+    return rise < HUB_PIN_INTO_FLOOR
+
+
+def collar_probe(angle: float, z: float,
+                 bulges: Union[cq.Solid, cq.Compound]) -> Optional[cq.Vector]:
+    """Return a point inside the bulges near their surface at angle and z, or None.
+
+    The point lies 0.08 mm inside the outline of collar_radius() at z, across the outline (not
+    along the radius: near the join of a bulge's round and a notch's round the outline runs
+    nearly along the radius). If the lofted bulges (CadQuery's splines through the outline's
+    points) don't hold it, 0.16 and 0.32 mm are tried.
+    """
+    r, step = collar_radius(angle, z), 1e-6
+    slope = (collar_radius(angle + step, z) - collar_radius(angle - step, z)) / (2 * step)
+    # the outline's direction away from the axle, square to the outline
+    out_x, out_y = unit(slope * math.sin(angle) + r * math.cos(angle),
+                        r * math.sin(angle) - slope * math.cos(angle))
+    for inset in (0.08, 0.16, 0.32):
+        point = cq.Vector(r * math.cos(angle) - inset * out_x, r * math.sin(angle) - inset * out_y,
+                          z)
+        if bulges.isInside(point):
+            return point
+    return None
+
+
+def collar_kept(rim: cq.Workplane, bulges: cq.Workplane) -> bool:
+    """Return whether the rim's union kept the bulges' material.
+
+    OCCT's union can lose part of a bulge without an error and still return a valid solid: with
+    the notches' bottoms just inside the hub tube and a small HUB_COLLAR_D it did. So points
+    inside the bulges near their surface (collar_probe(), checked against the bulges before the
+    union) must lie inside the rim: round each bulge to the notches' middles, at the plate,
+    along the level top, in the side round and just before the bulges' end. A place where no
+    such point is found stops the build: the check would not cover it.
+    """
+    joined, alone = rim.findSolid(), bulges.findSolid()
+    pitch, top_end = math.pi / SPOKES, bulge_top_end()
+    heights = (CUP_BACK_Z + 0.1, (CUP_BACK_Z + top_end) / 2, top_end + HUB_BULGE_ROUND / 2,
+               HUB_COLLAR_END_Z - 0.1)
+    for k in range(SPOKES):
+        for step in range(-3, 5):                # a quarter of the pitch apart, to the notch
+            angle = 2 * pitch * k + pitch * step / 4
+            for z in heights:
+                point = collar_probe(angle, z, alone)
+                if point is None:
+                    raise ValueError("the check of the rim's union found no point inside the"
+                                     ' lofted bulges at one of its places')
+                if not joined.isInside(point):
+                    return False
+    return True
 
 
 def make_rim() -> cq.Workplane:
@@ -1092,18 +1216,23 @@ def make_rim() -> cq.Workplane:
     # The spokes' central face: an annulus from the cup to WEB_R (the bowl stays open)
     web = (cq.Workplane('XY', origin=(0, 0, SPOKE_FACE_Z)).circle(WEB_R)
            .circle(CUP_D / 2 - 0.2).extrude(SPOKE_PLATE_BACK_Z - SPOKE_FACE_Z))
-    one_spoke = spoke()
-    rim = union_all([barrel(), ribs(), hub(), collar(), web,
+    one_spoke, bulges = spoke(), collar()
+    rim = union_all([barrel(), ribs(), hub(), bulges, web,
                      *[one_spoke.rotate((0, 0, 0), (0, 0, 1), 360.0 * k / SPOKES)
                        for k in range(SPOKES)]])
+    if not collar_kept(rim, bulges):
+        raise ValueError("the rim's union must keep the bulges: OCCT lost part of one with these"
+                         ' values')
     bore_length = HUB_TUBE_END_Z - BORE_END_Z + 1
     bore = (cq.Workplane('XY', origin=(0, 0, BORE_END_Z)).circle(BORE_D / 2).extrude(bore_length)
             .intersect(cq.Workplane('XY', origin=(0, 0, BORE_END_Z))
                        .rect(BORE_FLATS, BORE_D + 1).extrude(bore_length)))
     rim = rim.cut(bore)
     # Small pins on the bowl's floor, a dimple with a rounded rim and bottom on each spoke
+    if not pins_on_floor():
+        raise ValueError("the pins must stand on the bowl's floor")
     pads = union_all([cq.Workplane('XY', origin=(HUB_PIN_R, 0, BOWL_FLOOR_Z - HUB_PIN_HEIGHT))
-                      .circle(HUB_PIN_D / 2).extrude(HUB_PIN_HEIGHT + 0.01)
+                      .circle(HUB_PIN_D / 2).extrude(HUB_PIN_HEIGHT + HUB_PIN_INTO_FLOOR)
                       .rotate((0, 0, 0), (0, 0, 1), HUB_PIN_ANGLE + 360.0 * k / HUB_PINS)
                       for k in range(HUB_PINS)])
     dimple = spoke_dimple()
