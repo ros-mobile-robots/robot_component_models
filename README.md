@@ -16,16 +16,16 @@ These are display models for visualisation in RViz, Gazebo and web viewers. They
 | [360 degree laser scanner, RPLIDAR A2 size](provenance/rplidar_a2.md) | <img src="docs/images/rplidar_a2.png" width="200" alt="Laser scanner"> | `rplidar_a2/rplidar_a2` | DiffBot, Remo | 13,014 | 651 / 718 / 332 kB |
 | [Raspberry Pi 4 Model B](provenance/raspberry_pi_4b.md) | <img src="docs/images/raspberry_pi_4b.png" width="200" alt="Raspberry Pi 4 Model B"> | `raspberry_pi_4b/raspberry_pi_4b` | Remo | 15,116 | 756 / 1,001 / 594 kB |
 | [Jetson Nano Developer Kit B01](provenance/jetson_nano_dev_kit_b01.md) | <img src="docs/images/jetson_nano_dev_kit_b01.png" width="200" alt="Jetson Nano Developer Kit"> | `jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01` | Remo | 5,696 | 285 / 396 / 252 kB |
-| [Teensy 4.0 with two 14-pin headers](provenance/teensy_4_0.md) | <img src="docs/images/teensy_4_0.png" width="200" alt="Teensy 4.0"> | `teensy_4_0/teensy_4_0` | Remo | 25,520 | 1,276 / 1,654 / 899 kB |
+| [Teensy 4.0 with two 14-pin headers](provenance/teensy_4_0.md) | <img src="docs/images/teensy_4_0.png" width="200" alt="Teensy 4.0"> | `teensy_4_0/teensy_4_0` | Remo | 25,520 | 1,276 / 1,654 / 900 kB |
 | [400-point solderless breadboard](provenance/breadboard_400_point.md) | <img src="docs/images/breadboard_400_point.png" width="200" alt="Breadboard"> | `breadboard_400_point/breadboard_400_point` | Remo | 6,768 | 338 / 428 / 290 kB |
 | [Raspberry Pi Camera Module v2](provenance/raspberry_pi_camera_v2.md) | <img src="docs/images/raspberry_pi_camera_v2.png" width="200" alt="Camera Module v2"> | `raspberry_pi_camera_v2/raspberry_pi_camera_v2` | Remo | 2,976 | 149 / 209 / 116 kB |
-| Wheel 65 × 25 mm | Planned | `wheel/…` | DiffBot, Remo | | |
+| [Wheel 65 mm for TT gear motors](provenance/tt_motor_wheel_65mm.md) | <img src="docs/images/tt_motor_wheel_65mm.png" width="200" alt="Wheel"> | `tt_motor_wheel_65mm/tt_motor_wheel_65mm` | DiffBot, Remo | 97,550 | 4,878 / 5,362 / 2,194 kB |
 
 Each mesh comes in three files in `meshes/<part>/`, all in metres:
 
 - `<name>.dae`: COLLADA 1.4.1, Z up, with coloured materials and one node per sub-part.
 - `<name>.stl`: binary STL, without colours.
-- `<name>.glb`: binary glTF 2.0 with the same materials, for web viewers. Each sub-part, such as a connector, is a named node, so a viewer can move the sub-parts apart.
+- `<name>.glb`: binary glTF 2.0 with the same materials, for web viewers. The COLLADA colours are sRGB values, as viewers show them, and the glTF base colours are the same colours as linear values, as glTF defines them. Metal parts are metallic, and the roughness follows from the COLLADA shininess. Each sub-part, such as a connector, is a named node, so a viewer can move the sub-parts apart.
 
 [`meshes/manifest.yaml`](meshes/manifest.yaml) lists every file with its checksum, size, units, frame, bounding box, triangle count, sub-parts and materials. The provenance page of each part, linked in the table, lists its sources, shows its frame in a picture, and says what was estimated or simplified and which measurements would improve it.
 
@@ -168,7 +168,7 @@ Without the path, gz-sim spawns the robot, logs `Unable to find file with URI [m
 
 - **ROS 1 Noetic, RViz and Gazebo Classic 11:** the COLLADA and STL files in DiffBot's and Remo's descriptions.
 - **ROS 2 Humble:** CI checks the package's build and install.
-- **ROS 2 Jazzy, RViz 2 and gz-sim:** the glTF files, with the result in the table above, and the camera's STL file. RViz 2 and gz-sim haven't drawn the COLLADA files and the other STL files in a test yet.
+- **ROS 2 Jazzy, RViz 2 and gz-sim:** the camera's STL file, and glTF files with the same shapes and with sRGB values as base colours. The 90° turn and the dark metals in the table above come from that test. VTK's glTF importer drew a few examples with linear base colours. RViz 2 and gz-sim haven't drawn the glTF files with linear base colours, the COLLADA files and the other STL files in a test yet.
 
 ## Mesh conventions
 
@@ -230,7 +230,7 @@ The models are written with CadQuery because its models are plain Python driven 
 [CI](.github/workflows/ci.yml) runs on every pull request:
 
 1. **Regeneration**: regenerates all parts twice in the generator environment, each time into a new folder, and fails if any file differs from the manifest's checksum. The check only reads `meshes/`.
-2. **Mesh checks**: every STL is closed and consistently oriented. Triangle counts, units and bounding boxes match the manifest. Each COLLADA and glTF file holds the triangles of its STL file, with the same winding. The COLLADA files are valid against the COLLADA 1.4.1 schema and load in pycollada. The glTF files load in trimesh and pass the Khronos glTF Validator. The job also runs the unit tests in [`tests/`](tests/): the generators' command line, the grouping of a model's pieces by material, the comparison of the three formats, the comparison of installed provenance pages with the repository's, and that every part is registered for its pictures, its provenance page and the README.
+2. **Mesh checks**: every STL is closed and consistently oriented. Triangle counts, units and bounding boxes match the manifest. Each COLLADA and glTF file holds the triangles of its STL file, with the same winding. The COLLADA files are valid against the COLLADA 1.4.1 schema and load in pycollada. The glTF files load in trimesh and pass the Khronos glTF Validator. The job also runs the unit tests in [`tests/`](tests/): the generators' command line, the grouping of a model's pieces by material, the glTF files' linear base colours, the comparison of the three formats, the comparison of installed provenance pages with the repository's, and that every part is registered for its pictures, its provenance page and the README.
 3. **ROS packages**: builds and installs the package in the `ros:noetic` and `ros:humble` containers and checks that the installed `share/robot_component_models` holds exactly the manifest's files, their license files, the manifest, each part's provenance page, generator and frame picture, the generators' other Python files, `LICENSE`, `package.xml` and the build tools' own files. Each of these files can be read, each installed provenance page is the repository's page, each page of the manifest exists in the repository, and each relative link of an installed page leads to an installed file. The ROS 1 build is checked with `catkin_make_isolated` and with colcon.
 4. **Code style**: flake8 with ROS 2's ament_flake8 settings and mypy, which requires type hints on every function, on the generators, scripts and tests.
 
