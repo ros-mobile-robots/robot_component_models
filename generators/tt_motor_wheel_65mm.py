@@ -15,8 +15,8 @@ motor side the cup's back is flat with a rounded edge. Five bulges stand on it a
 tube's foot, one where each fin starts. They and the notches between them leave the plate
 straight along the axle, with a sharp edge in each notch. The tyre is a hollow section like a
 car tyre's: its beads sit inside the rim in the grooves next to the flanges, its sidewalls rise
-over the flanges and are widest halfway up, and its wall is about equally thick everywhere.
-Sources in provenance/tt_motor_wheel_65mm.md.
+over the flanges and are widest about halfway up, and its wall is about equally thick
+everywhere. Sources in provenance/tt_motor_wheel_65mm.md.
 
 Frame (positions in mm, the files are in metres): the axle along z. The wheel's outer face is
 at z = -13 mm: the rim's outer flange face, flush with the tyre's sidewall at its widest. The rim's
@@ -58,8 +58,8 @@ TYRE_OUTER_FACE_Z = -13.0    # the outer face: 13 mm outboard of both robots' wh
 # Tyre: a hollow section like a car tyre's (the real tyre, p03-p09). Its wall is about equally
 # thick everywhere, so its inside follows its outside (measured). The beads at its inner
 # diameter sit inside the rim, in the grooves between the flanges and the outer ridges. The
-# sidewalls rise over the flanges and are widest halfway up, flush with the flanges' faces. The
-# crown is a little narrower
+# sidewalls rise over the flanges and are widest about halfway up, flush with the flanges'
+# faces. The crown is a little narrower
 TYRE_OUTER_D = 66.6          # measured on DiffBot: 66.3 and 66.8 (front_wheel.yaml)
 TYRE_WALL = 1.9              # measured (about): the wall's thickness, everywhere
 TYRE_BEAD_D = 50.0           # measured: the beads' inner diameter (p07, p08: bead to tread)
