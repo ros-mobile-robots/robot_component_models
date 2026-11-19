@@ -220,9 +220,6 @@ HUB_BULGE_RADIUS = 3.0
 HUB_NOTCH_ROUND = 0.35
 HUB_COLLAR_START = 17.5      # measured: where the bulges meet the hub tube, before its end
 HUB_BULGE_ROUND = 1.6        # choice (sketch): the round from a bulge's level top down to the tube
-# choice: the foot round, from the bulge's round into the tube, runs on this far inside the tube,
-# so that the two surfaces cross. Its radius follows (bulge_end())
-HUB_FOOT_INSIDE = 0.05
 HUB_TUBE_D = 9.95            # p29, p30: 9.97 and 9.92
 HUB_TUBE_CHAMFER = 0.5       # choice
 BORE_D = 5.44                # p14: the round side; p12, p13 tube wall 2.10 and 2.34
@@ -798,10 +795,10 @@ def collar_rounds() -> Tuple[float, float, float, float]:
         raise ValueError("a bulge's measured width must lie on its round, before the notches'"
                          ' rounds take over')
     bottom = notch_centre - HUB_NOTCH_ROUND
-    # a notch's wall near the hub tube's surface leaves two faces nearly on one another: with the
-    # bottom 0.017 mm inside the tube OCCT's union lost a whole bulge (and called the solid valid)
-    if not (BORE_D / 2 < bottom and abs(bottom - HUB_TUBE_D / 2) > 0.05):
-        raise ValueError("the notches' bottoms must lie outside the bore and off the hub tube's"
+    # the notches stay off the tube (measured: they don't touch it). A notch's wall near the
+    # tube's surface would also leave two faces nearly on one another, which OCCT's union can lose
+    if not HUB_TUBE_D / 2 + 0.05 < bottom:
+        raise ValueError("the notches' bottoms must lie outside the hub tube, 0.05 mm off its"
                          ' surface')
     return bulge_centre, bulge_r, notch_centre, HUB_NOTCH_ROUND
 
@@ -853,45 +850,42 @@ def collar_outline(angle: float) -> float:
             - math.sqrt(notch_r ** 2 - (notch_centre * math.sin(from_notch)) ** 2))
 
 
-def bulge_end() -> Tuple[float, float, float]:
-    """Return where a bulge's level top ends (z), the foot round's radius and where it ends (z).
+def bulge_end() -> Tuple[float, float]:
+    """Return where a bulge's level top ends (z) and the foot round's radius.
 
     Seen from the side, a bulge's top runs level on the circle of HUB_COLLAR_D from the plate,
     turns down toward the axle with a round of HUB_BULGE_ROUND and runs into the hub tube with
     a round the other way, the foot round. The two rounds meet where both run square to the
-    axle. The foot round ends along a line HUB_FOOT_INSIDE inside the tube's surface, so its
-    radius follows, and it crosses the tube's surface at HUB_COLLAR_END_Z, where the bulges meet
-    the tube.
+    axle, and the foot round ends tangent to the tube's surface at HUB_COLLAR_END_Z, where the
+    bulges meet the tube. So the foot round's radius follows, and the two rounds take its sum
+    along the axle.
     """
-    inside = HUB_TUBE_D / 2 - HUB_FOOT_INSIDE
-    foot = HUB_COLLAR_D / 2 - HUB_BULGE_ROUND - inside
-    if not (0 < HUB_BULGE_ROUND and 0 < HUB_FOOT_INSIDE < foot):
+    foot = HUB_COLLAR_D / 2 - HUB_BULGE_ROUND - HUB_TUBE_D / 2
+    if not (0 < HUB_BULGE_ROUND and 0 < foot):
         raise ValueError("a bulge's rounds must fit between its level top and the hub tube")
-    # the foot round crosses the tube's surface this far before its end
-    before_end = math.sqrt(foot ** 2 - (foot - HUB_FOOT_INSIDE) ** 2)
-    foot_end = HUB_COLLAR_END_Z + before_end
-    top_end = foot_end - foot - HUB_BULGE_ROUND
-    if not (CUP_BACK_Z < top_end and foot_end < HUB_TUBE_END_Z - HUB_TUBE_CHAMFER):
+    top_end = HUB_COLLAR_END_Z - foot - HUB_BULGE_ROUND
+    if not (CUP_BACK_Z < top_end and HUB_COLLAR_END_Z < HUB_TUBE_END_Z - HUB_TUBE_CHAMFER):
         raise ValueError("a bulge's rounds must fit between the plate and the tube's end")
-    return top_end, foot, foot_end
+    return top_end, foot
 
 
 def bulge_profile(z: float) -> float:
     """Return a bulge's distance from the axle at z, on its centre line, seen from the side.
 
-    The level top goes on below the plate. Past the foot round's end the line HUB_FOOT_INSIDE
-    inside the tube stands, where the bulges are inside the tube.
+    The level top goes on below the plate. Past HUB_COLLAR_END_Z the tube's surface stands.
+    The square roots are kept off negative values that rounding gives at the rounds' ends.
     """
-    top_end, foot, foot_end = bulge_end()
+    top_end, foot = bulge_end()
     top = HUB_COLLAR_D / 2
     if z <= top_end:
         return top
     if z <= top_end + HUB_BULGE_ROUND:
         past = z - top_end
-        return top - HUB_BULGE_ROUND + math.sqrt(HUB_BULGE_ROUND ** 2 - past ** 2)
-    if z <= foot_end:
-        return top - HUB_BULGE_ROUND - math.sqrt(foot ** 2 - (foot_end - z) ** 2)
-    return top - HUB_BULGE_ROUND - foot
+        return top - HUB_BULGE_ROUND + math.sqrt(max(HUB_BULGE_ROUND ** 2 - past ** 2, 0.0))
+    if z <= HUB_COLLAR_END_Z:
+        before = HUB_COLLAR_END_Z - z
+        return top - HUB_BULGE_ROUND - math.sqrt(max(foot ** 2 - before ** 2, 0.0))
+    return HUB_TUBE_D / 2
 
 
 def collar_radius(angle: float, z: float) -> float:
@@ -946,19 +940,19 @@ def collar() -> cq.Workplane:
     (bulge_profile()) cuts it, so that the surface lies where collar_radius() puts it. Toward
     the axle the body is solid, so it reaches into the hub tube.
     """
-    top_end, foot, foot_end = bulge_end()
+    top_end, foot = bulge_end()
     top, corner = HUB_COLLAR_D / 2, HUB_COLLAR_D / 2 - HUB_BULGE_ROUND
-    inside = corner - foot
+    end_z = HUB_COLLAR_END_Z
     side_view = revolve_path((0, top_end), [
         ('line', (top, top_end)),
         ('arc', (corner + HUB_BULGE_ROUND * math.cos(math.pi / 4),
                  top_end + HUB_BULGE_ROUND * math.sin(math.pi / 4)),
          (corner, top_end + HUB_BULGE_ROUND)),
-        ('arc', (corner - foot * math.cos(math.pi / 4), foot_end - foot * math.sin(math.pi / 4)),
-         (inside, foot_end)),
-        ('line', (inside, foot_end + 0.3)), ('line', (0, foot_end + 0.3))])
+        ('arc', (corner - foot * math.cos(math.pi / 4), end_z - foot * math.sin(math.pi / 4)),
+         (HUB_TUBE_D / 2, end_z)),
+        ('line', (0, end_z))])
     level = collar_prism(CUP_BACK_Z - 0.2, top_end)
-    end = collar_prism(top_end, foot_end + 0.3).intersect(side_view)
+    end = collar_prism(top_end, end_z + 0.3).intersect(side_view)
     return level.union(end)
 
 
@@ -1185,6 +1179,22 @@ def collar_probe(angle: float, z: float,
     return None
 
 
+def foot_probe_height() -> float:
+    """Return a height (z) in the foot round where its surface lies 0.4 mm outside the tube.
+
+    There a point 0.08 to 0.32 mm inside the bulges (collar_probe()) is still outside the hub
+    tube, so the union check sees whether the foot round was kept. Where the foot round is too
+    small for that, the check can't cover it, and the build stops.
+    """
+    top_end, foot = bulge_end()
+    clearance = 0.4
+    if not clearance < foot:
+        raise ValueError("the foot round is too small for the check of the rim's union")
+    # on the foot round, top - HUB_BULGE_ROUND - sqrt(foot^2 - before^2) = tube + clearance
+    before = math.sqrt(foot ** 2 - (foot - clearance) ** 2)
+    return HUB_COLLAR_END_Z - before
+
+
 def collar_kept(rim: cq.Workplane, bulges: cq.Workplane) -> bool:
     """Return whether the rim's union kept the bulges' material.
 
@@ -1196,9 +1206,9 @@ def collar_kept(rim: cq.Workplane, bulges: cq.Workplane) -> bool:
     point is found stops the build: the check would not cover it.
     """
     joined, alone = rim.findSolid(), bulges.findSolid()
-    pitch, (top_end, foot, foot_end) = math.pi / SPOKES, bulge_end()
+    pitch, top_end = math.pi / SPOKES, bulge_end()[0]
     heights = (CUP_BACK_Z + 0.1, (CUP_BACK_Z + top_end) / 2, top_end + HUB_BULGE_ROUND / 2,
-               foot_end - foot / 2)
+               foot_probe_height())
     for k in range(SPOKES):
         for step in range(-3, 5):                # a quarter of the pitch apart, to the notch
             angle = 2 * pitch * k + pitch * step / 4
