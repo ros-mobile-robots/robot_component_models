@@ -38,6 +38,10 @@ LARGE_NOTCH_ROUND = 4.0
 # onto the boss's foot round
 PINS_ON_THE_ROUND = 6.42
 PINS_ON_THE_BOSS = 5.74
+# fin() asks the edge's inner corner to lie at least two rounds' radii inside the outer corner,
+# measured along the radius. The inner corner moves out as the round grows, so at the model's
+# other values the largest round that passes is about 4.080 mm
+FIN_ROUND_PAST_THE_SPACING_RULE = 4.1
 # The values with which OCCT's union lost part of a bulge and still returned a valid solid:
 # the notches' bottoms 0.05 mm inside the hub tube, a small circle of the bulges' tops
 UNION_LOSES_A_BULGE = {
@@ -163,9 +167,10 @@ class HubAndFinTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'need room behind the spokes'):
                 wheel.hub()
 
-    def test_fin_raises_a_value_error_for_rounds_that_overlap_along_the_edge(self) -> None:
-        """Make the fin's rounds so large that their corners lie less than 2 rounds apart."""
-        with with_values({'FIN_ROUND': 4.1}):
+    def test_fin_raises_a_value_error_for_corners_closer_than_two_radii_along_the_radius(
+            self) -> None:
+        """Make the rounds larger than half the corners' distance along the radius: an error."""
+        with with_values({'FIN_ROUND': FIN_ROUND_PAST_THE_SPACING_RULE}):
             with self.assertRaisesRegex(ValueError, "the fin's edge must run from the barrel"):
                 wheel.fin()
 
