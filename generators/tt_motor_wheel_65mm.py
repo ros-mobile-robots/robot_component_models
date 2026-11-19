@@ -69,7 +69,7 @@ TYRE_BEAD_ROUND = 0.5        # choice: the round where the sidewall's inside mee
 # The sidewalls stand this far past the flanges' faces at their widest: flush on the real
 # tyre, not measured (provenance: measurement 1)
 TYRE_BULGE = 0.0             # the real tyre
-TYRE_WIDEST_D = 59.2         # the real tyre: widest halfway between flange (51.22) and tread
+TYRE_WIDEST_D = 59.2         # the real tyre: widest about halfway between flange and tread
 TYRE_CROWN_WIDTH = 18.6      # choice (shop photos): the tread between the shoulders' rounds
 TYRE_CROWN_DROP = 0.25       # choice (shop photos): the crown's edges below its middle
 TYRE_SEAT_GAP = 0.02         # choice: the tyre stands this far off the rim
@@ -139,7 +139,9 @@ LIP_INNER_D = 40.8           # measured. The lip stands 2.01 inward at its front
 # (no raised ring), the boss standing in it below the face (p21, p23, p24, p41)
 BOSS_D = 9.69                # p23
 BOSS_CHAMFER = 0.3           # choice
-BOWL_EDGE_D = 17.9           # p41 img.: the bowl's edge in the spokes' face
+# p41 img.: the bowl's visible edge in the face-on photo, taken as where the straight wall
+# meets the spokes' face. BOWL_EDGE_ROUND then widens the opening at the face to 18.22
+BOWL_EDGE_D = 17.9
 # The wall runs straight down from the edge and turns into the flat floor with a quarter
 # ellipse (measured: the shape). p21 reads 17.62 inside jaws at about the boss's top, p20 14.07
 # with the jaws deeper in the bowl
