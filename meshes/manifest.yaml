@@ -36,8 +36,8 @@ parts:
             bounding_box_min: [-0.017000, -0.019000, -0.003300]
             bounding_box_max: [0.015000, 0.019000, 0.015000]
           swivel_caster_30mm/swivel_caster_30mm_base.glb:
-            sha256: ea28ea9b3e6afa5240532deb1075b7f611a0647a826b8fe5e10de05252ba2cfd
-            bytes: 656080
+            sha256: 600332044ea35e4a97db7dbe69f51d83f9cfdf8f53ec7d6c4ad2d5a7a050dc4a
+            bytes: 656100
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
             triangles: 32234
@@ -67,8 +67,8 @@ parts:
             bounding_box_min: [-0.020750, -0.012250, -0.024748]
             bounding_box_max: [0.012262, 0.012259, -0.000003]
           swivel_caster_30mm/swivel_caster_30mm_wheel_support.glb:
-            sha256: 377f36a4280ffc20450f2d5ff789665e610bf27a3d899977495189a5b2cb5032
-            bytes: 279848
+            sha256: de50fc10a92ed663fd8db1d5dd9caf1b5cd5fcc5eede65d1bad875b775c55135
+            bytes: 279872
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
             triangles: 12592
@@ -98,8 +98,8 @@ parts:
             bounding_box_min: [-0.014985, -0.007800, -0.014996]
             bounding_box_max: [0.015000, 0.007800, 0.014996]
           swivel_caster_30mm/swivel_caster_30mm_wheel.glb:
-            sha256: e2349a542a32a55e98af74b4066698a731720105fca088f49a36345bada4da0c
-            bytes: 120800
+            sha256: d1be8004bdcc2e57793fd2e3f673b728b56e26ae4932ad768b0d922f78281126
+            bytes: 120812
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
             triangles: 5572
@@ -134,8 +134,8 @@ parts:
             bounding_box_min: [-0.040850, -0.037845, -0.029850]
             bounding_box_max: [0.037850, 0.037845, 0.010950]
           rplidar_a2/rplidar_a2.glb:
-            sha256: b6119efb407fe153eabaf32497acf716436cc7c380e40889744ff5bc188d6070
-            bytes: 331712
+            sha256: cda28b4d3b17d8b00ab9522254e35d1aaf4c1eaf533d5d8bad021afba77b1bfb
+            bytes: 331748
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
             triangles: 13014
@@ -170,8 +170,8 @@ parts:
             bounding_box_min: [-0.007569, -0.042123, -0.002800]
             bounding_box_max: [0.050921, 0.045977, 0.016800]
           raspberry_pi_4b/raspberry_pi_4b.glb:
-            sha256: 60a5c2d2d0ec74b1f153f8fea56fb05c48da6de9a8503000020ed6c98be406a8
-            bytes: 594124
+            sha256: cecfcf20effa6a9156deff828f35306267c39d0722eeb7e01f7ab8b1098e6a4f
+            bytes: 594284
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
             triangles: 15116
@@ -206,8 +206,8 @@ parts:
             bounding_box_min: [-0.028982, -0.038847, -0.001950]
             bounding_box_max: [0.071018, 0.042223, 0.028250]
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.glb:
-            sha256: d0906541330813511817be7af236a926753ef69ea5d3367e38db42836ece2782
-            bytes: 251700
+            sha256: 14fdb09a26928b59ad087590814f04f50e3e54283cf6d5622db00427b99977f2
+            bytes: 251836
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
             triangles: 5696
@@ -242,8 +242,8 @@ parts:
             bounding_box_min: [-0.014629, -0.008922, -0.008500]
             bounding_box_max: [0.021631, 0.008858, 0.004355]
           teensy_4_0/teensy_4_0.glb:
-            sha256: de0cd3484747eded64f20e23ce0fac721f971d34ee9fa90d49a3bdd43ded907f
-            bytes: 899476
+            sha256: 6a5d03b299b1020aae40f7773d2c8c452ed6cbd6993c0947bc69c800712dc25d
+            bytes: 899724
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
             triangles: 25520
@@ -278,8 +278,8 @@ parts:
             bounding_box_min: [-0.028810, -0.046795, 0.000000]
             bounding_box_max: [0.027090, 0.037105, 0.009530]
           breadboard_400_point/breadboard_400_point.glb:
-            sha256: 0321a1163d52f4a91d06c9a31496baecb777150a68d8eda000713746a305c61a
-            bytes: 289508
+            sha256: 5588e7d2f95bccc4ff8c2753074cfd1aeb3b47f74dee075a6ea0436bb2b38dc2
+            bytes: 289564
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
             triangles: 6768
@@ -314,11 +314,47 @@ parts:
             bounding_box_min: [-0.004145, -0.012160, -0.012283]
             bounding_box_max: [0.004575, 0.012840, 0.011579]
           raspberry_pi_camera_v2/raspberry_pi_camera_v2.glb:
-            sha256: 2d4121901e558bbc73cbc2189f06055b8afc6e8d61c12f14b0f57213023908cb
-            bytes: 116152
+            sha256: f6f7d17571b1d0342d305c066e43adaed48c1b4fa0c19f2456f35bbb92dd5842
+            bytes: 116304
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
             triangles: 2976
             bounding_box_min: [-0.004145, -0.012160, -0.012283]
             bounding_box_max: [0.004575, 0.012840, 0.011579]
             license_file: raspberry_pi_camera_v2/raspberry_pi_camera_v2.glb.license
+  tt_motor_wheel_65mm:
+    title: "Wheel 65 mm for TT gear motors (DiffBot, Remo)"
+    generator: generators/tt_motor_wheel_65mm.py
+    provenance: provenance/tt_motor_wheel_65mm.md
+    meshes:
+      tt_motor_wheel_65mm:
+        frame: "The axle along z at x = y = 0, the wheel's outer face (the rim's outer flange face, flush with the tyre's sidewall at its widest) at z = -13 mm, the rim's motor-side flange face at z = +12.00 mm and the hub tube's end at z = +15.42 mm."
+        sub_parts: [rim, tyre]
+        materials: [rim, tyre]
+        files:
+          tt_motor_wheel_65mm/tt_motor_wheel_65mm.stl:
+            sha256: 6c69fcae3d99f97ef69a7d74717df4b8ab4129a9fb0422cf44e2da42ab40dbda
+            bytes: 4877584
+            units: metre
+            up_axis: "Z"
+            triangles: 97550
+            bounding_box_min: [-0.033299, -0.033298, -0.013000]
+            bounding_box_max: [0.033299, 0.033298, 0.015420]
+            license_file: tt_motor_wheel_65mm/tt_motor_wheel_65mm.stl.license
+          tt_motor_wheel_65mm/tt_motor_wheel_65mm.dae:
+            sha256: d8963d7175efc8dd5d833ad580b470a9b7d783e37c6552b761da9df02f4d2a81
+            bytes: 5362322
+            units: metre
+            up_axis: "Z"
+            triangles: 97550
+            bounding_box_min: [-0.033299, -0.033298, -0.013000]
+            bounding_box_max: [0.033299, 0.033298, 0.015420]
+          tt_motor_wheel_65mm/tt_motor_wheel_65mm.glb:
+            sha256: 29148d072cb3f893afbff5f0fe9e398b372e1a1fd519dd54f78f167f84b577fe
+            bytes: 2194204
+            units: metre
+            up_axis: "Y (the root node turns the Z-up vertex data)"
+            triangles: 97550
+            bounding_box_min: [-0.033299, -0.033298, -0.013000]
+            bounding_box_max: [0.033299, 0.033298, 0.015420]
+            license_file: tt_motor_wheel_65mm/tt_motor_wheel_65mm.glb.license
