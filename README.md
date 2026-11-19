@@ -166,7 +166,7 @@ Without the path, gz-sim spawns the robot, logs `Unable to find file with URI [m
 
 ### Tested so far
 
-- **ROS 1 Noetic, RViz and Gazebo Classic 11:** the COLLADA and STL files in DiffBot's and Remo's descriptions.
+- **ROS 1 Noetic, RViz and Gazebo Classic 11:** the COLLADA and STL files in DiffBot's and Remo's descriptions. The robots' drive wheels there are their own meshes, so the 65 mm wheel's files haven't been drawn in these scenes yet.
 - **ROS 2 Humble, RViz 2 and Gazebo Fortress:** CI checks the package's build and install. Both viewers drew the camera and the Teensy from their COLLADA files. Their mesh loaders read the nine COLLADA files of the parts other than the wheel with every corner at the file's position, and those parts' nine STL files with the manifest's triangle counts and bounding boxes.
 - **ROS 2 Jazzy, RViz 2 and gz-sim 8:**
     - **Drawn from the COLLADA files:** each of the nine meshes other than the wheel on its own, and those nine in one scene.
