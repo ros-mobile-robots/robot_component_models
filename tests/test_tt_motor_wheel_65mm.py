@@ -51,8 +51,10 @@ PINS_ON_THE_ROUND = 6.42
 PINS_ON_THE_BOSS = 5.74
 # fin() asks the edge's inner corner to lie at least two rounds' radii inside the outer corner,
 # measured along the radius. The inner corner moves out as the round grows, so at the model's
-# other values the largest round that passes is about 4.105 mm
+# other values the largest round that passes is about 4.176 mm
 FIN_ROUND_PAST_THE_SPACING_RULE = 4.2
+# Larger than the tube's chamfered end (9.95 - 2 * 0.5 = 8.95 mm), smaller than the tube
+BORE_THROUGH_THE_CHAMFER = 9.5
 # A bulge's round of 2.8 mm with the model's notch round puts the notches' bottoms on r 4.92,
 # inside the hub tube
 BULGE_RADIUS_WITH_NOTCHES_IN_THE_TUBE = 2.8
@@ -64,6 +66,13 @@ ROUNDS_AT_THE_JOINT = (1.45, 1.6, 1.61, 1.7)
 # 0.4 mm off the tube. A round of 2.3 mm leaves no such place: the build stops
 LARGER_BULGE_ROUND = 2.2
 BULGE_ROUND_WITH_A_TOO_SMALL_FOOT = 2.3
+# A notch's round of 0.1 mm puts the notches' bottoms 0.15 mm off the tube. Halfway between them
+# and the tube, a point 0.08 mm inside the foot round lies inside the tube, so the union check
+# has no point to probe there
+NOTCH_ROUND_NEAR_THE_TUBE = 0.1
+# The largest angle (deg) between the bulges' and the tube's surfaces where they meet that counts
+# as one smooth surface. A foot round tangent to a line 0.05 mm inside the tube met it at 17.3
+TANGENT = 0.1
 # A box that takes the top off one bulge, from the plate to its round, as a union could lose it
 BULGE_TOP_LOST = ((wheel.HUB_COLLAR_D / 2 - 0.5, -1.0, wheel.CUP_BACK_Z),
                   (wheel.HUB_COLLAR_D / 2 + 0.5, 1.0, wheel.HUB_COLLAR_END_Z))
@@ -229,6 +238,21 @@ class BulgeEndTest(unittest.TestCase):
 
         self.assertEqual(outside, [])
 
+    def test_bulges_and_tube_have_one_normal_where_they_meet(self) -> None:
+        """Join the bulges to the hub: beside a fin and in a notch both faces have one normal."""
+        joined = wheel.hub().union(wheel.collar()).val()
+        tube, end = wheel.HUB_TUBE_D / 2, wheel.HUB_COLLAR_END_Z
+        for degrees in (9.0, 36.0):
+            angle = math.radians(degrees)
+            point = cq.Vector(tube * math.cos(angle), tube * math.sin(angle), end)
+            faces = [face for face in joined.Faces()
+                     if face.distance(cq.Vertex.makeVertex(*point.toTuple())) < SURFACE]
+            normals = [face.normalAt(point) for face in faces]
+            spread = max(math.degrees(a.getAngle(b)) for a in normals for b in normals)
+
+            self.assertEqual({face.geomType() for face in faces}, {'CYLINDER', 'TORUS'})
+            self.assertLess(spread, TANGENT)
+
     def test_bulge_end_raises_a_value_error_for_a_round_with_no_room_for_the_foot(self) -> None:
         """Make the bulge's round reach down to the tube: no room is left for the foot round."""
         room = wheel.HUB_COLLAR_D / 2 - wheel.HUB_TUBE_D / 2
@@ -258,7 +282,7 @@ class PinsTest(unittest.TestCase):
 
 
 class HubAndFinTest(unittest.TestCase):
-    """The cup's rounded back edge and the fin's edge stay where the hub has room for them."""
+    """The cup's rounded back edge, the fin's edge and the bore stay where the hub has room."""
 
     def test_hub_raises_a_value_error_for_a_cup_round_that_runs_into_the_spokes(self) -> None:
         """Make the cup's round longer along its outside than the room behind the spokes."""
@@ -273,6 +297,13 @@ class HubAndFinTest(unittest.TestCase):
         with with_values({'FIN_ROUND': FIN_ROUND_PAST_THE_SPACING_RULE}):
             with self.assertRaisesRegex(ValueError, "the fin's edge must run from the barrel"):
                 wheel.fin()
+
+    def test_make_rim_raises_a_value_error_for_a_bore_through_the_tubes_chamfered_end(
+            self) -> None:
+        """Make the bore wider than the tube's chamfered end: an error before the rim is built."""
+        with with_values({'BORE_D': BORE_THROUGH_THE_CHAMFER}):
+            with self.assertRaisesRegex(ValueError, 'the bore must lie inside the hub tube'):
+                wheel.make_rim()
 
 
 class RimUnionTest(unittest.TestCase):
@@ -309,11 +340,29 @@ class RimUnionTest(unittest.TestCase):
 
             self.assertFalse(wheel.collar_kept(rim, bulges))
 
-    def test_foot_probe_height_raises_a_value_error_for_a_foot_round_too_small(self) -> None:
+    def test_collar_kept_is_false_for_a_rim_that_lost_the_round_below_the_notches(self) -> None:
+        """Cut the bulges where their foot round falls below the notches' bottoms: lost."""
+        below_notches = next(z for z in side_view()
+                             if wheel.bulge_profile(z) < wheel.notch_bottom())
+        cutter = cq.Workplane('XY', origin=(0.0, 0.0, below_notches)).box(
+            30.0, 30.0, 20.0, centered=(True, True, False))
+        rim = wheel.hub().union(self.bulges.cut(cutter))
+
+        self.assertFalse(wheel.collar_kept(rim, self.bulges))
+
+    def test_collar_kept_raises_a_value_error_for_notches_too_near_the_tube_to_probe(
+            self) -> None:
+        """Put the notches' bottoms 0.15 mm off the tube: nothing to probe below them, an error."""
+        with with_values({'HUB_NOTCH_ROUND': NOTCH_ROUND_NEAR_THE_TUBE}):
+            bulges = wheel.collar()
+            with self.assertRaisesRegex(ValueError, 'found no point inside the bulges'):
+                wheel.collar_kept(bulges, bulges)
+
+    def test_foot_probe_heights_raises_a_value_error_for_a_foot_round_too_small(self) -> None:
         """Leave a foot round smaller than the check's 0.4 mm: an error, not an unchecked rim."""
         with with_values({'HUB_BULGE_ROUND': BULGE_ROUND_WITH_A_TOO_SMALL_FOOT}):
             with self.assertRaisesRegex(ValueError, 'too small for the check'):
-                wheel.foot_probe_height()
+                wheel.foot_probe_heights()
 
     def test_make_rim_raises_a_value_error_when_collar_kept_finds_a_loss(self) -> None:
         """Let collar_kept() report a loss: make_rim() stops before the bore is cut."""

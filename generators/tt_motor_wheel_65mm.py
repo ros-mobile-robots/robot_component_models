@@ -1164,7 +1164,9 @@ def collar_probe(angle: float, z: float,
 
     The point lies 0.08 mm inside the outline of collar_radius() at z, across the outline (not
     along the radius: near the join of a bulge's round and a notch's round the outline runs
-    nearly along the radius). If the bulges don't hold it, 0.16 and 0.32 mm are tried.
+    nearly along the radius). If the bulges don't hold it, 0.16 and 0.32 mm are tried. A point
+    must also lie outside the hub tube, 0.01 mm at least: inside the tube it is inside the rim
+    whether the bulges were kept or not.
     """
     r, step = collar_radius(angle, z), 1e-6
     slope = (collar_radius(angle + step, z) - collar_radius(angle - step, z)) / (2 * step)
@@ -1174,25 +1176,30 @@ def collar_probe(angle: float, z: float,
     for inset in (0.08, 0.16, 0.32):
         point = cq.Vector(r * math.cos(angle) - inset * out_x, r * math.sin(angle) - inset * out_y,
                           z)
-        if bulges.isInside(point):
+        if math.hypot(point.x, point.y) > HUB_TUBE_D / 2 + 0.01 and bulges.isInside(point):
             return point
     return None
 
 
-def foot_probe_height() -> float:
-    """Return a height (z) in the foot round where its surface lies 0.4 mm outside the tube.
+def foot_probe_heights() -> Tuple[float, float]:
+    """Return two heights (z) in the foot round, where the union check probes it.
 
-    There a point 0.08 to 0.32 mm inside the bulges (collar_probe()) is still outside the hub
-    tube, so the union check sees whether the foot round was kept. Where the foot round is too
-    small for that, the check can't cover it, and the build stops.
+    At the first the foot round's surface lies 0.4 mm outside the tube. There a point 0.08 to
+    0.32 mm inside the bulges (collar_probe()) is still outside the hub tube, so the check sees
+    whether the foot round beside the bulges was kept. At the second the surface lies halfway
+    between the tube and the notches' bottoms. There the foot round runs all round the tube,
+    also below the notches, so the check sees whether the round that takes each notch's wall
+    down to the tube was kept. Where the foot round is too small for the two places, the check
+    can't cover it, and the build stops.
     """
-    top_end, foot = bulge_end()
-    clearance = 0.4
-    if not clearance < foot:
+    foot = bulge_end()[1]
+    clearances = (0.4, (notch_bottom() - HUB_TUBE_D / 2) / 2)
+    if not max(clearances) < foot:
         raise ValueError("the foot round is too small for the check of the rim's union")
     # on the foot round, top - HUB_BULGE_ROUND - sqrt(foot^2 - before^2) = tube + clearance
-    before = math.sqrt(foot ** 2 - (foot - clearance) ** 2)
-    return HUB_COLLAR_END_Z - before
+    beside, below_notches = (HUB_COLLAR_END_Z - math.sqrt(foot ** 2 - (foot - clearance) ** 2)
+                             for clearance in clearances)
+    return beside, below_notches
 
 
 def collar_kept(rim: cq.Workplane, bulges: cq.Workplane) -> bool:
@@ -1200,15 +1207,16 @@ def collar_kept(rim: cq.Workplane, bulges: cq.Workplane) -> bool:
 
     OCCT's union can lose part of a bulge without an error and still return a valid solid: with
     the notches' bottoms just inside the hub tube and a small HUB_COLLAR_D it did. So points
-    inside the bulges near their surface (collar_probe(), checked against the bulges before the
-    union) must lie inside the rim: round each bulge to the notches' middles, at the plate,
-    along the level top, in the bulge's round and in the foot round. A place where no such
-    point is found stops the build: the check would not cover it.
+    inside the bulges near their surface and outside the tube (collar_probe(), checked against
+    the bulges before the union) must lie inside the rim: round each bulge to the notches'
+    middles, at the plate, along the level top, in the bulge's round and at two places in the
+    foot round (foot_probe_heights()). A place where no such point is found stops the build:
+    the check would not cover it.
     """
     joined, alone = rim.findSolid(), bulges.findSolid()
     pitch, top_end = math.pi / SPOKES, bulge_end()[0]
     heights = (CUP_BACK_Z + 0.1, (CUP_BACK_Z + top_end) / 2, top_end + HUB_BULGE_ROUND / 2,
-               foot_probe_height())
+               *foot_probe_heights())
     for k in range(SPOKES):
         for step in range(-3, 5):                # a quarter of the pitch apart, to the notch
             angle = 2 * pitch * k + pitch * step / 4
@@ -1216,7 +1224,7 @@ def collar_kept(rim: cq.Workplane, bulges: cq.Workplane) -> bool:
                 point = collar_probe(angle, z, alone)
                 if point is None:
                     raise ValueError("the check of the rim's union found no point inside the"
-                                     ' bulges at one of its places')
+                                     ' bulges and outside the tube at one of its places')
                 if not joined.isInside(point):
                     return False
     return True
@@ -1232,6 +1240,8 @@ def make_rim() -> cq.Workplane:
         raise ValueError("the spokes need a flat face between the hub's web and their end's round")
     if not BOSS_TOP_DEPTH < BOWL_DEPTH - HUB_PIN_HEIGHT:
         raise ValueError("the pins' tops must lie below the boss's top")
+    if not BORE_D / 2 < HUB_TUBE_D / 2 - HUB_TUBE_CHAMFER:
+        raise ValueError("the bore must lie inside the hub tube, also at the tube's chamfered end")
     # The spokes' central face: an annulus from the cup to WEB_R (the bowl stays open)
     web = (cq.Workplane('XY', origin=(0, 0, SPOKE_FACE_Z)).circle(WEB_R)
            .circle(CUP_D / 2 - 0.2).extrude(SPOKE_PLATE_BACK_Z - SPOKE_FACE_Z))
