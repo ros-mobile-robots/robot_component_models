@@ -40,6 +40,8 @@ Adding a part takes six steps. The laser scanner `rplidar_a2`, a part with one m
        return [Model('rplidar_a2', TITLE, FRAME, MATERIALS, sub_parts)]
    ```
 
+   For new or changed code, `build()` reads as the list of the part's sub-parts, with one function per sub-part, and every dimension is a named constant in the parameter block, not a number inside a function. The wheel's `build()` in [`generators/tt_motor_wheel_65mm.py`](generators/tt_motor_wheel_65mm.py) is an example: it calls `make_rim()` and `make_tyre()`. [AGENTS.md](AGENTS.md#code) has the code rules.
+
 3. **List of parts:** the identifier in `PARTS` in [`generators/__init__.py`](generators/__init__.py). The manifest follows this order.
 4. **Provenance page:** `provenance/rplidar_a2.md` with the sources, the Frame section, what is simplified or estimated, and which measurements would help.
 5. **Pictures:** two scripts draw them.
@@ -60,20 +62,22 @@ Then generate and check, with the pinned Python packages in a virtual environmen
 ```bash
 .venv/bin/python -m generators rplidar_a2        # write the part's meshes while you work on it
 .venv/bin/python -m generators                   # when the part is ready: all meshes and the manifest
-.venv/bin/python scripts/check_meshes.py         # read the files back, check them against the manifest
-.venv/bin/python -m unittest discover -s tests   # the unit tests
 .venv/bin/python scripts/render_parts.py         # docs/images/rplidar_a2.png and all_parts.png
 .venv/bin/python -m scripts.render_frames        # docs/images/frames/rplidar_a2.png
+.venv/bin/python scripts/check_meshes.py         # read the files back, check them against the manifest
+.venv/bin/python -m unittest discover -s tests   # the unit tests, with the registrations' test
 git status --short                               # the part's files, the manifest and the pictures
 ```
 
 Look at what the commands wrote:
 
 - `meshes/manifest.yaml` has the part under `parts:`, with each file's checksum, size, triangles and bounding box.
-- `docs/images/rplidar_a2.png` shows the part as the README's table will, and `docs/images/frames/rplidar_a2.png` its frame. Compare both with the sources.
+- `docs/images/rplidar_a2.png` shows the part as the README's table will, and `docs/images/frames/rplidar_a2.png` its frame. Compare both with the sources. Put back the pictures of other parts that differ only because another graphics driver drew them.
 - Load the mesh in a robot model and look at it in RViz and Gazebo.
 
 Before you open the pull request, write the files once more in CI's generator environment, so that CI regenerates the same bytes: see [The generator environment in a container](#the-generator-environment-in-a-container).
+
+**Documentation site:** a new part, a change to the generators' shared code, a new check, a CI change and a change to the development setup come with a page or an update on ros-mobile-robots.com, as a pull request in [ros-mobile-robots.github.io](https://github.com/ros-mobile-robots/ros-mobile-robots.github.io) that you plan with the change and link under `## Related`. If you can't open that pull request, say under `## Related` what the page needs, and a maintainer takes the page over before your change is merged. [AGENTS.md](AGENTS.md#documentation) says what the page holds.
 
 **License lines:** every new text file starts with the two SPDX lines `SPDX-FileCopyrightText: 2026 ROS Mobile Robots` and `SPDX-License-Identifier: BSD-3-Clause`, in the file's comment syntax. The generators write these lines into each COLLADA file and the manifest, and into a `<file>.license` next to each STL and glTF file.
 
@@ -147,10 +151,14 @@ python3 -m venv .lint && .lint/bin/pip install -r scripts/requirements-lint.txt
 
 ## Pull requests
 
-- **One change per pull request**, on a branch named `feat/…`, `fix/…`, `docs/…` or `chore/…`.
+- **One topic:** one change per pull request.
+- **Branch:** `feat/…`, `fix/…`, `docs/…`, `chore/…`, `refactor/…` or `test/…`, with a short topic in kebab-case, such as `feat/rplidar-a1`.
 - **Pull requests are squash-merged.** Maintainers use the PR title as the commit's subject and the description as its message, so write the title as `Area: what changed`, 65 characters or fewer, and start the description with what changes and why.
-- Say how you tested it, and link the issue with `Closes #N`.
+- Say how you tested it.
+- End the description with `Closes #N` when your pull request resolves issue N. If the issue stays open, name it without a closing keyword, for example `Part of #N`.
+- Sign your commits with GPG: `git commit -S`.
 - If a robot's model has to change with yours, open the matching pull request in the robot's repository and link the two.
+- **Checks:** new logic in a generator or a script comes with a check of a property that a reader can see, such as a dimension or a frame's position. Its expected value comes from the part's source, not from the generated files. A fix of a generator or a check comes with a check that fails without it. Both live where CI runs them: in the generator, in `scripts/check_meshes.py`, in a unit test in `tests/`, which the job "Mesh checks" runs, or in a script of its own that CI runs.
 
 ## AI-assisted contributions
 

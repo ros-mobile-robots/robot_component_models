@@ -3,6 +3,7 @@ __pycache__/
 *.pyc
 .mypy_cache/
 .venv/
+.lint/
 venv/
 
 # Downloads of the checks (COLLADA schema) and the glTF validator's packages
