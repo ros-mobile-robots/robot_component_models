@@ -2,7 +2,7 @@
      SPDX-License-Identifier: BSD-3-Clause -->
 # Swivel caster with a 30 mm wheel (DiffBot)
 
-A pressed-steel swivel caster with a 30 mm plastic wheel, as on DiffBot. DiffBot is built on the Joy-IT Robot Car Kit 2WD (robot05), and this is the kit's caster. The shapes follow Joy-IT's product photos and photos of DiffBot's caster. The wheel's radius and the axle's position follow DiffBot's caster joints. [Sources](#sources) lists them.
+A pressed-steel swivel caster with a 30 mm plastic wheel, as on DiffBot. DiffBot is built on the Joy-IT Robot Car Kit 2WD (robot05), and this is the kit's caster. The plate's dimensions and the bearing's section follow the datasheet of a caster of the same family with the same plate. The shapes of the fork and the wheel follow photos of DiffBot's caster and product photos of the same caster type. The wheel's radius and the axle's position follow DiffBot's caster joints. [Sources](#sources) lists them, and [Simplified or estimated](#simplified-or-estimated) says which values are estimates or choices.
 
 Generator: [`generators/swivel_caster_30mm.py`](../generators/swivel_caster_30mm.py).
 
@@ -10,7 +10,7 @@ Generator: [`generators/swivel_caster_30mm.py`](../generators/swivel_caster_30mm
 
 ![The caster from above and from the side, with the base's frame, the four standoffs and the three meshes' names](../docs/images/frames/swivel_caster_30mm.png)
 
-The picture shows the three meshes from above and from the side, placed as DiffBot's caster macro places them. The red dot is the origin of the frame of `swivel_caster_30mm_base` and the red arrows are its positive axes. The green rings mark the four standoffs, at (x, y) = (-13, ±15) mm and (11, ±15) mm. Their tops, the dashed line at z = +15 mm, meet the chassis. The side view names the mesh of each piece. The fork's frame lies 1 mm behind the base's frame, on the swivel axis, and the wheel's frame lies on the axle.
+The picture shows the three meshes from above and from the side, placed as DiffBot's caster macro places them. The red dot is the origin of the frame of `swivel_caster_30mm_base` and the red arrows are its positive axes. The green rings mark the four standoffs with their Ø2.5 mm bores, 3 mm deep, at (x, y) = (-13, ±15) mm and (11, ±15) mm. Their tops, the dashed line at z = +15 mm, meet the chassis. The side view names the mesh of each piece. The fork's frame lies 1 mm behind the base's frame, on the swivel axis, and the wheel's frame lies on the axle.
 
 The files are in metres, z up. Positions on this page are in millimetres.
 
@@ -28,7 +28,7 @@ A robot description with one link per mesh places the meshes like this. Each off
 
 | Mesh | Placed in the frame of | Offset (x, y, z) | Moves |
 |---|---|---|---|
-| `swivel_caster_30mm_base` | The chassis | The standoffs' tops, at z = +15 mm, touch the chassis | Fixed |
+| `swivel_caster_30mm_base` | The chassis | The standoffs' tops, at z = +15 mm, touch the chassis. Four screws from above reach into the standoffs' bores | Fixed |
 | `swivel_caster_30mm_wheel_support` | `swivel_caster_30mm_base` | (-1, 0, 0) mm | Swivels about z |
 | `swivel_caster_30mm_wheel` | `swivel_caster_30mm_wheel_support` | (-16, 0, -20) mm | Rolls about y |
 
@@ -40,11 +40,11 @@ The wheel's lowest point is 0.2 mm below DiffBot's `base_footprint`, from the UR
 
 | Mesh | What | Materials |
 |---|---|---|
-| `swivel_caster_30mm_base` | The fixed part: four brass hex standoffs (M3, 5 mm across flats, 10 mm long), a plate 32 × 38 × 1.5 mm with four corner lugs and concave sides, a pressed raceway dome on top (Ø26 mm) with a domed rivet head, a rounded bearing ring between plate and fork, the stepped race cap under the fork (Ø14.8 mm) with a large flat rivet head (Ø10 mm), four Phillips pan heads under the lugs | `steel` (zinc-plated), `brass` |
-| `swivel_caster_30mm_wheel_support` | The swivelling fork, bent from one 1.5 mm sheet: a round top plate (r 13 mm) with tight bends into two arms with a concave front edge, and a pressed boss around the axle on each arm. The axle rivet with domed heads and washers on both sides | `steel`, `axle` |
-| `swivel_caster_30mm_wheel` | The wheel: Ø30 mm, hub 15.6 mm wide, crowned 12 mm tread with 3 mm rounds, dished sides | `wheel` (white) |
+| `swivel_caster_30mm_base` | The fixed part: four brass hex standoffs (M3, 5 mm across flats, 10 mm long, 0.3 mm chamfers at both ends, the M3 thread at the chassis end shown as a smooth bore), a plate 32 × 38 × 1.3 mm with four corner lugs and concave sides. The plate is pressed into a raceway: a trough that bulges 3.35 mm below it (Ø26.8 mm, seen from the side as a smooth lens), an arch over one row of 12 balls (Ø3.2 mm on a Ø15 mm circle), and a centre that carries the kingpin's flat head (Ø7.5 × 2 mm). Inside the fork's cup: the stepped race cap (Ø11.2 mm) and the kingpin's flat lower head (Ø9.2 mm). Four Phillips pan heads under the lugs | `steel` (zinc-plated, metallic), `brass` (metallic) |
+| `swivel_caster_30mm_wheel_support` | The swivelling fork, bent from one 1.2 mm sheet. Its top is a shallow cup (rim Ø24.5 mm) that opens towards the wheel, its floor pressed into the lower ball track (a raised ring inside the cup). On the axle sides the cup's wall runs on into the arms: curved at the cup, between 48° and 132° around it, flat and parallel to the wheel from 9 mm below the top. Seen along the axle each arm narrows to a rounded tip (r 4.75 mm) around the axle, with a diagonal front edge that curves into the rim. The edges are plain cut. The axle with a domed head and a washer on the -y side and a Phillips pan head on the +y side | `steel`, `axle` (metallic) |
+| `swivel_caster_30mm_wheel` | The wheel: Ø30 mm, hub 15.6 mm wide, crowned 12 mm tread with 3 mm rounds, dished sides | `wheel` (matte white plastic) |
 
-Each STL file is closed and consistently oriented. The three meshes, placed as DiffBot's caster macro places them, only touch. The axle has 0.1 mm clearance in the wheel's bore.
+Each STL file is closed and consistently oriented: the base's balls are separate closed shells. The three meshes, placed as DiffBot's caster macro places them, don't intersect: the base and the fork are at least 0.09 mm apart. The axle has 0.1 mm clearance in the wheel's bore.
 
 ## Sources
 
@@ -52,24 +52,30 @@ Each STL file is closed and consistently oriented. The three meshes, placed as D
 |---|---|
 | Which caster: DiffBot is built on the Joy-IT Robot Car Kit 2WD | ros-mobile-robots.com: [Components](https://ros-mobile-robots.com/components/) and [Assembly](https://ros-mobile-robots.com/hardware_setup/assembly/), steps 8 and 9 (four screws) |
 | The caster from above and below, on four standoffs | Joy-IT's product page [joy-it.net/en/products/robot05](https://joy-it.net/en/products/robot05): the product photos `Robot05-01.png` and `Robot05-02.png` (underside). The assembly manual [Robot05-Anleitung.pdf](https://joy-it.net/files/files/Produkte/robot05/Robot05-Anleitung.pdf), page 2 ("4x Abstandshalter") and page 6 |
-| Shapes on DiffBot's own caster: the lobed plate with Phillips pan heads at the corners, brass hex standoffs, the fork's round top plate around a race cap with concentric pressed steps and a large flat rivet head, arms with a concave front edge and a pressed boss at the axle, a domed axle rivet with a washer, a white crowned wheel | Photos and video frames of DiffBot's caster, taken by the project (not published) |
-| Proportions: race cap about 0.6 of the fork's top plate, flat rivet head about 10 mm, plate hole spacing about the wheel's diameter, standoffs about a third of the hole spacing | The same video frames (they have no scale) |
+| Shapes and materials on DiffBot's own caster: zinc-plated steel plate, raceway, fork and rivets, hexagonal brass standoffs, a white plastic wheel. The lobed plate with Phillips pan heads at the corners, the smooth lens under the plate, the kingpin's flat head above it, the fork's cup with a raised ring, the stepped race cap and the flat lower head inside, broad arms that run on from the cup's wall and narrow to a rounded tip, a domed axle head with a washer on one side and a Phillips pan head on the other, a crowned wheel | Photos and video frames of DiffBot's caster, taken by the project (not published) |
+| Proportions, measured on the frames and the shop photos, scaled with the wheel's 30 mm and the 38 × 32 mm plate: the cup's rim Ø about 24–25 mm, the raised ring inside it Ø about 15 mm, the race cap Ø about 12.5 mm, the kingpin's heads Ø about 7.5 and 9 mm, the arm's tip about 9.5 mm wide | The same video frames and photos |
+| The same caster family: one ball race, the plate's dome Ø26.5 mm, the bearing stack in section, an offset of 11 mm between swivel axis and axle | [Tente, datasheet 1430POI032P60-38X32](https://cdn.tente.com/datasheets/1430POI032P60_38X32_en.pdf) (a caster with the same 38 × 32 mm plate) |
+| The fork's shape: the cup, the arms that run on from its wall, bow out at the cup and run parallel lower down, plain cut edges, the ball row in the gap under the plate | Product photos of the same caster type: [Adafruit 2942](https://www.adafruit.com/product/2942) and [Bits & Parts](https://www.bitsandparts.nl/en/caster-wheel-swivel-wheel-for-robot-smart-cars-cars-nylon-p100105) |
+| Sheet thickness: the fork 1.2 mm, the plate 1.3 mm | Listings of the same caster type: [Makerfabs](https://www.makerfabs.com/universal-caster-whee.html) (1.2 mm cold-rolled steel) and [Electrokit](https://www.electrokit.com/en/stodhjul-25mm) (plate 38 × 32 × 1.3 mm) |
 | Wheel radius 15 mm. Joints: base `dx` -0.076 m, hub `dx` -0.077 m, both `dz` 0.0045 m. Wheel `dx` -0.016 m, `dz` -0.04 m below the hub. Visual origins 20 mm below the base and hub links | DiffBot's [`caster_wheel.yaml`](https://github.com/ros-mobile-robots/diffbot/blob/noetic-devel/diffbot_description/config/diffbot/caster_wheel.yaml) and `diffbot_caster_macro.urdf.xacro` in the diffbot repository |
-| Choices | Sheet thickness, bend radius, race step heights, screw and rivet sizes, the curve of the arm's outline. They are parameters at the top of the generator |
+| Choices | The raceway's and the cup's profiles between the measured diameters, the balls' size, the race cap's steps, screw and rivet sizes, the arms' angles and outline, the standoffs' chamfers and bores, the materials' values. They are parameters at the top of the generator |
 
 ## Simplified or estimated
 
-- The fork's height follows the URDF: the axle sits 20 mm below the fork's top, from the wheel joint's `dz`. On the real caster the wheel stands a little further from the race cap, so the real fork is probably longer.
-- The bearing is a closed rounded ring between plate and fork, without visible balls. The race cap is a revolved profile with sharp steps.
-- The fork's arms are flat sheets without the rolled edges of the real arms. The fork's inner width, 17.2 mm, is a design choice that leaves room for the 15.6 mm wheel, the washers and the rivet heads.
-- The generator refuses parameters that leave no room for the rivet head or make the race cap wider than the gap between the fork's bends.
+- **The trail is an estimate:** the trail is the distance from the swivel axis back to the axle. The mesh has 16 mm, the value of DiffBot's URDF (`caster_wheel.yaml`), which also puts the axle 20 mm below the fork's top. The trail of DiffBot's caster isn't measured. Two estimates point to a shorter one: the datasheet of the same caster family gives 11 mm, and Joy-IT's photo suggests about 11 ± 2 mm. If the real trail is that short, the model's arms lean further back than the real ones. A caliper reading on DiffBot's caster, measurement 1 below, settles the value. A new value goes into the wheel's `dx` in `caster_wheel.yaml` and into this fork's axle position together.
+- The plate stands 3.7 mm above the fork's cup (standoffs of 10 mm, not measured). Its lens bulges 3.35 mm, more than on the real caster (about 2.4 mm), so the slit between lens and cup stays as thin as on the photos.
+- The balls are one row of 12 spheres, Ø3.2 mm (the real ones about 3.5–4 mm). The plate's arch and the cup's ball track are smooth revolved sheets. The race cap is a revolved profile with sharp steps.
+- The standoffs' M3 internal thread is a smooth blind bore of the tapping diameter (2.5 mm, 3 mm deep), without a thread profile.
+- Each arm's root is a ruled loft through 21 sections that blend from the cup's wall into the flat sheet with a half cosine. It is smooth across the arm, with bends of a few degrees between the sections along it: about 6° in the middle of the arm, up to 13° at its rear edge just below the rim. Where the arm leaves the cup's rim its faces step 0.15 mm inside the wall's faces. The fork's inner width, 17.2 mm, is a design choice that leaves room for the 15.6 mm wheel.
+- The generator refuses parameters that leave no room for the rivet head, let a ball touch the plate's raceway or the cup's ball track, put the race cap into the ball track, the flat arms outside the cup's wall, or the arms into the wheel's hub. It checks that the twelve balls stay separate solids.
 - The wheel is one solid part in opaque white. The real wheel is translucent.
+- The materials are Phong values in COLLADA and metallic or not in glTF, without textures: the zinc plating's sheen and the brass's colour come from a darker diffuse colour and strong highlights (COLLADA) or from metallic, low-roughness surfaces (glTF). A viewer without an environment light shows the glTF metals dark.
 
 ## Measurements that would improve the model
 
 With DiffBot upside down and calipers:
 
-1. The axle position: from the underside of the caster's plate to the axle's centre, and from the swivel rivet's centre to the axle's centre. The model has 23.5 mm and 16 mm.
+1. The axle position: from the underside of the caster's plate to the axle's centre, and from the swivel rivet's centre to the axle's centre, the trail. The model has 23.7 mm and 16 mm. The trail is the first value to measure, because the estimates for the real caster are shorter.
 2. The plate's hole spacing, centre to centre, in both directions (model: 24 × 30 mm), and the standoffs' length (model: 10 mm).
 3. The fork's inner width between the arms at the axle (model: 17.2 mm).
 4. The wheel's diameter and width over the tread (model: 30 × 12 mm, the hub 15.6 mm).
