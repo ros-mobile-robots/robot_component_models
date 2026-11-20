@@ -12,10 +12,11 @@ These are display models for visualisation in RViz, Gazebo and web viewers. They
 
 | Part | Picture | Meshes | Used by | Triangles | STL / DAE / GLB |
 |---|---|---|---|---|---|
-| [Swivel caster with a 30 mm wheel](provenance/swivel_caster_30mm.md) | <img src="docs/images/swivel_caster_30mm.png" width="200" alt="Swivel caster"> | `swivel_caster_30mm/swivel_caster_30mm_base`<br>`swivel_caster_30mm/swivel_caster_30mm_wheel_support`<br>`swivel_caster_30mm/swivel_caster_30mm_wheel` | DiffBot | 9,820<br>6,592<br>5,572 | 491 / 641 / 232 kB<br>330 / 428 / 153 kB<br>279 / 352 / 121 kB |
+| [Swivel caster with a 30 mm wheel](provenance/swivel_caster_30mm.md) | <img src="docs/images/swivel_caster_30mm.png" width="200" alt="Swivel caster"> | `swivel_caster_30mm/swivel_caster_30mm_base`<br>`swivel_caster_30mm/swivel_caster_30mm_wheel_support`<br>`swivel_caster_30mm/swivel_caster_30mm_wheel` | DiffBot | 32,234<br>12,592<br>5,572 | 1,612 / 2,097 / 656 kB<br>630 / 846 / 280 kB<br>279 / 352 / 121 kB |
 | [360 degree laser scanner, RPLIDAR A2 size](provenance/rplidar_a2.md) | <img src="docs/images/rplidar_a2.png" width="200" alt="Laser scanner"> | `rplidar_a2/rplidar_a2` | DiffBot, Remo | 13,014 | 651 / 904 / 332 kB |
-| [Raspberry Pi 4 Model B](provenance/raspberry_pi_4b.md) | <img src="docs/images/raspberry_pi_4b.png" width="200" alt="Raspberry Pi 4 Model B"> | `raspberry_pi_4b/raspberry_pi_4b` | Remo | 15,116 | 756 / 1,212 / 594 kB |
-| [Jetson Nano Developer Kit B01](provenance/jetson_nano_dev_kit_b01.md) | <img src="docs/images/jetson_nano_dev_kit_b01.png" width="200" alt="Jetson Nano Developer Kit"> | `jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01` | Remo | 5,696 | 285 / 466 / 252 kB |
+| [360 degree laser scanner, RPLIDAR A1 size](provenance/rplidar_a1.md) | <img src="docs/images/rplidar_a1.png" width="200" alt="Laser scanner, RPLIDAR A1 size"> | `rplidar_a1/rplidar_a1` | Remo, with [remo_description#26](https://github.com/ros-mobile-robots/remo_description/pull/26) | 26,826 | 1,341 / 1,818 / 670 kB |
+| [Raspberry Pi 4 Model B](provenance/raspberry_pi_4b.md) | <img src="docs/images/raspberry_pi_4b.png" width="200" alt="Raspberry Pi 4 Model B"> | `raspberry_pi_4b/raspberry_pi_4b` | Remo | 36,948 | 1,847 / 3,054 / 1,485 kB |
+| [Jetson Nano Developer Kit B01](provenance/jetson_nano_dev_kit_b01.md) | <img src="docs/images/jetson_nano_dev_kit_b01.png" width="200" alt="Jetson Nano Developer Kit"> | `jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01` | Remo | 37,344 | 1,867 / 2,982 / 1,400 kB |
 | [Teensy 4.0 with two 14-pin headers](provenance/teensy_4_0.md) | <img src="docs/images/teensy_4_0.png" width="200" alt="Teensy 4.0"> | `teensy_4_0/teensy_4_0` | Remo | 25,520 | 1,276 / 2,021 / 900 kB |
 | [400-point solderless breadboard](provenance/breadboard_400_point.md) | <img src="docs/images/breadboard_400_point.png" width="200" alt="Breadboard"> | `breadboard_400_point/breadboard_400_point` | Remo | 6,768 | 338 / 526 / 290 kB |
 | [Raspberry Pi Camera Module v2](provenance/raspberry_pi_camera_v2.md) | <img src="docs/images/raspberry_pi_camera_v2.png" width="200" alt="Camera Module v2"> | `raspberry_pi_camera_v2/raspberry_pi_camera_v2` | Remo | 2,976 | 149 / 246 / 116 kB |
@@ -167,13 +168,13 @@ Without the path, gz-sim spawns the robot, logs `Unable to find file with URI [m
 ### Tested so far
 
 - **ROS 1 Noetic, RViz 1.14 and Gazebo Classic 11:** the COLLADA and STL files in DiffBot's and Remo's descriptions. The robots' drive wheels there are their own meshes, so the 65 mm wheel's files haven't been drawn in these scenes yet.
-- **ROS 2 Humble, RViz 2 and Gazebo Fortress:** CI checks the package's build and install. Both viewers drew the camera and the Teensy from their COLLADA files. Their mesh loaders read the nine COLLADA files of the parts other than the wheel with every corner at the file's position, and those parts' nine STL files with the manifest's triangle counts and bounding boxes.
+- **ROS 2 Humble, RViz 2 and Gazebo Fortress:** CI checks the package's build and install. Both viewers drew the camera and the Teensy from their COLLADA files. Their mesh loaders read nine COLLADA files with every corner at the file's position, and the nine STL files of that test with the triangle counts and bounding boxes that the manifest gave for those files. These nine meshes are those of the parts other than the 65 mm wheel and the A1. The laser scanner of the A2's size, the Teensy, the breadboard and the camera were tested with the COLLADA files of this version. The caster's three meshes and the two boards were tested in an earlier version, with other materials, and the caster's base and wheel support and the two boards also with other shapes.
 - **ROS 2 Jazzy, RViz 2 and gz-sim 8:**
-    - **Drawn from the COLLADA files:** each of the nine meshes other than the wheel on its own, and those nine in one scene.
+    - **Drawn from the COLLADA files:** the same nine meshes, each on its own and all nine in one scene.
     - **Drawn from an STL file:** the camera. The other STL files haven't been drawn there in a test yet.
-    - **Read by the viewers' mesh loaders:** the nine COLLADA files other than the wheel's with every corner at the file's position, and their nine STL files with the manifest's triangle counts and bounding boxes.
-    - **The glTF files:** drawn with the same shapes and with sRGB values as base colours. The 90° turn and the dark metals in the table above come from that test. VTK's glTF importer drew a few examples with linear base colours. RViz 2 and gz-sim haven't drawn the glTF files with linear base colours in a test yet.
-    - **The wheel's files** haven't been drawn there in a test yet.
+    - **Read by the viewers' mesh loaders:** the same nine COLLADA files, and the COLLADA files of this version of the A1 and of the caster's base and wheel support, each with every corner at the file's position. Also the nine STL files of that test, with the triangle counts and bounding boxes that the manifest gave for those files.
+    - **The glTF files:** an earlier version of the same nine meshes' glTF files, drawn with sRGB values as base colours. The 90° turn and the dark metals in the table above come from that test. VTK's glTF importer drew a few examples with linear base colours. RViz 2 and gz-sim haven't drawn the glTF files with linear base colours in a test yet.
+    - **The 65 mm wheel's and the A1's files** haven't been drawn there in a test yet.
 
 The robots' descriptions are ROS 1 packages, so test models with these meshes stand in for them in the ROS 2 tests.
 
@@ -194,6 +195,7 @@ Each mesh has its own local frame, Z up. The origin isn't always the part's cent
 - [Raspberry Pi 4 Model B](provenance/raspberry_pi_4b.md#frame): z = 0 at the board's mid-plane.
 - [Jetson Nano Developer Kit](provenance/jetson_nano_dev_kit_b01.md#frame) and [Teensy 4.0](provenance/teensy_4_0.md#frame): z = 0 at the board's bottom face.
 - [Laser scanner](provenance/rplidar_a2.md#frame): the rotation axis along z, the bottom at z = -29.85 mm, the optical window's centre at z = +0.95 mm.
+- [Laser scanner, RPLIDAR A1 size](provenance/rplidar_a1.md#frame): the head's rotation axis along z, z = 0 in the scan plane, the motor's axis at x = -45.5 mm.
 - [Camera Module v2](provenance/raspberry_pi_camera_v2.md#frame): the board in the yz plane, the lens looking along +x.
 - [Swivel caster](provenance/swivel_caster_30mm.md#frames): the base's swivel axis at x = -1 mm, the fork's axle along y at x = -16 mm, z = -20 mm.
 
@@ -213,7 +215,7 @@ The version follows [Semantic Versioning](https://semver.org): the first number 
 
 ## Regenerating the meshes
 
-The generators are Python scripts, one per part, in [`generators/`](generators/). They use [CadQuery](https://github.com/CadQuery/cadquery) and its OCP bindings to OpenCASCADE. Each has its parameters at the top, with the source of each value. [`generators/mesh_export.py`](generators/mesh_export.py) writes the three file formats for all of them. CadQuery is needed only to regenerate the files, not to build or use the package.
+The generators are Python scripts, one per part, in [`generators/`](generators/). They use [CadQuery](https://github.com/CadQuery/cadquery) and its OCP bindings to OpenCASCADE. Each has its parameters at the top, with the source of each value. [`generators/mesh_export.py`](generators/mesh_export.py) writes the three file formats for all of them. CadQuery is needed only to regenerate the files, not to build or use the package. [`generators/board_parts.py`](generators/board_parts.py) holds what the two single-board computers share: connectors, pin headers, small parts and their materials.
 
 CI regenerates the files byte for byte in its generator environment: the Ubuntu 24.04 image, pinned by its digest, with Python 3.12.3 and glibc 2.39, and the Python packages of [`generators/requirements.txt`](generators/requirements.txt), pinned to exact versions. The Ubuntu packages that CI installs with apt aren't pinned. Other versions of CadQuery, OCP or NumPy, or another operating system, can triangulate differently. The meshes are then still valid, but their checksums change.
 

@@ -16,10 +16,10 @@
  <library_effects>
   <effect id="wheel-effect">
    <profile_COMMON><technique sid="common"><phong>
-    <ambient><color>0.93 0.93 0.91 1</color></ambient>
-    <diffuse><color>0.93 0.93 0.91 1</color></diffuse>
-    <specular><color>0.3 0.3 0.3 1</color></specular>
-    <shininess><float>25</float></shininess>
+    <ambient><color>0.93 0.93 0.9 1</color></ambient>
+    <diffuse><color>0.93 0.93 0.9 1</color></diffuse>
+    <specular><color>0.08 0.08 0.08 1</color></specular>
+    <shininess><float>6</float></shininess>
    </phong></technique></profile_COMMON>
   </effect>
  </library_effects>
