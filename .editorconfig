@@ -1,0 +1,32 @@
+# SPDX-FileCopyrightText: 2026 ROS Mobile Robots
+# SPDX-License-Identifier: BSD-3-Clause
+# EditorConfig (https://editorconfig.org): settings that editors apply when saving files.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.py]
+indent_style = space
+indent_size = 4
+max_line_length = 99
+
+[*.{js,json,xml,yaml,yml}]
+indent_style = space
+indent_size = 2
+
+[{CMakeLists.txt,*.cmake}]
+indent_style = space
+indent_size = 2
+
+# The generators write these files. Edit the generators, not the files.
+[meshes/**]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_style = unset
+indent_size = unset

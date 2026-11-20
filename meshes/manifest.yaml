@@ -1,0 +1,396 @@
+# SPDX-FileCopyrightText: 2026 ROS Mobile Robots
+# SPDX-License-Identifier: BSD-3-Clause
+# meshes/manifest.yaml: written by `python3 -m generators`, not by hand.
+# All files are in metres. Bounding boxes are in each mesh's own frame (see
+# frame), before any URDF transform. For glTF, the box of the vertex data, before
+# the root node turns them into glTF's Y up.
+# STL and glTF files carry their license in the <file>.license next to them.
+package: robot_component_models
+license: BSD-3-Clause
+parts:
+  swivel_caster_30mm:
+    title: "Swivel caster with a 30 mm wheel (DiffBot)"
+    generator: generators/swivel_caster_30mm.py
+    provenance: provenance/swivel_caster_30mm.md
+    meshes:
+      swivel_caster_30mm_base:
+        frame: "z = 0 at the swivel bearing's lower face, the standoffs' tops at z = +15 mm (the chassis), the swivel axis at x = -1 mm, y = 0."
+        sub_parts: [plate, standoffs]
+        materials: [steel, brass]
+        files:
+          swivel_caster_30mm/swivel_caster_30mm_base.stl:
+            sha256: a147c31456b9978f972ea3f033f317b96c5baea447a8e1980464859ad574553c
+            bytes: 1611784
+            units: metre
+            up_axis: "Z"
+            triangles: 32234
+            bounding_box_min: [-0.017000, -0.019000, -0.003300]
+            bounding_box_max: [0.015000, 0.019000, 0.015000]
+            license_file: swivel_caster_30mm/swivel_caster_30mm_base.stl.license
+          swivel_caster_30mm/swivel_caster_30mm_base.dae:
+            sha256: a7cd35085338de7097bfb97b9d6098163114d0f815f216ca9b337937df9280a9
+            bytes: 2097155
+            units: metre
+            up_axis: "Z"
+            triangles: 32234
+            bounding_box_min: [-0.017000, -0.019000, -0.003300]
+            bounding_box_max: [0.015000, 0.019000, 0.015000]
+          swivel_caster_30mm/swivel_caster_30mm_base.glb:
+            sha256: 600332044ea35e4a97db7dbe69f51d83f9cfdf8f53ec7d6c4ad2d5a7a050dc4a
+            bytes: 656100
+            units: metre
+            up_axis: "Y (the root node turns the Z-up vertex data)"
+            triangles: 32234
+            bounding_box_min: [-0.017000, -0.019000, -0.003300]
+            bounding_box_max: [0.015000, 0.019000, 0.015000]
+            license_file: swivel_caster_30mm/swivel_caster_30mm_base.glb.license
+      swivel_caster_30mm_wheel_support:
+        frame: "The swivel axis at x = y = 0, the fork's top at z = 0, the wheel axle at x = -16 mm, z = -20 mm along y."
+        sub_parts: [fork, axle]
+        materials: [steel, axle]
+        files:
+          swivel_caster_30mm/swivel_caster_30mm_wheel_support.stl:
+            sha256: 6639c9cf321866a3408aa060653de8734f593aaa79dcbb151d4a266088c85e43
+            bytes: 629684
+            units: metre
+            up_axis: "Z"
+            triangles: 12592
+            bounding_box_min: [-0.020750, -0.012250, -0.024748]
+            bounding_box_max: [0.012262, 0.012259, -0.000003]
+            license_file: swivel_caster_30mm/swivel_caster_30mm_wheel_support.stl.license
+          swivel_caster_30mm/swivel_caster_30mm_wheel_support.dae:
+            sha256: 43bf30f2b395ac6c3d7ff90bd93d82d6c84366d52a7d227d6b0dc3470eb5edbe
+            bytes: 845748
+            units: metre
+            up_axis: "Z"
+            triangles: 12592
+            bounding_box_min: [-0.020750, -0.012250, -0.024748]
+            bounding_box_max: [0.012262, 0.012259, -0.000003]
+          swivel_caster_30mm/swivel_caster_30mm_wheel_support.glb:
+            sha256: de50fc10a92ed663fd8db1d5dd9caf1b5cd5fcc5eede65d1bad875b775c55135
+            bytes: 279872
+            units: metre
+            up_axis: "Y (the root node turns the Z-up vertex data)"
+            triangles: 12592
+            bounding_box_min: [-0.020750, -0.012250, -0.024748]
+            bounding_box_max: [0.012262, 0.012259, -0.000003]
+            license_file: swivel_caster_30mm/swivel_caster_30mm_wheel_support.glb.license
+      swivel_caster_30mm_wheel:
+        frame: "Centred on the wheel's axle, the axle along y. Radius 15 mm."
+        sub_parts: [wheel]
+        materials: [wheel]
+        files:
+          swivel_caster_30mm/swivel_caster_30mm_wheel.stl:
+            sha256: bdd1407e49dbb304a82fdcadcd97ee78220a7c1f3ae033398d82cac1281ad413
+            bytes: 278684
+            units: metre
+            up_axis: "Z"
+            triangles: 5572
+            bounding_box_min: [-0.014985, -0.007800, -0.014996]
+            bounding_box_max: [0.015000, 0.007800, 0.014996]
+            license_file: swivel_caster_30mm/swivel_caster_30mm_wheel.stl.license
+          swivel_caster_30mm/swivel_caster_30mm_wheel.dae:
+            sha256: d2a0daee3662eb96ed7395ef03795f7390457254430e83c84313e917592fa1f2
+            bytes: 351561
+            units: metre
+            up_axis: "Z"
+            triangles: 5572
+            bounding_box_min: [-0.014985, -0.007800, -0.014996]
+            bounding_box_max: [0.015000, 0.007800, 0.014996]
+          swivel_caster_30mm/swivel_caster_30mm_wheel.glb:
+            sha256: d1be8004bdcc2e57793fd2e3f673b728b56e26ae4932ad768b0d922f78281126
+            bytes: 120812
+            units: metre
+            up_axis: "Y (the root node turns the Z-up vertex data)"
+            triangles: 5572
+            bounding_box_min: [-0.014985, -0.007800, -0.014996]
+            bounding_box_max: [0.015000, 0.007800, 0.014996]
+            license_file: swivel_caster_30mm/swivel_caster_30mm_wheel.glb.license
+  rplidar_a2:
+    title: "360 degree laser scanner, RPLIDAR A2 size"
+    generator: generators/rplidar_a2.py
+    provenance: provenance/rplidar_a2.md
+    meshes:
+      rplidar_a2:
+        frame: "The rotation axis along z at x = y = 0, the bottom at z = -29.85 mm, the optical window's centre at z = +0.95 mm and facing +x, the cable exit towards -x."
+        sub_parts: [housing, trim, windows]
+        materials: [body, trim, window]
+        files:
+          rplidar_a2/rplidar_a2.stl:
+            sha256: ec4e5ccae5f67b77d5e3288d41c46790c25e5d6f1a1ff2f592abbc72bb1a975a
+            bytes: 650784
+            units: metre
+            up_axis: "Z"
+            triangles: 13014
+            bounding_box_min: [-0.040850, -0.037845, -0.029850]
+            bounding_box_max: [0.037850, 0.037845, 0.010950]
+            license_file: rplidar_a2/rplidar_a2.stl.license
+          rplidar_a2/rplidar_a2.dae:
+            sha256: c4d050771ddcca7c72816c758b5e3bf1adaa66b62eb66925eefd1bc6c3b12abd
+            bytes: 904010
+            units: metre
+            up_axis: "Z"
+            triangles: 13014
+            bounding_box_min: [-0.040850, -0.037845, -0.029850]
+            bounding_box_max: [0.037850, 0.037845, 0.010950]
+          rplidar_a2/rplidar_a2.glb:
+            sha256: cda28b4d3b17d8b00ab9522254e35d1aaf4c1eaf533d5d8bad021afba77b1bfb
+            bytes: 331748
+            units: metre
+            up_axis: "Y (the root node turns the Z-up vertex data)"
+            triangles: 13014
+            bounding_box_min: [-0.040850, -0.037845, -0.029850]
+            bounding_box_max: [0.037850, 0.037845, 0.010950]
+            license_file: rplidar_a2/rplidar_a2.glb.license
+  rplidar_a1:
+    title: "360 degree laser scanner, RPLIDAR A1 size"
+    generator: generators/rplidar_a1.py
+    provenance: provenance/rplidar_a1.md
+    meshes:
+      rplidar_a1:
+        frame: "The head's rotation axis along z at x = y = 0, z = 0 in the scan plane (42 mm above the motor's bottom), the base's round end towards +x, the motor's axis at x = -45.5 mm, the window's middle towards -x."
+        sub_parts: [base, pcb, connectors, motor, pulley, belt, head, window]
+        materials: [body, rubber, steel, screw, pcb, part, connector, contact, window]
+        files:
+          rplidar_a1/rplidar_a1.stl:
+            sha256: 4fd561709c9ad87cb67a4af128fc4a75774d8b4150055536c6bde0f40327421f
+            bytes: 1341384
+            units: metre
+            up_axis: "Z"
+            triangles: 26826
+            bounding_box_min: [-0.061600, -0.035500, -0.042000]
+            bounding_box_max: [0.035480, 0.035500, 0.009000]
+            license_file: rplidar_a1/rplidar_a1.stl.license
+          rplidar_a1/rplidar_a1.dae:
+            sha256: 6193dc53629088f49bab9da09daec537c24da4546f6c158c51428fa02cbdafe9
+            bytes: 1818103
+            units: metre
+            up_axis: "Z"
+            triangles: 26826
+            bounding_box_min: [-0.061600, -0.035500, -0.042000]
+            bounding_box_max: [0.035480, 0.035500, 0.009000]
+          rplidar_a1/rplidar_a1.glb:
+            sha256: 350264148545868c5e6b5191c4d84f39d220225ec9c1194715a16359ee92262a
+            bytes: 669868
+            units: metre
+            up_axis: "Y (the root node turns the Z-up vertex data)"
+            triangles: 26826
+            bounding_box_min: [-0.061600, -0.035500, -0.042000]
+            bounding_box_max: [0.035480, 0.035500, 0.009000]
+            license_file: rplidar_a1/rplidar_a1.glb.license
+  raspberry_pi_4b:
+    title: "Raspberry Pi 4 Model B"
+    generator: generators/raspberry_pi_4b.py
+    provenance: provenance/raspberry_pi_4b.md
+    meshes:
+      raspberry_pi_4b:
+        frame: "The board's mid-plane at z = 0, the board from x = -7.569 to 48.431 mm and from y = -42.123 to 42.877 mm, the USB and Ethernet end at +y, the GPIO header along -x."
+        sub_parts: [board, gpio_header, poe_header, ethernet, usb_2, usb_3, usb_c, micro_hdmi_0, micro_hdmi_1, audio_jack, camera_connector, display_connector, soc_substrate, soc_die, soc_lid, ram, wireless_chip, wireless_shield, usb_controller, ethernet_phy, pmic, small_parts_top, small_parts_bottom, micro_sd_socket, solder_joints]
+        materials: [solder_mask_green, fr4_edge, gold, nickel, steel_lid, tin, black_plastic, chip, die, thermal_paste, ceramic, substrate, inductor, usb3_blue, cream_plastic, led_red, led_green, led_yellow]
+        files:
+          raspberry_pi_4b/raspberry_pi_4b.stl:
+            sha256: 3f6041faf38411fe5403db9f5e286450f9ece8fa6017977f0706178b756365e1
+            bytes: 1847484
+            units: metre
+            up_axis: "Z"
+            triangles: 36948
+            bounding_box_min: [-0.007569, -0.042123, -0.002800]
+            bounding_box_max: [0.050921, 0.045977, 0.016800]
+            license_file: raspberry_pi_4b/raspberry_pi_4b.stl.license
+          raspberry_pi_4b/raspberry_pi_4b.dae:
+            sha256: e5f37393e8af54b442e6649be965338ff123ccea00111a5833743d4200a03b03
+            bytes: 3054288
+            units: metre
+            up_axis: "Z"
+            triangles: 36948
+            bounding_box_min: [-0.007569, -0.042123, -0.002800]
+            bounding_box_max: [0.050921, 0.045977, 0.016800]
+          raspberry_pi_4b/raspberry_pi_4b.glb:
+            sha256: 1ce6e800eafd0cb65c111fe49ef555e029a6324abe3ce16bb49f2c137c3c37c6
+            bytes: 1484576
+            units: metre
+            up_axis: "Y (the root node turns the Z-up vertex data)"
+            triangles: 36948
+            bounding_box_min: [-0.007569, -0.042123, -0.002800]
+            bounding_box_max: [0.050921, 0.045977, 0.016800]
+            license_file: raspberry_pi_4b/raspberry_pi_4b.glb.license
+  jetson_nano_dev_kit_b01:
+    title: "Jetson Nano Developer Kit B01"
+    generator: generators/jetson_nano_dev_kit_b01.py
+    provenance: provenance/jetson_nano_dev_kit_b01.md
+    meshes:
+      jetson_nano_dev_kit_b01:
+        frame: "The carrier board's bottom face at z = 0, the carrier from x = -28.982 to 71.018 mm and from y = -38.847 to 40.153 mm, the port row at +y, the 40-pin header at -x."
+        sub_parts: [carrier, dc_jack, hdmi_dp, usb_stack_j32, usb_stack_j33, ethernet, micro_usb, power_led, sodimm_connector, module_board, module_sd_slot, soc_substrate, soc_die, memory, module_power, thermal_pad, heatsink, heatsink_screws, module_standoffs, module_screws, carrier_screws, gpio_header, poe_header, power_select_header, fan_header, capacitors, camera_connector_j13, camera_connector_j49, m2_slot, m2_standoff, solder_joints]
+        materials: [solder_mask_black, fr4_edge, anodised_black, nickel, gold, tin, brass, black_plastic, chip, die, substrate, inductor, thermal_pad, usb3_blue, latch_brown, capacitor_stripe, led_green, led_yellow]
+        files:
+          jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.stl:
+            sha256: f476392a1a3319f0f7e9519af9c66a9a94af1e20b970affe5a950554ae51b72b
+            bytes: 1867284
+            units: metre
+            up_axis: "Z"
+            triangles: 37344
+            bounding_box_min: [-0.028982, -0.038847, -0.001950]
+            bounding_box_max: [0.071018, 0.042223, 0.028250]
+            license_file: jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.stl.license
+          jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.dae:
+            sha256: ebc29e71e17ccaa0b3688658bc5329674e33be3900bc42b7d6ed4042b82007b8
+            bytes: 2982492
+            units: metre
+            up_axis: "Z"
+            triangles: 37344
+            bounding_box_min: [-0.028982, -0.038847, -0.001950]
+            bounding_box_max: [0.071018, 0.042223, 0.028250]
+          jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.glb:
+            sha256: 33a622653f9b77a333af0298566ebc73c804065c2767e03b5a8249138419ba2c
+            bytes: 1399600
+            units: metre
+            up_axis: "Y (the root node turns the Z-up vertex data)"
+            triangles: 37344
+            bounding_box_min: [-0.028982, -0.038847, -0.001950]
+            bounding_box_max: [0.071018, 0.042223, 0.028250]
+            license_file: jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.glb.license
+  teensy_4_0:
+    title: "Teensy 4.0 with two 14-pin headers"
+    generator: generators/teensy_4_0.py
+    provenance: provenance/teensy_4_0.md
+    meshes:
+      teensy_4_0:
+        frame: "The board's bottom face at z = 0, the board from x = -13.929 to 21.631 mm and centred at y = -0.032 mm, the USB connector at -x, the row with the inner pin hole at +y. The header spacer ends at z = -2.5 mm, the pins at z = -8.5 mm."
+        sub_parts: [board, pads, header, mcu, bootloader_chip, leaded_parts, blocks, top_passives, bottom_passives, crystals, usb, button, test_pads, bottom_features]
+        materials: [pcb, fr4, gold, solder, silver, ic, substrate, plastic_black, cap, res, ceramic, ceramic_grey, copper, usb_slot, ic_mark, button_frame, button_cap, inductor, led_orange, led_red]
+        files:
+          teensy_4_0/teensy_4_0.stl:
+            sha256: a9231d3213366e05fd75af9b2b270f4116e8cb8ab3f22857f5f257a168b2e7b2
+            bytes: 1276084
+            units: metre
+            up_axis: "Z"
+            triangles: 25520
+            bounding_box_min: [-0.014629, -0.008922, -0.008500]
+            bounding_box_max: [0.021631, 0.008858, 0.004355]
+            license_file: teensy_4_0/teensy_4_0.stl.license
+          teensy_4_0/teensy_4_0.dae:
+            sha256: 3e0af7eef667395f1bcc300185b8cde34cb5af671844dbfbdae6abe2f6a4644e
+            bytes: 2020712
+            units: metre
+            up_axis: "Z"
+            triangles: 25520
+            bounding_box_min: [-0.014629, -0.008922, -0.008500]
+            bounding_box_max: [0.021631, 0.008858, 0.004355]
+          teensy_4_0/teensy_4_0.glb:
+            sha256: 6a5d03b299b1020aae40f7773d2c8c452ed6cbd6993c0947bc69c800712dc25d
+            bytes: 899724
+            units: metre
+            up_axis: "Y (the root node turns the Z-up vertex data)"
+            triangles: 25520
+            bounding_box_min: [-0.014629, -0.008922, -0.008500]
+            bounding_box_max: [0.021631, 0.008858, 0.004355]
+            license_file: teensy_4_0/teensy_4_0.glb.license
+  breadboard_400_point:
+    title: "400-point solderless breadboard"
+    generator: generators/breadboard_400_point.py
+    provenance: provenance/breadboard_400_point.md
+    meshes:
+      breadboard_400_point:
+        frame: "The bottom of the foam backing at z = 0, the top at z = 9.5 mm, the centre channel along y at x = -0.16 mm, the hole columns at y = -0.335 mm + n * 2.54 mm, the dovetail tabs on -x and -y."
+        sub_parts: [body, backing, rail_lines]
+        materials: [white, hole, tape, red, blue]
+        files:
+          breadboard_400_point/breadboard_400_point.stl:
+            sha256: 3e95f7995a628616794877319615467d34bc7e6b6aac325666c53f48bd726795
+            bytes: 338484
+            units: metre
+            up_axis: "Z"
+            triangles: 6768
+            bounding_box_min: [-0.028810, -0.046795, 0.000000]
+            bounding_box_max: [0.027090, 0.037105, 0.009530]
+            license_file: breadboard_400_point/breadboard_400_point.stl.license
+          breadboard_400_point/breadboard_400_point.dae:
+            sha256: 3d3ba53ced423cd917592638c156c57a2d88ef0ab0df6946eb8b8974a511850d
+            bytes: 525705
+            units: metre
+            up_axis: "Z"
+            triangles: 6768
+            bounding_box_min: [-0.028810, -0.046795, 0.000000]
+            bounding_box_max: [0.027090, 0.037105, 0.009530]
+          breadboard_400_point/breadboard_400_point.glb:
+            sha256: 5588e7d2f95bccc4ff8c2753074cfd1aeb3b47f74dee075a6ea0436bb2b38dc2
+            bytes: 289564
+            units: metre
+            up_axis: "Y (the root node turns the Z-up vertex data)"
+            triangles: 6768
+            bounding_box_min: [-0.028810, -0.046795, 0.000000]
+            bounding_box_max: [0.027090, 0.037105, 0.009530]
+            license_file: breadboard_400_point/breadboard_400_point.glb.license
+  raspberry_pi_camera_v2:
+    title: "Raspberry Pi Camera Module v2"
+    generator: generators/raspberry_pi_camera_v2.py
+    provenance: provenance/raspberry_pi_camera_v2.md
+    meshes:
+      raspberry_pi_camera_v2:
+        frame: "The board in the yz plane, its back face at x = -1.645 mm, its edges at y = -12.16 and z = -12.283 mm, the lens looking along +x, the mounting holes at (y, z) = (-10.16, -10.283), (-10.16, 2.217), (10.84, -10.283) and (10.84, 2.217) mm."
+        sub_parts: [board, pads, camera_module, flex, ribbon_connector, back_parts]
+        materials: [pcb, fr4, module, glass, flex, connector_black, gold, connector_dark, silver, ic, cap, res]
+        files:
+          raspberry_pi_camera_v2/raspberry_pi_camera_v2.stl:
+            sha256: 5bf83b5e818a46944d3e75a9ff56a1a66263a5fde9d81e55e0ad280963c0eeb2
+            bytes: 148884
+            units: metre
+            up_axis: "Z"
+            triangles: 2976
+            bounding_box_min: [-0.004145, -0.012160, -0.012283]
+            bounding_box_max: [0.004575, 0.012840, 0.011579]
+            license_file: raspberry_pi_camera_v2/raspberry_pi_camera_v2.stl.license
+          raspberry_pi_camera_v2/raspberry_pi_camera_v2.dae:
+            sha256: ec8def17acc4afd3d2bdb2d4e5f38e7684b05309f44999be30e94977ab7f0b14
+            bytes: 245963
+            units: metre
+            up_axis: "Z"
+            triangles: 2976
+            bounding_box_min: [-0.004145, -0.012160, -0.012283]
+            bounding_box_max: [0.004575, 0.012840, 0.011579]
+          raspberry_pi_camera_v2/raspberry_pi_camera_v2.glb:
+            sha256: f6f7d17571b1d0342d305c066e43adaed48c1b4fa0c19f2456f35bbb92dd5842
+            bytes: 116304
+            units: metre
+            up_axis: "Y (the root node turns the Z-up vertex data)"
+            triangles: 2976
+            bounding_box_min: [-0.004145, -0.012160, -0.012283]
+            bounding_box_max: [0.004575, 0.012840, 0.011579]
+            license_file: raspberry_pi_camera_v2/raspberry_pi_camera_v2.glb.license
+  tt_motor_wheel_65mm:
+    title: "Wheel 65 mm for TT gear motors (DiffBot, Remo)"
+    generator: generators/tt_motor_wheel_65mm.py
+    provenance: provenance/tt_motor_wheel_65mm.md
+    meshes:
+      tt_motor_wheel_65mm:
+        frame: "The axle along z at x = y = 0, the wheel's outer face (the rim's outer flange face, flush with the tyre's sidewall at its widest) at z = -13 mm, the rim's motor-side flange face at z = +12.00 mm and the hub tube's end at z = +15.42 mm."
+        sub_parts: [rim, tyre]
+        materials: [rim, tyre]
+        files:
+          tt_motor_wheel_65mm/tt_motor_wheel_65mm.stl:
+            sha256: 6c69fcae3d99f97ef69a7d74717df4b8ab4129a9fb0422cf44e2da42ab40dbda
+            bytes: 4877584
+            units: metre
+            up_axis: "Z"
+            triangles: 97550
+            bounding_box_min: [-0.033299, -0.033298, -0.013000]
+            bounding_box_max: [0.033299, 0.033298, 0.015420]
+            license_file: tt_motor_wheel_65mm/tt_motor_wheel_65mm.stl.license
+          tt_motor_wheel_65mm/tt_motor_wheel_65mm.dae:
+            sha256: 7dc1c587e428c204cbcf4ad55418747b1c2cff6fbc4669b486475a50ecdb3bb2
+            bytes: 7019047
+            units: metre
+            up_axis: "Z"
+            triangles: 97550
+            bounding_box_min: [-0.033299, -0.033298, -0.013000]
+            bounding_box_max: [0.033299, 0.033298, 0.015420]
+          tt_motor_wheel_65mm/tt_motor_wheel_65mm.glb:
+            sha256: 29148d072cb3f893afbff5f0fe9e398b372e1a1fd519dd54f78f167f84b577fe
+            bytes: 2194204
+            units: metre
+            up_axis: "Y (the root node turns the Z-up vertex data)"
+            triangles: 97550
+            bounding_box_min: [-0.033299, -0.033298, -0.013000]
+            bounding_box_max: [0.033299, 0.033298, 0.015420]
+            license_file: tt_motor_wheel_65mm/tt_motor_wheel_65mm.glb.license

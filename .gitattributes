@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: 2026 ROS Mobile Robots
+# SPDX-License-Identifier: BSD-3-Clause
+# Text files with LF line endings. The mesh files stay byte for byte as the generators wrote
+# them, so their checksums match meshes/manifest.yaml on every system.
+* text=auto eol=lf
+*.stl binary
+*.glb binary
+*.png binary
+*.dae -text
+meshes/manifest.yaml -text
+meshes/** linguist-generated=true

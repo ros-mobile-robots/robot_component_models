@@ -1,0 +1,701 @@
+# SPDX-FileCopyrightText: 2026 ROS Mobile Robots
+# SPDX-License-Identifier: BSD-3-Clause
+"""Generate the display model of a Raspberry Pi 4 Model B.
+
+The model is drawn from Raspberry Pi's mechanical drawing of the Pi 4 Model B
+(raspberry-pi-4-mechanical-drawing.pdf and .dxf: board outline, holes, part outlines and part
+heights "Z"), the connector makers' drawings for the connectors' insides and a top photo for a
+few sizes and looks the drawing doesn't give. Sources in provenance/raspberry_pi_4b.md.
+
+Coordinates while drawing: the drawing's frame in mm, x along the 85 mm edge (USB and Ethernet at
+x = 85), y along the 56 mm edge (GPIO header at y = 56), z up with the board's mid-plane at z = 0.
+The meshes are turned and moved into Remo's frame for the board (see BOARD_TO_MESH).
+"""
+from typing import Dict
+from typing import List
+from typing import Sequence
+from typing import Tuple
+from typing import Union
+
+import cadquery as cq
+import numpy as np
+
+from generators.board_parts import box
+from generators.board_parts import chamfered_rectangle
+from generators.board_parts import ContactRow
+from generators.board_parts import cylinder
+from generators.board_parts import drop_degenerate
+from generators.board_parts import INSULATOR_PLATE
+from generators.board_parts import materials
+from generators.board_parts import Part
+from generators.board_parts import pin_header
+from generators.board_parts import place
+from generators.board_parts import prism
+from generators.board_parts import quad_package
+from generators.board_parts import ring
+from generators.board_parts import rj45_jack
+from generators.board_parts import rounded_box
+from generators.board_parts import small_receptacle
+from generators.board_parts import split_board
+from generators.board_parts import two_terminal
+from generators.board_parts import usb_a_stack
+from generators.mesh_export import Model
+from generators.mesh_export import SubPart
+from generators.mesh_export import Surface
+from generators.mesh_export import surfaces_by_material
+from generators.mesh_export import tessellate_shape
+from generators.mesh_export import transform_surface
+
+TITLE = 'Raspberry Pi 4 Model B'
+
+
+# ---------------------------------------------------------------------------------------------
+# Parameters (mm). Sources: Raspberry Pi 4 Model B mechanical drawing (PDF and DXF), see
+# provenance/raspberry_pi_4b.md. Heights "Z" are the drawing's heights above the board's top face.
+# ---------------------------------------------------------------------------------------------
+NAME = 'raspberry_pi_4b'
+BOARD_LENGTH = 85.0
+BOARD_WIDTH = 56.0
+BOARD_THICKNESS = 1.6  # Not in the drawing: the common FR-4 thickness
+CORNER_RADIUS = 3.0
+HOLE_DIAMETER = 2.7
+HOLE_PAD_DIAMETER = 6.0
+HOLES = ((3.5, 3.5), (61.5, 3.5), (3.5, 52.5), (61.5, 52.5))
+TOP = BOARD_THICKNESS / 2  # z of the board's top face
+BOTTOM = -BOARD_THICKNESS / 2
+
+HEADER_PIN_HEIGHT = 8.5  # Drawing: GPIO header Z = 8.5
+PIN_TAIL = 2.0  # Solder tails below the board
+GPIO_PINS_X = [8.37 + 2.54 * k for k in range(20)]
+GPIO_PINS_Y = (51.23, 53.77)
+POE_PINS = ((60.23, 45.09), (62.77, 45.09), (60.23, 47.63), (62.77, 47.63))
+J2_PADS = ((9.46, 20.5), (12.0, 20.5), (14.54, 20.5))  # RUN and GLOBAL_EN, not fitted
+
+ETHERNET = (66.65, 37.99, 88.0, 53.51, 13.5)  # x0, y0, x1, y1, Z
+USB2 = (70.3, 1.65, 88.0, 15.57, 16.0)
+USB3 = (70.5, 20.43, 88.0, 34.25, 16.0)
+USB_C = (11.2, -1.25, 6.15, 8.94, 3.2)  # centre x, front y, back y, width, Z
+# USB-C insides from GCT's USB4525 drawing: opening, insulator face behind the front, tongue
+# (width, thickness, thickness at the root, tip behind the front, length of the root step).
+USB_C_OPENING = (8.34, 2.56)
+USB_C_INSULATOR = 4.65
+USB_C_TONGUE = (6.69, 0.70, 1.20, 0.20, 1.4)
+MICRO_HDMI = ((26.0, -1.43, 6.52), (39.5, -1.43, 6.52))  # centre x, front y, back y
+MICRO_HDMI_SIZE = (6.5, 3.0)  # width, Z
+# Micro-HDMI insides from Kycon's KMMDMIX drawing: the 5.9 x 2.3 mm opening, the contact faces
+# 0.8 and 1.3 mm below its top, 10 contacts on the top face and 9 below, 0.4 mm pitch.
+MICRO_HDMI_OPENING = (5.9, 2.3, 0.35)  # width, height, bottom above the board
+MICRO_HDMI_TONGUE = (2.3, 1.35, 1.85, 1.0)  # half width (scaled), z0, z1, tip behind front
+MICRO_HDMI_DEPTH = 5.0  # the insulator's face behind the front (estimated)
+AUDIO = (50.7, 0.0, 57.3, 12.25, 6.0)  # body x0, y0, x1, y1 (photo), Z. The barrel to -2.5
+AUDIO_BARREL = (54.0, -2.5, 6.0)  # centre x, front y, diameter
+CSI = (45.05, 0.3, 49.0, 22.7, 5.5)  # camera connector: x0, y0, x1, y1, Z
+DSI = (1.5, 16.8, 5.45, 39.2, 5.5)  # display connector
+FFC_TAIL_REACH = 0.3  # the solder tails past the drawing's outline (photo)
+SOC = (21.75, 25.0, 36.75, 40.0, 2.4)
+SOC_LID = (14.45, 12.6, 0.3, 0.7)  # flange and top widths (photo), sheet, top edge radius
+SOC_DIE = (9.0, 0.75)  # side, height above the substrate
+RAM = (39.8, 25.25, 49.8, 39.75, 1.0)  # 10 x 14.5 mm, a 200-ball LPDDR4 package (photo)
+WIRELESS_CAN = (6.7, 36.2, 17.3, 49.0, 1.5)
+WIRELESS_CHIP = (9.5, 40.0, 14.5, 44.5, 0.6)  # under the shield, estimated
+MICRO_SD = (1.69, 22.11, 13.13, 34.10, 1.4)  # on the bottom, height below the board
+LEDS = (((0.75, 7.10, 1.45, 8.70), 'led_red'), ((0.75, 10.70, 1.45, 12.30), 'led_green'))
+INDUCTOR_BOX = (12.9, 14.1, 16.9, 18.1)
+TALL_PARTS = {(65.55, 29.75, 69.85, 37.05): 2.2, (18.20, 6.30, 21.80, 10.70): 2.0}
+# The tall part at x 65.55 shows its terminals 0.5 mm past both ends of the drawing's outline
+# (photo: 8.3 mm long in all).
+TALL_PART_TERMINALS = (65.55, 0.5)  # x0 of the part, reach past its ends
+# Chips with their own sub-part, by their outline in SMALL_PARTS_TOP
+NAMED_CHIPS = {(55.5, 20.0, 63.5, 28.0): 'usb_controller',
+               (55.5, 35.0, 61.5, 41.0): 'ethernet_phy', (7.4, 9.7, 12.4, 14.7): 'pmic'}
+
+# Pins of the Ethernet and USB connectors that show as solder joints on the bottom (centres).
+THROUGH_HOLE_PINS = (
+    (72.38, 5.5), (75.0, 5.5), (72.38, 8.0), (75.0, 8.0), (72.38, 10.0), (75.0, 10.0),
+    (72.38, 12.5), (75.0, 12.5), (71.66, 23.0), (74.86, 23.0), (73.16, 23.5), (76.36, 23.5),
+    (71.66, 25.0), (74.86, 25.0), (73.16, 26.0), (76.36, 26.0), (71.66, 27.0), (74.86, 27.0),
+    (73.16, 28.0), (76.36, 28.0), (71.66, 29.0), (74.86, 29.0), (73.16, 30.5), (76.36, 30.5),
+    (71.66, 31.0), (74.86, 31.0), (68.36, 40.035), (73.42, 40.035), (70.9, 41.305),
+    (68.36, 42.575), (74.69, 42.575), (70.9, 43.845), (68.36, 45.115), (70.9, 46.385),
+    (68.36, 47.655), (70.9, 48.925), (74.69, 48.925), (68.36, 50.195), (70.9, 51.465),
+    (73.42, 51.465))
+SHELL_PEGS = ((72.03, 2.43), (77.71, 2.43), (72.03, 15.57), (77.71, 15.57), (72.68, 20.43),
+              (78.36, 20.43), (72.68, 33.57), (78.36, 33.57), (81.31, 39.11), (81.31, 41.65),
+              (81.31, 49.85), (81.31, 52.39))
+
+# Small parts on both sides: outlines from the drawing's PARTS_TOP and PARTS_BOTTOM layers,
+# without the parts drawn above. "x0 y0 x1 y1" for a rectangle, "P x y x y ..." for a polygon.
+SMALL_PARTS_TOP = """
+    31.12 5.53 32.27 6.67
+    33.23 5.53 34.38 6.67
+    66.40 17.30 68.40 18.50
+    51.40 18.60 54.40 20.60
+    50.50 13.90 52.50 16.90
+    66.40 15.30 68.40 16.50
+    2.60 14.30 3.80 16.30
+    P 12.9 15.1 12.9 17.1 13.9 18.1 15.9 18.1 16.9 17.1 16.9 15.1 15.9 14.1 13.9 14.1
+    65.55 29.75 69.85 37.05
+    60.00 16.10 63.00 18.30
+    62.70 14.25 63.70 14.75
+    38.70 42.75 39.70 43.25
+    52.40 17.65 53.40 18.15
+    56.45 32.60 56.95 33.60
+    10.40 7.75 11.40 8.25
+    8.50 7.75 9.50 8.25
+    66.90 19.25 67.90 19.75
+    66.75 2.40 67.25 3.40
+    68.75 2.40 69.25 3.40
+    67.75 2.40 68.25 3.40
+    56.95 15.70 57.45 16.70
+    56.95 13.80 57.45 14.80
+    62.05 7.50 62.55 8.50
+    53.75 15.70 54.25 16.70
+    53.75 13.80 54.25 14.80
+    62.05 9.60 62.55 10.60
+    69.35 10.00 69.85 11.00
+    69.35 8.00 69.85 9.00
+    28.25 22.10 28.75 23.10
+    18.20 48.35 19.20 48.85
+    18.20 47.35 19.20 47.85
+    62.50 34.75 63.50 35.25
+    58.90 31.90 59.40 32.90
+    4.00 12.50 5.60 13.30
+    14.20 11.10 15.80 11.90
+    15.70 8.50 16.50 10.10
+    4.00 11.10 5.60 11.90
+    14.20 12.50 15.80 13.30
+    7.50 15.80 9.10 16.60
+    60.20 31.80 61.00 33.40
+    57.50 31.80 58.30 33.40
+    64.70 8.20 65.50 9.80
+    12.05 7.40 12.55 8.40
+    2.85 42.30 3.15 42.90
+    2.85 41.00 3.15 41.60
+    0.50 42.30 0.80 42.90
+    0.50 41.00 0.80 41.60
+    P 4.682 47.956 5.106 47.532 5.318 47.744 4.894 48.168
+    P 62.963 39.030 64.730 37.263 65.437 37.970 63.670 39.737
+    P 62.963 42.330 64.730 40.563 65.437 41.270 63.670 43.037
+    30.05 21.35 30.35 21.95
+    P 36.294 43.082 36.718 43.506 36.506 43.718 36.082 43.294
+    62.50 35.85 63.10 36.15
+    65.10 19.35 65.70 19.65
+    38.55 41.80 39.15 42.10
+    21.60 40.70 22.20 41.00
+    21.60 41.35 22.20 41.65
+    43.70 40.55 44.30 40.85
+    45.30 40.55 45.90 40.85
+    55.45 13.70 55.75 14.30
+    32.90 2.85 33.50 3.15
+    32.00 7.40 32.60 7.70
+    65.35 5.90 65.65 6.50
+    56.15 13.70 56.45 14.30
+    54.75 13.70 55.05 14.30
+    P 26.218 47.094 25.794 47.518 25.582 47.306 26.006 46.882
+    7.55 7.80 7.85 8.40
+    59.05 16.90 59.35 17.50
+    63.65 16.90 63.95 17.50
+    53.40 25.35 54.00 25.65
+    53.40 25.95 54.00 26.25
+    53.40 22.95 54.00 23.25
+    53.40 23.55 54.00 23.85
+    65.10 24.75 65.70 25.05
+    65.10 24.10 65.70 24.40
+    65.10 21.15 65.70 21.45
+    65.10 20.50 65.70 20.80
+    53.40 24.15 54.00 24.45
+    53.40 24.75 54.00 25.05
+    62.30 11.50 64.10 12.50
+    0.75 10.70 1.45 12.30
+    0.75 7.10 1.45 8.70
+    6.70 17.10 9.50 19.10
+    6.20 17.50 7.15 18.70
+    9.05 17.50 10.00 18.70
+    18.20 6.30 21.80 10.70
+    30.80 1.50 32.40 4.50
+    58.90 11.50 60.50 14.50
+    67.20 4.25 68.80 7.15
+    54.60 15.70 56.60 16.90
+    55.50 20.00 63.50 28.00
+    55.50 35.00 61.50 41.00
+    11.00 16.10 12.20 18.10
+    51.10 29.40 52.30 31.40
+    47.50 40.60 49.50 41.80
+    67.60 12.30 68.80 14.30
+    58.70 9.50 60.70 10.70
+    58.70 7.40 60.70 8.60
+    62.00 31.85 63.20 33.85
+    17.60 14.90 18.80 16.90
+    19.50 14.90 20.70 16.90
+    2.60 8.15 3.80 10.15
+    64.90 12.05 66.90 14.55
+    4.50 7.95 6.50 10.45
+    13.10 7.95 15.10 10.45
+    4.50 14.05 6.50 16.55
+    66.05 8.70 68.95 10.30
+    7.40 9.70 12.40 14.70
+"""
+SMALL_PARTS_BOTTOM = """
+    14.15 16.95 15.45 17.85
+    10.40 18.00 12.00 18.80
+    21.85 41.05 23.35 42.05
+    57.80 30.85 60.80 33.05
+    18.40 33.92 20.60 36.92
+    25.40 45.50 28.00 47.30
+    9.15 14.30 10.15 14.80
+    10.65 15.50 11.15 16.50
+    63.40 19.95 64.40 20.45
+    18.15 8.00 18.65 9.00
+    2.55 15.95 3.55 16.45
+    56.75 19.80 57.25 20.80
+    4.95 7.80 5.45 8.80
+    18.15 4.30 18.65 5.30
+    16.50 15.95 17.50 16.45
+    14.30 15.95 15.30 16.45
+    17.25 4.30 17.75 5.30
+    7.35 15.90 7.85 16.90
+    60.50 38.45 61.50 38.95
+    60.50 40.65 61.50 41.15
+    5.30 34.75 6.30 35.25
+    23.10 46.75 24.10 47.25
+    28.30 10.95 29.30 11.45
+    28.30 11.95 29.30 12.45
+    23.10 43.85 24.10 44.35
+    8.35 15.90 8.85 16.90
+    53.65 33.50 54.15 34.50
+    23.10 44.95 24.10 45.45
+    23.10 45.85 24.10 46.35
+    51.45 16.90 51.95 17.90
+    30.45 18.55 31.45 19.05
+    32.55 21.90 33.05 22.90
+    33.40 21.90 33.90 22.90
+    34.25 21.90 34.75 22.90
+    21.25 33.30 22.25 33.80
+    35.50 40.35 36.50 40.85
+    30.85 19.70 32.45 20.50
+    54.50 26.00 56.10 26.80
+    21.10 38.55 21.90 40.15
+    9.55 9.25 11.15 10.05
+    2.65 13.50 3.45 15.10
+    55.85 34.15 56.65 35.75
+    55.55 39.20 56.35 40.80
+    62.60 27.40 63.40 29.00
+    58.50 19.10 59.30 20.70
+    32.45 18.40 34.05 19.20
+    28.20 21.75 29.00 23.35
+    31.30 21.75 32.10 23.35
+    29.55 21.75 30.35 23.35
+    54.50 23.60 56.10 24.40
+    14.30 18.35 15.30 18.85
+    21.25 34.15 22.25 34.65
+    45.60 24.35 46.60 24.85
+    41.95 40.20 42.95 40.70
+    6.00 16.60 6.60 16.90
+    26.70 42.90 27.30 43.20
+    26.70 42.15 27.30 42.45
+    20.85 41.05 21.45 41.35
+    27.80 42.90 28.40 43.20
+    7.65 19.20 7.95 19.80
+    37.90 41.85 38.20 42.45
+    21.15 34.95 21.75 35.25
+    21.15 35.60 21.75 35.90
+    44.70 9.15 45.30 9.45
+    63.00 39.65 63.60 39.95
+    59.35 27.80 59.65 28.40
+    55.10 22.65 55.70 22.95
+    59.85 19.30 60.15 19.90
+    63.30 23.85 63.90 24.15
+    63.30 21.25 63.90 21.55
+    63.30 25.05 63.90 25.35
+    63.30 22.65 63.90 22.95
+    63.30 26.25 63.90 26.55
+    55.10 25.05 55.70 25.35
+    61.75 27.80 62.05 28.40
+    58.15 27.80 58.45 28.40
+    55.10 21.45 55.70 21.75
+    60.75 19.30 61.05 19.90
+    60.55 27.80 60.85 28.40
+    56.95 27.80 57.25 28.40
+    61.75 19.30 62.05 19.90
+    52.75 19.30 53.05 19.90
+    51.20 15.80 51.80 16.10
+    59.85 34.70 60.15 35.30
+    60.65 34.70 60.95 35.30
+    61.20 37.35 61.80 37.65
+    61.20 39.85 61.80 40.15
+    57.35 34.70 57.65 35.30
+    56.85 40.70 57.15 41.30
+    61.45 31.70 61.75 32.30
+    56.85 32.30 57.15 32.90
+    17.55 34.20 17.85 34.80
+    18.70 37.55 19.30 37.85
+    46.90 40.15 47.50 40.45
+    19.10 15.30 20.10 17.10
+    49.30 16.50 50.30 18.30
+    32.40 8.90 34.20 9.90
+    30.20 8.90 32.00 9.90
+    0.70 17.60 2.50 18.60
+    4.25 18.50 7.15 20.10
+"""
+
+# The mesh's frame: the board lies in x -7.569 ... 48.431 and y -42.123 ... 42.877, the USB and
+# Ethernet end at +y, the GPIO header along -x, z = 0 in the board's mid-plane. (x, y) of the
+# drawing maps to (48.431 - y, x - 42.123): a turn by +90 degrees about z and a shift. Remo's
+# rpi_joint places this frame 7 mm above its deck link (provenance/raspberry_pi_4b.md, "Frame").
+BOARD_TO_MESH = (48.431, -42.123)
+
+
+# Materials (generators/board_parts.py): colours sampled from Raspberry Pi's product photo.
+MATERIALS = materials(['solder_mask_green', 'fr4_edge', 'gold', 'nickel', 'steel_lid', 'tin',
+                       'black_plastic', 'chip', 'die', 'thermal_paste', 'ceramic', 'substrate',
+                       'inductor', 'usb3_blue', 'cream_plastic', 'led_red', 'led_green',
+                       'led_yellow'])
+TOLERANCE = 0.03  # Tessellation: linear (mm) and angular (rad) deflection
+ANGULAR_TOLERANCE = 0.35
+Piece = Union[Part, Tuple[str, Surface]]
+
+
+# ---------------------------------------------------------------------------------------------
+# Parts
+# ---------------------------------------------------------------------------------------------
+def board() -> List[Piece]:
+    """Return the board: solder mask, FR-4 edges, plated holes with gold pads on both sides."""
+    plate = cq.Workplane('XY', origin=(BOARD_LENGTH / 2, BOARD_WIDTH / 2, BOTTOM)) \
+        .rect(BOARD_LENGTH, BOARD_WIDTH).extrude(BOARD_THICKNESS).edges('|Z') \
+        .fillet(CORNER_RADIUS).val()
+    parts: List[Piece] = []
+    for x, y in HOLES:
+        plate = plate.cut(cylinder(HOLE_DIAMETER / 2, (x, y, BOTTOM - 1), (0, 0, 1), 5))
+        parts.append(('gold', ring((x, y), HOLE_PAD_DIAMETER, HOLE_DIAMETER, TOP, TOP + 0.04)))
+        parts.append(('gold', ring((x, y), HOLE_PAD_DIAMETER, HOLE_DIAMETER,
+                                   BOTTOM - 0.04, BOTTOM)))
+    for x, y in J2_PADS:
+        plate = plate.cut(cylinder(0.5, (x, y, BOTTOM - 1), (0, 0, 1), 5))
+        parts.append(('gold', ring((x, y), 1.6, 1.0, TOP, TOP + 0.04)))
+        parts.append(('gold', ring((x, y), 1.6, 1.0, BOTTOM - 0.04, BOTTOM)))
+    surface = tessellate_shape(plate, TOLERANCE, ANGULAR_TOLERANCE)
+    plated = list(HOLES) + list(J2_PADS)
+    return list(split_board(surface, 'solder_mask_green', plated, HOLE_DIAMETER / 2 + 0.1)) \
+        + parts
+
+
+def gpio_header() -> List[Piece]:
+    """Return the 40-pin GPIO header."""
+    gpio = [(x, y) for x in GPIO_PINS_X for y in GPIO_PINS_Y]
+    return list(pin_header(gpio, TOP, BOTTOM, HEADER_PIN_HEIGHT, PIN_TAIL))
+
+
+def poe_header() -> List[Piece]:
+    """Return the 4-pin PoE header."""
+    return list(pin_header(POE_PINS, TOP, BOTTOM, HEADER_PIN_HEIGHT, PIN_TAIL))
+
+
+def ethernet() -> List[Piece]:
+    """Return the RJ45 jack, its opening towards +x."""
+    x0, y0, x1, y1, height = ETHERNET
+    return list(place(rj45_jack(y1 - y0, x1 - x0, height), 0.0, (x1, (y0 + y1) / 2, TOP)))
+
+
+def usb_stack(spec: Tuple[float, float, float, float, float], tongue: str) -> List[Piece]:
+    """Return a stacked double USB-A receptacle, its openings towards +x."""
+    x0, y0, x1, y1, height = spec
+    return list(place(usb_a_stack(y1 - y0, x1 - x0, height, tongue), 0.0,
+                      (x1, (y0 + y1) / 2, TOP)))
+
+
+def usb_c() -> List[Piece]:
+    """Return the USB-C power receptacle, its opening towards -y.
+
+    Inside the shell: the insulator, whose face lies USB_C_INSULATOR behind the front, the
+    tongue with 12 gold contacts on each face at 0.5 mm and the metal plate in its middle,
+    which shows at the tongue's edges. The tongue is one solid: thin at its tip, thicker over
+    the length of its root step, where it meets the insulator.
+    """
+    centre_x, front, back, width, height = USB_C
+    centre_z = TOP + height / 2
+    opening_width, opening_height = USB_C_OPENING
+    tongue_width, thickness, root_thickness, tip, step = USB_C_TONGUE
+
+    def stadium(slot_width: float, slot_height: float, y0: float, y1: float) -> cq.Shape:
+        return cq.Workplane('XZ', origin=(0, y0, 0)).center(centre_x, centre_z) \
+            .slot2D(slot_width, slot_height).extrude(-(y1 - y0)).val()
+
+    shell = stadium(width, height, front, back)
+    insulator = front + USB_C_INSULATOR
+    half = tongue_width / 2
+    blade = box(centre_x - half, front + tip, centre_z - thickness / 2,
+                centre_x + half, insulator, centre_z + thickness / 2)
+    root = box(centre_x - half, insulator - step, centre_z - root_thickness / 2,
+               centre_x + half, insulator, centre_z + root_thickness / 2)
+    parts: List[Piece] = [
+        ('nickel', shell.cut(stadium(opening_width, opening_height, front - 0.1,
+                                     insulator + INSULATOR_PLATE))),
+        ('black_plastic', stadium(opening_width, opening_height, insulator,
+                                  insulator + INSULATOR_PLATE)),
+        ('black_plastic', blade.fuse(root).clean())]
+    for x0, x1 in ((centre_x - half - 0.05, centre_x - half + 0.2),
+                   (centre_x + half - 0.2, centre_x + half + 0.05)):
+        parts.append(('nickel', box(x0, front + 0.5, centre_z - 0.075, x1, insulator - step,
+                                    centre_z + 0.075)))
+    for k in range(12):
+        x = centre_x + (k - 5.5) * 0.5
+        for z in (centre_z + thickness / 2, centre_z - thickness / 2 - 0.04):
+            parts.append(('gold', box(x - 0.125, front + 0.6, z, x + 0.125, front + 3.0,
+                                      z + 0.04)))
+    parts.append(('nickel', box(centre_x - 4.33, back - 2.0, TOP, centre_x + 4.33, back,
+                                TOP + 0.6)))
+    return parts
+
+
+def micro_hdmi(centre_x: float, front: float, back: float) -> List[Piece]:
+    """Return a micro-HDMI receptacle, its opening towards -y."""
+    width, height = MICRO_HDMI_SIZE
+    opening_width, opening_height, bottom = MICRO_HDMI_OPENING
+    opening = chamfered_rectangle(opening_width, opening_height, 0.5, bottom)
+    receptacle = small_receptacle(width, back - front, height, opening, MICRO_HDMI_DEPTH, 0.5,
+                                  MICRO_HDMI_TONGUE,
+                                  (ContactRow(10, 0.4, 0.2, True),
+                                   ContactRow(9, 0.4, 0.2, False)), 2.6)
+    return list(place(receptacle, -90.0, (centre_x, front, TOP)))
+
+
+def audio_jack() -> List[Piece]:
+    """Return the 3.5 mm AV jack: black body and barrel, metal band and contact legs on top.
+
+    As in the photo: a metal band over the front 3.6 mm of the top, two contact legs along
+    the sides and a tab in the middle.
+    """
+    x0, y0, x1, y1, height = AUDIO
+    centre_x, front, diameter = AUDIO_BARREL
+    centre_z = TOP + height / 2
+    top = TOP + height
+    body = rounded_box(x0, y0, TOP, x1, y1, top, chamfer_top=0.3)
+    barrel = cylinder(diameter / 2, (centre_x, y0 + 0.01, centre_z), (0, -1, 0), y0 - front)
+    hole = cylinder(1.8, (centre_x, front - 0.1, centre_z), (0, 1, 0), 9.0)
+    # The metal lies in 0.2 mm recesses of the body's top, flush with it.
+    metal = [box(x0, y0, top - 0.2, x1, y0 + 3.6, top)]
+    metal += [box(leg_x0, y0 + 3.6, top - 0.2, leg_x0 + 1.0, y1 - 0.1, top)
+              for leg_x0 in (x0 + 0.3, x1 - 1.3)]
+    metal.append(box(centre_x - 0.65, y0 + 8.0, top - 0.2, centre_x + 0.65, y0 + 10.6, top))
+    body = body.fuse(barrel).cut(hole)
+    for piece in metal:
+        bounds = piece.BoundingBox()
+        body = body.cut(box(bounds.xmin - 0.01, bounds.ymin - 0.01, top - 0.2,
+                            bounds.xmax + 0.01, bounds.ymax + 0.01, top + 0.1))
+    return [('black_plastic', body)] + [('nickel', piece) for piece in metal]
+
+
+def ffc_connector(spec: Tuple[float, float, float, float, float],
+                  slot_at_low_x: bool) -> List[Piece]:
+    """Return a vertical flat flex connector (camera or display): cream body, dark latch, pins.
+
+    As in the photo: 15 solder tails on each side, reaching FFC_TAIL_REACH past the drawing's
+    outline, the dark latch over nearly the whole length of the cream body, the cable slot
+    along one side of the latch.
+    """
+    x0, y0, x1, y1, height = spec
+    body = rounded_box(x0 + 0.9, y0, TOP, x1 - 0.9, y1, TOP + height - 1.2, vertical=0.2)
+    latch = box(x0 + 1.05, y0 + 0.15, TOP + height - 1.2, x1 - 1.05, y1 - 0.15, TOP + height)
+    centre_x = (x0 + x1) / 2 + (-0.35 if slot_at_low_x else 0.35)
+    slot = box(centre_x - 0.3, y0 + 3.0, TOP + 1.0, centre_x + 0.3, y1 - 3.0, TOP + height + 0.1)
+    parts: List[Piece] = [('cream_plastic', body.cut(slot)), ('black_plastic', latch.cut(slot))]
+    for k in range(15):
+        y = (y0 + y1) / 2 - 7.0 + k
+        for tail_x0, tail_x1 in ((x0 - FFC_TAIL_REACH, x0 + 0.95),
+                                 (x1 - 0.95, x1 + FFC_TAIL_REACH)):
+            parts.append(('gold', box(tail_x0, y - 0.15, TOP, tail_x1, y + 0.15, TOP + 0.25)))
+        parts.append(('gold', box(centre_x - 0.36, y - 0.12, TOP + 1.0, centre_x - 0.3, y + 0.12,
+                                  TOP + height - 1.4)))
+    return parts
+
+
+def soc() -> Dict[str, List[Piece]]:
+    """Return the processor: substrate, die with thermal paste, and the hollow stamped lid."""
+    x0, y0, x1, y1, height = SOC
+    centre = ((x0 + x1) / 2, (y0 + y1) / 2)
+    flange_width, top_width, sheet, radius = SOC_LID
+    die_side, die_height = SOC_DIE
+    seat = TOP + 1.1  # the substrate's top face
+    flange = cq.Workplane('XY', origin=(centre[0], centre[1], seat)).rect(flange_width,
+                                                                          flange_width) \
+        .extrude(0.4).edges('|Z').fillet(1.0).val()
+    cap = cq.Workplane('XY', origin=(centre[0], centre[1], seat + 0.4)) \
+        .rect(top_width, top_width).extrude(height - 1.5).edges('|Z').fillet(1.0) \
+        .faces('>Z').edges().fillet(radius).val()
+    # The cavity follows the cap's rounded edges, one sheet inside, so the walls stay closed.
+    inner = top_width - 2 * sheet
+    cavity = cq.Workplane('XY', origin=(centre[0], centre[1], seat - 0.1)).rect(inner, inner) \
+        .extrude(TOP + height - sheet - seat + 0.1).edges('|Z').fillet(1.0 - sheet) \
+        .faces('>Z').edges().fillet(radius - sheet).val()
+    half = die_side / 2
+    die_top = seat + die_height
+    return {'soc_substrate': [('substrate', box(x0, y0, TOP, x1, y1, seat))],
+            'soc_die': [('die', box(centre[0] - half, centre[1] - half, seat, centre[0] + half,
+                                    centre[1] + half, die_top)),
+                        ('thermal_paste', box(centre[0] - half, centre[1] - half, die_top,
+                                              centre[0] + half, centre[1] + half,
+                                              TOP + height - sheet))],
+            'soc_lid': [('steel_lid', flange.fuse(cap).cut(cavity).clean())]}
+
+
+def ram() -> List[Piece]:
+    """Return the RAM package."""
+    x0, y0, x1, y1, height = RAM
+    return [('chip', rounded_box(x0, y0, TOP, x1, y1, TOP + height, chamfer_top=0.15))]
+
+
+def wireless() -> Dict[str, List[Piece]]:
+    """Return the wireless module: its chip and parts, and the hollow shield over them."""
+    x0, y0, x1, y1, height = WIRELESS_CAN
+    can = rounded_box(x0, y0, TOP, x1, y1, TOP + height, vertical=0.4, top=0.2)
+    can = can.cut(box(x0 + 1.2, y0 + 1.2, TOP + height - 0.06, x1 - 1.2, y1 - 1.2,
+                      TOP + height + 0.1))
+    can = can.cut(box(x0 + 0.15, y0 + 0.15, TOP - 0.1, x1 - 0.15, y1 - 0.15,
+                      TOP + height - 0.15))
+    cx0, cy0, cx1, cy1, chip_height = WIRELESS_CHIP
+    inside: List[Piece] = list(quad_package(cx0, cy0, cx1, cy1, TOP, chip_height, 0.4))
+    for k in range(6):
+        y = y0 + 2.0 + 1.6 * k
+        inside += two_terminal([(x0 + 1.0, y), (x0 + 2.0, y + 0.5)], TOP, TOP + 0.45, 'ceramic')
+        inside += two_terminal([(x1 - 2.0, y), (x1 - 1.0, y + 0.5)], TOP, TOP + 0.45, 'ceramic')
+    return {'wireless_chip': inside, 'wireless_shield': [('nickel', can)]}
+
+
+def parse_outlines(table: str) -> List[List[Tuple[float, float]]]:
+    """Return the outlines of a parts table as polygons."""
+    outlines = []
+    for line in table.strip().splitlines():
+        values = line.split()
+        if values[0] == 'P':
+            coords = [float(v) for v in values[1:]]
+            outlines.append(list(zip(coords[0::2], coords[1::2])))
+        else:
+            x0, y0, x1, y1 = (float(v) for v in values)
+            outlines.append([(x0, y0), (x1, y0), (x1, y1), (x0, y1)])
+    return outlines
+
+
+def polygon_area(points: Sequence[Tuple[float, float]]) -> float:
+    """Return the area of a polygon."""
+    return 0.5 * abs(sum(points[i][0] * points[i - 1][1] - points[i - 1][0] * points[i][1]
+                         for i in range(len(points))))
+
+
+def outline_box(points: Sequence[Tuple[float, float]]) -> Tuple[float, float, float, float]:
+    """Return the bounding box of an outline, rounded like the tables."""
+    xs = [p[0] for p in points]
+    ys = [p[1] for p in points]
+    return (round(min(xs), 2), round(min(ys), 2), round(max(xs), 2), round(max(ys), 2))
+
+
+def small_part(points: Sequence[Tuple[float, float]], top_side: bool) -> List[Piece]:
+    """Return one small part, its look chosen by size and outline.
+
+    Two-terminal parts (rectangles below 3.5 mm²) get tin end caps, larger rectangles are
+    chips with pads along their edges, a few parts are named by their outline.
+    """
+    area = polygon_area(points)
+    bounds = outline_box(points)
+    height = 0.3 if area < 0.3 else 0.45 if area < 1.0 else 0.6 if area < 3.5 else 0.9
+    z0, z1 = (TOP, TOP + height) if top_side else (BOTTOM - height, BOTTOM)
+    rectangle = len(points) == 4 and abs(polygon_area(points) - (bounds[2] - bounds[0])
+                                         * (bounds[3] - bounds[1])) < 1e-6
+    if bounds == INDUCTOR_BOX:
+        z1 = TOP + 2.0
+        return [('inductor', prism(points, z0, z1))]
+    if bounds in TALL_PARTS:
+        z1 = TOP + TALL_PARTS[bounds]
+        body: List[Piece] = [('chip', rounded_box(*bounds[:2], z0, *bounds[2:], z1,
+                                                  chamfer_top=0.15))]
+        x_part, reach = TALL_PART_TERMINALS
+        if bounds[0] == x_part:
+            for ya, yb in ((bounds[1] - reach, bounds[1] + 0.3), (bounds[3] - 0.3,
+                                                                  bounds[3] + reach)):
+                body.append(('tin', box(bounds[0] + 0.4, ya, z0, bounds[2] - 0.4, yb, z0 + 0.4)))
+        return body
+    for led_box, led_material in LEDS:
+        if bounds == led_box:
+            return [(led_material, prism(points, z0, TOP + 0.6))]
+    if not rectangle:
+        return [('chip', prism(points, z0, z1))]
+    if area < 3.5:
+        return list(two_terminal(points, z0, z1, 'ceramic'))
+    if top_side:
+        return list(quad_package(*bounds[:2], *bounds[2:], z0, height))
+    return [('chip', prism(points, z0, z1))]
+
+
+def small_parts() -> Dict[str, List[Piece]]:
+    """Return the small parts on both sides of the board, the three larger chips on their own."""
+    groups: Dict[str, List[Piece]] = {name: [] for name in NAMED_CHIPS.values()}
+    groups['small_parts_top'] = []
+    groups['small_parts_bottom'] = []
+    for points in parse_outlines(SMALL_PARTS_TOP):
+        name = NAMED_CHIPS.get(outline_box(points), 'small_parts_top')
+        groups[name] += small_part(points, True)
+    for points in parse_outlines(SMALL_PARTS_BOTTOM):
+        groups['small_parts_bottom'] += small_part(points, False)
+    return groups
+
+
+def micro_sd_socket() -> List[Piece]:
+    """Return the microSD card socket on the bottom."""
+    x0, y0, x1, y1, height = MICRO_SD
+    socket = box(x0, y0, BOTTOM - height, x1, y1, BOTTOM)
+    slot = box(x0 - 0.1, y0 + 0.6, BOTTOM - height + 0.25, x0 + 8.0, y1 - 0.6, BOTTOM - 0.3)
+    return [('nickel', socket.cut(slot))]
+
+
+def solder_joints() -> List[Piece]:
+    """Return the solder joints and shell pegs of the through-hole connectors on the bottom."""
+    parts: List[Piece] = []
+    for x, y in THROUGH_HOLE_PINS:
+        joint = cq.Workplane('XY').circle(0.55).workplane(offset=0.9).circle(0.25) \
+            .loft().translate((x, y, BOTTOM - 0.9)).mirror('XY', (0, 0, BOTTOM - 0.45)).val()
+        parts.append(('tin', joint))
+    for x, y in SHELL_PEGS:
+        parts.append(('nickel', box(x - 0.6, y - 0.3, BOTTOM - 1.4, x + 0.6, y + 0.3, BOTTOM)))
+    return parts
+
+
+# ---------------------------------------------------------------------------------------------
+# Mesh
+# ---------------------------------------------------------------------------------------------
+FRAME = ("The board's mid-plane at z = 0, the board from x = -7.569 to 48.431 mm and from "
+         'y = -42.123 to 42.877 mm, the USB and Ethernet end at +y, the GPIO header along -x.')
+
+
+def to_mesh_frame(surface: Surface) -> Surface:
+    """Return the surface turned by +90 degrees about z and moved into the mesh's frame."""
+    turn = np.array([[0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]])
+    return transform_surface(surface, turn, (BOARD_TO_MESH[0], BOARD_TO_MESH[1], 0.0))
+
+
+def sub_part(name: str, pieces: Sequence[Piece]) -> SubPart:
+    """Return a named sub-part from its (material, shape or surface) pieces."""
+    surfaces = []
+    for material, piece in pieces:
+        surface = piece if isinstance(piece, Surface) else \
+            drop_degenerate(tessellate_shape(piece, TOLERANCE, ANGULAR_TOLERANCE))
+        surfaces.append((material, to_mesh_frame(surface)))
+    return SubPart(name, surfaces_by_material(name, surfaces, list(MATERIALS)))
+
+
+def build() -> List[Model]:
+    """Return the board's mesh, one named sub-part per connector, chip or group of parts.
+
+    Parts that lie on top of others are sub-parts of their own (the processor's lid over its
+    die, the wireless shield over its chip), so an exploded view can lift them apart.
+    """
+    groups: List[Tuple[str, List[Piece]]] = [
+        ('board', board()), ('gpio_header', gpio_header()), ('poe_header', poe_header()),
+        ('ethernet', ethernet()), ('usb_2', usb_stack(USB2, 'black_plastic')),
+        ('usb_3', usb_stack(USB3, 'usb3_blue')), ('usb_c', usb_c())]
+    groups += [(f'micro_hdmi_{k}', micro_hdmi(*spec)) for k, spec in enumerate(MICRO_HDMI)]
+    groups += [('audio_jack', audio_jack()), ('camera_connector', ffc_connector(CSI, False)),
+               ('display_connector', ffc_connector(DSI, True))]
+    groups += list(soc().items()) + [('ram', ram())] + list(wireless().items())
+    groups += list(small_parts().items())
+    groups += [('micro_sd_socket', micro_sd_socket()), ('solder_joints', solder_joints())]
+    sub_parts = [sub_part(name, parts) for name, parts in groups]
+    return [Model(NAME, TITLE, FRAME, MATERIALS, sub_parts)]
