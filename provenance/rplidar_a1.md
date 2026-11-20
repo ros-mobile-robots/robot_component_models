@@ -62,7 +62,7 @@ The example attaches the scanner to a link `scanner_mount`. That link's origin l
 
 A parent frame whose +x points to the robot's front, with the motor mounted towards the robot's rear, needs a second turn: the joint's yaw is π as well, `rpy="0 0 3.14159265359"` in the joint's `<origin>`. The two turns put the mesh's -x, the motor's end, towards the robot's rear. With the motor towards the robot's front, the joint's yaw is 0, as in the example.
 
-Remo's description selects this scanner in the open pull request [ros-mobile-robots/remo_description#26](https://github.com/ros-mobile-robots/remo_description/pull/26), with the motor towards the robot's rear and a joint yaw of π.
+Remo's description selects this scanner in the pull request [ros-mobile-robots/remo_description#26](https://github.com/ros-mobile-robots/remo_description/pull/26), with the motor towards the robot's rear and a joint yaw of π.
 
 ## Mesh
 
