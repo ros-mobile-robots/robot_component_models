@@ -11,7 +11,7 @@ Find your change in this list. Each line says what to run or check, and links th
 - **A new or changed part:**
     1. Read [Modelling a part from its sources](CONTRIBUTING.md#modelling-a-part-from-its-sources) before you touch a generator. Every dimension has its source in `provenance/<part>.md`: a public specification, your own measurement with how you took it, or an estimate or a choice that the page calls one.
     2. Change the generator and regenerate the meshes ([After a change to a generator](#after-a-change-to-a-generator)).
-    3. The two regeneration checks, the mesh check, the unit tests, flake8 and mypy pass ([Check a checkout](#check-a-checkout)).
+    3. The two regeneration checks, the millimetre checks, the mesh check, the unit tests, flake8 and mypy pass ([Check a checkout](#check-a-checkout)).
     4. Load the mesh in a robot's model and look at the robot in RViz and Gazebo. Say in the pull request what you saw.
     5. The part's provenance page, the README's parts table, the version and the changelog are up to date ([Things that are easy to get wrong](#things-that-are-easy-to-get-wrong)).
 - **New logic in a generator, the shared code or a script:** the change brings a check of its own, and a fix brings a check that fails without the fix ([Code](#code)).
@@ -30,7 +30,7 @@ Display models of off-the-shelf components that robots carry, such as a laser sc
 | `generators/mesh_export.py`, `generators/manifest.py` | The writers of the STL, COLLADA and glTF files, and of `meshes/manifest.yaml` |
 | `meshes/` | Generated files. Change the generator, never the file |
 | `provenance/<part>.md` | Each model's sources, its frame, and what is simplified or estimated |
-| `scripts/` | The checks that CI runs (`check_meshes.py`, `check_install.py`) and the README's pictures (`render_parts.py`) |
+| `scripts/` | The checks that CI runs (`check_meshes.py`, `check_install.py`, `check_millimetre_collada.py`, `check_millimetre_option.py`) and the README's pictures (`render_parts.py`) |
 
 ## Commands
 
@@ -48,6 +48,10 @@ These commands change no tracked file. Run them on your own change, and on someo
 ```bash
 .venv/bin/python -m generators --check           # regeneration check: all files byte-identical
 .venv/bin/python -m generators --check           # a second run gives the same line
+mm="$(mktemp -d)/meshes_mm"                      # a folder name that doesn't exist yet
+.venv/bin/python -m generators --millimetre-collada "$mm"   # COLLADA files written in millimetres: …
+.venv/bin/python scripts/check_millimetre_collada.py "$mm"  # … millimetre files checked, 0 problems
+.venv/bin/python scripts/check_millimetre_option.py         # … cases, 0 failed
 .venv/bin/python scripts/check_meshes.py         # … files checked, 0 problems
 .venv/bin/python -m unittest discover -s tests   # OK
 .lint/bin/flake8 generators scripts tests        # prints nothing
@@ -55,6 +59,7 @@ These commands change no tracked file. Run them on your own change, and on someo
 ```
 
 - **`--check`:** regenerates every mesh into a temporary folder and compares the files and the manifest with `meshes/`. It passes twice in a row, because the files hold no time stamps or paths.
+- **The millimetre files:** `--millimetre-collada` writes every COLLADA file once more, in millimetres, into a new folder outside `meshes/` ([README, Millimetre COLLADA files](README.md#millimetre-collada-files-for-close-ups-in-gazebo-classic)). `check_millimetre_collada.py` compares that folder with `meshes/`, and `check_millimetre_option.py` tries the folders that the option has to refuse, each on a copy in a temporary folder. CI's job "Regenerate meshes" runs the three commands after the two regeneration checks.
 - **`check_meshes.py`:** its first run downloads the COLLADA 1.4.1 schema from khronos.org into `.cache/collada` and verifies the file by its checksum, so that run needs network access.
 - **Where the bytes are the same as CI's:** CI regenerates in one environment, the Ubuntu 24.04 image that `.github/workflows/ci.yml` pins by its digest, on an x64 (amd64) machine, with Python 3.12.3, glibc 2.39 and the graphics libraries that the workflow installs ([README, Regenerating the meshes](README.md#regenerating-the-meshes)). The pinned Python packages alone don't give that environment. On another system, `--check` can report differing files for an unchanged checkout. Run the check in CI's image then: [Run CI's checks locally](CONTRIBUTING.md#run-cis-checks-locally) has the docker command.
 
@@ -122,7 +127,7 @@ head_height = SCREW_HEAD.height
 
 ## Things that are easy to get wrong
 
-- **Units:** generators work in millimetres, and the files are written in metres.
+- **Units:** generators work in millimetres, and the files in `meshes/` are written in metres. Only `--millimetre-collada` writes files in millimetres, and only into a new folder outside `meshes/`.
 - **A mesh's frame is a contract:** a change that moves a mesh's origin, turns its axes, changes its units or moves an attachment point gets a new file name. The old file stays.
 - **Sources:** read "Modelling a part from its sources" in CONTRIBUTING.md before you touch a generator.
 - **Versions:** raise the version in `package.xml` and add a section to `CHANGELOG.rst`. A pull request that only changes the guides or the README keeps the version. Don't create tags.
