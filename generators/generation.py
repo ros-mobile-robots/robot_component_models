@@ -2,6 +2,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 """Build the parts and write their mesh files, one process per part.
 
+generate() writes the three formats of each mesh with its manifest entry, and
+generate_millimetre_collada() writes only the COLLADA files, in millimetres.
+
 The functions that a part's process runs live in this module, not in generators/__main__.py.
 A process that is started fresh, as Python's 'spawn' and 'forkserver' start methods do,
 imports each function from its module by name. It can import this module, but it doesn't run
@@ -18,6 +21,7 @@ from typing import Sequence
 from generators.manifest import file_facts
 from generators.manifest import MeshEntry
 from generators.manifest import PartEntry
+from generators.mesh_export import MILLIMETRE
 from generators.mesh_export import require_model_materials
 from generators.mesh_export import used_materials
 from generators.mesh_export import write_dae
@@ -72,3 +76,24 @@ def generate(names: Sequence[str], out: str, temporary: Optional[str] = None) ->
     with ProcessPoolExecutor(max_workers=min(len(names), os.cpu_count() or 1),
                              initializer=use_temporary_folder, initargs=(temporary,)) as pool:
         return list(pool.map(generate_part, names, [out] * len(names)))
+
+
+def generate_part_millimetre_collada(name: str, out: str) -> List[str]:
+    """Write one part's COLLADA files in millimetres into out/<part>/ and return their paths."""
+    module = importlib.import_module(f'generators.{name}')
+    os.makedirs(os.path.join(out, name), exist_ok=True)
+    written = []
+    for model in module.build():
+        require_model_materials(model)
+        path = os.path.join(out, name, model.name + '.dae')
+        write_dae(model, path, f'generators/{name}.py', MILLIMETRE)
+        print(f'{path}: millimetres, {os.path.getsize(path)} bytes', flush=True)
+        written.append(path)
+    return written
+
+
+def generate_millimetre_collada(names: Sequence[str], out: str) -> List[str]:
+    """Write the parts' COLLADA files in millimetres into out/, one process per part."""
+    with ProcessPoolExecutor(max_workers=min(len(names), os.cpu_count() or 1)) as pool:
+        written = pool.map(generate_part_millimetre_collada, names, [out] * len(names))
+        return [path for paths in written for path in paths]

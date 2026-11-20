@@ -29,3 +29,6 @@ Changelog for package robot_component_models
 * A display model of a 360 degree laser scanner of the RPLIDAR A1's size (A1M8), from the
   datasheet's mechanical drawing: base, board, connectors, motor, pulley, belt, head and window
   as sub-parts, z = 0 in the scan plane
+* ``python3 -m generators --millimetre-collada DIR`` writes the COLLADA files in millimetres,
+  with that unit declared in each file, into a new folder outside meshes/, for close-ups in
+  Gazebo Classic. The released files stay in metres

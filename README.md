@@ -167,7 +167,7 @@ Without the path, gz-sim spawns the robot, logs `Unable to find file with URI [m
 
 ### Tested so far
 
-- **ROS 1 Noetic, RViz and Gazebo Classic 11:** the COLLADA and STL files in DiffBot's and Remo's descriptions. The robots' drive wheels there are their own meshes, so the 65 mm wheel's files haven't been drawn in these scenes yet.
+- **ROS 1 Noetic, RViz 1.14 and Gazebo Classic 11:** the COLLADA and STL files in DiffBot's and Remo's descriptions. The robots' drive wheels there are their own meshes, so the 65 mm wheel's files haven't been drawn in these scenes yet.
 - **ROS 2 Humble, RViz 2 and Gazebo Fortress:** CI checks the package's build and install. Both viewers drew the camera and the Teensy from their COLLADA files. Their mesh loaders read nine COLLADA files with every corner at the file's position, and the nine STL files of that test with the triangle counts and bounding boxes that the manifest gave for those files. These nine meshes are those of the parts other than the 65 mm wheel and the A1. The laser scanner of the A2's size, the Teensy, the breadboard and the camera were tested with the COLLADA files of this version. The caster's three meshes and the two boards were tested in an earlier version, with other materials, and the caster's base and wheel support and the two boards also with other shapes.
 - **ROS 2 Jazzy, RViz 2 and gz-sim 8:**
     - **Drawn from the COLLADA files:** the same nine meshes, each on its own and all nine in one scene.
@@ -176,11 +176,17 @@ Without the path, gz-sim spawns the robot, logs `Unable to find file with URI [m
     - **The glTF files:** an earlier version of the same nine meshes' glTF files, drawn with sRGB values as base colours. The 90° turn and the dark metals in the table above come from that test. VTK's glTF importer drew a few examples with linear base colours. RViz 2 and gz-sim haven't drawn the glTF files with linear base colours in a test yet.
     - **The 65 mm wheel's and the A1's files** haven't been drawn there in a test yet.
 
+The robots' descriptions are ROS 1 packages, so test models with these meshes stand in for them in the ROS 2 tests.
+
+In close-ups, Gazebo Classic draws some small features of the COLLADA files deformed. [Millimetre COLLADA files for close-ups in Gazebo Classic](#millimetre-collada-files-for-close-ups-in-gazebo-classic) has the cause, the numbers and the files that Gazebo Classic draws correctly.
+
 ## Mesh conventions
 
 ### Units
 
 All files are in metres, ROS's unit for lengths ([REP 103](https://www.ros.org/reps/rep-0103.html)). STL has no unit field, and ROS reads its coordinates as metres, so no file needs a scale. The generators build the models in millimetres and convert the coordinates when they write the files. The provenance pages give positions in millimetres.
+
+For close-ups in Gazebo Classic, the generators can write the COLLADA files in millimetres into a separate folder. See [Millimetre COLLADA files for close-ups in Gazebo Classic](#millimetre-collada-files-for-close-ups-in-gazebo-classic).
 
 ### Frames
 
@@ -232,11 +238,53 @@ python3 -m venv .venv && .venv/bin/pip install -r generators/requirements.txt
 
 The models are written with CadQuery because its models are plain Python driven by the dimensions from the sources, built on the OpenCASCADE solid modelling kernel. A change to a model is a readable diff of parameters and code, the generators need no graphical CAD program, and CI regenerates and checks every file. [build123d](https://build123d.readthedocs.io/) is the closest alternative, also a Python library on OpenCASCADE.
 
+### Millimetre COLLADA files for close-ups in Gazebo Classic
+
+![A mounting hole of the camera as Gazebo Classic reads it: deformed from the released file in metres, round from the millimetre file](docs/images/millimetre_collada_camera_hole.png)
+
+The picture shows one of the camera's Ø2.2 mm mounting holes with its gold ring, as Gazebo Classic 11's COLLADA loader reads it from the released file in metres and from the millimetre file.
+
+The released files in `meshes/` are in metres. For close-up pictures in Gazebo Classic, the generators write the COLLADA files once more, in millimetres, into a new folder that you name:
+
+```bash
+.venv/bin/python -m generators --millimetre-collada build/meshes_mm
+```
+
+This creates the folder `build/meshes_mm` and writes `build/meshes_mm/<part>/<name>.dae` for every mesh, and no other file. With part names before the option, it writes only those parts' files. The option writes only into a folder that it creates itself: it refuses a folder that exists already, and a folder inside `meshes/`. So the option never changes an existing file, and a released file never changes its unit under its name. To write the files again, remove the folder first or name another one.
+
+[`scripts/check_millimetre_collada.py`](scripts/check_millimetre_collada.py) compares such a folder with the released files. Without `--parts` it expects every part's files. After a run for some parts, name the same parts:
+
+```bash
+.venv/bin/python scripts/check_millimetre_collada.py build/meshes_mm
+.venv/bin/python -m generators raspberry_pi_camera_v2 --millimetre-collada build/camera_mm
+.venv/bin/python scripts/check_millimetre_collada.py build/camera_mm --parts raspberry_pi_camera_v2
+```
+
+**What a millimetre file is.** A COLLADA file names its unit of length in its `<unit>` element. A millimetre file declares `<unit name="millimeter" meter="0.001"/>`, and each of its positions is 1000 times the released file's. The normals, triangles, materials and sub-parts are the same. A program that applies the unit loads the same mesh from both files, at the same size and place. So a millimetre file needs no scale in the URDF either. `scale="0.001 0.001 0.001"` would apply the unit a second time.
+
+**When the millimetre files help.** Gazebo Classic's COLLADA loader can treat two positions as one vertex when they lie within 0.001 of each other on every axis, counted in the file's unit. The loader applies the unit afterwards. In a file in metres that distance is 1 mm. Gazebo Classic 11.15.1 then draws some triangle corners at a neighbouring vertex's position, and some triangles collapse into a line. In the Raspberry Pi camera's released file, 473 of 8,928 corners are drawn up to 1.6 mm from their place, and 61 of 2,976 triangles collapse. In the Teensy's file these are 3,813 of 76,560 corners and 274 of 25,520 triangles. Close up, some small features look deformed, for example the camera's mounting holes and the Teensy's push button. At whole-robot distance the effect is hardly visible. In a millimetre file that distance is 1 µm, and Gazebo Classic draws every corner at its place, measured for the nine millimetre meshes at [`8a41fb9`](https://github.com/ros-mobile-robots/robot_component_models/tree/8a41fb9d1db39b08455397cb89413d40498debac/meshes): the caster's three, the laser scanner of the A2's size, the two boards, the Teensy, the breadboard and the camera. The other millimetre files, such as the 65 mm wheel's, are checked against their files in metres by the checker below, not yet in a viewer.
+
+**Where they change nothing.** RViz 1, RViz 2, Gazebo Fortress and Gazebo Harmonic draw the released files correctly. Their mesh loaders give the same mesh for both files, within 0.00001 mm, measured for the same nine meshes.
+
+**What ignores the unit.** A program that ignores the `<unit>` element reads a millimetre file 1000 times too large. One such program is [geometric_shapes](https://github.com/moveit/geometric_shapes), which MoveIt uses to load collision meshes (measured with version 2.3.4 on ROS 2 Jazzy). Use the released files in such a program.
+
+**How a robot description uses them.** The millimetre files aren't part of the installed package. So the folder has to be in a ROS package on the machine that runs the viewer. For example, write the files into a description package of your own, as `my_robot_description/meshes_mm`, let that package install the folder, and refer to a file by that package's name:
+
+```xml
+<visual>
+  <geometry>
+    <mesh filename="package://my_robot_description/meshes_mm/raspberry_pi_camera_v2/raspberry_pi_camera_v2.dae"/>
+  </geometry>
+</visual>
+```
+
+Leave out the scale, as for the released file: with the file's unit, the mesh has its real size. Gazebo Classic 11 and RViz in ROS 1 Noetic, and gz-sim 8 and RViz 2 in ROS 2 Jazzy, showed the camera and the Teensy at their real size this way, from a test package that held the millimetre files. DiffBot's and Remo's descriptions get a launch argument for such a folder in [ros-mobile-robots/diffbot#189](https://github.com/ros-mobile-robots/diffbot/issues/189) and [ros-mobile-robots/remo_description#27](https://github.com/ros-mobile-robots/remo_description/issues/27).
+
 ## Checks
 
 [CI](.github/workflows/ci.yml) runs on every pull request:
 
-1. **Regeneration**: regenerates all parts twice in the generator environment, each time into a new folder, and fails if any file differs from the manifest's checksum. The check only reads `meshes/`.
+1. **Regeneration**: regenerates all parts twice in the generator environment, each time into a new folder, and fails if any file differs from the manifest's checksum. The check only reads `meshes/`. The job also writes the [millimetre COLLADA files](#millimetre-collada-files-for-close-ups-in-gazebo-classic) into a folder of their own. [`scripts/check_millimetre_collada.py`](scripts/check_millimetre_collada.py) compares them with the files in `meshes/`: each file declares the millimetre, each position is 1000 times the position in metres, and the rest of the file is the same. [`scripts/check_millimetre_option.py`](scripts/check_millimetre_option.py) tries the folders that the option has to refuse, among them existing folders with links to released files, and checks that no file changes.
 2. **Mesh checks**: every STL is closed and consistently oriented. Triangle counts, units and bounding boxes match the manifest. Each COLLADA and glTF file holds the triangles of its STL file, with the same winding. The COLLADA files are valid against the COLLADA 1.4.1 schema and load in pycollada. Each corner of their triangle lists has an index for its position and an index of its own for its normal, which Gazebo Classic needs to shade sharp edges correctly. Each corner's normal index must be its position's index, because a mesh has one normal for each position. The check follows each input to the source that it names: the positions and the normals each come from their own source of the geometry. The glTF files load in trimesh and pass the Khronos glTF Validator. The job also runs the unit tests in [`tests/`](tests/): the generators' command line, the grouping of a model's pieces by material, the glTF files' linear base colours, the comparison of the three formats, the COLLADA files' normal indices and sources, the comparison of installed provenance pages with the repository's, and that every part is registered for its pictures, its provenance page and the README.
 3. **ROS packages**: builds and installs the package in the `ros:noetic` and `ros:humble` containers and checks that the installed `share/robot_component_models` holds exactly the manifest's files, their license files, the manifest, each part's provenance page, generator and frame picture, the generators' other Python files, `LICENSE`, `package.xml` and the build tools' own files. Each of these files can be read, each installed provenance page is the repository's page, each page of the manifest exists in the repository, and each relative link of an installed page leads to an installed file. The ROS 1 build is checked with `catkin_make_isolated` and with colcon.
 4. **Code style**: flake8 with ROS 2's ament_flake8 settings and mypy, which requires type hints on every function, on the generators, scripts and tests.

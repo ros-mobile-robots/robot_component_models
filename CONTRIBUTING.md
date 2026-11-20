@@ -114,6 +114,17 @@ docker run --rm --platform linux/amd64 --user "$(id -u):$(id -g)" -v "$PWD":/src
   robot-component-models-generators /opt/venv/bin/python -m generators
 ```
 
+The millimetre COLLADA files go into a new folder outside `meshes/`, here in the container's temporary folder, and the second command compares that folder with `meshes/`:
+
+```bash
+docker run --rm --platform linux/amd64 -v "$PWD":/src:ro -w /src \
+  robot-component-models-generators bash -c '
+  /opt/venv/bin/python -m generators --millimetre-collada /tmp/meshes_mm &&
+  /opt/venv/bin/python scripts/check_millimetre_collada.py /tmp/meshes_mm'
+```
+
+The comparison's last line gives the number of millimetre files that it checked and ends with `0 problems`.
+
 ### The ROS package check
 
 The ROS 2 job builds and installs the package and checks the installed files:
