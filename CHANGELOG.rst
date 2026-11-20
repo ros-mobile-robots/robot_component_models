@@ -2,7 +2,7 @@
 Changelog for package robot_component_models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.0.0 (2026-11-08)
+1.0.0 (2026-11-20)
 ------------------
 * The first release: display models of DiffBot's swivel caster (three meshes), a 360 degree
   laser scanner of the RPLIDAR A2's size, the Raspberry Pi 4 Model B, the Jetson Nano Developer
