@@ -400,33 +400,33 @@ parts:
     provenance: provenance/dg01d_e_gearmotor.md
     meshes:
       dg01d_e_gearmotor:
-        frame: "x along the motor, from the encoder's end at x = -39.975 mm to the mounting tab's end at +39.975 mm. y along the output shaft, which stands out of the gearbox's +y face. z across the gearbox's 22.4 mm height. The gearbox's middle planes are y = 0 and z = 0, and the output shaft's axis is at x = 23.765 mm, z = 0."
+        frame: "x along the motor, from the encoder's end at x = -39.725 mm to the mounting tab's end at +39.975 mm. y along the output shaft, which stands out of the gearbox's +y face. z across the gearbox's 22.4 mm height. The gearbox's middle planes are y = 0 and z = 0, and the output shaft's axis is at x = 23.765 mm, z = 0."
         sub_parts: [gearbox, screws, shaft, motor_housing, motor_can, encoder_cover, encoder_board, connector]
         materials: [blue_plastic, steel, motor_can, solder_mask_green, white_plastic, tin]
         files:
           dg01d_e_gearmotor/dg01d_e_gearmotor.stl:
-            sha256: dc83f502e297c6fd19b306e850f4bc1ebadcadd998763e2164ec77ad1293c232
-            bytes: 714484
+            sha256: e130583de1c6326456de21c788d03f37b967b5dde954529978a3cad704a927e3
+            bytes: 779884
             units: metre
             up_axis: "Z"
-            triangles: 14288
-            bounding_box_min: [-0.039975, -0.017815, -0.012600]
+            triangles: 15596
+            bounding_box_min: [-0.039725, -0.017815, -0.012600]
             bounding_box_max: [0.039975, 0.018025, 0.012600]
             license_file: dg01d_e_gearmotor/dg01d_e_gearmotor.stl.license
           dg01d_e_gearmotor/dg01d_e_gearmotor.dae:
-            sha256: c6f060c9e464a194330401c25d247f819330dacec05d995d2000b8c33c9b0c25
-            bytes: 978669
+            sha256: 565a4ff3ea650684e32f5910f1ade7036ca6fc40589ae9f4400abfc27965d3ea
+            bytes: 1059974
             units: metre
             up_axis: "Z"
-            triangles: 14288
-            bounding_box_min: [-0.039975, -0.017815, -0.012600]
+            triangles: 15596
+            bounding_box_min: [-0.039725, -0.017815, -0.012600]
             bounding_box_max: [0.039975, 0.018025, 0.012600]
           dg01d_e_gearmotor/dg01d_e_gearmotor.glb:
-            sha256: b61e1bb433bd35e3f01a12ab32e6f871ae4f5145b07f4e0997660aabee0ef277
-            bytes: 375840
+            sha256: 9ec27f729cdbbeeb32f3de232d5ece4fd01bc74f7683ea2822cc03512735ac5a
+            bytes: 400400
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
-            triangles: 14288
-            bounding_box_min: [-0.039975, -0.017815, -0.012600]
+            triangles: 15596
+            bounding_box_min: [-0.039725, -0.017815, -0.012600]
             bounding_box_max: [0.039975, 0.018025, 0.012600]
             license_file: dg01d_e_gearmotor/dg01d_e_gearmotor.glb.license

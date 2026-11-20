@@ -4,13 +4,14 @@
 
 Modelled from SparkFun's drawing DS-16413 ("DG01D-E motor with encoder", page 1: a view of the
 shaft's side and a view of the motor's side, with their dimensions; page 2: the encoder board's
-size) and from measurements of the motor made for Remo's design, whose chassis holds the motor
-in a pocket. SparkFun's product photos of ROB-16413 give the look: the light blue plastic
-housing, the metal output shaft with two flats, the screws, holes and vents, and the encoder's
-connector. No logos and no printed text. Sources in provenance/dg01d_e_gearmotor.md.
+size), from measurements of the motor made for Remo's design, whose chassis holds the motor
+in a pocket, and from a motor measured with a caliper. SparkFun's product photos of ROB-16413
+give the look: the light blue plastic housing, the metal output shaft with two flats, the
+screws, holes and vents, and the encoder's connector. No logos and no printed text. Sources in
+provenance/dg01d_e_gearmotor.md.
 
 Frame (positions in mm, the files are in metres): x along the motor, from the encoder's end at
-x = -39.975 to the mounting tab's end at x = +39.975. y along the output shaft, which stands
+x = -39.725 to the mounting tab's end at x = +39.975. y along the output shaft, which stands
 out of the gearbox's +y face. z across the gearbox's 22.4 mm height. The gearbox's middle
 planes are y = 0 and z = 0. The output shaft's axis is at x = 23.765, z = 0.
 """
@@ -19,6 +20,7 @@ from typing import Dict
 from typing import List
 from typing import NamedTuple
 from typing import Sequence
+from typing import Tuple
 
 import cadquery as cq
 
@@ -85,20 +87,25 @@ class Recess(NamedTuple):
 #   DS p2     the drawing's page 2, the encoder board's specification
 #   DS scale  read off the drawing's scale, where it gives no dimension
 #   Remo      measurements of the motor made for Remo's design, whose chassis holds the motor
+#   caliper   measured on the motor with a caliper
+#   motor     the shape of the motor measured with the caliper, where the caliper gives no
+#             value
 #   photo N   SparkFun's product photo N of ROB-16413, scaled with the drawing's dimensions
 #   choice    not measured: a value that looks like the photos
 #   derived   follows from other values in this file
 # x runs along the motor, y along the output shaft, z across the gearbox (module docstring).
 # ---------------------------------------------------------------------------------------------
-OVERALL_LENGTH = 79.95       # DS: from the encoder's end to the tab's end
-ENCODER_END_X = -OVERALL_LENGTH / 2   # derived: x = 0 halves the overall length
-TAB_END_X = OVERALL_LENGTH / 2        # derived
+DRAWING_LENGTH = 79.95       # DS: the overall length, from the encoder's end to the tab's end
+TAB_END_X = DRAWING_LENGTH / 2  # derived: x = 0 halves the drawing's overall length, 39.975
+GEARBOX_END_X = -DRAWING_LENGTH / 2 + 75.15  # DS: 75.15 from the encoder's end, 35.175
+# The motor measured with the caliper is 0.25 shorter than the drawing at the encoder's end:
+# its encoder cover ends closer to the gearbox, which stays where the drawing puts it
+ENCODER_END_X = GEARBOX_END_X - 74.90  # caliper: 74.90 to the gearbox's end, -39.725
 
 # Gearbox: a block with two round corners at the tab's end
-GEARBOX_END_X = ENCODER_END_X + 75.15  # DS: 75.15 from the encoder's end, 35.175
 GEARBOX_BACK_X = -1.675      # Remo (DS scale -1.66): the face towards the motor housing
 GEARBOX_THICKNESS = 18.75    # DS: along y
-GEARBOX_HEIGHT = 22.40       # DS: along z
+GEARBOX_HEIGHT = 22.40       # DS (caliper 22.35): along z
 GEARBOX_END_ROUND = 5.0      # Remo (DS scale 4.8): the two corners at the tab's end
 GEARBOX_EDGE_ROUND = 0.3     # Remo: the edges around the +y, -y and back faces
 
@@ -108,8 +115,8 @@ SHAFT_X = BOSS_X + 11.00     # DS: 11.00 from the boss, 23.765
 MOUNT_HOLE_X = BOSS_X - 9.00  # DS: 9.00 from the boss, 3.765
 TAB_HOLE_X = BOSS_X + 24.81  # DS: 24.81 from the boss, 37.575
 MOUNT_HOLE_Z = 8.7           # Remo (DS scale 8.9): +-, where the chassis' screw holes are
-MOUNT_HOLE_DIAMETER = 3.08   # DS: two holes through the gearbox
-BOSS_DIAMETER = 3.98         # DS
+MOUNT_HOLE_DIAMETER = 3.08   # DS (caliper 3.16): two holes through the gearbox
+BOSS_DIAMETER = 3.98         # DS (caliper 3.93)
 BOSS_HEIGHT = 1.77           # DS: above the +y face
 BOSS_TOP_ROUND = 0.7         # Remo: the top edge
 BOSS_DIMPLE = Hole(BOSS_X, 0.0, 0.8, 0.5)  # photo 02: a small hole in the top; size: choice
@@ -135,7 +142,7 @@ BACK_RECESS_DOT = Hole(3.3, 0.0, 0.6, 0.5)  # photo 03; size: choice
 # Output shaft: metal, with two flats that face +z and -z, a bore in its end
 SHAFT_DIAMETER = 5.40        # DS
 SHAFT_FLATS = 3.70           # DS: across the flats
-SHAFT_LENGTH = 8.65          # DS: past the gearbox's +y face
+SHAFT_LENGTH = 8.65          # DS (caliper 8.65): past the gearbox's +y face
 SHAFT_BORE_DIAMETER = 1.8    # Remo (DS scale 1.8)
 SHAFT_BORE_DEPTH = 6.0       # choice
 SHAFT_END_CHAMFER = 0.2      # choice
@@ -144,11 +151,11 @@ COLLAR_DIAMETER = 7.0        # DS scale: the ring around the shaft's foot
 COLLAR_HEIGHT = 0.3          # DS scale
 
 # Mounting tab at the gearbox's end, centred on the gearbox's middle planes
-TAB_HEIGHT = 5.00            # DS: along z
+TAB_HEIGHT = 5.00            # DS (caliper 5.00): along z
 TAB_THICKNESS = 2.80         # DS: along y. Centred: Remo (DS scale 0.57 towards -y)
 TAB_END_ROUND = 2.0          # Remo: the two corners at its end
 TAB_EDGE_ROUND = 0.3         # Remo: the edges around its +y and -y faces
-TAB_HOLE_DIAMETER = 2.99     # DS
+TAB_HOLE_DIAMETER = 2.99     # DS (caliper 2.99)
 TAB_ROOT = 1.0               # choice: the tab starts this far inside the gearbox
 # Pieces of different sub-parts overlap where they join, so that no two faces lie on each
 # other: the hidden part stays inside the neighbour
@@ -157,25 +164,29 @@ OVERLAP = 0.3                # choice
 SINK = 0.1                   # choice
 # A cutter reaches this far past the face that it cuts, so the cut leaves no skin
 CUTTER_REACH = 1.0           # choice
+# A straight piece of an outline is at least this long, or the outline leaves it out
+SHORTEST_STRAIGHT = 0.01     # choice
+# Two lengths that differ by less than this count as equal: the floating point roundoff of
+# adding and subtracting the values in this file
+ROUNDOFF = 1e-9              # choice
 
-# Neck between the gearbox and the motor housing, with a fin on each side
-NECK_THICKNESS = 15.95       # Remo: along y
-NECK_HEIGHT = GEARBOX_HEIGHT  # DS: the top view's lines run on from the gearbox
-NECK_EDGE_ROUND = 1.5        # Remo: the four long edges
-FIN_FRONT_X = BOSS_X - 19.19  # DS: 19.19 from the boss's centre, -6.425
+# Neck between the gearbox and the motor housing, with a fin on each side: round, cut by two
+# flats on its +y and -y sides
+NECK_THICKNESS = 15.95       # Remo: along y, across the flats
+NECK_HEIGHT = GEARBOX_HEIGHT  # DS: the top view's lines run on from the gearbox. The diameter
+FIN_FRONT_X = BOSS_X - 19.19  # DS (caliper 19.04): 19.19 from the boss's centre, -6.425
 FIN_BASE_LENGTH = 2.90       # Remo (DS scale 3.1): along x, at the neck
 FIN_TOP_LENGTH = 2.30        # Remo (DS scale 2.2): along x, at the top
 FIN_SLOPE_TOP_Y = 10.215     # Remo: the back face slopes up to here, then rises straight
-FIN_TOP_Y = 11.175           # Remo: from the middle plane, on both sides
+FIN_TOP_Y = 11.175           # Remo (caliper 22.18 across both): from the middle plane, both sides
 FIN_HEIGHT = 5.30            # Remo (DS scale 5.2): along z
 
-# Motor housing: a block with four round long edges and a chamfer down to the neck. The motor's
-# can inside shows through the vents
+# Motor housing: round, cut by two flats with the vents on its +y and -y sides, and a chamfer
+# down to the neck. The motor's can inside shows through the vents
 HOUSING_START_X = -32.975    # Remo (DS scale -33.08): the end at the encoder
-HOUSING_LENGTH = 22.30       # DS: to the end of the chamfer, where the neck starts
-HOUSING_THICKNESS = 18.75    # Remo: along y, as the gearbox
-HOUSING_HEIGHT = 25.20       # DS: along z
-HOUSING_EDGE_ROUND = 2.5     # Remo: the four long edges
+HOUSING_LENGTH = 22.30       # DS (caliper 22.29): to the end of the chamfer, where the neck starts
+HOUSING_THICKNESS = 18.75    # Remo: along y, across the flats, as thick as the gearbox
+HOUSING_HEIGHT = 25.20       # DS: along z. The diameter: the flats end at z = +-8.42 (DS scale 8)
 HOUSING_END_ROUND = 0.3      # Remo: the edges of the end at the encoder
 HOUSING_CHAMFER = (HOUSING_HEIGHT - NECK_HEIGHT) / 2  # derived: 45 degrees down to the neck, 1.4
 SHAFT_SIDE_VENTS = Slot(-17.98, 3.57, 7.25, 1.9)  # DS scale
@@ -184,17 +195,21 @@ VENT_DEPTH = 1.2             # choice: the motor's can shows at the bottom
 MOTOR_CAN_PLATE = 0.2        # choice: the can's visible face, above the vents' bottom
 MOTOR_CAN_MARGIN = 0.1       # choice: the can's plates reach this far under the vent's edge
 
-# Encoder cover at the motor housing's end, reaching past the -y face, with a window for the
-# connector on its -y face
+# Encoder cover at the motor housing's end, shaped like a D across the motor's axis: a round
+# part on the +y side, and a narrower box towards -y that holds the connector and reaches on
+# under the motor housing. A window for the connector in the box's -y face
 ENCODER_TOP_Y = 7.975        # Remo: the +y face, flush with the neck's
-ENCODER_DEPTH = 25.79        # DS: along y, so the -y face is at -17.815
-ENCODER_HEIGHT = 19.20       # DS: along z
-ENCODER_TOP_EDGE_ROUND = 6.0  # photo 02: a flat strip of about 6.8 between the rounds
+ENCODER_DEPTH = 25.79        # DS (caliper 25.78): along y, so the -y face is at -17.815
+ENCODER_HEIGHT = 19.20       # DS: along z, the round part
+ENCODER_TOP_EDGE_ROUND = 8.0  # motor: the round part's two corners, a flat strip of 3.2 between
+ENCODER_ROUND_LENGTH = 10.5  # motor: from the +y face to where the round part's +-z faces end
+ENCODER_STEP_LENGTH = 3.0    # motor: along y, an S-curve from there down to the box's faces
 ENCODER_BOTTOM_EDGE_ROUND = 0.3  # Remo: the long edges on the -y side
 ENCODER_END_EDGE_ROUND = 0.3  # Remo: around the end face
-CONNECTOR_BOX_END_X = -25.975  # Remo (DS scale -26.0): the cover's part under the motor housing
+CONNECTOR_BOX_HEIGHT = 16.82  # caliper: along z
+CONNECTOR_BOX_END_X = ENCODER_END_X + 13.38  # caliper: 13.38 from the cover's end, -26.345
 WINDOW_X = Span(-34.475, -27.475)  # Remo
-WINDOW_HALF_HEIGHT = 8.1     # Remo
+WINDOW_HALF_HEIGHT = 7.6     # motor: the box's sides stay about 0.8 wide
 WINDOW_FLOOR_Y = -9.815      # Remo: the window's bottom, inside the cover
 LATCH_X = Span(CONNECTOR_BOX_END_X - 0.5, -20.1)  # photo 03: on the motor housing's -y face
 LATCH_HALF_HEIGHT = 4.0      # photo 03
@@ -242,13 +257,59 @@ Pieces = Dict[str, List[cq.Shape]]
 def check_housing_chamfer_meets_neck() -> None:
     """Raise a ValueError if the housing's 45 degree chamfer doesn't end on the neck's section.
 
-    The chamfer takes the housing's height down to the neck's height. Along y it has to take
-    the housing's thickness down to the neck's thickness by the same amount.
+    On the round sides the chamfer takes the housing's diameter down to the neck's diameter. On
+    the flats it has to take the housing's thickness down to the neck's thickness by the same
+    amount.
     """
     thickness_step = (HOUSING_THICKNESS - NECK_THICKNESS) / 2
-    if abs(thickness_step - HOUSING_CHAMFER) > 1e-9:
+    if abs(thickness_step - HOUSING_CHAMFER) > ROUNDOFF:
         raise ValueError(f'the chamfer is {HOUSING_CHAMFER:.3f} mm along z but the neck needs '
                          f'{thickness_step:.3f} mm along y')
+
+
+def flat_half_width(diameter: float, thickness: float) -> float:
+    """Return half the width (along z) of the flats that cut a round part down to a thickness."""
+    return math.sqrt((diameter / 2) ** 2 - (thickness / 2) ** 2)
+
+
+def check_connector_box_under_flat() -> None:
+    """Raise a ValueError if the connector's box is wider than the motor housing's -y flat.
+
+    The box reaches into the housing through the flat, so a wider box would stand out of the
+    housing's round sides.
+    """
+    flat = flat_half_width(HOUSING_HEIGHT, HOUSING_THICKNESS)
+    if CONNECTOR_BOX_HEIGHT / 2 > flat:
+        raise ValueError(f"the connector's box is {CONNECTOR_BOX_HEIGHT:.2f} mm wide, the motor "
+                         f"housing's flat {2 * flat:.2f} mm")
+
+
+def check_encoder_cover_outline() -> None:
+    """Raise a ValueError if the pieces of the encoder cover's D-shaped outline don't fit.
+
+    Along y from the +y face come the round part's corners, its +-z faces, the S-curve down to
+    the narrower box and the box's faces, which end in the rounds of its -y end. The round
+    part's +-z faces and the box's faces need a straight piece each, SHORTEST_STRAIGHT or
+    longer. The flat strip between the corners is as long or left out: then the round part is
+    a semicircle. Lengths within ROUNDOFF of a limit count as the limit.
+    """
+    shortest = SHORTEST_STRAIGHT - ROUNDOFF
+    flat_strip = ENCODER_HEIGHT - 2 * ENCODER_TOP_EDGE_ROUND
+    if flat_strip < -ROUNDOFF:
+        raise ValueError("the encoder cover's corners are larger than half its height")
+    if ROUNDOFF < flat_strip < shortest:
+        raise ValueError("the encoder cover's flat strip between its corners is too short")
+    if ENCODER_ROUND_LENGTH - ENCODER_TOP_EDGE_ROUND < shortest:
+        raise ValueError("the encoder cover's round part needs straight +-z faces past its "
+                         'corners')
+    box_faces = (ENCODER_DEPTH - ENCODER_ROUND_LENGTH - ENCODER_STEP_LENGTH
+                 - ENCODER_BOTTOM_EDGE_ROUND)
+    if box_faces < shortest:
+        raise ValueError("the encoder cover's box needs straight faces between the S-curve and "
+                         'its -y end')
+    if CONNECTOR_BOX_HEIGHT >= ENCODER_HEIGHT:
+        raise ValueError("the connector's box isn't narrower than the encoder cover's round "
+                         'part')
 
 
 def inside_gearbox_face(x: float, z: float, radius: float) -> bool:
@@ -306,6 +367,19 @@ def check_connector_inside_window() -> None:
         raise ValueError("the connector stands out of the encoder cover's -y face")
 
 
+def check_window_inside_box() -> None:
+    """Raise a ValueError if the connector's window cuts through the sides or the ends of its box.
+
+    The encoder board's piece around the window reaches OVERLAP past the window's edges, and
+    has to stay hidden inside the box as well. At the cover's end it keeps clear of the round of
+    the end face's edges, so its corners stay inside that round too.
+    """
+    if WINDOW_HALF_HEIGHT + OVERLAP >= CONNECTOR_BOX_HEIGHT / 2 or \
+            WINDOW_X.high + OVERLAP >= CONNECTOR_BOX_END_X or \
+            WINDOW_X.low - OVERLAP <= ENCODER_END_X + ENCODER_END_EDGE_ROUND:
+        raise ValueError("the connector's window cuts through its box")
+
+
 def check_shaft() -> None:
     """Raise a ValueError if the flats or the bore don't fit the shaft."""
     if not SHAFT_BORE_DIAMETER < SHAFT_FLATS < SHAFT_DIAMETER < COLLAR_DIAMETER:
@@ -315,15 +389,17 @@ def check_shaft() -> None:
 
 
 def check_fins_on_neck() -> None:
-    """Raise a ValueError if a fin's foot leaves the neck."""
+    """Raise a ValueError if a fin's foot leaves the neck's flat."""
     neck_start = HOUSING_START_X + HOUSING_LENGTH
-    if FIN_FRONT_X - FIN_BASE_LENGTH <= neck_start or FIN_FRONT_X >= GEARBOX_BACK_X:
-        raise ValueError("a fin's foot reaches past the neck")
+    if FIN_FRONT_X - FIN_BASE_LENGTH <= neck_start or FIN_FRONT_X >= GEARBOX_BACK_X or \
+            FIN_HEIGHT / 2 > flat_half_width(NECK_HEIGHT, NECK_THICKNESS):
+        raise ValueError("a fin's foot reaches past the neck's flat")
 
 
-PARAMETER_CHECKS = (check_housing_chamfer_meets_neck, check_screw_recesses_inside_face,
-                    check_holes_inside_face, check_connector_inside_window, check_shaft,
-                    check_fins_on_neck)
+PARAMETER_CHECKS = (check_housing_chamfer_meets_neck, check_connector_box_under_flat,
+                    check_encoder_cover_outline, check_screw_recesses_inside_face,
+                    check_holes_inside_face, check_connector_inside_window,
+                    check_window_inside_box, check_shaft, check_fins_on_neck)
 
 
 def check_parameters() -> None:
@@ -420,17 +496,23 @@ def tab() -> cq.Shape:
     return plate.cut(hole)
 
 
+def flatted_rod(start: float, end: float, diameter: float, thickness: float) -> cq.Shape:
+    """Return a round rod along x from start to end, cut by two flats thickness apart along y."""
+    rod = cylinder(diameter / 2, (start, 0.0, 0.0), (1, 0, 0), end - start)
+    flats = box(start - CUTTER_REACH, -thickness / 2, -diameter, end + CUTTER_REACH,
+                thickness / 2, diameter)
+    return rod.intersect(flats)
+
+
 def neck() -> cq.Shape:
     """Return the neck from the motor housing's chamfer into the gearbox's back face.
 
-    The neck is as high as the gearbox. It reaches into the gearbox as far as the round of the
-    gearbox's back edges, so it fills the groove that the round leaves next to it, and its top
-    face ends where the gearbox's top face starts.
+    The neck is round and as high as the gearbox, cut by two flats. It reaches into the gearbox
+    as far as the round of the gearbox's back edges, so it fills the groove that the round
+    leaves next to it, and its top ends where the gearbox's top face starts.
     """
-    block = cq.Workplane('XY').add(box(HOUSING_START_X + HOUSING_LENGTH, -NECK_THICKNESS / 2,
-                                       -NECK_HEIGHT / 2, GEARBOX_BACK_X + GEARBOX_EDGE_ROUND,
-                                       NECK_THICKNESS / 2, NECK_HEIGHT / 2))
-    return solid(block.edges('|X').fillet(NECK_EDGE_ROUND))
+    return flatted_rod(HOUSING_START_X + HOUSING_LENGTH, GEARBOX_BACK_X + GEARBOX_EDGE_ROUND,
+                       NECK_HEIGHT, NECK_THICKNESS)
 
 
 def fin(side: int) -> cq.Shape:
@@ -540,14 +622,35 @@ def vent_cutters() -> List[cq.Shape]:
     return cutters
 
 
+def housing_side(workplane: cq.Workplane, reach: float) -> cq.Workplane:
+    """Draw the motor housing's side along x, reaching from the motor's axis out to reach.
+
+    The workplane's first axis is x, its second the distance from the motor's axis. The line
+    starts on the axis at the encoder's end, rises with the round there, runs along the housing
+    and comes down the chamfer at the neck's end, back to the axis.
+    """
+    start, end = HOUSING_START_X, HOUSING_START_X + HOUSING_LENGTH
+    radius = HOUSING_END_ROUND
+    corner = radius * (1 - math.cos(math.pi / 4))
+    return (workplane.moveTo(start, 0.0).lineTo(start, reach - radius)
+            .threePointArc((start + corner, reach - corner), (start + radius, reach))
+            .lineTo(end - HOUSING_CHAMFER, reach).lineTo(end, reach - HOUSING_CHAMFER)
+            .lineTo(end, 0.0))
+
+
 def housing_block() -> cq.Shape:
-    """Return the motor housing's block: round long edges, the chamfer down to the neck."""
-    block = cq.Workplane('XY').add(box(HOUSING_START_X, -HOUSING_THICKNESS / 2,
-                                       -HOUSING_HEIGHT / 2, HOUSING_START_X + HOUSING_LENGTH,
-                                       HOUSING_THICKNESS / 2, HOUSING_HEIGHT / 2))
-    block = block.edges('|X').fillet(HOUSING_EDGE_ROUND)
-    block = block.faces('>X').edges().chamfer(HOUSING_CHAMFER)
-    return solid(block.faces('<X').edges().fillet(HOUSING_END_ROUND))
+    """Return the motor housing without its vents: round, cut by two flats, and its chamfer.
+
+    The round sides come from the side turned about the x axis, the flats from the side
+    mirrored about y = 0 and extruded along z. Both carry the round at the encoder's end and
+    the chamfer down to the neck, so their intersection has them on the round sides and on the
+    flats.
+    """
+    radius = HOUSING_HEIGHT / 2
+    rod = housing_side(cq.Workplane('XY'), radius).close().revolve(360.0, (0, 0, 0), (1, 0, 0))
+    flats = housing_side(cq.Workplane('XY', origin=(0, 0, -radius - CUTTER_REACH)),
+                         HOUSING_THICKNESS / 2).mirrorX().extrude(2 * (radius + CUTTER_REACH))
+    return solid(rod).intersect(solid(flats))
 
 
 def make_motor_housing() -> cq.Shape:
@@ -577,21 +680,69 @@ def make_motor_can() -> List[cq.Shape]:
 # ---------------------------------------------------------------------------------------------
 # Encoder cover, board and connector
 # ---------------------------------------------------------------------------------------------
+def quarter_arc_middle(centre: Tuple[float, float], radius: float,
+                       direction: Tuple[int, int]) -> Tuple[float, float]:
+    """Return the middle point of a quarter arc about centre, towards the given diagonal.
+
+    direction holds the signs of the diagonal's two components, such as (1, -1).
+    """
+    reach = radius * math.cos(math.pi / 4)
+    return (centre[0] + direction[0] * reach, centre[1] + direction[1] * reach)
+
+
+def cover_outline(workplane: cq.Workplane) -> cq.Workplane:
+    """Draw the encoder cover's D-shaped outline across the motor's axis, and close it.
+
+    The workplane's first axis is the motor's y, its second the motor's z. The outline goes
+    round from the box's -y end with its two rounds, along the box's +z face, up the S-curve of
+    two equal arcs to the round part's +z face, round the round part's two corners on the +y
+    side, and back along the -z side.
+    """
+    top, bottom = ENCODER_TOP_Y, ENCODER_TOP_Y - ENCODER_DEPTH
+    half, box_half = ENCODER_HEIGHT / 2, CONNECTOR_BOX_HEIGHT / 2
+    corner, edge = ENCODER_TOP_EDGE_ROUND, ENCODER_BOTTOM_EDGE_ROUND
+    round_end = top - ENCODER_ROUND_LENGTH
+    step_end = round_end - ENCODER_STEP_LENGTH
+    step_middle = ((round_end + step_end) / 2, (half + box_half) / 2)
+    outline = (workplane.moveTo(bottom, -(box_half - edge)).lineTo(bottom, box_half - edge)
+               .threePointArc(quarter_arc_middle((bottom + edge, box_half - edge), edge, (-1, 1)),
+                              (bottom + edge, box_half))
+               .lineTo(step_end, box_half)
+               .tangentArcPoint(step_middle, relative=False)
+               .tangentArcPoint((round_end, half), relative=False)
+               .lineTo(top - corner, half)
+               .threePointArc(quarter_arc_middle((top - corner, half - corner), corner, (1, 1)),
+                              (top, half - corner)))
+    if half - corner > ROUNDOFF:
+        outline = outline.lineTo(top, corner - half)
+    outline = (outline
+               .threePointArc(quarter_arc_middle((top - corner, corner - half), corner, (1, -1)),
+                              (top - corner, -half))
+               .lineTo(round_end, -half)
+               .tangentArcPoint((step_middle[0], -step_middle[1]), relative=False)
+               .tangentArcPoint((step_end, -box_half), relative=False)
+               .lineTo(bottom + edge, -box_half)
+               .threePointArc(quarter_arc_middle((bottom + edge, edge - box_half), edge, (-1, -1)),
+                              (bottom, edge - box_half)))
+    return outline.close()
+
+
 def cover_end_block() -> cq.Shape:
-    """Return the cover's block at the motor's end, from the end into the motor housing."""
-    block = cq.Workplane('XY').add(box(ENCODER_END_X, ENCODER_TOP_Y - ENCODER_DEPTH,
-                                       -ENCODER_HEIGHT / 2, HOUSING_START_X + OVERLAP,
-                                       ENCODER_TOP_Y, ENCODER_HEIGHT / 2))
-    block = block.edges('|X').edges('>Y').fillet(ENCODER_TOP_EDGE_ROUND)
-    block = block.edges('|X').edges('<Y').fillet(ENCODER_BOTTOM_EDGE_ROUND)
+    """Return the cover's D-shaped part at the motor's end, from the end into the motor housing.
+
+    Its end face's edges are rounded.
+    """
+    block = cover_outline(cq.Workplane('YZ', origin=(ENCODER_END_X, 0, 0))) \
+        .extrude(HOUSING_START_X + OVERLAP - ENCODER_END_X)
     return solid(block.faces('<X').edges().fillet(ENCODER_END_EDGE_ROUND))
 
 
 def connector_box() -> cq.Shape:
     """Return the cover's part under the motor housing's -y face, which holds the connector."""
     block = cq.Workplane('XY').add(box(HOUSING_START_X - OVERLAP, ENCODER_TOP_Y - ENCODER_DEPTH,
-                                       -ENCODER_HEIGHT / 2, CONNECTOR_BOX_END_X,
-                                       -HOUSING_THICKNESS / 2 + OVERLAP, ENCODER_HEIGHT / 2))
+                                       -CONNECTOR_BOX_HEIGHT / 2, CONNECTOR_BOX_END_X,
+                                       -HOUSING_THICKNESS / 2 + OVERLAP,
+                                       CONNECTOR_BOX_HEIGHT / 2))
     return solid(block.edges('|X').edges('<Y').fillet(ENCODER_BOTTOM_EDGE_ROUND))
 
 
@@ -672,7 +823,7 @@ def make_connector() -> Pieces:
 # ---------------------------------------------------------------------------------------------
 # Mesh
 # ---------------------------------------------------------------------------------------------
-FRAME = ("x along the motor, from the encoder's end at x = -39.975 mm to the mounting tab's "
+FRAME = ("x along the motor, from the encoder's end at x = -39.725 mm to the mounting tab's "
          "end at +39.975 mm. y along the output shaft, which stands out of the gearbox's +y "
          "face. z across the gearbox's 22.4 mm height. The gearbox's middle planes are y = 0 "
          "and z = 0, and the output shaft's axis is at x = 23.765 mm, z = 0.")

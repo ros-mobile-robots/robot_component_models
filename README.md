@@ -21,7 +21,7 @@ These are display models for visualisation in RViz, Gazebo and web viewers. They
 | [400-point solderless breadboard](provenance/breadboard_400_point.md) | <img src="docs/images/breadboard_400_point.png" width="200" alt="Breadboard"> | `breadboard_400_point/breadboard_400_point` | Remo | 6,768 | 338 / 526 / 290 kB |
 | [Raspberry Pi Camera Module v2](provenance/raspberry_pi_camera_v2.md) | <img src="docs/images/raspberry_pi_camera_v2.png" width="200" alt="Camera Module v2"> | `raspberry_pi_camera_v2/raspberry_pi_camera_v2` | Remo | 2,976 | 149 / 246 / 116 kB |
 | [Wheel 65 mm for TT gear motors](provenance/tt_motor_wheel_65mm.md) | <img src="docs/images/tt_motor_wheel_65mm.png" width="200" alt="Wheel"> | `tt_motor_wheel_65mm/tt_motor_wheel_65mm` | DiffBot, Remo | 97,550 | 4,878 / 7,019 / 2,194 kB |
-| [Gear motor with hall encoder, DG01D-E size](provenance/dg01d_e_gearmotor.md) | <img src="docs/images/dg01d_e_gearmotor.png" width="200" alt="Gear motor"> | `dg01d_e_gearmotor/dg01d_e_gearmotor` | Not yet (the motor of DiffBot and Remo) | 14,288 | 714 / 979 / 376 kB |
+| [Gear motor with hall encoder, DG01D-E size](provenance/dg01d_e_gearmotor.md) | <img src="docs/images/dg01d_e_gearmotor.png" width="200" alt="Gear motor"> | `dg01d_e_gearmotor/dg01d_e_gearmotor` | Not yet (the motor of DiffBot and Remo) | 15,596 | 780 / 1,060 / 400 kB |
 
 Each mesh comes in three files in `meshes/<part>/`, all in metres:
 
