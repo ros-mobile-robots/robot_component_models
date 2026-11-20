@@ -47,10 +47,10 @@ The package installs data and its documentation: `meshes/` with the manifest, `p
      robot_component_models:
        type: git
        url: https://github.com/ros-mobile-robots/robot_component_models.git
-       version: main
+       version: 1.0.0
    ```
 
-   While the pull request that adds the package is open, `main` doesn't hold the package yet: use the branch `feat/initial-models` as the `version` until then. Releases are tagged with their version, such as `1.0.0`. No release is tagged yet, so the example follows `main`. Pin a release's tag as the `version` once one exists: a released file keeps its frame (see [Versioning](#versioning)).
+   Releases are tagged with their version, such as `1.0.0`. Pin a release's tag as the `version`, as in the example: a released file keeps its frame (see [Versioning](#versioning)).
 
 3. Import, build and source the workspace. In ROS 1 Noetic:
 
