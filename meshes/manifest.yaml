@@ -28,8 +28,8 @@ parts:
             bounding_box_max: [0.015000, 0.019000, 0.015000]
             license_file: swivel_caster_30mm/swivel_caster_30mm_base.stl.license
           swivel_caster_30mm/swivel_caster_30mm_base.dae:
-            sha256: c7ee1b2258f5590addc014fd755cde3a773308d88445fae4a37e24730fcc0fc9
-            bytes: 1578762
+            sha256: a7cd35085338de7097bfb97b9d6098163114d0f815f216ca9b337937df9280a9
+            bytes: 2097155
             units: metre
             up_axis: "Z"
             triangles: 32234
@@ -59,8 +59,8 @@ parts:
             bounding_box_max: [0.012262, 0.012259, -0.000003]
             license_file: swivel_caster_30mm/swivel_caster_30mm_wheel_support.stl.license
           swivel_caster_30mm/swivel_caster_30mm_wheel_support.dae:
-            sha256: 9270f89e4e1725b23fdaa62535eb71458d8562f742ef4d6699413552961b49c1
-            bytes: 666789
+            sha256: 43bf30f2b395ac6c3d7ff90bd93d82d6c84366d52a7d227d6b0dc3470eb5edbe
+            bytes: 845748
             units: metre
             up_axis: "Z"
             triangles: 12592
@@ -90,8 +90,8 @@ parts:
             bounding_box_max: [0.015000, 0.007800, 0.014996]
             license_file: swivel_caster_30mm/swivel_caster_30mm_wheel.stl.license
           swivel_caster_30mm/swivel_caster_30mm_wheel.dae:
-            sha256: 91eb9f177cc57792fdeeef474e201149a39b83f30c5aec2255f6ffd9766b6c90
-            bytes: 272290
+            sha256: d2a0daee3662eb96ed7395ef03795f7390457254430e83c84313e917592fa1f2
+            bytes: 351561
             units: metre
             up_axis: "Z"
             triangles: 5572
@@ -126,8 +126,8 @@ parts:
             bounding_box_max: [0.037850, 0.037845, 0.010950]
             license_file: rplidar_a2/rplidar_a2.stl.license
           rplidar_a2/rplidar_a2.dae:
-            sha256: 96997989645293f9d439ea9fc9092645f2b7877328daff3fff8a4dcf69e7c25c
-            bytes: 717679
+            sha256: c4d050771ddcca7c72816c758b5e3bf1adaa66b62eb66925eefd1bc6c3b12abd
+            bytes: 904010
             units: metre
             up_axis: "Z"
             triangles: 13014
@@ -162,8 +162,8 @@ parts:
             bounding_box_max: [0.035480, 0.035500, 0.009000]
             license_file: rplidar_a1/rplidar_a1.stl.license
           rplidar_a1/rplidar_a1.dae:
-            sha256: 95fe2625111abc2c980aba720482e9009c39ab67f99fc2e104f71933c7d504bd
-            bytes: 1442292
+            sha256: 6193dc53629088f49bab9da09daec537c24da4546f6c158c51428fa02cbdafe9
+            bytes: 1818103
             units: metre
             up_axis: "Z"
             triangles: 26826
@@ -198,8 +198,8 @@ parts:
             bounding_box_max: [0.050921, 0.045977, 0.016800]
             license_file: raspberry_pi_4b/raspberry_pi_4b.stl.license
           raspberry_pi_4b/raspberry_pi_4b.dae:
-            sha256: 2f34fbb393af58607e7626572b513d115f8daf4f84fa7c36a1cdd70f20b88103
-            bytes: 2539309
+            sha256: e5f37393e8af54b442e6649be965338ff123ccea00111a5833743d4200a03b03
+            bytes: 3054288
             units: metre
             up_axis: "Z"
             triangles: 36948
@@ -234,8 +234,8 @@ parts:
             bounding_box_max: [0.071018, 0.042223, 0.028250]
             license_file: jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.stl.license
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.dae:
-            sha256: 83786dd0584034260c0e64cb44784f36ff4c467a5ffb88a072a950af95877024
-            bytes: 2472443
+            sha256: ebc29e71e17ccaa0b3688658bc5329674e33be3900bc42b7d6ed4042b82007b8
+            bytes: 2982492
             units: metre
             up_axis: "Z"
             triangles: 37344
@@ -270,8 +270,8 @@ parts:
             bounding_box_max: [0.021631, 0.008858, 0.004355]
             license_file: teensy_4_0/teensy_4_0.stl.license
           teensy_4_0/teensy_4_0.dae:
-            sha256: 7c49e0b87bbed70536678d4bd772c1d1d1279f4f921c07cbdaa2d4d227c68f9f
-            bytes: 1654257
+            sha256: 3e0af7eef667395f1bcc300185b8cde34cb5af671844dbfbdae6abe2f6a4644e
+            bytes: 2020712
             units: metre
             up_axis: "Z"
             triangles: 25520
@@ -306,8 +306,8 @@ parts:
             bounding_box_max: [0.027090, 0.037105, 0.009530]
             license_file: breadboard_400_point/breadboard_400_point.stl.license
           breadboard_400_point/breadboard_400_point.dae:
-            sha256: 6440f270d8f55e9dc4f753cc3bac215ee1294dfe9f1bd7e165a6f534e8d90f5c
-            bytes: 427958
+            sha256: 3d3ba53ced423cd917592638c156c57a2d88ef0ab0df6946eb8b8974a511850d
+            bytes: 525705
             units: metre
             up_axis: "Z"
             triangles: 6768
@@ -342,8 +342,8 @@ parts:
             bounding_box_max: [0.004575, 0.012840, 0.011579]
             license_file: raspberry_pi_camera_v2/raspberry_pi_camera_v2.stl.license
           raspberry_pi_camera_v2/raspberry_pi_camera_v2.dae:
-            sha256: 8a1210620640df8917eee835da7d08390bf1c5313b334d4be6b1826e354e6316
-            bytes: 209190
+            sha256: ec8def17acc4afd3d2bdb2d4e5f38e7684b05309f44999be30e94977ab7f0b14
+            bytes: 245963
             units: metre
             up_axis: "Z"
             triangles: 2976
@@ -378,8 +378,8 @@ parts:
             bounding_box_max: [0.033299, 0.033298, 0.015420]
             license_file: tt_motor_wheel_65mm/tt_motor_wheel_65mm.stl.license
           tt_motor_wheel_65mm/tt_motor_wheel_65mm.dae:
-            sha256: d8963d7175efc8dd5d833ad580b470a9b7d783e37c6552b761da9df02f4d2a81
-            bytes: 5362322
+            sha256: 7dc1c587e428c204cbcf4ad55418747b1c2cff6fbc4669b486475a50ecdb3bb2
+            bytes: 7019047
             units: metre
             up_axis: "Z"
             triangles: 97550
