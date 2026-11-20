@@ -12,7 +12,7 @@ These are display models for visualisation in RViz, Gazebo and web viewers. They
 
 | Part | Picture | Meshes | Used by | Triangles | STL / DAE / GLB |
 |---|---|---|---|---|---|
-| [Swivel caster with a 30 mm wheel](provenance/swivel_caster_30mm.md) | <img src="docs/images/swivel_caster_30mm.png" width="200" alt="Swivel caster"> | `swivel_caster_30mm/swivel_caster_30mm_base`<br>`swivel_caster_30mm/swivel_caster_30mm_wheel_support`<br>`swivel_caster_30mm/swivel_caster_30mm_wheel` | DiffBot | 9,820<br>6,592<br>5,572 | 491 / 499 / 232 kB<br>330 / 337 / 153 kB<br>279 / 272 / 121 kB |
+| [Swivel caster with a 30 mm wheel](provenance/swivel_caster_30mm.md) | <img src="docs/images/swivel_caster_30mm.png" width="200" alt="Swivel caster"> | `swivel_caster_30mm/swivel_caster_30mm_base`<br>`swivel_caster_30mm/swivel_caster_30mm_wheel_support`<br>`swivel_caster_30mm/swivel_caster_30mm_wheel` | DiffBot | 32,234<br>12,592<br>5,572 | 1,612 / 1,579 / 656 kB<br>630 / 667 / 280 kB<br>279 / 272 / 121 kB |
 | [360 degree laser scanner, RPLIDAR A2 size](provenance/rplidar_a2.md) | <img src="docs/images/rplidar_a2.png" width="200" alt="Laser scanner"> | `rplidar_a2/rplidar_a2` | DiffBot, Remo | 13,014 | 651 / 718 / 332 kB |
 | [Raspberry Pi 4 Model B](provenance/raspberry_pi_4b.md) | <img src="docs/images/raspberry_pi_4b.png" width="200" alt="Raspberry Pi 4 Model B"> | `raspberry_pi_4b/raspberry_pi_4b` | Remo | 15,116 | 756 / 1,001 / 594 kB |
 | [Jetson Nano Developer Kit B01](provenance/jetson_nano_dev_kit_b01.md) | <img src="docs/images/jetson_nano_dev_kit_b01.png" width="200" alt="Jetson Nano Developer Kit"> | `jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01` | Remo | 5,696 | 285 / 396 / 252 kB |
@@ -166,9 +166,9 @@ Without the path, gz-sim spawns the robot, logs `Unable to find file with URI [m
 
 ### Tested so far
 
-- **ROS 1 Noetic, RViz and Gazebo Classic 11:** the COLLADA and STL files in DiffBot's and Remo's descriptions.
+- **ROS 1 Noetic, RViz and Gazebo Classic 11:** the COLLADA and STL files in DiffBot's and Remo's descriptions. The robots' drive wheels there are their own meshes, so the 65 mm wheel's files haven't been drawn in these scenes yet.
 - **ROS 2 Humble:** CI checks the package's build and install.
-- **ROS 2 Jazzy, RViz 2 and gz-sim:** the camera's STL file, and glTF files with the same shapes and with sRGB values as base colours. The 90° turn and the dark metals in the table above come from that test. VTK's glTF importer drew a few examples with linear base colours. RViz 2 and gz-sim haven't drawn the glTF files with linear base colours, the COLLADA files and the other STL files in a test yet.
+- **ROS 2 Jazzy, RViz 2 and gz-sim:** the camera's STL file, and the glTF files of an earlier version of nine meshes, with sRGB values as base colours: the caster's three, the laser scanner of the A2's size, the two boards, the Teensy, the breadboard and the camera. The 90° turn and the dark metals in the table above come from that test. VTK's glTF importer drew a few examples with linear base colours. RViz 2 and gz-sim haven't drawn the glTF files with linear base colours, the COLLADA files, the other STL files and the other parts' files in a test yet.
 
 ## Mesh conventions
 
