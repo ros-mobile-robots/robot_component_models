@@ -197,8 +197,9 @@ def jetson_figure() -> FrameFigure:
     """Return the Jetson kit's picture: the four holes, the carrier's bottom face."""
     kit = jetson_nano_dev_kit_b01
     holes = [(kit.BOARD_TO_MESH[0] - u, kit.BOARD_TO_MESH[1] - v, 0.0) for u, v in kit.HOLES]
+    # From the side, the picture shows the room under the module and the heatsink's fins
     return FrameFigure(
-        (TOP_VIEW, PORT_VIEW), holes,
+        (TOP_VIEW, View('From the side, +x towards the viewer', Y_AXIS, Z_AXIS)), holes,
         [Plane("carrier's bottom face, z = 0", Z_AXIS, 0.0)])
 
 
