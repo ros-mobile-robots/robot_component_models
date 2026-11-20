@@ -26,3 +26,6 @@ Changelog for package robot_component_models
   header, capacitors, J48, camera connectors and port widths after the photos
 * The CadQuery generators, each model's source references, meshes/manifest.yaml with checksums,
   units, frames and bounding boxes, and checks in CI
+* A display model of a 360 degree laser scanner of the RPLIDAR A1's size (A1M8), from the
+  datasheet's mechanical drawing: base, board, connectors, motor, pulley, belt, head and window
+  as sub-parts, z = 0 in the scan plane
