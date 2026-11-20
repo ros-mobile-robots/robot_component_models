@@ -38,6 +38,7 @@ from generators import jetson_nano_dev_kit_b01
 from generators import PARTS as GENERATED_PARTS
 from generators import raspberry_pi_4b
 from generators import raspberry_pi_camera_v2
+from generators import rplidar_a1
 from generators import rplidar_a2
 from generators import swivel_caster_30mm
 from generators import teensy_4_0
@@ -157,6 +158,30 @@ def scanner_figure() -> FrameFigure:
         [Plane(f'bottom, z = {bottom:g} mm', Z_AXIS, bottom)])
 
 
+def scanner_a1_figure() -> FrameFigure:
+    """Return the RPLIDAR A1's picture: its four holes, the mounting plane, the scan plane.
+
+    The labels name what hangs below the mounting plane, with the lowest z of each: the
+    motor, and the tallest part on the underside of the board under the base.
+    """
+    scanner = rplidar_a1
+    seat = scanner.z_at(scanner.BASE_BOTTOM)
+    holes = [(x, y, seat) for x, y in scanner.MOUNT_HOLES]
+    motor_bottom = scanner.z_at(scanner.MOTOR_BOSS[1])
+    part_x, part_y, _, part_height = scanner.ROUND_PART
+    parts_bottom = scanner.z_at(scanner.PCB_BOTTOM - part_height)
+    return FrameFigure(
+        (TOP_VIEW, SIDE_VIEW), holes,
+        [Plane('scan plane, z = 0', Z_AXIS, 0.0),
+         Plane(f"mounting bosses' underside, z = {seat:g} mm", Z_AXIS, seat)],
+        [Label('mounting boss', (scanner.MOUNT_HOLES[0][0], 0.0, seat + 0.5), (-60, 34)),
+         Label(f"board's parts, down to z = {parts_bottom:g} mm",
+               (part_x, part_y, parts_bottom + 1.0), (36, 58)),
+         Label(f'motor, down to z = {motor_bottom:g} mm',
+               (-scanner.MOTOR_OFFSET, 0.0, scanner.z_at(scanner.MOTOR_CAN[0]) + 6.0),
+               (-110, 62))])
+
+
 def raspberry_pi_figure() -> FrameFigure:
     """Return the Raspberry Pi's picture: the four holes, the board's faces."""
     board = raspberry_pi_4b
@@ -172,8 +197,9 @@ def jetson_figure() -> FrameFigure:
     """Return the Jetson kit's picture: the four holes, the carrier's bottom face."""
     kit = jetson_nano_dev_kit_b01
     holes = [(kit.BOARD_TO_MESH[0] - u, kit.BOARD_TO_MESH[1] - v, 0.0) for u, v in kit.HOLES]
+    # From the side, the picture shows the room under the module and the heatsink's fins
     return FrameFigure(
-        (TOP_VIEW, PORT_VIEW), holes,
+        (TOP_VIEW, View('From the side, +x towards the viewer', Y_AXIS, Z_AXIS)), holes,
         [Plane("carrier's bottom face, z = 0", Z_AXIS, 0.0)])
 
 
@@ -226,6 +252,7 @@ def wheel_figure() -> FrameFigure:
 FIGURES: Dict[str, Callable[[], FrameFigure]] = {
     'swivel_caster_30mm': caster_figure,
     'rplidar_a2': scanner_figure,
+    'rplidar_a1': scanner_a1_figure,
     'raspberry_pi_4b': raspberry_pi_figure,
     'jetson_nano_dev_kit_b01': jetson_figure,
     'teensy_4_0': teensy_figure,

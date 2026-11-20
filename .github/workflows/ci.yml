@@ -32,6 +32,12 @@ jobs:
         run: /opt/venv/bin/python -m generators --check --keep regenerated/first
       - name: Regenerate and compare with the manifest, second run
         run: /opt/venv/bin/python -m generators --check --keep regenerated/second
+      - name: Write the COLLADA files in millimetres into a folder of their own
+        run: /opt/venv/bin/python -m generators --millimetre-collada regenerated/millimetre
+      - name: Compare the millimetre COLLADA files with the files in metres
+        run: /opt/venv/bin/python scripts/check_millimetre_collada.py regenerated/millimetre
+      - name: Check that the millimetre option never changes an existing file
+        run: /opt/venv/bin/python scripts/check_millimetre_option.py
       - name: Keep the regenerated files of a failed run
         if: failure()
         uses: actions/upload-artifact@v7

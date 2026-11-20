@@ -9,6 +9,9 @@ Run from the repository's root, with the packages of generators/requirements.txt
   python3 -m generators --check               regenerate into a temporary folder, compare
   python3 -m generators --check --keep DIR    regenerate into the new folder DIR, compare,
                                               and keep the regenerated files there
+  python3 -m generators --millimetre-collada DIR
+                                              write only the COLLADA files, in millimetres,
+                                              into the new folder DIR (meshes/ stays in metres)
 
 Checking only reads meshes/. It never writes there: the regenerated files go into a temporary
 folder, or into a folder that the run creates outside meshes/. The temporary folder's place is
@@ -28,6 +31,7 @@ from typing import Sequence
 from generators import PARTS
 from generators.generation import EXTENSIONS
 from generators.generation import generate
+from generators.generation import generate_millimetre_collada
 from generators.generation import use_temporary_folder
 from generators.manifest import manifest_text
 from generators.manifest import sha256
@@ -86,8 +90,9 @@ def new_folder_path(folder: str) -> str:
 def create_output_folder(folder: str) -> str:
     """Create the new folder DIR for regenerated files and return its path.
 
-    The folder must lie outside meshes/ and must not exist yet. A folder that this run creates
-    holds no file and no link to one. So the regenerated files can't replace an existing file:
+    --check --keep and --millimetre-collada write into such a folder. The folder must lie
+    outside meshes/ and must not exist yet. A folder that this run creates holds no file and
+    no link to one. So the regenerated files can't replace an existing file:
     not a file in meshes/, not a copy of one somewhere else, and not through a symbolic or a
     hard link that an existing folder could hold. os.mkdir() creates the folder and fails if
     anything has its name already, also a symbolic link without a target.
@@ -191,9 +196,14 @@ def main() -> int:
     parser.add_argument('parts', nargs='*', metavar='PART',
                         help='parts to write (default: all, with the manifest): '
                         + ', '.join(PARTS))
-    parser.add_argument('--check', action='store_true',
-                        help='regenerate every part outside meshes/ and compare with meshes/, '
-                        'which is only read')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--check', action='store_true',
+                      help='regenerate every part outside meshes/ and compare with meshes/, '
+                      'which is only read')
+    mode.add_argument('--millimetre-collada', metavar='DIR',
+                      help='write only the COLLADA files, in millimetres and with that unit '
+                      'declared, into the new folder DIR, as DIR/<part>/<name>.dae. DIR must '
+                      'not exist yet and must lie outside meshes/, whose files stay in metres')
     parser.add_argument('--keep', metavar='DIR',
                         help='with --check: regenerate into the new folder DIR and keep the '
                         'files. DIR must not exist yet and must lie outside meshes/')
@@ -220,6 +230,14 @@ def main() -> int:
             except ValueError as problem:
                 parser.error(f'--keep: {problem}')
         return check(temporary, keep)
+    if args.millimetre_collada is not None:
+        try:
+            destination = create_output_folder(args.millimetre_collada)
+        except ValueError as problem:
+            parser.error(f'--millimetre-collada: {problem}')
+        written = generate_millimetre_collada(without_repeats(args.parts) or PARTS, destination)
+        print(f'COLLADA files written in millimetres: {len(written)}')
+        return 0
     parts = generate(without_repeats(args.parts) or PARTS, MESHES)
     if not args.parts:
         with open(MANIFEST, 'w', encoding='utf-8', newline='\n') as manifest:

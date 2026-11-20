@@ -12,6 +12,8 @@ so they don't share the generators' mistakes:
 - every file is in metres, and the COLLADA and glTF files have the STL file's triangles,
   corner for corner and with the same winding,
 - every COLLADA file is valid against the COLLADA 1.4.1 schema and loads in pycollada,
+- every COLLADA file gives each corner of its triangle lists its own normal, by an index of
+  the normal's own that equals the position's index,
 - every glTF file loads in trimesh, with the manifest's sub-parts as named nodes,
 - every file carries the manifest's license: SPDX lines in the COLLADA header, in a
   <file>.license next to each STL and glTF file.
@@ -31,7 +33,9 @@ from typing import Callable
 from typing import Dict
 from typing import List
 from typing import NamedTuple
+from typing import Optional
 from typing import Tuple
+from typing import Union
 import urllib.request
 
 import collada
@@ -43,6 +47,7 @@ import yaml
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MESHES = os.path.join(ROOT, 'meshes')
+COLLADA_NAMESPACE = 'http://www.collada.org/2005/11/COLLADASchema'
 SCHEMA_URL = 'https://www.khronos.org/files/collada_schema_1_4_1.xsd'
 SCHEMA_SHA256 = '49266165027329388e710ade6a424116570cda6776cbf3623f7b8c78c727b0ff'
 # The COLLADA schema imports the XML namespace schema for xml:base. This stand-in declares the
@@ -134,15 +139,38 @@ def glb_corners(path: str) -> np.ndarray:
 
 
 READERS = {'.stl': stl_corners, '.dae': dae_corners, '.glb': glb_corners}
-GEOMETRY: Dict[str, Geometry] = {}
+
+
+class UnreadableFile(Exception):
+    """A mesh file that its reader stopped on. Its problem is reported once per checked file."""
+
+
+def error_text(error: Exception) -> str:
+    """Return an error as its type and message, the type once: pycollada's messages have it."""
+    name = type(error).__name__
+    return str(error) if str(error).startswith(name) else f'{name}: {error}'
+
+
+GEOMETRY: Dict[str, Union[Geometry, UnreadableFile]] = {}
 
 
 def geometry(mesh_file: MeshFile) -> Geometry:
-    """Return the file's geometry, read once."""
+    """Return the file's geometry, read once.
+
+    Raise UnreadableFile if the reader stopped with an error: a damaged file can make
+    trimesh or pycollada raise any error. The error is kept, so the file is read only once.
+    """
     if mesh_file.path not in GEOMETRY:
         reader = READERS[os.path.splitext(mesh_file.path)[1]]
-        GEOMETRY[mesh_file.path] = Geometry(reader(file_path(mesh_file)))
-    return GEOMETRY[mesh_file.path]
+        try:
+            GEOMETRY[mesh_file.path] = Geometry(reader(file_path(mesh_file)))
+        except Exception as error:  # any reader error is a problem of the file
+            GEOMETRY[mesh_file.path] = UnreadableFile(
+                f"{mesh_file.path} can't be read: {error_text(error)}")
+    found = GEOMETRY[mesh_file.path]
+    if isinstance(found, UnreadableFile):
+        raise found
+    return found
 
 
 # ---------------------------------------------------------------------------------------------
@@ -297,7 +325,7 @@ def check_collada(mesh_file: MeshFile, schema: etree.XMLSchema) -> List[str]:
     problems = []
     if not schema.validate(document):
         problems.append(f'not valid COLLADA 1.4.1: {schema.error_log.last_error}')
-    namespace = {'c': 'http://www.collada.org/2005/11/COLLADASchema'}
+    namespace = {'c': COLLADA_NAMESPACE}
     if document.xpath('string(//c:asset/c:unit/@meter)', namespaces=namespace) != '1':
         problems.append('unit is not the metre')
     if document.xpath('string(//c:asset/c:up_axis)', namespaces=namespace) != 'Z_UP':
@@ -309,6 +337,156 @@ def check_collada(mesh_file: MeshFile, schema: etree.XMLSchema) -> List[str]:
     if list(nodes) != list(mesh_file.mesh['sub_parts']):
         problems.append(f'nodes {list(nodes)}, manifest {mesh_file.mesh["sub_parts"]}')
     return problems
+
+
+def whole_number(text: Optional[str]) -> Optional[int]:
+    """Return the text of a count, an offset or an index as a number, None if it isn't one.
+
+    The schema check reports such a value too. The normals' check reports it as a problem of
+    its own and goes on with the next file, instead of stopping the whole run.
+    """
+    try:
+        return int(text or '')
+    except ValueError:
+        return None
+
+
+def corner_index_problems(triangles: Any, vectors: int) -> List[str]:
+    """Return the problems of one <triangles> element's indices, for a mesh of that many vectors.
+
+    The writer gives a geometry one normal for each position. So every corner is a pair of
+    the same number: the index of its position, then the index of its normal. A pair of two
+    different numbers would give the corner the normal of another vertex.
+    """
+    name = f'<triangles material="{triangles.get("material")}">'
+    count = whole_number(triangles.get('count'))
+    numbers = [whole_number(text) for text in
+               (triangles.findtext(f'{{{COLLADA_NAMESPACE}}}p') or '').split()]
+    if count is None or None in numbers:
+        return [f"{name} has a count or indices that aren't whole numbers"]
+    corners = 3 * count
+    indices = np.array(numbers, dtype=np.int64)
+    if indices.size != 2 * corners:
+        return [f'{name} has {indices.size} indices, not a position and a normal index for '
+                f'each of its {corners} corners']
+    positions, normals = indices[0::2], indices[1::2]
+    problems = []
+    beyond = int(((indices < 0) | (indices >= vectors)).sum())
+    if beyond:
+        problems.append(f'{name} has {beyond} indices outside the {vectors} positions and '
+                        'normals of its mesh')
+    different = int((positions != normals).sum())
+    if different:
+        problems.append(f'{name} has {different} corners whose normal index differs from '
+                        'their position index')
+    return problems
+
+
+def input_list(element: Any) -> List[str]:
+    """Return the inputs of a <vertices> or <triangles> element as the file binds them.
+
+    Each input reads as its semantic, the source it takes its vectors from and, in a triangle
+    list, its offset in a corner's indices: 'NORMAL from #box-normals at offset 1'.
+    """
+    inputs = []
+    for bound in element.findall(f'{{{COLLADA_NAMESPACE}}}input'):
+        offset = bound.get('offset')
+        inputs.append(f'{bound.get("semantic")} from {bound.get("source")}'
+                      + ('' if offset is None else f' at offset {offset}'))
+    return inputs
+
+
+def source_vector_count(mesh: Any, source_id: str) -> Tuple[Optional[int], List[str]]:
+    """Return how many vectors the mesh's <source> with this id holds, and its problems.
+
+    The source's accessor has to read its vectors from the source's own array, three numbers
+    each, from the array's first number on. An accessor that named another source's array
+    would read that source's numbers, and one with an offset would read past the array's end.
+    The count is None if the mesh has no such source or the source has a problem.
+    """
+    namespace = {'c': COLLADA_NAMESPACE}
+    sources = mesh.xpath(f'c:source[@id="{source_id}"]', namespaces=namespace)
+    if len(sources) != 1:
+        return None, [f'the mesh has {len(sources)} sources with the id {source_id}, not one']
+    arrays = sources[0].findall('c:float_array', namespace)
+    accessors = sources[0].findall('c:technique_common/c:accessor', namespace)
+    if len(arrays) != 1 or len(accessors) != 1:
+        return None, [f'the source {source_id} has {len(arrays)} arrays and {len(accessors)} '
+                      'accessors, not one of each']
+    array, accessor = arrays[0], accessors[0]
+    # An accessor without an offset starts at the array's first number
+    vectors, size = whole_number(accessor.get('count')), whole_number(array.get('count'))
+    offset = whole_number(accessor.get('offset', '0'))
+    if vectors is None or size is None or offset is None:
+        return None, [f"the source {source_id}'s accessor count {accessor.get('count')!r}, "
+                      f"accessor offset {accessor.get('offset')!r} and array count "
+                      f"{array.get('count')!r} aren't all whole numbers"]
+    if accessor.get('source') != f'#{array.get("id")}' or array.get('id') is None:
+        return None, [f"the source {source_id}'s accessor reads {accessor.get('source')}, not "
+                      f"the source's own array #{array.get('id')}"]
+    if accessor.get('stride') != '3' or size != 3 * vectors:
+        return None, [f"the source {source_id}'s accessor reads {vectors} vectors with a "
+                      f"stride of {accessor.get('stride')} from an array of "
+                      f"{array.get('count')} numbers, not three numbers for each vector"]
+    if offset != 0:
+        return None, [f"the source {source_id}'s accessor starts at the array's number "
+                      f"{accessor.get('offset')}, not at its first number"]
+    return vectors, []
+
+
+def collada_normal_problems(document: Any) -> List[str]:
+    """Return the problems of a parsed COLLADA file's normals.
+
+    Gazebo Classic's COLLADA loader merges the vertices that share a position. It keeps the
+    corners of a sharp edge apart only when the normals are an input of <triangles> with an
+    offset of their own. With the normals as an input of <vertices>, it shades all the faces
+    around a sharp edge with the normal of one of them.
+
+    An input names the source that it takes its vectors from. A file can declare a NORMAL
+    input at the right offset and bind it to the positions' source: a viewer then reads the
+    positions as normals. So the check follows every reference. A geometry with the id G must
+    have, in its mesh:
+
+    1. the sources G-positions and G-normals, each read from its own array, with as many
+       normals as positions,
+    2. <vertices id="G-vertices"> with one input: POSITION from #G-positions,
+    3. in every <triangles>, VERTEX from #G-vertices at offset 0 and NORMAL from #G-normals
+       at offset 1, each once and no other input. The two may stand in either order: the
+       offsets say how the index pairs are read,
+    4. for every corner, its position's index and the same number as its normal's index,
+       both within the vectors of the two sources.
+    """
+    namespace = {'c': COLLADA_NAMESPACE}
+    problems = []
+    for geometry in document.xpath('//c:geometry', namespaces=namespace):
+        name = geometry.get('id')
+        for mesh in geometry.findall('c:mesh', namespace):
+            positions, position_problems = source_vector_count(mesh, f'{name}-positions')
+            normals, normal_problems = source_vector_count(mesh, f'{name}-normals')
+            problems += position_problems + normal_problems
+            if positions is not None and normals is not None and positions != normals:
+                problems.append(f'the mesh has {positions} positions and {normals} normals, '
+                                'not one normal for each position')
+            expected = [f'POSITION from #{name}-positions']
+            for vertices in mesh.findall('c:vertices', namespace):
+                if vertices.get('id') != f'{name}-vertices' or input_list(vertices) != expected:
+                    problems.append(f'<vertices id="{vertices.get("id")}"> has the inputs '
+                                    f'{input_list(vertices)}, not {expected} with the id '
+                                    f'{name}-vertices')
+            expected = [f'VERTEX from #{name}-vertices at offset 0',
+                        f'NORMAL from #{name}-normals at offset 1']
+            for triangles in mesh.findall('c:triangles', namespace):
+                if sorted(input_list(triangles)) != sorted(expected):
+                    problems.append(f'<triangles material="{triangles.get("material")}"> has '
+                                    f'the inputs {input_list(triangles)}, not {expected}')
+                elif positions is not None and positions == normals:
+                    problems += corner_index_problems(triangles, positions)
+    return problems
+
+
+def check_collada_normals(mesh_file: MeshFile) -> List[str]:
+    """Check that a COLLADA file gives every corner its own normal, by an index of its own."""
+    return collada_normal_problems(etree.parse(file_path(mesh_file)))
 
 
 def gltf_document(path: str) -> Dict[str, Any]:
@@ -356,8 +534,10 @@ def check_license(mesh_file: MeshFile) -> List[str]:
     return [] if found == expected else [f'{mesh_file.entry["license_file"]}: {found}']
 
 
-FILE_CHECKS: List[Check] = [check_checksum, check_triangle_count, check_bounding_box,
-                            check_units, check_same_triangles, check_closed, check_license]
+# The checks of every file: first those that read its bytes, then those that need its geometry
+FILE_CHECKS: List[Check] = [check_checksum, check_license]
+GEOMETRY_CHECKS: List[Check] = [check_triangle_count, check_bounding_box, check_units,
+                                check_same_triangles, check_closed]
 
 
 # ---------------------------------------------------------------------------------------------
@@ -401,6 +581,44 @@ def check_folder_contents(files: List[MeshFile]) -> List[str]:
             + [f'meshes/{path}: missing' for path in sorted(expected - found)])
 
 
+def file_checks(mesh_file: MeshFile, schema: etree.XMLSchema) -> List[Check]:
+    """Return the checks of one file, in their order.
+
+    The checks of the file's bytes and its structure come first, the checks that load its
+    geometry last. So a file that a reader can't load still gets its schema's and its
+    normals' diagnostics.
+    """
+    def check_collada_against_schema(mesh_file: MeshFile) -> List[str]:
+        """Check a COLLADA file against the schema, its unit, up axis and materials."""
+        return check_collada(mesh_file, schema)
+
+    structure: List[Check] = []
+    if mesh_file.path.endswith('.dae'):
+        structure = [check_collada_against_schema, check_collada_normals]
+    if mesh_file.path.endswith('.glb'):
+        structure = [check_gltf]
+    return FILE_CHECKS + structure + GEOMETRY_CHECKS
+
+
+def run_checks(mesh_file: MeshFile, checks: List[Check]) -> List[str]:
+    """Run the checks of one file and return its problems.
+
+    A check that stops with an error adds the error as a problem, and the other checks still
+    run. A file that its reader can't load is reported once, by the first check that needs
+    the geometry.
+    """
+    problems: List[str] = []
+    for check in checks:
+        try:
+            problems += check(mesh_file)
+        except UnreadableFile as error:
+            if str(error) not in problems:
+                problems.append(str(error))
+        except Exception as error:  # a damaged file can make a check raise anything
+            problems.append(f'{check.__name__} stopped: {error_text(error)}')
+    return problems
+
+
 def main() -> int:
     """Run every check and print the results."""
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -410,11 +628,7 @@ def main() -> int:
     schema = collada_schema(args.schema_dir)
     problems = check_folder_contents(files)
     for mesh_file in files:
-        found = [problem for check in FILE_CHECKS for problem in check(mesh_file)]
-        if mesh_file.path.endswith('.dae'):
-            found += check_collada(mesh_file, schema)
-        if mesh_file.path.endswith('.glb'):
-            found += check_gltf(mesh_file)
+        found = run_checks(mesh_file, file_checks(mesh_file, schema))
         print(f'{mesh_file.path}: ' + ('; '.join(found) if found else 'ok'))
         problems += [f'{mesh_file.path}: {problem}' for problem in found]
     print(f'{len(files)} files checked, {len(problems)} problems')

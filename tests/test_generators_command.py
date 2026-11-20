@@ -357,5 +357,25 @@ class ForkserverPartProcessesTest(TemporaryFolderSpellingTest):
     start_method = 'forkserver'
 
 
+class MillimetreOptionTest(GeneratorsCommandTest):
+    """--millimetre-collada DIR writes the COLLADA files in millimetres into the new folder."""
+
+    def test_millimetre_option_with_spawned_part_processes_writes_the_file(self) -> None:
+        """Run --millimetre-collada NEW with the part processes started by 'spawn'.
+
+        A spawned process imports the function that it runs by its module's name. The file
+        is written in millimetres, and meshes/ stays as it is.
+        """
+        destination = os.path.join(self.work, 'millimetre')
+
+        result = run_generators(self.repository, ['--millimetre-collada', destination],
+                                ENVIRONMENT, 'spawn')
+
+        self.assertEqual(result.returncode, PASSED, result.stderr)
+        with open(os.path.join(destination, PART, PART + '.dae'), encoding='utf-8') as written:
+            self.assertIn('<unit name="millimeter" meter="0.001"/>', written.read())
+        self.assert_reference_unchanged()
+
+
 if __name__ == '__main__':
     unittest.main()

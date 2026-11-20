@@ -19,28 +19,28 @@ parts:
         materials: [steel, brass]
         files:
           swivel_caster_30mm/swivel_caster_30mm_base.stl:
-            sha256: 653685cacbfc9f396a9437161beda99e3d8bc341bf8d382257c577159b3f090f
-            bytes: 491084
+            sha256: a147c31456b9978f972ea3f033f317b96c5baea447a8e1980464859ad574553c
+            bytes: 1611784
             units: metre
             up_axis: "Z"
-            triangles: 9820
+            triangles: 32234
             bounding_box_min: [-0.017000, -0.019000, -0.003300]
             bounding_box_max: [0.015000, 0.019000, 0.015000]
             license_file: swivel_caster_30mm/swivel_caster_30mm_base.stl.license
           swivel_caster_30mm/swivel_caster_30mm_base.dae:
-            sha256: 731a88d7a099bc83f56acfb84b8e2fade86e55cca536f873a4ef320285ea9891
-            bytes: 498915
+            sha256: a7cd35085338de7097bfb97b9d6098163114d0f815f216ca9b337937df9280a9
+            bytes: 2097155
             units: metre
             up_axis: "Z"
-            triangles: 9820
+            triangles: 32234
             bounding_box_min: [-0.017000, -0.019000, -0.003300]
             bounding_box_max: [0.015000, 0.019000, 0.015000]
           swivel_caster_30mm/swivel_caster_30mm_base.glb:
-            sha256: 8358a9f5010d97cfc2d72403acaddc88a3f6f03dafa4511a044c7abde3203e15
-            bytes: 231716
+            sha256: 600332044ea35e4a97db7dbe69f51d83f9cfdf8f53ec7d6c4ad2d5a7a050dc4a
+            bytes: 656100
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
-            triangles: 9820
+            triangles: 32234
             bounding_box_min: [-0.017000, -0.019000, -0.003300]
             bounding_box_max: [0.015000, 0.019000, 0.015000]
             license_file: swivel_caster_30mm/swivel_caster_30mm_base.glb.license
@@ -50,30 +50,30 @@ parts:
         materials: [steel, axle]
         files:
           swivel_caster_30mm/swivel_caster_30mm_wheel_support.stl:
-            sha256: 05874fb485a355205e3aeee4915a2dd2e911464ffdcc11619befa3a93a75f859
-            bytes: 329684
+            sha256: 6639c9cf321866a3408aa060653de8734f593aaa79dcbb151d4a266088c85e43
+            bytes: 629684
             units: metre
             up_axis: "Z"
-            triangles: 6592
-            bounding_box_min: [-0.020500, -0.012500, -0.024499]
-            bounding_box_max: [0.012985, 0.012500, 0.000000]
+            triangles: 12592
+            bounding_box_min: [-0.020750, -0.012250, -0.024748]
+            bounding_box_max: [0.012262, 0.012259, -0.000003]
             license_file: swivel_caster_30mm/swivel_caster_30mm_wheel_support.stl.license
           swivel_caster_30mm/swivel_caster_30mm_wheel_support.dae:
-            sha256: 59d58de163ac206742571024965672fa035982b5797f0f723bdf66ef89fbaca8
-            bytes: 336669
+            sha256: 43bf30f2b395ac6c3d7ff90bd93d82d6c84366d52a7d227d6b0dc3470eb5edbe
+            bytes: 845748
             units: metre
             up_axis: "Z"
-            triangles: 6592
-            bounding_box_min: [-0.020500, -0.012500, -0.024499]
-            bounding_box_max: [0.012985, 0.012500, 0.000000]
+            triangles: 12592
+            bounding_box_min: [-0.020750, -0.012250, -0.024748]
+            bounding_box_max: [0.012262, 0.012259, -0.000003]
           swivel_caster_30mm/swivel_caster_30mm_wheel_support.glb:
-            sha256: 51555bf7aa6320930d404dbcd4f884fdc11eda276c594843606bf0ae17aacdf1
-            bytes: 153376
+            sha256: de50fc10a92ed663fd8db1d5dd9caf1b5cd5fcc5eede65d1bad875b775c55135
+            bytes: 279872
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
-            triangles: 6592
-            bounding_box_min: [-0.020500, -0.012500, -0.024499]
-            bounding_box_max: [0.012985, 0.012500, 0.000000]
+            triangles: 12592
+            bounding_box_min: [-0.020750, -0.012250, -0.024748]
+            bounding_box_max: [0.012262, 0.012259, -0.000003]
             license_file: swivel_caster_30mm/swivel_caster_30mm_wheel_support.glb.license
       swivel_caster_30mm_wheel:
         frame: "Centred on the wheel's axle, the axle along y. Radius 15 mm."
@@ -90,16 +90,16 @@ parts:
             bounding_box_max: [0.015000, 0.007800, 0.014996]
             license_file: swivel_caster_30mm/swivel_caster_30mm_wheel.stl.license
           swivel_caster_30mm/swivel_caster_30mm_wheel.dae:
-            sha256: d10350855a113d204859adb2b871f102aabb5b1bbb718c25b4f973a5e4727efb
-            bytes: 272290
+            sha256: d2a0daee3662eb96ed7395ef03795f7390457254430e83c84313e917592fa1f2
+            bytes: 351561
             units: metre
             up_axis: "Z"
             triangles: 5572
             bounding_box_min: [-0.014985, -0.007800, -0.014996]
             bounding_box_max: [0.015000, 0.007800, 0.014996]
           swivel_caster_30mm/swivel_caster_30mm_wheel.glb:
-            sha256: 8e88c1de83d40fcbeb522d5bc56b24da61d6b21b9d8d86138ea6440cd1ec1435
-            bytes: 120816
+            sha256: d1be8004bdcc2e57793fd2e3f673b728b56e26ae4932ad768b0d922f78281126
+            bytes: 120812
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
             triangles: 5572
@@ -126,8 +126,8 @@ parts:
             bounding_box_max: [0.037850, 0.037845, 0.010950]
             license_file: rplidar_a2/rplidar_a2.stl.license
           rplidar_a2/rplidar_a2.dae:
-            sha256: 96997989645293f9d439ea9fc9092645f2b7877328daff3fff8a4dcf69e7c25c
-            bytes: 717679
+            sha256: c4d050771ddcca7c72816c758b5e3bf1adaa66b62eb66925eefd1bc6c3b12abd
+            bytes: 904010
             units: metre
             up_axis: "Z"
             triangles: 13014
@@ -142,6 +142,42 @@ parts:
             bounding_box_min: [-0.040850, -0.037845, -0.029850]
             bounding_box_max: [0.037850, 0.037845, 0.010950]
             license_file: rplidar_a2/rplidar_a2.glb.license
+  rplidar_a1:
+    title: "360 degree laser scanner, RPLIDAR A1 size"
+    generator: generators/rplidar_a1.py
+    provenance: provenance/rplidar_a1.md
+    meshes:
+      rplidar_a1:
+        frame: "The head's rotation axis along z at x = y = 0, z = 0 in the scan plane (42 mm above the motor's bottom), the base's round end towards +x, the motor's axis at x = -45.5 mm, the window's middle towards -x."
+        sub_parts: [base, pcb, connectors, motor, pulley, belt, head, window]
+        materials: [body, rubber, steel, screw, pcb, part, connector, contact, window]
+        files:
+          rplidar_a1/rplidar_a1.stl:
+            sha256: 4fd561709c9ad87cb67a4af128fc4a75774d8b4150055536c6bde0f40327421f
+            bytes: 1341384
+            units: metre
+            up_axis: "Z"
+            triangles: 26826
+            bounding_box_min: [-0.061600, -0.035500, -0.042000]
+            bounding_box_max: [0.035480, 0.035500, 0.009000]
+            license_file: rplidar_a1/rplidar_a1.stl.license
+          rplidar_a1/rplidar_a1.dae:
+            sha256: 6193dc53629088f49bab9da09daec537c24da4546f6c158c51428fa02cbdafe9
+            bytes: 1818103
+            units: metre
+            up_axis: "Z"
+            triangles: 26826
+            bounding_box_min: [-0.061600, -0.035500, -0.042000]
+            bounding_box_max: [0.035480, 0.035500, 0.009000]
+          rplidar_a1/rplidar_a1.glb:
+            sha256: 350264148545868c5e6b5191c4d84f39d220225ec9c1194715a16359ee92262a
+            bytes: 669868
+            units: metre
+            up_axis: "Y (the root node turns the Z-up vertex data)"
+            triangles: 26826
+            bounding_box_min: [-0.061600, -0.035500, -0.042000]
+            bounding_box_max: [0.035480, 0.035500, 0.009000]
+            license_file: rplidar_a1/rplidar_a1.glb.license
   raspberry_pi_4b:
     title: "Raspberry Pi 4 Model B"
     generator: generators/raspberry_pi_4b.py
@@ -149,32 +185,32 @@ parts:
     meshes:
       raspberry_pi_4b:
         frame: "The board's mid-plane at z = 0, the board from x = -7.569 to 48.431 mm and from y = -42.123 to 42.877 mm, the USB and Ethernet end at +y, the GPIO header along -x."
-        sub_parts: [board, headers, ethernet, usb_2, usb_3, usb_c, micro_hdmi, audio_jack, camera_connector, display_connector, chips, small_parts, bottom_side]
-        materials: [pcb_green, gold, silver, black, chip, ceramic, substrate, inductor, usb3_blue, latch_tan, led_red, led_green, led_yellow]
+        sub_parts: [board, gpio_header, poe_header, ethernet, usb_2, usb_3, usb_c, micro_hdmi_0, micro_hdmi_1, audio_jack, camera_connector, display_connector, soc_substrate, soc_die, soc_lid, ram, wireless_chip, wireless_shield, usb_controller, ethernet_phy, pmic, small_parts_top, small_parts_bottom, micro_sd_socket, solder_joints]
+        materials: [solder_mask_green, fr4_edge, gold, nickel, steel_lid, tin, black_plastic, chip, die, thermal_paste, ceramic, substrate, inductor, usb3_blue, cream_plastic, led_red, led_green, led_yellow]
         files:
           raspberry_pi_4b/raspberry_pi_4b.stl:
-            sha256: f2b1888faaa487b288f984b709e131536daa58d714c1eccd1addcf8ee87d4d42
-            bytes: 755884
+            sha256: 3f6041faf38411fe5403db9f5e286450f9ece8fa6017977f0706178b756365e1
+            bytes: 1847484
             units: metre
             up_axis: "Z"
-            triangles: 15116
+            triangles: 36948
             bounding_box_min: [-0.007569, -0.042123, -0.002800]
             bounding_box_max: [0.050921, 0.045977, 0.016800]
             license_file: raspberry_pi_4b/raspberry_pi_4b.stl.license
           raspberry_pi_4b/raspberry_pi_4b.dae:
-            sha256: 9237409dfb0bc00419eda5dacdf51ef1506ab16642c7ce3a198302bd6f4b577b
-            bytes: 1001437
+            sha256: e5f37393e8af54b442e6649be965338ff123ccea00111a5833743d4200a03b03
+            bytes: 3054288
             units: metre
             up_axis: "Z"
-            triangles: 15116
+            triangles: 36948
             bounding_box_min: [-0.007569, -0.042123, -0.002800]
             bounding_box_max: [0.050921, 0.045977, 0.016800]
           raspberry_pi_4b/raspberry_pi_4b.glb:
-            sha256: cecfcf20effa6a9156deff828f35306267c39d0722eeb7e01f7ab8b1098e6a4f
-            bytes: 594284
+            sha256: 1ce6e800eafd0cb65c111fe49ef555e029a6324abe3ce16bb49f2c137c3c37c6
+            bytes: 1484576
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
-            triangles: 15116
+            triangles: 36948
             bounding_box_min: [-0.007569, -0.042123, -0.002800]
             bounding_box_max: [0.050921, 0.045977, 0.016800]
             license_file: raspberry_pi_4b/raspberry_pi_4b.glb.license
@@ -185,32 +221,32 @@ parts:
     meshes:
       jetson_nano_dev_kit_b01:
         frame: "The carrier board's bottom face at z = 0, the carrier from x = -28.982 to 71.018 mm and from y = -38.847 to 40.153 mm, the port row at +y, the 40-pin header at -x."
-        sub_parts: [carrier, dc_jack, hdmi_dp, usb_stacks, ethernet, micro_usb, module, heatsink, carrier_parts, bottom_side]
-        materials: [pcb_black, module_green, heatsink, black, silver, gold, usb3_blue, white, latch_brown, led_green, led_yellow]
+        sub_parts: [carrier, dc_jack, hdmi_dp, usb_stack_j32, usb_stack_j33, ethernet, micro_usb, power_led, sodimm_connector, module_board, module_sd_slot, soc_substrate, soc_die, memory, module_power, thermal_pad, heatsink, heatsink_screws, module_standoffs, module_screws, carrier_screws, gpio_header, poe_header, power_select_header, fan_header, capacitors, camera_connector_j13, camera_connector_j49, m2_slot, m2_standoff, solder_joints]
+        materials: [solder_mask_black, fr4_edge, anodised_black, nickel, gold, tin, brass, black_plastic, chip, die, substrate, inductor, thermal_pad, usb3_blue, latch_brown, capacitor_stripe, led_green, led_yellow]
         files:
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.stl:
-            sha256: 9bd1a6f1fe97c3880f0f5a4b2c704ea87a74c2f616e5e7cc131a3850b64442bd
-            bytes: 284884
+            sha256: f476392a1a3319f0f7e9519af9c66a9a94af1e20b970affe5a950554ae51b72b
+            bytes: 1867284
             units: metre
             up_axis: "Z"
-            triangles: 5696
+            triangles: 37344
             bounding_box_min: [-0.028982, -0.038847, -0.001950]
             bounding_box_max: [0.071018, 0.042223, 0.028250]
             license_file: jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.stl.license
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.dae:
-            sha256: fa949486dd6bbb9733b0f37b020ceafef1bbcbba55e1d0e2f6a0206ebe3a851f
-            bytes: 395630
+            sha256: ebc29e71e17ccaa0b3688658bc5329674e33be3900bc42b7d6ed4042b82007b8
+            bytes: 2982492
             units: metre
             up_axis: "Z"
-            triangles: 5696
+            triangles: 37344
             bounding_box_min: [-0.028982, -0.038847, -0.001950]
             bounding_box_max: [0.071018, 0.042223, 0.028250]
           jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.glb:
-            sha256: 14fdb09a26928b59ad087590814f04f50e3e54283cf6d5622db00427b99977f2
-            bytes: 251836
+            sha256: 33a622653f9b77a333af0298566ebc73c804065c2767e03b5a8249138419ba2c
+            bytes: 1399600
             units: metre
             up_axis: "Y (the root node turns the Z-up vertex data)"
-            triangles: 5696
+            triangles: 37344
             bounding_box_min: [-0.028982, -0.038847, -0.001950]
             bounding_box_max: [0.071018, 0.042223, 0.028250]
             license_file: jetson_nano_dev_kit_b01/jetson_nano_dev_kit_b01.glb.license
@@ -234,8 +270,8 @@ parts:
             bounding_box_max: [0.021631, 0.008858, 0.004355]
             license_file: teensy_4_0/teensy_4_0.stl.license
           teensy_4_0/teensy_4_0.dae:
-            sha256: 7c49e0b87bbed70536678d4bd772c1d1d1279f4f921c07cbdaa2d4d227c68f9f
-            bytes: 1654257
+            sha256: 3e0af7eef667395f1bcc300185b8cde34cb5af671844dbfbdae6abe2f6a4644e
+            bytes: 2020712
             units: metre
             up_axis: "Z"
             triangles: 25520
@@ -270,8 +306,8 @@ parts:
             bounding_box_max: [0.027090, 0.037105, 0.009530]
             license_file: breadboard_400_point/breadboard_400_point.stl.license
           breadboard_400_point/breadboard_400_point.dae:
-            sha256: 6440f270d8f55e9dc4f753cc3bac215ee1294dfe9f1bd7e165a6f534e8d90f5c
-            bytes: 427958
+            sha256: 3d3ba53ced423cd917592638c156c57a2d88ef0ab0df6946eb8b8974a511850d
+            bytes: 525705
             units: metre
             up_axis: "Z"
             triangles: 6768
@@ -306,8 +342,8 @@ parts:
             bounding_box_max: [0.004575, 0.012840, 0.011579]
             license_file: raspberry_pi_camera_v2/raspberry_pi_camera_v2.stl.license
           raspberry_pi_camera_v2/raspberry_pi_camera_v2.dae:
-            sha256: 8a1210620640df8917eee835da7d08390bf1c5313b334d4be6b1826e354e6316
-            bytes: 209190
+            sha256: ec8def17acc4afd3d2bdb2d4e5f38e7684b05309f44999be30e94977ab7f0b14
+            bytes: 245963
             units: metre
             up_axis: "Z"
             triangles: 2976
@@ -342,8 +378,8 @@ parts:
             bounding_box_max: [0.033299, 0.033298, 0.015420]
             license_file: tt_motor_wheel_65mm/tt_motor_wheel_65mm.stl.license
           tt_motor_wheel_65mm/tt_motor_wheel_65mm.dae:
-            sha256: d8963d7175efc8dd5d833ad580b470a9b7d783e37c6552b761da9df02f4d2a81
-            bytes: 5362322
+            sha256: 7dc1c587e428c204cbcf4ad55418747b1c2cff6fbc4669b486475a50ecdb3bb2
+            bytes: 7019047
             units: metre
             up_axis: "Z"
             triangles: 97550
