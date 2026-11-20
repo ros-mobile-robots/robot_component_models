@@ -394,3 +394,39 @@ parts:
             bounding_box_min: [-0.033299, -0.033298, -0.013000]
             bounding_box_max: [0.033299, 0.033298, 0.015420]
             license_file: tt_motor_wheel_65mm/tt_motor_wheel_65mm.glb.license
+  dg01d_e_gearmotor:
+    title: "Gear motor with hall encoder, DG01D-E size"
+    generator: generators/dg01d_e_gearmotor.py
+    provenance: provenance/dg01d_e_gearmotor.md
+    meshes:
+      dg01d_e_gearmotor:
+        frame: "x along the motor, from the encoder's end at x = -39.975 mm to the mounting tab's end at +39.975 mm. y along the output shaft, which stands out of the gearbox's +y face. z across the gearbox's 22.4 mm height. The gearbox's middle planes are y = 0 and z = 0, and the output shaft's axis is at x = 23.765 mm, z = 0."
+        sub_parts: [gearbox, screws, shaft, motor_housing, motor_can, encoder_cover, encoder_board, connector]
+        materials: [blue_plastic, steel, motor_can, solder_mask_green, white_plastic, tin]
+        files:
+          dg01d_e_gearmotor/dg01d_e_gearmotor.stl:
+            sha256: dc83f502e297c6fd19b306e850f4bc1ebadcadd998763e2164ec77ad1293c232
+            bytes: 714484
+            units: metre
+            up_axis: "Z"
+            triangles: 14288
+            bounding_box_min: [-0.039975, -0.017815, -0.012600]
+            bounding_box_max: [0.039975, 0.018025, 0.012600]
+            license_file: dg01d_e_gearmotor/dg01d_e_gearmotor.stl.license
+          dg01d_e_gearmotor/dg01d_e_gearmotor.dae:
+            sha256: c6f060c9e464a194330401c25d247f819330dacec05d995d2000b8c33c9b0c25
+            bytes: 978669
+            units: metre
+            up_axis: "Z"
+            triangles: 14288
+            bounding_box_min: [-0.039975, -0.017815, -0.012600]
+            bounding_box_max: [0.039975, 0.018025, 0.012600]
+          dg01d_e_gearmotor/dg01d_e_gearmotor.glb:
+            sha256: b61e1bb433bd35e3f01a12ab32e6f871ae4f5145b07f4e0997660aabee0ef277
+            bytes: 375840
+            units: metre
+            up_axis: "Y (the root node turns the Z-up vertex data)"
+            triangles: 14288
+            bounding_box_min: [-0.039975, -0.017815, -0.012600]
+            bounding_box_max: [0.039975, 0.018025, 0.012600]
+            license_file: dg01d_e_gearmotor/dg01d_e_gearmotor.glb.license

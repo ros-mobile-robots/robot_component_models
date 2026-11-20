@@ -34,6 +34,7 @@ import vtk
 from vtk.util import numpy_support
 
 from generators import breadboard_400_point
+from generators import dg01d_e_gearmotor
 from generators import jetson_nano_dev_kit_b01
 from generators import PARTS as GENERATED_PARTS
 from generators import raspberry_pi_4b
@@ -249,6 +250,25 @@ def wheel_figure() -> FrameFigure:
         [Label(f"tube's end, z = +{tube_end:g} mm", on_tube_end, (14, -60))])
 
 
+def gearmotor_figure() -> FrameFigure:
+    """Return the gear motor's picture: the gearbox's holes, its shaft-side face, the shaft.
+
+    The rings mark the two mounting holes through the gearbox and the tab's hole, each at its
+    axis's point in the middle plane y = 0. The label names the output shaft's axis.
+    """
+    motor = dg01d_e_gearmotor
+    face = motor.GEARBOX_THICKNESS / 2
+    holes = [(motor.MOUNT_HOLE_X, 0.0, motor.MOUNT_HOLE_Z),
+             (motor.MOUNT_HOLE_X, 0.0, -motor.MOUNT_HOLE_Z), (motor.TAB_HOLE_X, 0.0, 0.0)]
+    shaft_end = (motor.SHAFT_X, face + motor.SHAFT_LENGTH, 0.0)
+    return FrameFigure(
+        (TOP_VIEW, View("From the shaft's side, +y towards the viewer", (-1.0, 0.0, 0.0),
+                        Z_AXIS)),
+        holes,
+        [Plane(f'shaft-side face, y = +{face:g} mm', Y_AXIS, face)],
+        [Label(f"output shaft's axis, x = +{motor.SHAFT_X:g} mm", shaft_end, (-120, -96))])
+
+
 FIGURES: Dict[str, Callable[[], FrameFigure]] = {
     'swivel_caster_30mm': caster_figure,
     'rplidar_a2': scanner_figure,
@@ -259,6 +279,7 @@ FIGURES: Dict[str, Callable[[], FrameFigure]] = {
     'breadboard_400_point': breadboard_figure,
     'raspberry_pi_camera_v2': camera_figure,
     'tt_motor_wheel_65mm': wheel_figure,
+    'dg01d_e_gearmotor': gearmotor_figure,
 }
 
 
