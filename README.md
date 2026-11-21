@@ -21,6 +21,7 @@ These are display models for visualisation in RViz, Gazebo and web viewers. They
 | [400-point solderless breadboard](provenance/breadboard_400_point.md) | <img src="docs/images/breadboard_400_point.png" width="200" alt="Breadboard"> | `breadboard_400_point/breadboard_400_point` | Remo | 6,768 | 338 / 526 / 290 kB |
 | [Raspberry Pi Camera Module v2](provenance/raspberry_pi_camera_v2.md) | <img src="docs/images/raspberry_pi_camera_v2.png" width="200" alt="Camera Module v2"> | `raspberry_pi_camera_v2/raspberry_pi_camera_v2` | Remo | 2,976 | 149 / 246 / 116 kB |
 | [Wheel 65 mm for TT gear motors](provenance/tt_motor_wheel_65mm.md) | <img src="docs/images/tt_motor_wheel_65mm.png" width="200" alt="Wheel"> | `tt_motor_wheel_65mm/tt_motor_wheel_65mm` | DiffBot, Remo | 97,550 | 4,878 / 7,019 / 2,194 kB |
+| [Gear motor with hall encoder, DG01D-E size](provenance/dg01d_e_gearmotor.md) | <img src="docs/images/dg01d_e_gearmotor.png" width="200" alt="Gear motor"> | `dg01d_e_gearmotor/dg01d_e_gearmotor` | Not yet (the motor of DiffBot and Remo) | 15,596 | 780 / 1,060 / 400 kB |
 
 Each mesh comes in three files in `meshes/<part>/`, all in metres:
 
@@ -167,14 +168,14 @@ Without the path, gz-sim spawns the robot, logs `Unable to find file with URI [m
 
 ### Tested so far
 
-- **ROS 1 Noetic, RViz 1.14 and Gazebo Classic 11:** the COLLADA and STL files in DiffBot's and Remo's descriptions. The robots' drive wheels there are their own meshes, so the 65 mm wheel's files haven't been drawn in these scenes yet.
-- **ROS 2 Humble, RViz 2 and Gazebo Fortress:** CI checks the package's build and install. Both viewers drew the camera and the Teensy from their COLLADA files. Their mesh loaders read nine COLLADA files with every corner at the file's position, and the nine STL files of that test with the triangle counts and bounding boxes that the manifest gave for those files. These nine meshes are those of the parts other than the 65 mm wheel and the A1. The laser scanner of the A2's size, the Teensy, the breadboard and the camera were tested with the COLLADA files of this version. The caster's three meshes and the two boards were tested in an earlier version, with other materials, and the caster's base and wheel support and the two boards also with other shapes.
+- **ROS 1 Noetic, RViz 1.14 and Gazebo Classic 11:** the COLLADA and STL files in DiffBot's and Remo's descriptions. The robots' drive wheels there are their own meshes, so the 65 mm wheel's files haven't been drawn in these scenes yet. The gear motor's COLLADA and STL files were drawn on the motor links of test copies of both descriptions.
+- **ROS 2 Humble, RViz 2 and Gazebo Fortress:** CI checks the package's build and install. Both viewers drew the camera and the Teensy from their COLLADA files. Their mesh loaders read nine COLLADA files with every corner at the file's position, and the nine STL files of that test with the triangle counts and bounding boxes that the manifest gave for those files. These nine meshes are those of the parts other than the 65 mm wheel, the A1 and the gear motor. The laser scanner of the A2's size, the Teensy, the breadboard and the camera were tested with the COLLADA files of this version. The caster's three meshes and the two boards were tested in an earlier version, with other materials, and the caster's base and wheel support and the two boards also with other shapes.
 - **ROS 2 Jazzy, RViz 2 and gz-sim 8:**
     - **Drawn from the COLLADA files:** the same nine meshes, each on its own and all nine in one scene.
     - **Drawn from an STL file:** the camera. The other STL files haven't been drawn there in a test yet.
     - **Read by the viewers' mesh loaders:** the same nine COLLADA files, and the COLLADA files of this version of the A1 and of the caster's base and wheel support, each with every corner at the file's position. Also the nine STL files of that test, with the triangle counts and bounding boxes that the manifest gave for those files.
     - **The glTF files:** an earlier version of the same nine meshes' glTF files, drawn with sRGB values as base colours. The 90° turn and the dark metals in the table above come from that test. VTK's glTF importer drew a few examples with linear base colours. RViz 2 and gz-sim haven't drawn the glTF files with linear base colours in a test yet.
-    - **The 65 mm wheel's and the A1's files** haven't been drawn there in a test yet.
+    - **The 65 mm wheel's, the A1's and the gear motor's files** haven't been drawn there in a test yet.
 
 The robots' descriptions are ROS 1 packages, so test models with these meshes stand in for them in the ROS 2 tests.
 
@@ -198,6 +199,7 @@ Each mesh has its own local frame, Z up. The origin isn't always the part's cent
 - [Laser scanner, RPLIDAR A1 size](provenance/rplidar_a1.md#frame): the head's rotation axis along z, z = 0 in the scan plane, the motor's axis at x = -45.5 mm.
 - [Camera Module v2](provenance/raspberry_pi_camera_v2.md#frame): the board in the yz plane, the lens looking along +x.
 - [Swivel caster](provenance/swivel_caster_30mm.md#frames): the base's swivel axis at x = -1 mm, the fork's axle along y at x = -16 mm, z = -20 mm.
+- [Gear motor, DG01D-E size](provenance/dg01d_e_gearmotor.md#frame): x along the motor, the output shaft along +y at x = 23.765 mm, z = 0 in the gearbox's middle plane.
 
 Every mesh's frame is described in the manifest (`frame`) and in the Frame section of its provenance page. That section starts with a picture of the frame: the origin, the positive axes, a ring around each mounting hole and a line at the mounting plane. The manifest's bounding boxes are in this local frame.
 

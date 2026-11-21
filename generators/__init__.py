@@ -18,4 +18,5 @@ PARTS = (
     'breadboard_400_point',
     'raspberry_pi_camera_v2',
     'tt_motor_wheel_65mm',
+    'dg01d_e_gearmotor',
 )
