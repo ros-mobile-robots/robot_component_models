@@ -2,6 +2,14 @@
 Changelog for package robot_component_models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.0 (forthcoming)
+-------------------
+* A display model of the DG01D-E gear motor with its hall encoder, the motor of DiffBot and
+  Remo: the gearbox with the output shaft and the mounting tab, the round motor housing with its
+  vents, the D-shaped encoder cover with the six-pin connector, as eight sub-parts. Dimensions
+  from SparkFun's drawing DS-16413, from measurements of the motor made for Remo's design and
+  from a motor measured with a caliper
+
 1.0.0 (2026-11-20)
 ------------------
 * The first release: display models of DiffBot's swivel caster (three meshes), a 360 degree

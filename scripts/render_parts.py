@@ -81,13 +81,18 @@ PARTS: Dict[str, PartView] = {
     'tt_motor_wheel_65mm': PartView(
         'Wheel 65 mm', [Placement('tt_motor_wheel_65mm/tt_motor_wheel_65mm.dae', roll=90.0)],
         60.0, 15.0),
+    # The gear motor lies as in the robots: the shaft's side and the encoder's end to the camera
+    'dg01d_e_gearmotor': PartView(
+        'Gear motor (DG01D-E size)', [Placement('dg01d_e_gearmotor/dg01d_e_gearmotor.dae')],
+        125.0, 24.0),
 }
 # All parts together, real size, as seen from the overview's camera: back row, then front row,
 # each part turned so that its typical side faces the camera.
 OVERVIEW_AZIMUTH, OVERVIEW_ELEVATION = -90.0, 32.0
 OVERVIEW_ROWS = [
     [('jetson_nano_dev_kit_b01', 180.0), ('raspberry_pi_4b', 180.0),
-     ('breadboard_400_point', 90.0), ('tt_motor_wheel_65mm', 180.0)],
+     ('breadboard_400_point', 90.0), ('tt_motor_wheel_65mm', 180.0),
+     ('dg01d_e_gearmotor', 180.0)],
     [('raspberry_pi_camera_v2', -90.0), ('teensy_4_0', 0.0), ('swivel_caster_30mm', -30.0),
      ('rplidar_a2', -90.0), ('rplidar_a1', 55.0)],
 ]
